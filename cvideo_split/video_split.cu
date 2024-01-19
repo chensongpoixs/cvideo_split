@@ -1,73 +1,73 @@
-//#include <iostream>
+ï»¿//#include <iostream>
 //#include <opencv2/core.hpp>
 //#include <opencv2/highgui.hpp>
 //#include <opencv2/imgproc.hpp>
 //
 //__global__ void cropImage(const cv::Mat srcImg, int xOffset, int yOffset, int width, int height) {
-//     »ñÈ¡µ±Ç°Ïß³ÌË÷Òı
+//     è·å–å½“å‰çº¿ç¨‹ç´¢å¼•
 //    const int threadIdx = blockDim.x * blockIdx.y + blockIdx.x;
 //
 //    if (threadIdx >= width * height) return;
 //
-//     ¼ÆËãÔ­Ê¼Í¼ÏñÉÏÃ¿¸öÏñËØµãµÄÎ»ÖÃ
+//     è®¡ç®—åŸå§‹å›¾åƒä¸Šæ¯ä¸ªåƒç´ ç‚¹çš„ä½ç½®
 //    int row = threadIdx / width;
 //    int col = threadIdx % width;
 //
-//     ¸ù¾İÆ«ÒÆÁ¿µ÷ÕûĞÂÍ¼ÏñÉÏµÄÎ»ÖÃ
+//     æ ¹æ®åç§»é‡è°ƒæ•´æ–°å›¾åƒä¸Šçš„ä½ç½®
 //    int newRow = row - yOffset;
 //    int newCol = col - xOffset;
 //
-//     ÅĞ¶ÏĞÂÎ»ÖÃÊÇ·ñÔ½½ç
+//     åˆ¤æ–­æ–°ä½ç½®æ˜¯å¦è¶Šç•Œ
 //    if ((newRow >= 0 && newRow < height) && (newCol >= 0 && newCol < width)) {
-//         ½«Ô­Ê¼Í¼ÏñÉÏµÄÏñËØÖµ¸´ÖÆµ½ĞÂÍ¼ÏñÉÏÏàÓ¦Î»ÖÃ
+//         å°†åŸå§‹å›¾åƒä¸Šçš„åƒç´ å€¼å¤åˆ¶åˆ°æ–°å›¾åƒä¸Šç›¸åº”ä½ç½®
 //        dstImg.at<uchar>(row, col) = srcImg.at<uchar>(newRow, newCol);
 //    }
 //    else {
-//         ÉèÖÃ³¬³ö±ß½ç²¿·ÖÎªºÚÉ«
+//         è®¾ç½®è¶…å‡ºè¾¹ç•Œéƒ¨åˆ†ä¸ºé»‘è‰²
 //        dstImg.at<uchar>(row, col) = 0;
 //    }
 //}
 //
 //int main() {
-//     ¼ÓÔØÔ´Í¼Ïñ
+//     åŠ è½½æºå›¾åƒ
 //    cv::Mat srcImg = cv::imread("input_image.jpg", cv::IMREAD_GRAYSCALE);
 //
-//     ¶¨Òå²Ã¼ôÇøÓòµÄÆğÊ¼×ø±êºÍ´óĞ¡
+//     å®šä¹‰è£å‰ªåŒºåŸŸçš„èµ·å§‹åæ ‡å’Œå¤§å°
 //    int xOffset = 100;
 //    int yOffset = 50;
 //    int width = 300;
 //    int height = 200;
 //
-//     ´´½¨Ä¿±êÍ¼Ïñ
+//     åˆ›å»ºç›®æ ‡å›¾åƒ
 //    cv::Mat dstImg(srcImg.rows, srcImg.cols, CV_8UC1);
 //
-//     ÅäÖÃCUDAÄÚ´æ
+//     é…ç½®CUDAå†…å­˜
 //    uchar* devSrcPtr;
 //    uchar* devDstPtr;
 //    size_t imgSize = srcImg.total() * sizeof(uchar);
 //    cudaMalloc((void**)&devSrcPtr, imgSize);
 //    cudaMalloc((void**)&devDstPtr, imgSize);
 //
-//     ½«Ô´Í¼Ïñ´ÓÖ÷»úÄÚ´æ´«Êäµ½Éè±¸ÄÚ´æ
+//     å°†æºå›¾åƒä»ä¸»æœºå†…å­˜ä¼ è¾“åˆ°è®¾å¤‡å†…å­˜
 //    cudaMemcpy(devSrcPtr, srcImg.data, imgSize, cudaMemcpyHostToDevice);
 //
-//     ¶¨ÒåÍø¸ñºÍÏß³Ì¿éµÄ´óĞ¡
+//     å®šä¹‰ç½‘æ ¼å’Œçº¿ç¨‹å—çš„å¤§å°
 //    cv::dim3 gridSize((width + BLOCK_SIZE - 1) / BLOCK_SIZE, (height + BLOCK_SIZE - 1) / BLOCK_SIZE);
 //    cv::dim3 blockSize(BLOCK_SIZE, BLOCK_SIZE);
 //
-//     ÔËĞĞCUDA kernelº¯Êı½øĞĞÍ¼Ïñ²Ã¼ô
+//     è¿è¡ŒCUDA kernelå‡½æ•°è¿›è¡Œå›¾åƒè£å‰ª
 //    cropImage << <gridSize, blockSize >> > (devSrcPtr, xOffset, yOffset, width, height);
 //
-//     µÈ´ıËùÓĞÈÎÎñÍê³É
+//     ç­‰å¾…æ‰€æœ‰ä»»åŠ¡å®Œæˆ
 //    cudaDeviceSynchronize();
 //
-//     ½«½á¹û´ÓÉè±¸ÄÚ´æ´«Êä»ØÖ÷»úÄÚ´æ
+//     å°†ç»“æœä»è®¾å¤‡å†…å­˜ä¼ è¾“å›ä¸»æœºå†…å­˜
 //    cudaMemcpy(dstImg.data, devDstPtr, imgSize, cudaMemcpyDeviceToHost);
 //
-//     ±£´æ²Ã¼ôºóµÄÍ¼Ïñ
+//     ä¿å­˜è£å‰ªåçš„å›¾åƒ
 //    cv::imwrite("output_image.jpg", dstImg);
 //
-//     Çå³ıCUDAÄÚ´æ
+//     æ¸…é™¤CUDAå†…å­˜
 //    cudaFree(devSrcPtr);
 //    cudaFree(devDstPtr);
 //
