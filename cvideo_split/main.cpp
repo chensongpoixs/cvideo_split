@@ -10,6 +10,9 @@
 //#include <opencv2/cudacodec.hpp>
 #include "cdecode.h"
 #include <cstdlib>
+
+//#pragma comment(lib, "opencv_world460.lib")
+//#pragma comment(lib, "opencv_img_hash460.lib")
 //#pragma comment(lib, "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\lib\x64\cudart_static.lib")
 
 
@@ -158,21 +161,37 @@ bool mat_copy_rect(const unsigned char * src_y, const unsigned char* src_u, cons
 
 
 
-	 
+	 /*
+	 Y数据， 分辨率: 1920x1080
+	 U数据， 分辨率: 960x540
+	 V数据， 分辨率: 960x540
+	 */
 
 
 
 
-	for (int h = y; (h < y + dst_height) && (h < src_height); ++h)
+	for (int h = y; (h <= y + dst_height) && (h < src_height); ++h)
 	{
 		
-		memcpy((*dst_data) + (((h - y) *   ((dst_width / 2) + dst_width))),
-			src_y + (h * src_width) + x, dst_width);
-		memcpy((*dst_data) + (((h - y) * ((dst_width / 2) + dst_width) + dst_width)  ),
-			src_u + (((h - y) * (src_width / 4))  ), dst_width/4);
-		memcpy((*dst_data) + (((h - y) * ((dst_width / 2) + dst_width) + dst_width + (dst_width/4))),
-			src_v + (((h - y) * (src_width / 4))  ), dst_width / 4);
-		//memcpy((*dst_data) + (((h - y) * dst_width) + (dst_width / 2) * (h - y) / 2) + dst_width/2 + dst_width, src_v + ((h/2) * src_width /2) + x / 2, dst_width / 2);
+		memcpy((*dst_data) + (((h - y) *   (   + dst_width))),
+			src_y + ((h * src_width) + x), dst_width);
+
+
+
+		if (h >= (src_height / 2))
+		{
+			continue;
+		}
+		//int uv_width = 
+		// memcpy((*dst_data) +  ((dst_height * dst_width) + ((h-y) * (dst_width/2))),
+		//	src_u + (((h - y) * (src_width / 2)) + (x/4) ), dst_width/2);
+ 		//
+		//
+		//
+		//
+		// memcpy((*dst_data) + ((dst_height * dst_width) +(dst_width * dst_height /4) + ((h - y) * (dst_width / 2))),
+		//	src_v + (((h - y) * (src_width / 2))+ (x/4)  ), dst_width / 2);
+		// //memcpy((*dst_data) + (((h - y) * dst_width) + (dst_width / 2) * (h - y) / 2) + dst_width/2 + dst_width, src_v + ((h/2) * src_width /2) + x / 2, dst_width / 2);
 
 	}
 
@@ -214,11 +233,17 @@ int main(int argc, char* argv[])
 			decode.seek(0);
 			goto retry;
 		}
+		//printf("[%u][%u][%u]\n", frame->linesize[0], frame->linesize[1], frame->linesize[2]);
 		mat_copy_rect(frame->data[0], frame->data[1], frame->data[2], decode.get_width(), decode.get_height(), x, y, &buffer, width, height);
+		unsigned char* u_ptr = buffer + (width * height);
+		mat_copy_rect(frame->data[1], frame->data[1], frame->data[2], decode.get_width()/2, decode.get_height()/2, x/2, y/2, &u_ptr, width/2, height/2);
+		unsigned char* v_ptr = buffer + (width * height) + (width * height / 4);
+		mat_copy_rect(frame->data[2], frame->data[1], frame->data[2], decode.get_width() / 2, decode.get_height() / 2, x / 2, y / 2, &v_ptr, width / 2, height / 2);
+
 		//::fwrite(frame->data[0], 1, decode.get_width() * decode.get_height(), out_file_ptr);
-		// ::fwrite(frame->data[1], 1, decode.get_width() * decode.get_height()/4, out_file_ptr);
-		// ::fwrite(frame->data[2], 1, decode.get_width() * decode.get_height()/4, out_file_ptr;
-		 ::fwrite(buffer, 1, (width * height)/2 + (width * height), out_file_ptr);
+		 //::fwrite(frame->data[1], 1, decode.get_width() * decode.get_height()/4, out_file_ptr);
+		// ::fwrite(frame->data[2], 1, decode.get_width() * decode.get_height()/4, out_file_ptr);
+		 ::fwrite(buffer, 1, ( ((width * height) / 2) +  (width * height)), out_file_ptr);
 		 ::fflush(out_file_ptr);
 	}
 
