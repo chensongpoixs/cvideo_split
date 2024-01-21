@@ -57,4 +57,39 @@ ffmpeg.exe -re -stream_loop -1 -i .\JFLA.mp4 -vcodec copy -pkt_size 1300 -f h264
 ffplay.exe -f h264 "udp://192.168.22.119:10189" -fflags nobuffer -nofind_stream_info
 ```
 
+
+
+
+```
+ffmpeg.exe -re -stream_loop -1 -i C:\test_01.mp4 -vcodec copy -pkt_size 1400 -f h264 "udp://239.255.255.250:54546"
+```
+
+推一个MP4到本机的组播地址（netsh interface ipv4 show joins  查看win本机的组播地址）
+
  
+
+从这个组播地址拉流，注意不是组播分发出去再拉回来，相当于这里是拉“推给组播地址的原始流”：
+
+```
+ffplay.exe -f h264 "udp://239.255.255.250:54546" -fflags nobuffer -nofind_stream_info
+```
+
+因为组播地址不具备存储功能，所以拉流要等到有I帧才显示；
+
+
+![](./img/rtp_ts.png)
+
+ 
+
+UDP TS 组播推流
+
+```
+ffmpeg.exe -re -stream_loop -1 -i C:\U_01.mp4 -f mpegts  "udp://239.255.255.250:54546"
+```
+
+注意这里发出去的TS包并不是严格的188字节，而是188字节的整数倍；可能一次发送好几个TS包也是正常的
+ 
+ 
+```
+ ffplay.exe -i "udp://239.255.255.250:54546" -fflags nobuffer -nofind_stream_info
+```
