@@ -35,12 +35,31 @@ namespace chen {
 		EFormatYuv420P,
 	};
 
-
-	bool rect_mem_copy(const unsigned char* data, int src_width, int src_height,
+	/**
+	* 从src_data画面中拷贝出矩阵到新的rect_data中矩阵中
+	* @param src_data: 需要拷贝数据
+	* @param src_width: 原始数据的宽度
+	* @param src_height: 原始数据的高度
+	* @param rect_data: 新矩阵的数据
+	* @param rect_width: 新的矩阵的宽度
+	* @param rect_height: 新的矩阵的高度
+	* @param src_x : 原始数据x坐标的开始位置
+	* @param src_y : 原始数据y坐标的开始位置
+	* @param rect_x: 新的矩阵数据x坐标开始位置
+	* @param rect_y: 新的矩阵数据y坐标开始位置
+	* @param dst_width: 需要拷贝画面宽度
+	* @param dst_height: 需要拷贝画面高度
+	* @param EFormatType: 像素格式
+	* return 返回值 是否成功
+	*/
+	bool rect_mem_copy(const unsigned char* src_data, int src_width, int src_height,
 		unsigned char** rect_data, int rect_width, int rect_height,
 		int src_x, int src_y, int rect_x, int rect_y, int dst_width, int dst_height, EFormatType type);
 
 
+
+
+	void test_rect_mem_copy(const char * input_h264, const char * out_file_yuv);
 }
 
 #endif // _C_RECT_MEM_COPY_H_

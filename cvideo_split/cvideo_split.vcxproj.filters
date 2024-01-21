@@ -19,6 +19,9 @@
     <Filter Include="decode">
       <UniqueIdentifier>{3a19c572-6e98-4947-9842-e13fd4c2fb12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="rect_mem">
+      <UniqueIdentifier>{0a9cb632-d45e-4b7b-af42-533123281590}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -26,6 +29,9 @@
     </ClCompile>
     <ClCompile Include="cdecode.cpp">
       <Filter>decode</Filter>
+    </ClCompile>
+    <ClCompile Include="crect_mem_copy.cpp">
+      <Filter>rect_mem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +42,9 @@
   <ItemGroup>
     <ClInclude Include="cdecode.h">
       <Filter>decode</Filter>
+    </ClInclude>
+    <ClInclude Include="crect_mem_copy.h">
+      <Filter>rect_mem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

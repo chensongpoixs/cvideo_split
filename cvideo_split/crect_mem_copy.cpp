@@ -26,7 +26,9 @@ purpose:		rect_mem_copy
 #include "crect_mem_copy.h"
 #include <cstdio>
 #include <cstdlib>
+#include "cdecode.h"
 #include <cstring>
+#include <string>
 namespace chen {
 	bool rect_mem_copy(const unsigned char* data, int src_width, int src_height,
 		unsigned char** rect_data, int rect_width, int rect_height,
@@ -50,4 +52,84 @@ namespace chen {
 		return true;
 		return true;
 	}
+	void test_rect_mem_copy(const char* input_h264, const char* out_file_yuv)
+	{
+		chen::cdecode decode;
+		 
+		if (!decode.init(input_h264))
+		{
+			printf("[decodec init = = %s]failed !!!\n", input_h264);
+			return ;
+		}
+		AVFrame* frame = NULL;
+		FILE* out_file_ptr = ::fopen(out_file_yuv, "wb+");
+		 
+		//当前画面开始位置的坐标拷贝
+		int x = 400; // 
+		int y = 400;
+		// 需要拷贝画面的宽度和高度
+		int width = 400;
+		int height = 400;
+		// 需要拷贝到新的画面矩阵的宽度和高度
+		int rect_width = 1600;
+		int rect_height = 880;
+		// 需要拷贝到新的画面位置开始位置的坐标
+		int rect_x = 200;
+		int rect_y = 200;
+
+		unsigned char* buffer = reinterpret_cast<unsigned char*>(malloc(sizeof(unsigned char) * rect_width * rect_height * 4));
+		while (true)
+		{
+		 
+			int ret = decode.retrieve(frame);
+			if (ret < 0)
+			{
+				break;
+				
+			}
+			//读取文件结束位置了
+			if (ret == 0)
+			{
+				break; 
+			}
+			 
+			 
+			{ 
+				rect_mem_copy(frame->data[0], decode.get_width(), decode.get_height(),
+					&buffer, rect_width, rect_height, x, y, rect_x, rect_y, width, height, EFormatYuv420P);
+				 
+				unsigned char* u_ptr = buffer + (rect_width * rect_height);
+				rect_mem_copy(frame->data[1], decode.get_width() / 2, decode.get_height() / 2,
+					&u_ptr, rect_width / 2, rect_height / 2, x / 2, y / 2, rect_x / 2, rect_y / 2, width / 2, height / 2
+					, EFormatYuv420P);
+
+				unsigned char* v_ptr = buffer + (rect_width * rect_height) + (rect_width * rect_height / 4);
+				rect_mem_copy(frame->data[2], decode.get_width() / 2, decode.get_height() / 2,
+					&v_ptr, rect_width / 2, rect_height / 2, x / 2, y / 2, rect_x / 2, rect_y / 2, width / 2, height / 2
+					, EFormatYuv420P);
+
+			}
+			 
+			::fwrite(buffer, 1, (((rect_width * rect_height) / 2) + (rect_width * rect_height)), out_file_ptr);
+			::fflush(out_file_ptr);
+		}
+		decode.destroy();
+		if (frame)
+		{
+			::av_frame_free(&frame);
+			frame = NULL;
+		}
+		if (buffer)
+		{
+			::free(buffer);
+			buffer = NULL;
+		}
+		if (out_file_ptr)
+		{
+			::fclose(out_file_ptr);
+			out_file_ptr = NULL;
+		}
+		 
+	}
 }
+

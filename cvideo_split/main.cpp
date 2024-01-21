@@ -1,5 +1,6 @@
 ﻿#include <iostream>
 #include <signal.h>
+#include "crect_mem_copy.h"
 //#include <opencv2/core.hpp>
 //#include <opencv2/imgproc.hpp>
 //#include <opencv2/highgui.hpp>
@@ -224,88 +225,7 @@ bool mat_copy_rect_new_rect(const unsigned char* data, int src_width, int src_he
 int main(int argc, char* argv[])
 {
 	 
-	chen::cdecode decode;
-
-	if (!decode.init(m_source_path.c_str()))
-	{
-		printf("[decodec init = = %s]failed !!!\n", m_source_path.c_str());
-		return false;
-	}
-	AVFrame* frame = NULL;
-	FILE* out_file_ptr = ::fopen("./chensong.yuv", "wb+");
-	FILE* out_src_file_ptr = ::fopen("./src.yuv", "wb+");
-	int x = 400;
-	int y = 400;
-	int width = 400;
-	int height = 400;
-
-	int rect_width = 1600;
-	int rect_height = 880;
-	int rect_x = 200;
-	int rect_y = 200;
-
-	unsigned char* buffer = reinterpret_cast<unsigned char *>(malloc(sizeof(unsigned char ) * rect_width * rect_height * 4));
-	while (true)
-	{
-	retry:
-		
-		int ret = decode.retrieve(frame);
-		if (ret < 0)
-		{
-			throw;
-		}
-		//读取文件结束位置了
-		if (ret == 0)
-		{
-			decode.seek(0);
-			goto retry;
-		}
-		//printf("[%u][%u][%u]\n", frame->linesize[0], frame->linesize[1], frame->linesize[2]);
-		if (false)
-		{
-			mat_copy_rect(frame->data[0], frame->data[1], frame->data[2], decode.get_width(), decode.get_height(), x, y, &buffer, width, height);
-			unsigned char* u_ptr = buffer + (width * height);
-			mat_copy_rect(frame->data[1], frame->data[1], frame->data[2], decode.get_width() / 2, decode.get_height() / 2, x / 2, y / 2, &u_ptr, width / 2, height / 2);
-			unsigned char* v_ptr = buffer + (width * height) + (width * height / 4);
-			mat_copy_rect(frame->data[2], frame->data[1], frame->data[2], decode.get_width() / 2, decode.get_height() / 2, x / 2, y / 2, &v_ptr, width / 2, height / 2);
-
-		}
-		if (true)
-		{
-			/*
-			bool mat_copy_rect_new_rect(const unsigned char* data, int src_width, int src_height,
-	unsigned char** rect_data, int rect_width, int rect_height,
-	int src_x, int src_y, int rect_x, int rect_y, int dst_width, int dst_height )
-			*/
-			mat_copy_rect_new_rect(frame->data[0],  decode.get_width(), decode.get_height(),  
-				&buffer, rect_width, rect_height, x, y, rect_x, rect_y, width, height);
-			 /// <summary>
-			 /// ////////////////////////////
-			 /// </summary>
-			 /// <param name="argc"></param>
-			 /// <param name="argv"></param>
-			 /// <returns></returns>
-			 unsigned char* u_ptr = buffer + (rect_width * rect_height);
-			  mat_copy_rect_new_rect(frame->data[1], decode.get_width()/2, decode.get_height()/2,
-			  	&u_ptr, rect_width/2, rect_height/2, x/2, y/2, rect_x/2, rect_y/2, width/2, height/2);
-		
-			 unsigned char* v_ptr = buffer + (rect_width * rect_height) + (rect_width * rect_height / 4);
-			 mat_copy_rect_new_rect(frame->data[2], decode.get_width() / 2, decode.get_height() / 2,
-			 	&v_ptr, rect_width / 2, rect_height / 2, x / 2, y / 2, rect_x / 2, rect_y / 2, width / 2, height / 2);
-			
-		}
-		//::fwrite(frame->data[0], 1, decode.get_width() * decode.get_height(), out_file_ptr);
-		 //::fwrite(frame->data[1], 1, decode.get_width() * decode.get_height()/4, out_file_ptr);
-		// ::fwrite(frame->data[2], 1, decode.get_width() * decode.get_height()/4, out_file_ptr);
-		 ::fwrite(buffer, 1, (   ((rect_width * rect_height) / 2)  +   (rect_width * rect_height)), out_file_ptr);
-		 ::fflush(out_file_ptr);
-
-		 ::fwrite(frame->data[0], 1, decode.get_width() * decode.get_height()  , out_src_file_ptr);
-		 ::fwrite(frame->data[1], 1, decode.get_width() * decode.get_height() / 4, out_src_file_ptr);
-		 ::fwrite(frame->data[2], 1, decode.get_width() * decode.get_height() / 4, out_src_file_ptr);
-		 ::fflush(out_file_ptr);
-	}
-
+	chen::test_rect_mem_copy(m_source_path.c_str(), "chensong.yuv");
 
 	return EXIT_SUCCESS;
 }
