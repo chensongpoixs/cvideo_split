@@ -22,6 +22,12 @@
     <Filter Include="rect_mem">
       <UniqueIdentifier>{0a9cb632-d45e-4b7b-af42-533123281590}</UniqueIdentifier>
     </Filter>
+    <Filter Include="encoder">
+      <UniqueIdentifier>{6a2cfb56-da2d-40e1-9fa3-2b06680c13e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{22929a86-4c8a-4760-832c-0751dd272b39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -32,6 +38,15 @@
     </ClCompile>
     <ClCompile Include="crect_mem_copy.cpp">
       <Filter>rect_mem</Filter>
+    </ClCompile>
+    <ClCompile Include="encoder.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="cencoder.cpp">
+      <Filter>encoder</Filter>
+    </ClCompile>
+    <ClCompile Include="cffmpeg_util.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +60,12 @@
     </ClInclude>
     <ClInclude Include="crect_mem_copy.h">
       <Filter>rect_mem</Filter>
+    </ClInclude>
+    <ClInclude Include="cencoder.h">
+      <Filter>encoder</Filter>
+    </ClInclude>
+    <ClInclude Include="cffmpeg_util.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

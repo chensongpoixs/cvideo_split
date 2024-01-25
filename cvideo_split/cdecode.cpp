@@ -23,23 +23,24 @@ purpose:		camera
 ************************************************************************************************/
 
 #include "cdecode.h"
- 
-#pragma comment(lib, "avcodec.lib")
-#pragma comment(lib, "avdevice.lib")
-#pragma comment(lib, "avfilter.lib")
-#pragma comment(lib, "avformat.lib")
-#pragma comment(lib, "avutil.lib")
-#pragma comment(lib, "postproc.lib")
-#pragma comment(lib, "swresample.lib")
-#pragma comment(lib, "swscale.lib")
+#include "cffmpeg_util.h"
+#pragma comment(lib, "libavcodec.lib")
+#pragma comment(lib, "libavdevice.lib")
+#pragma comment(lib, "libavfilter.lib")
+#pragma comment(lib, "libavformat.lib")
+#pragma comment(lib, "libavutil.lib")
+#pragma comment(lib, "libpostproc.lib")
+#pragma comment(lib, "libswresample.lib")
+#pragma comment(lib, "libswscale.lib")
 
 namespace chen {
 
-	static char g_errorbuffer[AV_ERROR_MAX_STRING_SIZE];
+	/*static char g_errorbuffer[AV_ERROR_MAX_STRING_SIZE];
 	char* ffmepgerror(int errCode)
 	{
+		
 		return av_make_error_string(g_errorbuffer, AV_ERROR_MAX_STRING_SIZE, errCode);
-	}
+	}*/
 
 	cdecode::~cdecode()
 	{
@@ -56,14 +57,14 @@ namespace chen {
 			NULL); //设置参数的字典
 		if (ret != 0)
 		{
-			printf("%s\n", ffmepgerror(ret));
+			printf("%s\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		//2.读取文件信息
 		ret = avformat_find_stream_info(m_ic_ptr, NULL);
 		if (ret < 0)
 		{
-			printf("%s\n", ffmepgerror(ret));
+			printf("%s\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		//3.获取目标流索引
@@ -191,7 +192,7 @@ namespace chen {
 			}
 			else if (ret != AVERROR(EAGAIN))
 			{
-				printf("Error submitting a packet for decoding (%s)\n", ffmepgerror(ret));
+				printf("Error submitting a packet for decoding (%s)\n", ffmpeg_util::make_error_string(ret));
 				return -1;
 			}
 
@@ -212,7 +213,7 @@ namespace chen {
 				}
 				else
 				{
-					printf("av_read_frame error:%s\n", ffmepgerror(ret));
+					printf("av_read_frame error:%s\n", ffmpeg_util::make_error_string(ret));
 					return -1;
 				}
 			}
@@ -221,7 +222,7 @@ namespace chen {
 			ret = avcodec_send_packet(m_codec_ctx_ptr,  pkt);
 			av_packet_unref( pkt);
 			if (ret < 0) {
-				printf("Error submitting a packet for decoding (%s)\n", ffmepgerror(ret));
+				printf("Error submitting a packet for decoding (%s)\n", ffmpeg_util::make_error_string(ret));
 				return -1;
 			}
 
@@ -237,6 +238,7 @@ namespace chen {
 		if (ret > 0)
 		{
 			out_frame = srcFrame;
+			//printf("deecode --> [pts = %u]\n", srcFrame->pts);
 			//判断解码出来的像素格式与目标像素格式是否相同
 			//if (srcFrame->format == formatType)
 			//{
@@ -306,7 +308,7 @@ namespace chen {
 		int ret = ::av_seek_frame(m_ic_ptr, -1, ts, AVSEEK_FLAG_FRAME);
 		if (ret < 0)
 		{
-			printf("Seek error: %s", ffmepgerror(ret));
+			printf("Seek error: %s", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		::avcodec_flush_buffers(m_codec_ctx_ptr);

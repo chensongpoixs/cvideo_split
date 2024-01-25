@@ -1,5 +1,5 @@
 ﻿/***********************************************************************************************
-created: 		2023-11-18
+created: 		2024-01-25
 
 author:			chensong
 
@@ -23,13 +23,14 @@ purpose:		camera
 ************************************************************************************************/
 
 
-#ifndef _C_DECODE_H_
-#define _C_DECODE_H_
+#ifndef _C_ENCODER_H_
+#define _C_ENCODER_H_
  
 #include <stdint.h>
 //#include <GL/eglew.h>
 #include <vector>
- 
+#include <string>
+#include <thread>
 extern "C"
 {
 #include <libavutil/frame.h>
@@ -38,91 +39,61 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
 }
 
 namespace chen {
 
-
-	class cdecode
+	class cencoder
 	{
 	public:
-		explicit cdecode()
-			: m_open(false)
+		explicit cencoder()
+			: m_url("")
 			, m_width(0)
 			, m_height(0)
-			, m_video_stream_index(-1)
-			, m_video_stream_ptr(NULL)
-			, m_pixfmt(AV_PIX_FMT_NONE)
-			, m_ic_ptr(NULL)
+			, m_push_format_context_ptr(NULL)
+			, m_codec_id(AV_CODEC_ID_NONE)
 			, m_codec_ctx_ptr(NULL)
+			, m_codec_ptr(NULL)
+			, m_stream_ptr(NULL)
+			, m_options_ptr(NULL)
+			, m_pkt_ptr(NULL)
 			, m_frame_ptr(NULL)
-			, m_sws_frame_ptr(NULL)
-			, m_sws_ctx_ptr(NULL){}
-		virtual ~cdecode();
+			, m_stoped(false)
+		{}
+		virtual ~cencoder(); 
 	public:
-		/**
-		 * @param url 文件路径
-		* @param fmt 输出像素格式
-		* @return 成功返回true 失败返回false
-		*/
-		bool init(const char * url);
+		bool init( const char * url, uint32_t width, uint32_t height);
+
 		void destroy();
 
+		void stop();
 
-
-		// 关闭并释放资源
-		void close();
-
-		/**
-		* 读取一帧视频数据
-		* @param out_frame 输出帧数据，原始像素格式
-		* @return -1 错误, -2 没有打开、0：获取到结尾，1:获取成功，
-		*/
-		int grab_frame(AVFrame*& out_frame);
-
-		/**
-		* 读取一帧视频数据并转换到目标像素格式
-		* @param out_frame 输出帧数据， 目标像素格式， open函数设置
-		*/
-		int retrieve(AVFrame*& out_frame);
-
-
-		/**
-		* seek到目标位置相近的关键帧
-		* @param percentage 目标位置 ， 百分比[0 ~1)
-		* @return 成功返回 true
-		*/
-		bool seek(double percentage);
 
 	public:
-		int get_width() const { return m_width; }
-		int get_height() const { return m_height; }
+		void consume_frame(AVFrame * frame);
 	private:
-		//cdecode(const cdecode&);
+		void _work_pthread();
 	private:
-		bool   m_open;
-		int	   m_width;
-		int	   m_height;
-
-		// 视频流索引
-		int	   m_video_stream_index;
-		// 视频流
-		AVStream* m_video_stream_ptr;
-
-		AVPixelFormat	m_pixfmt;
-
-		//接封装上下文
-		AVFormatContext* m_ic_ptr;
-		// 解码器上下文
-		AVCodecContext*	m_codec_ctx_ptr;
-
-		AVFrame*		m_frame_ptr;
-		AVFrame*		m_sws_frame_ptr;
-
-		//像素格式转换上下文
-		SwsContext*		m_sws_ctx_ptr;
+		std::string			m_url;
+		uint32_t			m_width;
+		uint32_t			m_height;
+		AVFormatContext*	m_push_format_context_ptr;
+		enum AVCodecID		m_codec_id;
+		AVCodecContext*		m_codec_ctx_ptr;
+		const AVCodec*			m_codec_ptr;
+		AVStream*			m_stream_ptr;
+		AVDictionary*		m_options_ptr; // 参数
+		AVPacket*			m_pkt_ptr;
+		AVFrame*			m_frame_ptr;
+		bool				m_stoped;
+		std::thread			m_thread;
+		/*unsigned char* m_yuv420p_ptr;
+		FILE* m_input_file_ptr;*/
 	};
-
 }
 
-#endif // _C_DECODE_H_
+#endif // _C_ENCODER_H_

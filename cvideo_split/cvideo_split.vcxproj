@@ -88,8 +88,8 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4\lib;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(C_INCLUDE)\ffmpeg-5.1\include;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4ff\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(C_INCLUDE)\ffmpeg-5.1\lib\x64;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4fff\lib;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -154,7 +154,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cdecode.cpp" />
+    <ClCompile Include="cencoder.cpp" />
+    <ClCompile Include="cffmpeg_util.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
+    <ClCompile Include="encoder.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -167,6 +172,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdecode.h" />
+    <ClInclude Include="cencoder.h" />
+    <ClInclude Include="cffmpeg_util.h" />
     <ClInclude Include="crect_mem_copy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
