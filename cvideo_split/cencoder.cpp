@@ -24,7 +24,7 @@ purpose:		camera
 
 #include "cencoder.h"
 #include "cffmpeg_util.h"
-
+#include "crect_mem_copy.h"
 
 namespace chen {
 
@@ -102,12 +102,15 @@ namespace chen {
 		rate.num = 1;
 		rate.den = 25;
 		m_codec_ctx_ptr->time_base = rate;
-		m_codec_ctx_ptr->gop_size = 300;
-		m_codec_ctx_ptr->max_b_frames = 1;
+		m_codec_ctx_ptr->gop_size = 25;
+		m_codec_ctx_ptr->max_b_frames = 3;
 		m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_YUV420P;
 
 		
-		//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
+		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
+		//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
+		av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+		//av_dict_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 		//open the encoder
 		ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr, NULL);
 		if (ret < 0 ) 
@@ -115,6 +118,8 @@ namespace chen {
 			printf( "[%s]Open encoder (%s)failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
+
+		//av_lockmgr_register();
 		ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
 		if (ret < 0) 
 		{
@@ -197,26 +202,88 @@ namespace chen {
 		m_stoped = true;
 	}
 
-	void cencoder::consume_frame(AVFrame* frame)
+	void cencoder::consume_frame1(/*const AVFrame* frame_ptr*/ 
+								 const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn )
 	{
 		if (m_stoped)
 		{
 			return;
 		}
-		if (frame->width != m_frame_ptr->width || frame->height != m_frame_ptr->height)
+		/*if ( width != m_frame_ptr->width ||  height != m_frame_ptr->height)
 		{
-			printf("[warr] width != encoder width\n");
+			printf("[warr] width = %u!= encoder width = %u\n",  width, m_frame_ptr->width);
 			return;
+		}*/
+
+		{
+			rect_mem_copy(data, width, height,
+				&m_frame_ptr->data[0], width * 2,  height  , 
+				0, 0, 0, 0, width , height , EFormatYuv420P);
+
+			 
+			rect_mem_copy(data + (width * height), width/2, height/2,
+				&m_frame_ptr->data[1], width, height/2, 
+				0, 0, 0, 0, width /2 , height /2 , EFormatYuv420P);
+
+			rect_mem_copy(data + ((width * height) * 5/4), width/2, height/2,
+				&m_frame_ptr->data[2], width , height/2 , 
+				0, 0, 0, 0, width/2, height/2, EFormatYuv420P);
+
+			 
 		}
-		memcpy(m_frame_ptr->data[0], frame->data[0], m_width * m_height);
-		memcpy(m_frame_ptr->data[1], frame->data[1], m_width * m_height/ 4);
-		memcpy(m_frame_ptr->data[2], frame->data[2], m_width * m_height / 4);
+		/*memcpy(m_frame_ptr->data[0], data,  width *  height);
+		memcpy(m_frame_ptr->data[1], data + (width * height),  width *  height / 4);
+		memcpy(m_frame_ptr->data[2], data + ((width * height) *5/4), width * height / 4);*/
+	//	memcpy(m_frame_ptr->data[2], frame_ptr->data[2], frame_ptr->width * frame_ptr->height / 4);
 
 		//int ret = av_frame_copy(m_frame_ptr, frame);
 		//if (ret < 0)
 		//{
 		//	printf("copy frame (%s)failed !!!\n", ffmpeg_util::make_error_string(ret));
 		//}
+	}
+
+	void cencoder::consume_frame2(/*const AVFrame* frame_ptr*/
+		const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn)
+	{
+		 
+		if (m_stoped)
+		{
+			return;
+		}
+		{
+			rect_mem_copy(data, width, height,
+				&m_frame_ptr->data[0], width * 2, height,
+				0, 0, 
+				width, 0, width, height, EFormatYuv420P);
+
+
+			rect_mem_copy(data + (width * height), width / 2, height / 2,
+				&m_frame_ptr->data[1], width, height / 2,
+				0, 0, 
+				width/2, 0, width / 2, height / 2, EFormatYuv420P);
+
+			rect_mem_copy(data + ((width * height) * 5 / 4), width / 2, height / 2,
+				&m_frame_ptr->data[2], width, height / 2,
+				0, 0, 
+				width/2, 0, width / 2, height / 2, EFormatYuv420P);
+
+		}
+		/*if (width != m_frame_ptr->width || height != m_frame_ptr->height)
+		{
+			printf("[warr] width = %u!= encoder width = %u\n", width, m_frame_ptr->width);
+			return;
+		}*/
+		/*memcpy(m_frame_ptr->data[0], data, width * height);
+		memcpy(m_frame_ptr->data[1], data + (width * height), width * height / 4);
+		memcpy(m_frame_ptr->data[2], data + ((width * height) * 5 / 4), width * height / 4);*/
+		//	memcpy(m_frame_ptr->data[2], frame_ptr->data[2], frame_ptr->width * frame_ptr->height / 4);
+
+			//int ret = av_frame_copy(m_frame_ptr, frame);
+			//if (ret < 0)
+			//{
+			//	printf("copy frame (%s)failed !!!\n", ffmpeg_util::make_error_string(ret));
+			//}
 	}
  
 	void cencoder::_work_pthread()

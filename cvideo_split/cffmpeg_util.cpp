@@ -23,9 +23,30 @@ purpose:		camera
 ************************************************************************************************/
 
 #include "cffmpeg_util.h"
+#include <cassert>
+
+#ifdef _MSC_VER
+#pragma comment(lib, "libavcodec.lib")
+#pragma comment(lib, "libavdevice.lib")
+#pragma comment(lib, "libavfilter.lib")
+#pragma comment(lib, "libavformat.lib")
+#pragma comment(lib, "libavutil.lib")
+#pragma comment(lib, "libpostproc.lib")
+#pragma comment(lib, "libswresample.lib")
+#pragma comment(lib, "libswscale.lib")
+#elif defined(__GNUC__)
+
+#else 
+
+#endif 
+
+
+
+
 
 namespace chen
 {
+	std::mutex g_ffmpeg_lock;
 	namespace ffmpeg_util
 	{
 
@@ -33,10 +54,33 @@ namespace chen
 		static char g_errorbuffer[AV_ERROR_MAX_STRING_SIZE];
 		 
 
-		const char* make_error_string(int err_code)
+		     const char* make_error_string(int err_code)
 		{
 		
 			return av_make_error_string(g_errorbuffer, AV_ERROR_MAX_STRING_SIZE, err_code);
+		}
+		
+		static inline int round(double value)
+		{
+#if defined CV_INLINE_ROUND_DBL
+			CV_INLINE_ROUND_DBL(value);
+#elif (defined _MSC_VER && defined _M_X64) && !defined(__CUDACC__)
+			__m128d t = _mm_set_sd(value);
+			return _mm_cvtsd_si32(t);
+#elif defined _MSC_VER && defined _M_IX86
+			int t;
+			__asm
+			{
+				fld value;
+				fistp t;
+			}
+			return t;
+#elif defined CV__FASTMATH_ENABLE_GCC_MATH_BUILTINS || \
+      defined CV__FASTMATH_ENABLE_CLANG_MATH_BUILTINS
+			return (int)__builtin_lrint(value);
+#else
+			return (int)lrint(value);
+#endif
 		}
 	}
 }

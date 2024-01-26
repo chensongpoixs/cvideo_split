@@ -1,5 +1,5 @@
 ﻿/***********************************************************************************************
-created: 		2024-01-25
+created: 		2024-01-26
 
 author:			chensong
 
@@ -23,82 +23,29 @@ purpose:		camera
 ************************************************************************************************/
 
 
-#ifndef _C_ENCODER_H_
-#define _C_ENCODER_H_
- 
-#include <stdint.h>
-//#include <GL/eglew.h>
-#include <vector>
-#include <string>
-#include <thread>
-extern "C"
-{
-#include <libavutil/frame.h>
-#include <libavutil/avutil.h>
-#include <libavutil/avutil.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-}
+#ifndef _C_GLOBAL_FFMPEG_REGISTER_H_
+#define _C_GLOBAL_FFMPEG_REGISTER_H_
 
+#include "cffmpeg_util.h"
 namespace chen {
 
-	class cencoder
+
+	class cglobal_ffmpeg_register
 	{
 	public:
-		explicit cencoder()
-			: m_url("")
-			, m_width(0)
-			, m_height(0)
-			, m_push_format_context_ptr(NULL)
-			, m_codec_id(AV_CODEC_ID_NONE)
-			, m_codec_ctx_ptr(NULL)
-			, m_codec_ptr(NULL)
-			, m_stream_ptr(NULL)
-			, m_options_ptr(NULL)
-			, m_pkt_ptr(NULL)
-			, m_frame_ptr(NULL)
-			, m_stoped(false)
-		{}
-		virtual ~cencoder(); 
+		explicit cglobal_ffmpeg_register(){}
+		virtual ~cglobal_ffmpeg_register(){}
 	public:
-		bool init( const char * url, uint32_t width, uint32_t height);
-
+		bool init();
+		void update(uint32_t uDateTime );
 		void destroy();
-
-		void stop();
-
-
 	public:
-		void consume_frame1(/*const AVFrame * frame_ptr*/
-		 const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn );
-		void consume_frame2(/*const AVFrame * frame_ptr*/
-			const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn);
-	private:
-		void _work_pthread();
-	private:
-		std::string			m_url;
-		uint32_t			m_width;
-		uint32_t			m_height;
-		AVFormatContext*	m_push_format_context_ptr;
-		enum AVCodecID		m_codec_id;
-		AVCodecContext*		m_codec_ctx_ptr;
-		const AVCodec*			m_codec_ptr;
-		AVStream*			m_stream_ptr;
-		AVDictionary*		m_options_ptr; // 参数
-		AVPacket*			m_pkt_ptr;
-		AVFrame*			m_frame_ptr;
-		bool				m_stoped;
-		std::thread			m_thread;
-		/*unsigned char* m_yuv420p_ptr;
-		FILE* m_input_file_ptr;*/
+	public:
+		static void _ffmpeg_log_callback(void* ptr, int level, const char* fmt, va_list vargs);
+
 	};
+
+	extern cglobal_ffmpeg_register g_global_ffmpeg_register;
 }
 
-#endif // _C_ENCODER_H_
+#endif  //_C_GLOBAL_FFMPEG_REGISTER_H_

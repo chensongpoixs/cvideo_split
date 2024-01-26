@@ -1,5 +1,5 @@
 ﻿/***********************************************************************************************
-created: 		2024-01-25
+created: 		2024-01-26
 
 author:			chensong
 
@@ -21,84 +21,64 @@ purpose:		camera
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 ************************************************************************************************/
+#include "cglobal_ffmpeg_register.h"
 
-
-#ifndef _C_ENCODER_H_
-#define _C_ENCODER_H_
- 
-#include <stdint.h>
-//#include <GL/eglew.h>
-#include <vector>
-#include <string>
-#include <thread>
-extern "C"
-{
-#include <libavutil/frame.h>
-#include <libavutil/avutil.h>
-#include <libavutil/avutil.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-}
+#include <functional>
 
 namespace chen {
 
-	class cencoder
+
+    cglobal_ffmpeg_register g_global_ffmpeg_register;
+	bool cglobal_ffmpeg_register::init()
 	{
-	public:
-		explicit cencoder()
-			: m_url("")
-			, m_width(0)
-			, m_height(0)
-			, m_push_format_context_ptr(NULL)
-			, m_codec_id(AV_CODEC_ID_NONE)
-			, m_codec_ctx_ptr(NULL)
-			, m_codec_ptr(NULL)
-			, m_stream_ptr(NULL)
-			, m_options_ptr(NULL)
-			, m_pkt_ptr(NULL)
-			, m_frame_ptr(NULL)
-			, m_stoped(false)
-		{}
-		virtual ~cencoder(); 
-	public:
-		bool init( const char * url, uint32_t width, uint32_t height);
+        avformat_network_init();
 
-		void destroy();
+#ifdef CV_FFMPEG_REGISTER
+        /* register all codecs, demux and protocols */
+        av_register_all();
+#endif
 
-		void stop();
-
-
-	public:
-		void consume_frame1(/*const AVFrame * frame_ptr*/
-		 const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn );
-		void consume_frame2(/*const AVFrame * frame_ptr*/
-			const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn);
-	private:
-		void _work_pthread();
-	private:
-		std::string			m_url;
-		uint32_t			m_width;
-		uint32_t			m_height;
-		AVFormatContext*	m_push_format_context_ptr;
-		enum AVCodecID		m_codec_id;
-		AVCodecContext*		m_codec_ctx_ptr;
-		const AVCodec*			m_codec_ptr;
-		AVStream*			m_stream_ptr;
-		AVDictionary*		m_options_ptr; // 参数
-		AVPacket*			m_pkt_ptr;
-		AVFrame*			m_frame_ptr;
-		bool				m_stoped;
-		std::thread			m_thread;
-		/*unsigned char* m_yuv420p_ptr;
-		FILE* m_input_file_ptr;*/
-	};
+#ifdef CV_FFMPEG_LOCKMGR
+        /* register a callback function for synchronization */
+        av_lockmgr_register(&LockCallBack);
+#endif
+        int level = AV_LOG_VERBOSE;
+        /*if (level_option != NULL)
+        {
+            level = atoi(level_option);
+        }
+        if ((debug_option != NULL) || (level_option != NULL))
+        {
+            av_log_set_level(level);
+            av_log_set_callback(ffmpeg_log_callback);
+        }
+        else */
+        {
+            av_log_set_level(AV_LOG_ERROR);
+        }
+        av_log_set_callback(&cglobal_ffmpeg_register::_ffmpeg_log_callback/*, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)*/);
+		return true;
+	}
+	void cglobal_ffmpeg_register::update(uint32_t uDateTime)
+	{
+	}
+	void cglobal_ffmpeg_register::destroy()
+	{
+#ifdef CV_FFMPEG_LOCKMGR
+        av_lockmgr_register(NULL);
+#endif
+        av_log_set_callback(NULL);
+	}
+    void cglobal_ffmpeg_register::_ffmpeg_log_callback(void* ptr, int level, const char* fmt, va_list vargs)
+    {
+        static bool skip_header = false;
+        static int prev_level = -1;
+        CV_UNUSED(ptr);
+        if (level > av_log_get_level()) return;
+        if (!skip_header || level != prev_level) printf("[OPENCV:FFMPEG:%02d] ", level);
+        vprintf(fmt, vargs);
+        size_t fmt_len = strlen(fmt);
+        skip_header = fmt_len > 0 && fmt[fmt_len - 1] != '\n';
+        prev_level = level;
+    }
 }
-
-#endif // _C_ENCODER_H_

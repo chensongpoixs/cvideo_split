@@ -81,7 +81,7 @@ namespace chen {
 		while (true)
 		{
 		 
-			int ret = decode.retrieve(frame);
+			int ret = 1;// decode.retrieve(frame);
 			if (ret < 0)
 			{
 				break;
@@ -96,7 +96,8 @@ namespace chen {
 			 
 			{ 
 				rect_mem_copy(frame->data[0], decode.get_width(), decode.get_height(),
-					&buffer, rect_width, rect_height, x, y, rect_x, rect_y, width, height, EFormatYuv420P);
+					&buffer, rect_width, rect_height, x, y, 
+					rect_x, rect_y, width, height, EFormatYuv420P);
 				 
 				unsigned char* u_ptr = buffer + (rect_width * rect_height);
 				rect_mem_copy(frame->data[1], decode.get_width() / 2, decode.get_height() / 2,

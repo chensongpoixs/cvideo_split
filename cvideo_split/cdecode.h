@@ -26,20 +26,7 @@ purpose:		camera
 #ifndef _C_DECODE_H_
 #define _C_DECODE_H_
  
-#include <stdint.h>
-//#include <GL/eglew.h>
-#include <vector>
- 
-extern "C"
-{
-#include <libavutil/frame.h>
-#include <libavutil/avutil.h>
-#include <libavutil/avutil.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-}
-
+#include "cffmpeg_util.h"
 namespace chen {
 
 
@@ -50,14 +37,27 @@ namespace chen {
 			: m_open(false)
 			, m_width(0)
 			, m_height(0)
+			, m_dict(NULL)
 			, m_video_stream_index(-1)
 			, m_video_stream_ptr(NULL)
 			, m_pixfmt(AV_PIX_FMT_NONE)
 			, m_ic_ptr(NULL)
 			, m_codec_ctx_ptr(NULL)
-			, m_frame_ptr(NULL)
+			, m_packet_ptr(NULL)
+			, m_picture_ptr(NULL)
+			, m_picture_pts(AV_NOPTS_VALUE)
+			, m_frame()
 			, m_sws_frame_ptr(NULL)
-			, m_sws_ctx_ptr(NULL){}
+			, m_sws_ctx_ptr(NULL) 
+			, m_frame_number(-1)
+			, m_first_frame_number(-1)
+			, m_rotation_auto(false)
+			, m_rotation_angle(-1)
+			, m_eps_zero(0.000025)
+			, m_open_timeout(LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS)
+			, m_read_timeout(LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS)
+			, m_interrupt_metadata()
+			{}
 		virtual ~cdecode();
 	public:
 		/**
@@ -78,13 +78,15 @@ namespace chen {
 		* @param out_frame 输出帧数据，原始像素格式
 		* @return -1 错误, -2 没有打开、0：获取到结尾，1:获取成功，
 		*/
-		int grab_frame(AVFrame*& out_frame);
+		bool grab_frame( );
 
 		/**
 		* 读取一帧视频数据并转换到目标像素格式
 		* @param out_frame 输出帧数据， 目标像素格式， open函数设置
 		*/
-		int retrieve(AVFrame*& out_frame);
+		bool retrieve(/*AVFrame * &frame*/
+					   unsigned char** data, int* step, int* width,
+			int* height, int* cn );
 
 
 		/**
@@ -92,20 +94,36 @@ namespace chen {
 		* @param percentage 目标位置 ， 百分比[0 ~1)
 		* @return 成功返回 true
 		*/
-		bool seek(double percentage);
+		bool seek(double sec);
 
+		void seek(int64_t frame_number);
+
+		
 	public:
 		int get_width() const { return m_width; }
 		int get_height() const { return m_height; }
+
+
+	public:
+		 
+		int64_t get_total_frames() const;
+		double  get_duration_sec() const;
+		double  get_fps() const;
+		int64_t get_bitrate() const;
+
+		double  r2d(AVRational r) const;
+		int64_t dts_to_frame_number(int64_t dts);
+		double  dts_to_sec(int64_t dts) const;
+		void    get_rotation_angle();
 	private:
 		//cdecode(const cdecode&);
 	private:
 		bool   m_open;
 		int	   m_width;
 		int	   m_height;
-
+		AVDictionary*		m_dict;
 		// 视频流索引
-		int	   m_video_stream_index;
+		int32_t	   m_video_stream_index;
 		// 视频流
 		AVStream* m_video_stream_ptr;
 
@@ -115,12 +133,28 @@ namespace chen {
 		AVFormatContext* m_ic_ptr;
 		// 解码器上下文
 		AVCodecContext*	m_codec_ctx_ptr;
+		AVPacket*		m_packet_ptr;
+		AVFrame*		m_picture_ptr;
 
-		AVFrame*		m_frame_ptr;
+		int64_t			m_picture_pts;
+
+		cimage_ffmpeg	m_frame;
 		AVFrame*		m_sws_frame_ptr;
-
+		
 		//像素格式转换上下文
 		SwsContext*		m_sws_ctx_ptr;
+
+		int64_t			m_frame_number;
+		int64_t			m_first_frame_number;
+		bool			m_rotation_auto;
+		int32_t			m_rotation_angle; // valid 0, 90, 180, 270
+		double			m_eps_zero;
+
+
+		int32_t			m_open_timeout;
+		int32_t			m_read_timeout;
+		AVInterruptCallbackMetadata m_interrupt_metadata;
+		
 	};
 
 }

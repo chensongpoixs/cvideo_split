@@ -156,6 +156,7 @@
     <ClCompile Include="cdecode.cpp" />
     <ClCompile Include="cencoder.cpp" />
     <ClCompile Include="cffmpeg_util.cpp" />
+    <ClCompile Include="cglobal_ffmpeg_register.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
     <ClCompile Include="encoder.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -174,6 +175,7 @@
     <ClInclude Include="cdecode.h" />
     <ClInclude Include="cencoder.h" />
     <ClInclude Include="cffmpeg_util.h" />
+    <ClInclude Include="cglobal_ffmpeg_register.h" />
     <ClInclude Include="crect_mem_copy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

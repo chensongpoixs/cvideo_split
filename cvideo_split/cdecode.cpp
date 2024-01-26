@@ -24,14 +24,8 @@ purpose:		camera
 
 #include "cdecode.h"
 #include "cffmpeg_util.h"
-#pragma comment(lib, "libavcodec.lib")
-#pragma comment(lib, "libavdevice.lib")
-#pragma comment(lib, "libavfilter.lib")
-#pragma comment(lib, "libavformat.lib")
-#pragma comment(lib, "libavutil.lib")
-#pragma comment(lib, "libpostproc.lib")
-#pragma comment(lib, "libswresample.lib")
-#pragma comment(lib, "libswscale.lib")
+#include <cassert>
+
 
 namespace chen {
 
@@ -47,14 +41,56 @@ namespace chen {
 	}
 	bool cdecode::init(const char* url)
 	{
+		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		close();
 		m_open = false;
+
+#if USE_AV_INTERRUPT_CALLBACK
+ 
+		m_open_timeout = LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
+		m_read_timeout = LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
+ 
+		/* interrupt callback */
+		m_interrupt_metadata.timeout_after_ms = m_open_timeout;
+		get_monotonic_time(&m_interrupt_metadata.value);
+
+		m_ic_ptr = avformat_alloc_context();
+		m_ic_ptr->interrupt_callback.callback = &ffmpeg_util:: ffmpeg_interrupt_callback;
+		m_ic_ptr->interrupt_callback.opaque = &m_interrupt_metadata;
+#endif
+		//char* options = getenv("OPENCV_FFMPEG_CAPTURE_OPTIONS");
+#if LIBAVUTIL_BUILD >= (LIBAVUTIL_VERSION_MICRO >= 100 ? CALC_FFMPEG_VERSION(52, 17, 100) : CALC_FFMPEG_VERSION(52, 7, 0))
+		//av_dict_parse_string(&m_dict, options, ";", "|", 0);
+#else
+		//av_dict_set(&m_dict, "rtsp_transport", "tcp", 0);
+#endif
+		m_picture_pts = AV_NOPTS_VALUE;
+		memset(&m_frame, 0, sizeof(m_frame));
+		m_frame_number = 0;
+		m_first_frame_number = -1;
+		m_eps_zero = 0.000025;
+
+		m_rotation_angle = 0;
+
+#if (LIBAVUTIL_BUILD >= CALC_FFMPEG_VERSION(52, 92, 100))
+		m_rotation_auto = true;
+#else
+		m_rotation_auto = false;
+#endif
+
+		const AVInputFormat* input_format = NULL;
+		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
+		if (entry != 0)
+		{
+			input_format = av_find_input_format(entry->value);
+		}
+
 		// 1. 打开解封装上下文
 		int ret = avformat_open_input(
 			&m_ic_ptr, //解封装上下文
 			url,  //文件路径
-			NULL, //指定输入格式 h264,h265, 之类的， 传入NULL则自动检测
-			NULL); //设置参数的字典
+			input_format, //指定输入格式 h264,h265, 之类的， 传入NULL则自动检测
+			&m_dict); //设置参数的字典
 		if (ret != 0)
 		{
 			printf("%s\n", ffmpeg_util::make_error_string(ret));
@@ -118,15 +154,24 @@ namespace chen {
 			return false;
 		}
 		//创建一个frame接收解码之后的帧数据
-		m_frame_ptr = av_frame_alloc();
+		m_picture_ptr = av_frame_alloc();
+		m_packet_ptr = av_packet_alloc();
 		m_open = true;
 		m_width = m_video_stream_ptr->codecpar->width;
 		m_height = m_video_stream_ptr->codecpar->height;
-
+		m_frame.width = m_codec_ctx_ptr->width;
+		m_frame.height = m_codec_ctx_ptr->height;
+		m_frame.cn = 3;
+		m_frame.step = 0;
+		m_frame.data = NULL;
 		//检测是否支持当前视频的像素格式
 		m_pixfmt = (AVPixelFormat)m_video_stream_ptr->codecpar->format;
 		 
-
+#if USE_AV_INTERRUPT_CALLBACK
+		// deactivate interrupt callback
+		m_interrupt_metadata.timeout_after_ms = 0;
+#endif
+		get_rotation_angle();
 		return true;
 		//return false;
 	}
@@ -136,14 +181,17 @@ namespace chen {
 	}
 	void cdecode::close()
 	{
-		if (m_ic_ptr)
-		{
-			::avformat_close_input(&m_ic_ptr);
-			m_ic_ptr = NULL;
-		}
+
+#if USE_AV_INTERRUPT_CALLBACK
+		// deactivate interrupt callback
+		m_interrupt_metadata.timeout_after_ms = 0;
+#endif
+		 
+
+		
 		if (m_codec_ctx_ptr)
 		{
-			::avcodec_free_context(&m_codec_ctx_ptr);
+			//::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		if (m_sws_ctx_ptr)
@@ -151,167 +199,459 @@ namespace chen {
 			::sws_freeContext(m_sws_ctx_ptr);
 			m_sws_ctx_ptr = NULL;
 		}
-		//sws_ctx = nullptr;
-		if (m_frame_ptr)
+		if (m_ic_ptr)
 		{
-			::av_frame_free(&m_frame_ptr);
-			m_frame_ptr = NULL;
+			::avformat_close_input(&m_ic_ptr);
+			m_ic_ptr = NULL;
+		}
+		//sws_ctx = nullptr;
+		if (m_picture_ptr)
+		{
+			::av_frame_free(&m_picture_ptr);
+			m_picture_ptr = NULL;
 		}
 		if (m_sws_frame_ptr)
 		{
 			::av_frame_free(&m_sws_frame_ptr);
 			m_sws_frame_ptr = NULL;
 		}
+		if (m_dict)
+		{
+			av_dict_free(&m_dict);
+			m_dict = NULL;
+		}
+		if (m_packet_ptr)
+		{
+			av_packet_free(&m_packet_ptr);
+			m_packet_ptr = NULL;
+		}
 		m_open = false;
 		m_pixfmt = AV_PIX_FMT_NONE;
 	}
-	int cdecode::grab_frame(AVFrame*& out_frame)
-	{
-		if (!m_open)
-		{
-			return -2;
-		}
-		int ret = 0;
-		//定义AVPacket用来存储压缩的帧数据
-		AVPacket* pkt = av_packet_alloc();;
-		//av_init_packet(&pkt);
-		out_frame = nullptr;
-		do
-		{
-			ret = ::avcodec_receive_frame(m_codec_ctx_ptr, m_frame_ptr);
-			out_frame = m_frame_ptr;
-			if (ret >= 0)
-			{
-				return 1;
-			}
-			//读取到结尾
-			if (ret == AVERROR_EOF)
-			{
-				out_frame = nullptr;
-				return 0;
-			}
-			else if (ret != AVERROR(EAGAIN))
-			{
-				printf("Error submitting a packet for decoding (%s)\n", ffmpeg_util::make_error_string(ret));
-				return -1;
-			}
-
-			//读取一帧压缩数据
-			ret = av_read_frame(m_ic_ptr, pkt);
-			if (ret != AVERROR_EOF && pkt->stream_index != m_video_stream_index)
-			{
-				av_packet_unref(pkt);
-				continue;
-			}
-			if (ret < 0)
-			{
-				//判断是否读取到结尾，读取到结尾seek到第一帧
-				if (ret == AVERROR_EOF)
-				{
-					pkt = ::av_packet_alloc();
-					//av_init_packet(&pkt);
-				}
-				else
-				{
-					printf("av_read_frame error:%s\n", ffmpeg_util::make_error_string(ret));
-					return -1;
-				}
-			}
-
-			//压缩帧数据据发送到解码线程
-			ret = avcodec_send_packet(m_codec_ctx_ptr,  pkt);
-			av_packet_unref( pkt);
-			if (ret < 0) {
-				printf("Error submitting a packet for decoding (%s)\n", ffmpeg_util::make_error_string(ret));
-				return -1;
-			}
-
-
-		} while (true);
-
-		return -1;
-	}
-	int cdecode::retrieve(AVFrame*& out_frame)
-	{
-		AVFrame* srcFrame = nullptr;
-		int ret = grab_frame(srcFrame);
-		if (ret > 0)
-		{
-			out_frame = srcFrame;
-			//printf("deecode --> [pts = %u]\n", srcFrame->pts);
-			//判断解码出来的像素格式与目标像素格式是否相同
-			//if (srcFrame->format == formatType)
-			//{
-			//	out_frame = srcFrame;
-			//}
-			//else
-			//{
-			//	//像素格式转换
-			//	if (!sws_frame)
-			//	{
-			//		sws_frame = av_frame_alloc();
-			//		sws_frame->format = (AVPixelFormat)formatType;
-			//		sws_frame->width = srcFrame->width;
-			//		sws_frame->height = srcFrame->height;
-			//		int ret = av_frame_get_buffer(sws_frame, 0);
-			//		if (ret)
-			//		{
-			//			printf("av_frame_get_buffer failed: %s\n", ffmepgerror(ret));
-			//			return -1;
-			//		}
-			//	}
-
-			//	sws_ctx = sws_getCachedContext(
-			//		sws_ctx,									//传NULL会新创建 如果和之前相同会直接返回
-			//		srcFrame->width, srcFrame->height,		// 输入的宽高
-			//		(AVPixelFormat)srcFrame->format,		// 输入的格式
-			//		sws_frame->width, sws_frame->height,	// 输出的宽高
-			//		(AVPixelFormat)sws_frame->format,		// 输出的格式
-			//		SWS_POINT,								// 尺寸变换的算法
-			//		0, 0, 0
-			//	);
-
-			//	int ret = sws_scale(
-			//		sws_ctx,
-			//		srcFrame->data,				//输入数据
-			//		srcFrame->linesize,			//输入行大小 考虑对齐
-			//		0,							//从0开始
-			//		srcFrame->height,			//输入的高度
-			//		sws_frame->data,			//输出的数据 
-			//		sws_frame->linesize			//输出的大小
-			//	);
-			//	if (ret <= 0)
-			//	{
-			//		printf("sws_scale failed: %s", ffmepgerror(ret));
-			//		return -1;
-			//	}
-			//	sws_frame->pts = srcFrame->pts;
-			//	sws_frame->colorspace = srcFrame->colorspace;
-			//	sws_frame->color_range = srcFrame->color_range;
-			//	out_frame = sws_frame;
-			//}
-
-		}
-		else
-		{
-			out_frame = nullptr;
-		}
-		return ret;
-	}
-	bool cdecode::seek(double percentage)
+	bool cdecode::grab_frame( )
 	{
 		if (!m_open)
 		{
 			return false;
 		}
-		int64_t ts = m_ic_ptr->duration * percentage;
+
+		if (!m_ic_ptr || !m_video_stream_ptr || !m_codec_ctx_ptr)
+		{
+			return false;
+		}
+		// TODO@chensong 2024-01-26 视频帧数量判断是否最新的新的
+		if (m_ic_ptr->streams[m_video_stream_index]->nb_frames > 0 
+			&& m_frame_number > m_ic_ptr->streams[m_video_stream_index]->nb_frames)
+		{
+			return false;
+		}
+
+		const int max_number_of_attempts = 1 << 9;
+		int32_t ret = 0;
+		int32_t count_errs = 0;
+		bool    valid = false;
+#if USE_AV_INTERRUPT_CALLBACK
+		// activate interrupt callback
+		get_monotonic_time(&m_interrupt_metadata.value);
+		m_interrupt_metadata.timeout_after_ms = m_read_timeout;
+#endif
+		//定义AVPacket用来存储压缩的帧数据
+		//AVPacket* pkt = av_packet_alloc();;
+#if USE_AV_SEND_FRAME_API
+		// check if we can receive frame from previously decoded packet
+		valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
+#endif
+		 
+		while (!valid)
+		{
+
+
+			av_packet_unref(m_packet_ptr);
+
+#if USE_AV_INTERRUPT_CALLBACK
+			if (m_interrupt_metadata.timeout)
+			{
+				valid = false;
+				break;
+			}
+#endif 
+			//读取一帧压缩数据
+			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
+			/*if (ret != AVERROR_EOF && pkt->stream_index != m_video_stream_index)
+			{
+				av_packet_unref(pkt);
+				continue;
+			}*/
+			if (ret == AVERROR(EAGAIN))
+			{
+				continue;
+			}
+			if (ret == AVERROR_EOF)
+			{
+				// flush cached frames from video decoder
+				m_packet_ptr->data = NULL;
+				m_packet_ptr->size = 0;
+				m_packet_ptr->stream_index = m_video_stream_index;
+			}
+
+			if (m_packet_ptr->stream_index != m_video_stream_index)
+			{
+				av_packet_unref(m_packet_ptr);
+				count_errs++;
+				if (count_errs > max_number_of_attempts)
+				{
+					break;
+				}
+				continue;
+			}
+
+			// Decode video frame
+#if USE_AV_SEND_FRAME_API
+			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
+			{
+				break;
+			}
+			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
+#else
+			int got_picture = 0;
+			avcodec_decode_video2(context, picture, &got_picture, &packet);
+			ret = got_picture ? 0 : -1;
+#endif
+
+			if (ret >= 0)
+			{
+				//picture_pts = picture->best_effort_timestamp;
+				if (m_picture_pts == AV_NOPTS_VALUE)
+				{
+					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE 
+						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
+						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
+				}
+
+				valid = true;
+			}
+			else if (ret == AVERROR(EAGAIN)) 
+			{
+				continue;
+			}
+			else
+			{
+				count_errs++;
+				if (count_errs > max_number_of_attempts)
+				{
+					break;
+				}
+			}
+
+		}  
+
+		if (valid)
+		{
+			++m_frame_number;
+		}
+		if (valid && m_first_frame_number < 0)
+		{
+			m_first_frame_number = dts_to_frame_number(m_picture_pts);
+		}
+
+
+		return valid;
+	}
+	bool cdecode::retrieve(/*AVFrame*& frame*/
+		 unsigned char** data, int* step, int* width,
+		int* height, int* cn )
+	{
+		//AVFrame* srcFrame = nullptr;
+		bool ret = grab_frame( );
+		if (ret )
+		{
+			//frame = m_picture_ptr;
+			 
+			memcpy(*data, m_picture_ptr->data[0], m_picture_ptr->height * m_picture_ptr->width);
+			memcpy((*data) +(m_picture_ptr->height * m_picture_ptr->width) , m_picture_ptr->data[1], m_picture_ptr->height * m_picture_ptr->width/4);
+			memcpy((*data) + (m_picture_ptr->height * m_picture_ptr->width *5 /4), m_picture_ptr->data[2], m_picture_ptr->height * m_picture_ptr->width/4);
+			*width = m_picture_ptr->width;
+			*height = m_picture_ptr->height;
+			*step = m_picture_ptr->linesize[0];
+			*cn = m_picture_ptr->ch_layout.nb_channels;
+
+#if 0
+			AVFrame* sw_picture = m_picture_ptr;
+#if USE_AV_HW_CODECS
+			// if hardware frame, copy it to system memory
+			if (m_picture_ptr && m_picture_ptr->hw_frames_ctx)
+			{
+				sw_picture = av_frame_alloc();
+				//if (av_hwframe_map(sw_picture, picture, AV_HWFRAME_MAP_READ) < 0) {
+				if (av_hwframe_transfer_data(sw_picture, m_picture_ptr, 0) < 0)
+				{
+					printf("Error copying data from GPU to CPU (av_hwframe_transfer_data \n");
+					//CV_LOG_ERROR(NULL, "Error copying data from GPU to CPU (av_hwframe_transfer_data)");
+					return false;
+				}
+			}
+#endif
+			if (!sw_picture || !sw_picture->data[0])
+			{
+				return false;
+			}
+			if (m_sws_ctx_ptr == NULL ||
+				m_frame.width != m_video_stream_ptr->CV_FFMPEG_CODEC_FIELD->width ||
+				m_frame.height != m_video_stream_ptr->CV_FFMPEG_CODEC_FIELD->height ||
+				m_frame.data == NULL)
+			{
+				// Some sws_scale optimizations have some assumptions about alignment of data/step/width/height
+	   // Also we use coded_width/height to workaround problem with legacy ffmpeg versions (like n0.8)
+				int32_t buffer_width = m_codec_ctx_ptr->coded_width;
+				int32_t buffer_height = m_codec_ctx_ptr->coded_height;
+
+				m_sws_ctx_ptr = sws_getCachedContext(
+					m_sws_ctx_ptr,
+					buffer_width, buffer_height,
+					(AVPixelFormat)sw_picture->format,
+					buffer_width, buffer_height,
+					AV_PIX_FMT_YUV420P,
+					SWS_BICUBIC,
+					NULL, NULL, NULL
+				);
+
+				if (m_sws_ctx_ptr == NULL)
+				{
+					printf("Cannot initialize the conversion context!!!\n");
+					return false;//CV_Error(0, "Cannot initialize the conversion context!");
+				}
+#if USE_AV_FRAME_GET_BUFFER
+				av_frame_unref(m_sws_frame_ptr);
+				m_sws_frame_ptr->format = AV_PIX_FMT_YUV420P;
+				m_sws_frame_ptr->width = buffer_width;
+				m_sws_frame_ptr->height = buffer_height;
+				if (0 != av_frame_get_buffer(m_sws_frame_ptr, 32))
+				{
+					printf("av_frame_get_buffer OutOfMemory \n ");
+					return false;
+				}
+#else
+				int aligns[AV_NUM_DATA_POINTERS];
+				avcodec_align_dimensions2(video_st->codec, &buffer_width, &buffer_height, aligns);
+				rgb_picture.data[0] = (uint8_t*)realloc(rgb_picture.data[0],
+					_opencv_ffmpeg_av_image_get_buffer_size(AV_PIX_FMT_BGR24,
+						buffer_width, buffer_height));
+				_opencv_ffmpeg_av_image_fill_arrays(&rgb_picture, rgb_picture.data[0],
+					AV_PIX_FMT_BGR24, buffer_width, buffer_height);
+#endif
+				m_frame.width = m_video_stream_ptr->CV_FFMPEG_CODEC_FIELD->width;
+				m_frame.height = m_video_stream_ptr->CV_FFMPEG_CODEC_FIELD->height;
+				m_frame.cn = 3;
+				m_frame.data = m_sws_frame_ptr->data[0];
+				m_frame.step = m_sws_frame_ptr->linesize[0];
+				}
+			sws_scale(
+				m_sws_ctx_ptr,
+				sw_picture->data,
+				sw_picture->linesize,
+				0, sw_picture->height,
+				m_sws_frame_ptr->data,
+				m_sws_frame_ptr->linesize
+			);
+
+			*data = m_frame.data;
+			*step = m_frame.step;
+			*width = m_frame.width;
+			*height = m_frame.height;
+			*cn = m_frame.cn;
+
+#if USE_AV_HW_CODECS
+			if (sw_picture != m_picture_ptr)
+			{
+				av_frame_free(&sw_picture);
+			}
+#endif
+#endif 
+			return true;
+		}
+		 
+		return ret;
+	}
+	bool cdecode::seek(double sec)
+	{
+		if (!m_open)
+		{
+			return false;
+		}
+		if (!m_ic_ptr)
+		{
+			return false;
+		}
+		seek((int64_t)(sec * get_fps() + 0.5));
+		/*int64_t ts = m_ic_ptr->duration * percentage;
 		int ret = ::av_seek_frame(m_ic_ptr, -1, ts, AVSEEK_FLAG_FRAME);
 		if (ret < 0)
 		{
 			printf("Seek error: %s", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
-		::avcodec_flush_buffers(m_codec_ctx_ptr);
+		::avcodec_flush_buffers(m_codec_ctx_ptr);*/
 		return true;
+	}
+	void cdecode::seek(int64_t frame_number)
+	{
+		assert(m_ic_ptr);
+		m_frame_number = min(m_frame_number, get_total_frames());
+		int delta = 16;
+
+		// if we have not grabbed a single frame before first seek, let's read the first frame
+		// and get some valuable information during the process
+		if (m_first_frame_number < 0 && get_total_frames() > 1)
+		{
+			grab_frame();
+		}
+
+		for (;;)
+		{
+			int64_t _frame_number_temp =  max(m_frame_number - delta, (int64_t)0);
+			double sec = (double)_frame_number_temp / get_fps();
+			int64_t time_stamp = m_ic_ptr->streams[m_video_stream_index]->start_time;
+			double  time_base = r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
+			time_stamp += (int64_t)(sec / time_base + 0.5);
+			if (get_total_frames() > 1) 
+			{
+				av_seek_frame(m_ic_ptr, m_video_stream_index, time_stamp, AVSEEK_FLAG_BACKWARD);
+			}
+			avcodec_flush_buffers(m_codec_ctx_ptr);
+			if (m_frame_number > 0)
+			{
+				grab_frame();
+
+				if (m_frame_number > 1)
+				{
+					frame_number = dts_to_frame_number(m_picture_pts) - m_first_frame_number;
+					//printf("_frame_number = %d, frame_number = %d, delta = %d\n",
+					//       (int)_frame_number, (int)frame_number, delta);
+
+					if (frame_number < 0 || frame_number > m_frame_number - 1)
+					{
+						if (_frame_number_temp == 0 || delta >= INT_MAX / 4)
+						{
+							break;
+						}
+						delta = delta < 16 ? delta * 2 : delta * 3 / 2;
+						continue;
+					}
+					while (frame_number < m_frame_number - 1)
+					{
+						if (!grab_frame())
+						{
+							break;
+						}
+					}
+					frame_number++;
+					break;
+				}
+				else
+				{
+					frame_number = 1;
+					break;
+				}
+			}
+			else
+			{
+				frame_number = 0;
+				break;
+			}
+		}
+	}
+	int64_t cdecode::get_total_frames() const
+	{
+		if (!m_ic_ptr)
+		{
+			return 0;
+		}
+		int64_t nbf = m_ic_ptr->streams[m_video_stream_index]->nb_frames;
+
+		if (nbf == 0)
+		{
+			nbf = (int64_t)::floor(get_duration_sec() * get_fps() + 0.5);
+		}
+		return nbf;
+	}
+	double cdecode::get_duration_sec() const
+	{
+		if (!m_ic_ptr)
+		{
+			return 0.0;
+		}
+		double sec = (double)m_ic_ptr->duration / (double)AV_TIME_BASE;
+
+		if (sec < m_eps_zero)
+		{
+			sec = (double)m_ic_ptr->streams[m_video_stream_index]->duration * r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
+		}
+
+		return sec;
+	}
+	double cdecode::get_fps() const
+	{
+#if 0 && LIBAVFORMAT_BUILD >= CALC_FFMPEG_VERSION(55, 1, 100) && LIBAVFORMAT_VERSION_MICRO >= 100
+		double fps = r2d(av_guess_frame_rate(ic, ic->streams[video_stream], NULL));
+#else
+		double fps = r2d(m_ic_ptr->streams[m_video_stream_index]->avg_frame_rate);
+
+#if LIBAVFORMAT_BUILD >= CALC_FFMPEG_VERSION(52, 111, 0)
+		if (fps < m_eps_zero)
+		{
+			fps = r2d(m_ic_ptr->streams[m_video_stream_index]->avg_frame_rate);
+		}
+#endif
+
+		if (fps < m_eps_zero)
+		{
+			fps = 1.0 / r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
+		}
+#endif
+		return fps;
+	}
+	int64_t cdecode::get_bitrate() const
+	{
+		/*if (!m_ic_ptr)
+		{
+			return 0;
+		}*/
+		assert(m_ic_ptr);
+		return m_ic_ptr->bit_rate / 1000;
+	}
+	double cdecode::r2d(AVRational r) const
+	{
+		return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
+	}
+	int64_t cdecode::dts_to_frame_number(int64_t dts)
+	{
+		double sec = dts_to_sec(dts);
+		return (int64_t)(get_fps() * sec + 0.5);
+	}
+	double cdecode::dts_to_sec(int64_t dts) const
+	{
+		return (double)(dts - m_ic_ptr->streams[m_video_stream_index]->start_time) *
+			r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
+	}
+	void cdecode::get_rotation_angle()
+	{
+		m_rotation_angle = 0;
+#if LIBAVFORMAT_BUILD >= CALC_FFMPEG_VERSION(57, 68, 100)
+		//const uint8_t* data = NULL;
+		//av_frame_get_side_data();
+		/*const uint8_t* data   = ::av_stream_get_side_data(m_video_stream_ptr, AV_PKT_DATA_DISPLAYMATRIX, NULL);
+		if (data)
+		{
+			m_rotation_angle = -ffmpeg_util::round(av_display_rotation_get((const int32_t*)data));
+			if (m_rotation_angle < 0)
+			{
+				m_rotation_angle += 360;
+			}
+		} */
+#elif LIBAVUTIL_BUILD >= CALC_FFMPEG_VERSION(52, 94, 100)
+		AVDictionaryEntry* rotate_tag = av_dict_get(video_st->metadata, "rotate", NULL, 0);
+		if (rotate_tag != NULL)
+			rotation_angle = atoi(rotate_tag->value);
+#endif
 	}
 }

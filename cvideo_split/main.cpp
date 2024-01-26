@@ -244,72 +244,152 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
-
+#include "cglobal_ffmpeg_register.h"
 #include <opencv2/opencv.hpp>
 
 int main(int argc, char** argv) 
 {
 	//****初始化,分配内存,声明参数****//
-	avformat_network_init();
+	
+	//avformat_network_init();
 	//avcodec_register_all();
-	chen::cdecode decode;
 
-	if (!decode.init("udp://@224.1.2.3:20048"))
+
+	chen::g_global_ffmpeg_register.init();
+
+	chen::cdecode decode1;
+	chen::cdecode decode2;
+	// udp://@224.1.2.3:20000
+	// // http://192.168.2.192/
+	// http://192.168.2.192/cgi-bin/configManager.cgi?action=getConfig&name=Multicast
+	// http://192.168.2.192/cgi-bin/configManager.cgi?action=setConfig&Multicast.TS[3].Enable=true
+	if (!decode1.init("udp://@224.1.1.3:20000"))
 	{
 		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
 		return 0;
 	}
-
+	if (!decode2.init("udp://@224.1.1.3:20000"))
+	{
+		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
+		return 0;
+	}
+	 
 	chen::cencoder encoder;
-	if (!encoder.init( "udp://@239.255.255.250:54546", decode.get_width(), decode.get_height()))
+	if (!encoder.init( "udp://@239.255.255.250:54546", decode1.get_width() *2, decode1.get_height()  ))
 	{
 		encoder.stop();
 		
 	}
+	 
 	AVFrame* frame = NULL;
 	int32_t sleep_ms = 1000 / 28;
+
+
+	uint8_t* data = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * (decode1.get_height() * decode1.get_width() * 4)));;
+	int32_t width = 0;
+	int32_t height = 0;
+	int32_t step = 0;
+	int32_t cn = 0;
+	int32_t count = 0;
+	std::thread([&]() {
+		while (true)
+		{
+			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			AVFrame* frame_ptr;
+			{
+				bool ret = decode1.retrieve( /*frame_ptr*/
+					&data, &step, &width, &height, &cn);
+				if (!ret)
+				{
+					//des:
+					++count;
+					//decode.destroy();
+					printf("-->>>>>>>>>>>>>>>>decode1>>>>>>>>>>>>>>\n");
+					if (count > 3)
+					{
+						decode1.destroy();
+						std::this_thread::sleep_for(std::chrono::milliseconds(30));
+						decode1.init("udp://@224.1.1.3:20000");
+						count = 0;
+					}
+					else
+					{
+						std::this_thread::sleep_for(std::chrono::milliseconds(30));
+					}
+					continue;
+
+				}
+
+				encoder.consume_frame1(data, step, width, height, cn);
+			}
+			 
+			std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			std::chrono::milliseconds diff_ms = cur_ms - ms;
+			//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
+			ms = cur_ms;
+
+			if (sleep_ms > diff_ms.count())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+			}
+		}
+		}).detach();
 	while (true)
 	{
-		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::system_clock::now().time_since_epoch());
-		int ret = decode.retrieve(frame);
-		if (ret < 0)
+		while (true)
 		{
-			des:
-
-			decode.destroy();
-			printf("-->>>>>>>>>>>>>>>>decode>>>>>>>>>>>>>>\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(30));
-			
-			if (!decode.init("udp://@224.1.2.3:20048"))
+			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			AVFrame* frame_ptr;
+			 
 			{
-				goto des;
+				bool ret = decode2.retrieve( /*frame_ptr*/
+					&data, &step, &width, &height, &cn);
+				if (!ret)
+				{
+					//des:
+					++count;
+					//decode.destroy();
+					printf("-->>>>>>>>>>>>>>>>decode2>>>>>>>>>>>>>>\n");
+
+
+					if (count > 3)
+					{
+						decode2.destroy();
+						std::this_thread::sleep_for(std::chrono::milliseconds(30));
+						decode2.init("udp://@224.1.1.3:20000");
+						count = 0;
+					}
+					else
+					{
+						std::this_thread::sleep_for(std::chrono::milliseconds(30));
+					}
+					continue;
+
+				}
+				encoder.consume_frame2(data, step, width, height, cn);
 			}
-			continue;
+			std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			std::chrono::milliseconds diff_ms = cur_ms - ms;
+			//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
+			ms = cur_ms;
 
-		}
-		//读取文件结束位置了
-		if (ret == 0)
-		{
-			//break;
-		}
-		encoder.consume_frame(frame);
-		std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::system_clock::now().time_since_epoch());
-		std::chrono::milliseconds diff_ms = cur_ms - ms;
-		//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
-		ms = cur_ms;
-
-		if (sleep_ms > diff_ms.count())
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+			if (sleep_ms > diff_ms.count())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+			}
 		}
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1000/25));
 
 		//::fwrite(buffer, 1, (((rect_width * rect_height) / 2) + (rect_width * rect_height)), out_file_ptr);
 		//::fflush(out_file_ptr);
+	
 	}
-	decode.destroy();
+	decode1.destroy();
+	decode2.destroy();
 	encoder.stop();
 	encoder.destroy();
 	if (frame)

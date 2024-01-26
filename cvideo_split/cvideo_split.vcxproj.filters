@@ -28,6 +28,9 @@
     <Filter Include="util">
       <UniqueIdentifier>{22929a86-4c8a-4760-832c-0751dd272b39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="global_logic">
+      <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +51,9 @@
     <ClCompile Include="cffmpeg_util.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="cglobal_ffmpeg_register.cpp">
+      <Filter>global_logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="video_split.cu">
@@ -66,6 +72,9 @@
     </ClInclude>
     <ClInclude Include="cffmpeg_util.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="cglobal_ffmpeg_register.h">
+      <Filter>global_logic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
