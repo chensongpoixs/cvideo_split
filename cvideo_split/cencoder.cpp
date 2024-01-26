@@ -202,8 +202,8 @@ namespace chen {
 		m_stoped = true;
 	}
 
-	void cencoder::consume_frame1(/*const AVFrame* frame_ptr*/ 
-								 const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn )
+	void cencoder::consume_frame1(const AVFrame* frame_ptr 
+	/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/ )
 	{
 		if (m_stoped)
 		{
@@ -216,18 +216,28 @@ namespace chen {
 		}*/
 
 		{
-			rect_mem_copy(data, width, height,
+			rect_mem_copy(frame_ptr->data[0], frame_ptr->width, frame_ptr->height,
+				&m_frame_ptr->data[0], frame_ptr->width * 2, frame_ptr->height,
+				0, 0, 0, 0, frame_ptr->width, frame_ptr->height, EFormatYuv420P);
+			rect_mem_copy(frame_ptr->data[1], frame_ptr->width / 2, frame_ptr->height / 2,
+				&m_frame_ptr->data[1], frame_ptr->width, frame_ptr->height / 2,
+				0, 0, 0, 0, frame_ptr->width / 2, frame_ptr->height / 2, EFormatYuv420P);
+
+			rect_mem_copy(frame_ptr->data[2], frame_ptr->width / 2, frame_ptr->height / 2,
+				&m_frame_ptr->data[2], frame_ptr->width, frame_ptr->height / 2,
+				0, 0, 0, 0, frame_ptr->width / 2, frame_ptr->height / 2, EFormatYuv420P);
+			/*rect_mem_copy(data, width, height,
 				&m_frame_ptr->data[0], width * 2,  height  , 
-				0, 0, 0, 0, width , height , EFormatYuv420P);
+				0, 0, 0, 0, width , height , EFormatYuv420P);*/
 
 			 
-			rect_mem_copy(data + (width * height), width/2, height/2,
+			 /*rect_mem_copy(data + (width * height), width/2, height/2,
 				&m_frame_ptr->data[1], width, height/2, 
 				0, 0, 0, 0, width /2 , height /2 , EFormatYuv420P);
 
 			rect_mem_copy(data + ((width * height) * 5/4), width/2, height/2,
 				&m_frame_ptr->data[2], width , height/2 , 
-				0, 0, 0, 0, width/2, height/2, EFormatYuv420P);
+				0, 0, 0, 0, width/2, height/2, EFormatYuv420P); */
 
 			 
 		}
@@ -243,8 +253,8 @@ namespace chen {
 		//}
 	}
 
-	void cencoder::consume_frame2(/*const AVFrame* frame_ptr*/
-		const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn)
+	void cencoder::consume_frame2(const AVFrame* frame_ptr
+		/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/)
 	{
 		 
 		if (m_stoped)
@@ -252,21 +262,34 @@ namespace chen {
 			return;
 		}
 		{
-			rect_mem_copy(data, width, height,
+			rect_mem_copy(frame_ptr->data[0], frame_ptr->width, frame_ptr->height,
+				&m_frame_ptr->data[0], frame_ptr->width * 2, frame_ptr->height,
+				0, 0,
+				frame_ptr->width, 0, frame_ptr->width, frame_ptr->height, EFormatYuv420P);
+			  rect_mem_copy(frame_ptr->data[1], frame_ptr->width / 2, frame_ptr->height / 2,
+				&m_frame_ptr->data[1], frame_ptr->width, frame_ptr->height / 2,
+				0, 0,
+				  frame_ptr->width/2, 0, frame_ptr->width / 2, frame_ptr->height / 2, EFormatYuv420P);
+
+				 rect_mem_copy(frame_ptr->data[2], frame_ptr->width / 2, frame_ptr->height / 2,
+					&m_frame_ptr->data[2], frame_ptr->width, frame_ptr->height / 2,
+					0, 0,
+					 frame_ptr->width/2, 0, frame_ptr->width / 2, frame_ptr->height / 2, EFormatYuv420P);
+			/*rect_mem_copy(data, width, height,
 				&m_frame_ptr->data[0], width * 2, height,
 				0, 0, 
-				width, 0, width, height, EFormatYuv420P);
+				width, 0, width, height, EFormatYuv420P);*/
 
 
-			rect_mem_copy(data + (width * height), width / 2, height / 2,
+			/* rect_mem_copy(data + (width * height), width / 2, height / 2,
 				&m_frame_ptr->data[1], width, height / 2,
 				0, 0, 
-				width/2, 0, width / 2, height / 2, EFormatYuv420P);
+				width/2, 0, width / 2, height / 2, EFormatYuv420P);*/
 
-			rect_mem_copy(data + ((width * height) * 5 / 4), width / 2, height / 2,
+			/*rect_mem_copy(data + ((width * height) * 5 / 4), width / 2, height / 2,
 				&m_frame_ptr->data[2], width, height / 2,
 				0, 0, 
-				width/2, 0, width / 2, height / 2, EFormatYuv420P);
+				width/2, 0, width / 2, height / 2, EFormatYuv420P); */
 
 		}
 		/*if (width != m_frame_ptr->width || height != m_frame_ptr->height)

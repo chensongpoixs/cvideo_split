@@ -84,9 +84,9 @@ namespace chen {
 		* 读取一帧视频数据并转换到目标像素格式
 		* @param out_frame 输出帧数据， 目标像素格式， open函数设置
 		*/
-		bool retrieve(/*AVFrame * &frame*/
-					   unsigned char** data, int* step, int* width,
-			int* height, int* cn );
+		bool retrieve(AVFrame * &frame
+					   /*unsigned char** data, int* step, int* width,
+			int* height, int* cn */);
 
 
 		/**

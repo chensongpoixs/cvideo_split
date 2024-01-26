@@ -76,10 +76,10 @@ namespace chen {
 
 
 	public:
-		void consume_frame1(/*const AVFrame * frame_ptr*/
-		 const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn );
-		void consume_frame2(/*const AVFrame * frame_ptr*/
-			const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn);
+		void consume_frame1(const AVFrame * frame_ptr
+		 /*const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn*/ );
+		void consume_frame2(const AVFrame * frame_ptr
+			/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/);
 	private:
 		void _work_pthread();
 	private:

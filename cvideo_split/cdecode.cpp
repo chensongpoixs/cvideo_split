@@ -43,6 +43,7 @@ namespace chen {
 	{
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		close();
+		m_video_stream_ptr = NULL;
 		m_open = false;
 
 #if USE_AV_INTERRUPT_CALLBACK
@@ -357,23 +358,23 @@ namespace chen {
 
 		return valid;
 	}
-	bool cdecode::retrieve(/*AVFrame*& frame*/
-		 unsigned char** data, int* step, int* width,
-		int* height, int* cn )
+	bool cdecode::retrieve(AVFrame*& frame
+		 /*unsigned char** data, int* step, int* width,
+		int* height, int* cn*/ )
 	{
 		//AVFrame* srcFrame = nullptr;
 		bool ret = grab_frame( );
 		if (ret )
 		{
-			//frame = m_picture_ptr;
+			 frame = m_picture_ptr;
 			 
-			memcpy(*data, m_picture_ptr->data[0], m_picture_ptr->height * m_picture_ptr->width);
+			/*memcpy(*data, m_picture_ptr->data[0], m_picture_ptr->height * m_picture_ptr->width);
 			memcpy((*data) +(m_picture_ptr->height * m_picture_ptr->width) , m_picture_ptr->data[1], m_picture_ptr->height * m_picture_ptr->width/4);
 			memcpy((*data) + (m_picture_ptr->height * m_picture_ptr->width *5 /4), m_picture_ptr->data[2], m_picture_ptr->height * m_picture_ptr->width/4);
-			*width = m_picture_ptr->width;
+		*/	/**width = m_picture_ptr->width;
 			*height = m_picture_ptr->height;
 			*step = m_picture_ptr->linesize[0];
-			*cn = m_picture_ptr->ch_layout.nb_channels;
+			*cn = m_picture_ptr->ch_layout.nb_channels;*/
 
 #if 0
 			AVFrame* sw_picture = m_picture_ptr;

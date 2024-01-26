@@ -41,6 +41,14 @@ extern "C"
 #include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/display.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavfilter/avfilter.h>
+#include <libavfilter/buffersink.h>
+#include <libavfilter/buffersrc.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+#include <libavfilter/buffersink.h>
 }
 
 #include <cassert>
