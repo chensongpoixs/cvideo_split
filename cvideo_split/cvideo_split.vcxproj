@@ -81,15 +81,15 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(C_INCLUDE)\json\include;$(C_INCLUDE)\ffmpeg-6.1\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(C_INCLUDE)\json\lib\x64\debug;$(ProjectDir)..\lib\$(Platform)\$(Configuration);$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4ff\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4fff\lib;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(C_INCLUDE)\json\include;$(C_INCLUDE)\ffmpeg-6.1\include;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4ff\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(C_INCLUDE)\json\lib\x64\release;$(ProjectDir)..\lib\$(Platform)\$(Configuration);$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\ffmpeg-n4.4.1-11-g2c887141b8-win64-gpl-shared-4.4fff\lib;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -129,6 +129,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>common_web.lib;clib.lib;%(AdditionalDependencies);cudart.lib;cudadevrt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +147,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>common_web.lib;clib.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <CompileOut>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\cuda\%(Filename)%(Extension).obj</CompileOut>
@@ -158,6 +159,7 @@
     <ClCompile Include="cffmpeg_util.cpp" />
     <ClCompile Include="cglobal_ffmpeg_register.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
+    <ClCompile Include="cvideo_split.cpp" />
     <ClCompile Include="encoder.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -177,6 +179,7 @@
     <ClInclude Include="cffmpeg_util.h" />
     <ClInclude Include="cglobal_ffmpeg_register.h" />
     <ClInclude Include="crect_mem_copy.h" />
+    <ClInclude Include="cvideo_split.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,3 +6,6 @@
 /新建文本文档.txt
 /bin/x64/Debug
 /bin/x64/Release
+/clib/clib.vcxproj.user
+/common_web/common_web.vcxproj.user
+/lib

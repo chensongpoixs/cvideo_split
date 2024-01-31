@@ -125,8 +125,20 @@ namespace chen {
 				stream->discard = AVDISCARD_ALL;
 			}
 		}
+		const AVCodec* codec = NULL;
 		//4.查找解码器
-		const AVCodec* codec = avcodec_find_decoder(m_video_stream_ptr->codecpar->codec_id);
+		if (AV_CODEC_ID_H264 == m_video_stream_ptr->codecpar->codec_id)
+		{
+			codec = ::avcodec_find_decoder_by_name("h264_cuvid");
+		}
+		else if (AV_CODEC_ID_HEVC == m_video_stream_ptr->codecpar->codec_id)
+		{
+			codec = ::avcodec_find_decoder_by_name("hevc_cuvid");
+		}
+		else
+		{
+			codec = ::avcodec_find_decoder(m_video_stream_ptr->codecpar->codec_id);
+		}
 		if (!codec)
 		{
 			printf("can't find codec, codec id:%d\n", m_video_stream_ptr->codecpar->codec_id);

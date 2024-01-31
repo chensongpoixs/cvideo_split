@@ -43,8 +43,8 @@ namespace chen {
 		}
 		frames_ctx = (AVHWFramesContext*)(hw_frames_ref->data);
 		frames_ctx->format = AV_PIX_FMT_CUDA;
-		//frames_ctx->sw_format = AV_PIX_FMT_NV12;
-		frames_ctx->sw_format = AV_PIX_FMT_YUV420P;
+		frames_ctx->sw_format = AV_PIX_FMT_NV12;
+		//frames_ctx->sw_format = AV_PIX_FMT_YUV420P;
 		frames_ctx->width = ctx->width;
 		frames_ctx->height = ctx->height;
 		frames_ctx->initial_pool_size = 20;
@@ -311,7 +311,55 @@ namespace chen {
 			printf("[url = %s] stop = false\n", m_url.c_str());
 		//	return;
 		}
-		
+		m_url.clear();
+
+		if (m_codec_ctx_ptr)
+		{
+			//::avcodec_free_context(&m_codec_ctx_ptr);
+			m_codec_ctx_ptr = NULL;
+		}
+		 
+		if (m_push_format_context_ptr)
+		{
+			::avformat_close_input(&m_push_format_context_ptr);
+			m_push_format_context_ptr = NULL;
+		}
+		//sws_ctx = nullptr;
+		if (m_hw_frame_ptr)
+		{
+			::av_frame_free(&m_hw_frame_ptr);
+			m_hw_frame_ptr = NULL;
+		}
+		 
+		if (m_options_ptr)
+		{
+			av_dict_free(&m_options_ptr);
+			m_options_ptr = NULL;
+		}
+		if (m_pkt_ptr)
+		{
+			av_packet_free(&m_pkt_ptr);
+			m_pkt_ptr = NULL;
+		}
+		m_codec_id = AV_CODEC_ID_NONE;
+		m_stoped = true;
+		//std::string			m_url;
+		//uint32_t			m_width;
+		//uint32_t			m_height;
+		//AVFormatContext* m_push_format_context_ptr;
+		//enum AVCodecID		m_codec_id;
+		//AVCodecContext* m_codec_ctx_ptr;
+		//const AVCodec* m_codec_ptr;
+		//AVStream* m_stream_ptr;
+		//AVDictionary* m_options_ptr; // 参数
+		//AVPacket* m_pkt_ptr;
+		//clock_type			  m_frame_lock;
+		//std::list< AVFrame* > m_frame_list;
+		//bool				m_stoped;
+		//std::thread			m_thread;
+		//uint64_t				m_frame_count;
+		//uint64_t				m_pts;
+		//AVFrame* m_hw_frame_ptr;
 
 	}
 

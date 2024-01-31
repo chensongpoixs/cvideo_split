@@ -34,6 +34,9 @@
     <Filter Include="avtilter">
       <UniqueIdentifier>{715477ec-174f-46df-be40-0415edb5b577}</UniqueIdentifier>
     </Filter>
+    <Filter Include="video_split">
+      <UniqueIdentifier>{f7d93dc4-9c27-4406-9eb8-c2fb83f3fabf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,6 +60,9 @@
     <ClCompile Include="cglobal_ffmpeg_register.cpp">
       <Filter>global_logic</Filter>
     </ClCompile>
+    <ClCompile Include="cvideo_split.cpp">
+      <Filter>video_split</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="video_split.cu">
@@ -78,6 +84,9 @@
     </ClInclude>
     <ClInclude Include="cglobal_ffmpeg_register.h">
       <Filter>global_logic</Filter>
+    </ClInclude>
+    <ClInclude Include="cvideo_split.h">
+      <Filter>video_split</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
