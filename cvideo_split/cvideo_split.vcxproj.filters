@@ -31,6 +31,9 @@
     <Filter Include="global_logic">
       <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="avtilter">
+      <UniqueIdentifier>{715477ec-174f-46df-be40-0415edb5b577}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

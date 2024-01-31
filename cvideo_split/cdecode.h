@@ -117,7 +117,7 @@ namespace chen {
 		void    get_rotation_angle();
 	private:
 		//cdecode(const cdecode&);
-	private:
+	public:
 		bool   m_open;
 		int	   m_width;
 		int	   m_height;

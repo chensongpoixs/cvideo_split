@@ -26,6 +26,7 @@ purpose:		camera
 #include <cassert>
 
 #ifdef _MSC_VER
+#if !_DEBUG
 #pragma comment(lib, "libavcodec.lib")
 #pragma comment(lib, "libavdevice.lib")
 #pragma comment(lib, "libavfilter.lib")
@@ -34,6 +35,17 @@ purpose:		camera
 #pragma comment(lib, "libpostproc.lib")
 #pragma comment(lib, "libswresample.lib")
 #pragma comment(lib, "libswscale.lib")
+#else 
+#pragma comment(lib, "libavcodecd.lib")
+#pragma comment(lib, "libavdeviced.lib")
+#pragma comment(lib, "libavfilterd.lib")
+#pragma comment(lib, "libavformatd.lib")
+#pragma comment(lib, "libavutild.lib")
+#pragma comment(lib, "libpostprocd.lib")
+#pragma comment(lib, "libswresampled.lib")
+#pragma comment(lib, "libswscaled.lib")
+#endif // !_DEBUG
+
 #elif defined(__GNUC__)
 
 #else 
@@ -60,7 +72,7 @@ namespace chen
 			return av_make_error_string(g_errorbuffer, AV_ERROR_MAX_STRING_SIZE, err_code);
 		}
 		
-		static inline int round(double value)
+		 inline int round(double value)
 		{
 #if defined CV_INLINE_ROUND_DBL
 			CV_INLINE_ROUND_DBL(value);

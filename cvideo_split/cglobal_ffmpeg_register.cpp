@@ -75,7 +75,7 @@ namespace chen {
         static int prev_level = -1;
         CV_UNUSED(ptr);
         if (level > av_log_get_level()) return;
-        if (!skip_header || level != prev_level) printf("[OPENCV:FFMPEG:%02d] ", level);
+        if (!skip_header || level != prev_level) printf("[chen:ffmpeg:%02d] ", level);
         vprintf(fmt, vargs);
         size_t fmt_len = strlen(fmt);
         skip_header = fmt_len > 0 && fmt[fmt_len - 1] != '\n';

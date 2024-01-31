@@ -49,6 +49,7 @@ extern "C"
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
 #include <libavfilter/buffersink.h>
+#include <libavutil/cpu.h>
 }
 
 #include <cassert>

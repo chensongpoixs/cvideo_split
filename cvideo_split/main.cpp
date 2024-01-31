@@ -1,4 +1,5 @@
-﻿#include <iostream>
+﻿//#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
 #include <signal.h>
 #include "crect_mem_copy.h"
 //#include <opencv2/core.hpp>
@@ -232,276 +233,10 @@ int test_main(int argc, char* argv[])
 }
 
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-extern "C" {
-#include <libavutil/time.h>
-#include <libavutil/timestamp.h>
-#include <libavutil/opt.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-}
+ 
 #include "cglobal_ffmpeg_register.h"
-#include <opencv2/opencv.hpp>
 
-
-int main(int argc, char* argv[])
-{
-	printf("Hello video mark!\n");
-	int ret = 0;
-	FILE* infile = NULL;
-	const char* infileName = "chensong.yuv";
-	fopen_s(&infile, infileName, "rb");
-	if (!infile)
-	{
-		printf("fopen_s() infile failed!\n");
-		return -1;
-	}
-
-	int in_width = 1920;
-	int in_height = 1080;
-
-	FILE* outfile = NULL;
-	const char* outfileName = "out_mark.yuv";
-	fopen_s(&outfile, outfileName, "wb");
-	if (!outfile)
-	{
-		printf("fopen_s() outfile failed!\n");
-		return -1;
-	}
-
-	//注册初始化所有过滤器
-	//avfilter_register_all();
-
-	//用于整个过滤流程的一个封装
-	AVFilterGraph* filter_grah = avfilter_graph_alloc();
-	if (!filter_grah)
-	{
-		printf("avfilter_graph_alloc() failed!\n");
-		return -1;
-	}
-
-	char args[512];
-	sprintf(args,
-		"video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-		in_width, in_height, AV_PIX_FMT_YUV420P,
-		1, 25, 1, 1);
-
-	//获取一个用于AVFilterGraph输入的过滤器
-	const AVFilter* buffersSrc = avfilter_get_by_name("buffer");
-	AVFilterContext* bufferSrc_ctx;
-	//将bufferSrc添加到AVFilterGraph中
-	//args是用在bufferSrc的参数
-	ret = avfilter_graph_create_filter(&bufferSrc_ctx, buffersSrc,
-		"in", args, NULL, filter_grah);
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() buffersSrc failed!\n");
-		return -1;
-	}
-
-	AVBufferSinkParams* bufferSinkParams;
-	AVFilterContext* bufferSink_ctx;
-	//获取一个用于AVFilterGraph输出的过滤器
-	const AVFilter* bufferSink = avfilter_get_by_name("buffersink");
-	enum AVPixelFormat pix_fmts[] = { AV_PIX_FMT_YUV420P, AV_PIX_FMT_NONE };
-	bufferSinkParams = av_buffersink_params_alloc();
-	bufferSinkParams->pixel_fmts = pix_fmts;
-	ret = avfilter_graph_create_filter(&bufferSink_ctx, bufferSink,
-		"out", NULL, bufferSinkParams, filter_grah);
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() bufferSink failed!\n");
-		return -1;
-	}
-
-
-	//split filter(分流)
-	AVFilter* splitFilter = avfilter_get_by_name("split");
-	AVFilterContext* splitFilter_ctx;
-	//outputs=2 分流2通道
-	ret = avfilter_graph_create_filter(&splitFilter_ctx, splitFilter, "split",
-		"outputs=2", NULL, filter_grah);
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() splitFilter failed!\n");
-		return -1;
-	}
-
-	//crop filter(裁剪)
-	AVFilter* cropFilter = avfilter_get_by_name("crop");
-	AVFilterContext* cropFilter_ctx;
-	ret = avfilter_graph_create_filter(&cropFilter_ctx, cropFilter, "crop",
-		"out_w=iw:out_h=ih/2:x=0:y=0", NULL, filter_grah);
-
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() cropFilter failed!\n");
-		return -1;
-	}
-
-
-	//vflip filter(垂直向上的翻转)
-	AVFilter* vflipFilter = avfilter_get_by_name("vflip");
-	AVFilterContext* vflipFilter_ctx;
-	ret = avfilter_graph_create_filter(&vflipFilter_ctx, vflipFilter, "vflip",
-		NULL, NULL, filter_grah);
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() vflipFilter failed!\n");
-		return -1;
-	}
-
-
-	//overlay filter(合成)
-	AVFilter* overlayFilter = avfilter_get_by_name("overlay");
-	AVFilterContext* overlayFilter_ctx;
-	ret = avfilter_graph_create_filter(&overlayFilter_ctx, overlayFilter, "overlay",
-		"y=0:H/2", NULL, filter_grah);
-
-	if (ret < 0)
-	{
-		printf("avfilter_graph_create_filter() overlayFilter failed!\n");
-		return -1;
-	}
-
-
-	//srcFilter -> splitFilter
-	//srcpad、dstpad是一个索引，通道的索引
-	ret = avfilter_link(bufferSrc_ctx, 0, splitFilter_ctx, 0);
-	if (ret != 0)
-	{
-		printf("avfilter_link() srcFilter -> splitFilter failed!\n");
-		return -1;
-	}
-
-	//splitFilter[0] -> overlayfilter[0]
-	ret = avfilter_link(splitFilter_ctx, 0, overlayFilter_ctx, 0);
-	if (ret != 0)
-	{
-		printf("avfilter_link() splitFilter[0] -> overlayfilter[0] failed!\n");
-		return -1;
-	}
-
-	//splitFilter[1] -> cropFilter
-	ret = avfilter_link(splitFilter_ctx, 1, cropFilter_ctx, 0);
-	if (ret != 0)
-	{
-		printf("avfilter_link() splitFilter[1] -> cropFilter failed!\n");
-		return -1;
-	}
-	\
-		//cropFilter -> vflipFilter
-		ret = avfilter_link(cropFilter_ctx, 0, vflipFilter_ctx, 0);
-	if (ret != 0)
-	{
-		printf("avfilter_link() cropFilter -> vflipFilter failed!\n");
-		return -1;
-	}
-
-	//vflipFilter -> overlayfilter[1]
-	ret = avfilter_link(vflipFilter_ctx, 0, overlayFilter_ctx, 1);
-	if (ret != 0)
-	{
-		printf("avfilter_link() vflipFilter -> overlayfilter[1] failed!\n");
-		return -1;
-	}
-
-	//overlayfilter -> bufferSink
-	ret = avfilter_link(overlayFilter_ctx, 0, bufferSink_ctx, 0);
-	if (ret != 0)
-	{
-		printf("avfilter_link() overlayfilter -> bufferSink failed!\n");
-		return -1;
-	}
-
-	//确认所有过滤器的连接
-	ret = avfilter_graph_config(filter_grah, NULL);
-	if (ret < 0)
-	{
-		printf("avfilter_graph_config() failed!\n");
-		return -1;
-	}
-
-	//打印filtergraph的信息
-	char* graph_str = avfilter_graph_dump(filter_grah, NULL);
-	printf("\n%s\n", graph_str);
-	av_free(graph_str);
-
-	//输入帧
-	AVFrame* frame_in = av_frame_alloc();
-	unsigned char* frame_buffer_in = (unsigned char*)av_malloc(
-		av_image_get_buffer_size(AV_PIX_FMT_YUV420P, in_width, in_height, 1));
-
-	//输出帧
-	AVFrame* frame_out = av_frame_alloc();
-
-	frame_in->width = in_width;
-	frame_in->height = in_height;
-	frame_in->format = AV_PIX_FMT_YUV420P;
-
-	uint32_t frame_size = in_width * in_height * 3 / 2;
-
-	while (1)
-	{
-		//读取yuv数据
-		if (fread(frame_buffer_in, 1, frame_size, infile) != frame_size)
-		{
-			break;
-		}
-
-		av_image_fill_arrays(frame_in->data, frame_in->linesize, frame_buffer_in, AV_PIX_FMT_YUV420P, in_width, in_height, 1);
-
-
-		//添加帧数据到过滤器
-		if (av_buffersrc_add_frame(bufferSrc_ctx, frame_in) < 0)
-		{
-			printf("av_buffersrc_add_frame() failed!\n");
-			break;
-		}
-
-
-		//获取输出帧数据
-		ret = av_buffersink_get_frame(bufferSink_ctx, frame_out);
-		if (ret < 0)
-		{
-			printf("av_buffersink_get_frame() failed!\n");
-			break;
-		}
-
-
-		//输出文件
-		if (frame_out->format == AV_PIX_FMT_YUV420P)
-		{
-			for (int i = 0; i < frame_out->height; i++) {
-				fwrite(frame_out->data[0] + frame_out->linesize[0] * i, 1, frame_out->width, outfile);
-			}
-			for (int i = 0; i < frame_out->height / 2; i++) {
-				fwrite(frame_out->data[1] + frame_out->linesize[1] * i, 1, frame_out->width / 2, outfile);
-			}
-			for (int i = 0; i < frame_out->height / 2; i++) {
-				fwrite(frame_out->data[2] + frame_out->linesize[2] * i, 1, frame_out->width / 2, outfile);
-			}
-		}
-
-		av_frame_unref(frame_out);
-
-	}
-
-	fclose(infile);
-	fclose(outfile);
-
-	av_frame_free(&frame_in);
-	av_frame_free(&frame_out);
-	avfilter_graph_free(&filter_grah);
-	printf("end video mark!\n");
-	return 0;
-	return 0;
-}
-int testmain(int argc, char** argv) 
+int  main(int argc, char** argv) 
 {
 	//****初始化,分配内存,声明参数****//
 	
@@ -513,6 +248,26 @@ int testmain(int argc, char** argv)
 
 	chen::cdecode decode1;
 	chen::cdecode decode2;
+
+
+
+
+
+	AVFilterGraph* g_graph = NULL;
+	AVFilterContext* g_buffer1_ctx = NULL; 
+	AVFilterContext* g_buffer2_ctx = NULL;
+	AVFilterContext* g_buffer1_crop_ctx = NULL;
+	AVFilterContext* g_buffer2_crop_ctx = NULL;
+	AVFilterContext* g_buffer1_scale_ctx = NULL;
+	AVFilterContext* g_buffer2_scale_ctx = NULL;
+	AVFilterContext* g_hstack_ctx = NULL;
+
+
+	AVFilterContext* g_buffersink_ctx = NULL; 
+
+
+
+
 	// udp://@224.1.2.3:20000
 	// // http://192.168.2.192/
 	// http://192.168.2.192/cgi-bin/configManager.cgi?action=getConfig&name=Multicast
@@ -522,14 +277,237 @@ int testmain(int argc, char** argv)
 		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
 		return 0;
 	}
+
+	{
+
+	
+
+
+	
+	}//udp://@224.1.1.3:20000
 	if (!decode2.init("udp://@224.1.1.3:20000"))
 	{
 		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
 		return 0;
 	}
+
+	// init filter 
+	{
+		int32_t ret = 0;
+		//;[v0][v1]hstack=2[out]
+		//[0:v]crop=1900:800:100:100,scale=1920:1080[v0];[1:v]crop=1900:800:10:10,scale=1920:1080[v1];[v0][v1]hstack=2[out]
+		//const char* filter_desc = "crop=1900:800:100:100,scale=1920:1080";
+		const char* filter_desc = "[0:v]crop=1900:800:10:10,scale=1920:1080[v0];[1:v]crop=1900:800:10:10,scale=1920:1080[v1];[v0][v1]hstack=2[out]";
+		//const char* filter_desc = "[in1]crop=1900:800:100:100,scale=1920:1080[in0];[in1]crop=1900:800:10:10,scale=1920:1080[in1];[in0][in1]hstack=2[out]";
+
+		
+		
+		const AVFilter* buffersrc1 = ::avfilter_get_by_name("buffer");
+		const AVFilter* buffersrc2 = ::avfilter_get_by_name("buffer");
+		const AVFilter* bufcrop1_src = avfilter_get_by_name("crop");
+		const AVFilter* bufcrop2_src = avfilter_get_by_name("crop");
+		const AVFilter* bufscale1_src = avfilter_get_by_name("scale"); 
+		const AVFilter* bufscale2_src = avfilter_get_by_name("scale"); 
+		const AVFilter* hstack = avfilter_get_by_name("hstack");
+		
+		const AVFilter* buffersink = ::avfilter_get_by_name("buffersink");
+
+
+		AVFilterInOut* inputs = ::avfilter_inout_alloc(); 
+		AVFilterInOut* outputs = ::avfilter_inout_alloc(); 
+		if (!inputs)
+		{
+			printf("alloc inputs failed !!!\n");
+			return -1;
+		}
+		if (!outputs)
+		{
+			printf("alloc outputs failed !!!\n");
+			return -1;
+		}
+
+		char args[1024] = { 0 };
+		AVRational time_base = decode1.m_ic_ptr ->streams[decode1.m_video_stream_index]->time_base;
+		// video_size=wxh:pix_fmt=xx:time_base=xxx/xxxx:pixel_aspect=xxx/xx
+		snprintf(args, 1024, "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+			decode1.m_codec_ctx_ptr->width, decode1.m_codec_ctx_ptr->height, decode1.m_codec_ctx_ptr->pix_fmt,
+			time_base.num, time_base.den,
+			decode1.m_codec_ctx_ptr->sample_aspect_ratio.num, decode1.m_codec_ctx_ptr->sample_aspect_ratio.den);
+
+		//
+		g_graph = ::avfilter_graph_alloc();
+
+		if (!g_graph)
+		{
+			printf("alloc graph failed !!!\n");
+			return -1;
+		}
+
+		//解析描述符 filter_desc 
+		// "[0:v]crop=900:900:10:10,scale=1920:1080[v0];[1:v]crop=900:900:10:10,scale=1920:1080[v1];[v0][v1]hstack=2[out]"
+		// [a][b]overlay=xxxx[out]
+		// 输入 buffer filter 创建
+		// 构造input 和output
+		// args : 查看参数 命令 : ./ffmpeg -h filter=buffer
+		// src buffer 0 
+		ret = ::avfilter_graph_create_filter(&g_buffer1_ctx, buffersrc1, "in0", args, NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+
+		/*snprintf(args, 1024, "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+			decode1.m_codec_ctx_ptr->width, decode1.m_codec_ctx_ptr->height, decode1.m_codec_ctx_ptr->pix_fmt,
+			time_base.num, time_base.den,
+			decode1.m_codec_ctx_ptr->sample_aspect_ratio.num, decode1.m_codec_ctx_ptr->sample_aspect_ratio.den);
+	*/	 
+		std::string crop_str1 = "1910:1000:10:10";
+		ret = ::avfilter_graph_create_filter(&g_buffer1_crop_ctx, bufcrop1_src, "crop", crop_str1.c_str(), NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+		std::string scale_str1 = "1920:1080";
+		ret = ::avfilter_graph_create_filter(&g_buffer1_scale_ctx, bufscale1_src, "scale", scale_str1.c_str(), NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+		 
+		// src 1
+		 snprintf(args, 1024, "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
+			decode1.m_codec_ctx_ptr->width, decode1.m_codec_ctx_ptr->height, decode1.m_codec_ctx_ptr->pix_fmt,
+			time_base.num, time_base.den,
+			decode1.m_codec_ctx_ptr->sample_aspect_ratio.num, decode1.m_codec_ctx_ptr->sample_aspect_ratio.den);
+	 
+		ret = ::avfilter_graph_create_filter(&g_buffer2_ctx, buffersrc2, "in1", args, NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+
+		
+		std::string crop_str2 = "1920:1000:10:10";
+		ret = ::avfilter_graph_create_filter(&g_buffer2_crop_ctx, bufcrop2_src, "crop", crop_str2.c_str(), NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+		std::string scale_str2 = "1920:1080";
+		ret = ::avfilter_graph_create_filter(&g_buffer2_scale_ctx, bufscale2_src, "scale", scale_str2.c_str(), NULL/*buffer 用户数据*/, g_graph);
+		if (ret < 0)
+		{
+			printf("in -->avfilter graph create filter failed !!!");
+			return ret;
+		}
+
+		/////   hstatck 
+		ret = avfilter_graph_create_filter(&g_hstack_ctx, hstack, "hstack", "inputs=2", NULL, g_graph);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
+			return false;
+		}
+
+		// sink
+		ret = avfilter_graph_create_filter(&g_buffersink_ctx, buffersink, "out", NULL, NULL, g_graph);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
+			return false;
+		}
+
+		// 配置  处理流程
+		ret = avfilter_link(g_buffer1_ctx, 0, g_buffer1_crop_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+		ret = avfilter_link(g_buffer1_crop_ctx, 0, g_buffer1_scale_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+		ret = avfilter_link(g_buffer1_scale_ctx, 0, g_hstack_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+		ret = avfilter_link(g_buffer2_ctx, 0, g_buffer2_crop_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+		ret = avfilter_link(g_buffer2_crop_ctx, 0, g_buffer2_scale_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+		ret = avfilter_link(g_buffer2_scale_ctx, 0, g_hstack_ctx, 1);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+
+		ret = avfilter_link(g_hstack_ctx, 0, g_buffersink_ctx, 0);
+		if (0 > ret)
+		{
+			char buf[1024] = { 0 };
+			av_strerror(ret, buf, sizeof(buf) - 1);
+			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			return false;
+		}
+
+
+		//graph 生效
+		ret = ::avfilter_graph_config(g_graph, NULL);
+		if (ret < 0)
+		{
+			printf("filter graph config failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
+			return ret;
+		}
+		if (inputs->next)
+		{
+			::avfilter_inout_free(&inputs->next);
+			inputs->next = NULL;
+		}
+		::avfilter_inout_free(&inputs);
+		::avfilter_inout_free(&outputs);
+		inputs  = NULL;
+		 
+		outputs = NULL;
+		 
+	}
 	 
 	chen::cencoder encoder;
-	if (!encoder.init( "udp://@239.255.255.250:54546", decode1.get_width() *2, decode1.get_height()  ))
+	if (!encoder.init( "udp://@239.255.255.250:54546", 3840, 1080  ))
 	{
 		encoder.stop();
 		
@@ -545,95 +523,108 @@ int testmain(int argc, char** argv)
 	int32_t step = 0;
 	int32_t cn = 0;
 	int32_t count = 0;
-	std::thread([&]() {
-		while (true)
+	 
+	AVFrame* filter_frame = av_frame_alloc();
+	AVFrame* frame_ptr = NULL;;
+	while (true)
+	{
+		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
+		
 		{
-			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			AVFrame* frame_ptr;
+			bool ret = decode1.retrieve(frame_ptr
+			/*&data, &step, &width, &height, &cn*/);
+			if (!ret)
 			{
-				bool ret = decode1.retrieve(  frame_ptr 
-					/*&data, &step, &width, &height, &cn*/);
-				if (!ret)
+				//des:
+				++count;
+				//decode.destroy();
+				printf("-->>>>>>>>>>>>>>>>decode1>>>>>>>>>>>>>>\n");
+				if (count > 3)
 				{
-					//des:
-					++count;
-					//decode.destroy();
-					printf("-->>>>>>>>>>>>>>>>decode1>>>>>>>>>>>>>>\n");
-					if (count > 3)
-					{
-						decode1.destroy();
-						std::this_thread::sleep_for(std::chrono::milliseconds(30));
-						decode1.init("udp://@224.1.1.3:20000");
-						count = 0;
-					}
-					else
-					{
-						std::this_thread::sleep_for(std::chrono::milliseconds(30));
-					}
-					continue;
-
+					decode1.destroy();
+					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+					decode1.init("udp://@224.1.1.3:20000");
+					count = 0;
 				}
+				else
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+				}
+				continue;
 
-				encoder.consume_frame1(frame_ptr/*data, step, width, height, cn*/);
 			}
-			 
-			std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			std::chrono::milliseconds diff_ms = cur_ms - ms;
-			//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
-			ms = cur_ms;
-
-			if (sleep_ms > diff_ms.count())
+			  ret = ::av_buffersrc_add_frame(g_buffer1_ctx, frame_ptr);
+			if (ret < 0)
 			{
-				//std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+				printf("filter buffer1src add frame failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
+				//return ret;
 			}
+		//	encoder.consume_frame1(frame_ptr/*data, step, width, height, cn*/);
 		}
-		}).detach();
-		while (true)
 		{
-			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			AVFrame* frame_ptr;
-
+			bool ret = decode2.retrieve(  frame_ptr 
+				/*&data, &step, &width, &height, &cn*/);
+			if (!ret)
 			{
-				bool ret = decode2.retrieve(  frame_ptr 
-					/*&data, &step, &width, &height, &cn*/);
-				if (!ret)
+				//des:
+				++count;
+				//decode.destroy();
+				printf("-->>>>>>>>>>>>>>>>decode2>>>>>>>>>>>>>>\n");
+
+
+				if (count > 3)
 				{
-					//des:
-					++count;
-					//decode.destroy();
-					printf("-->>>>>>>>>>>>>>>>decode2>>>>>>>>>>>>>>\n");
-
-
-					if (count > 3)
-					{
-						decode2.destroy();
-						std::this_thread::sleep_for(std::chrono::milliseconds(30));
-						decode2.init("udp://@224.1.1.3:20000");
-						count = 0;
-					}
-					else
-					{
-						std::this_thread::sleep_for(std::chrono::milliseconds(30));
-					}
-					continue;
-
+					decode2.destroy();
+					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+					decode2.init("udp://@224.1.1.3:20000");
+					count = 0;
 				}
-				encoder.consume_frame2(frame_ptr/* data, step, width, height, cn*/);
+				else
+				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(30));
+				}
+				continue;
+
 			}
-			std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			std::chrono::milliseconds diff_ms = cur_ms - ms;
-			//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
-			ms = cur_ms;
-			printf("diff [%u]ms\n", diff_ms.count());
-			if (sleep_ms > diff_ms.count())
+			  ret = ::av_buffersrc_add_frame(g_buffer2_ctx, frame_ptr);
+			if (ret < 0)
 			{
-				//std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+				printf("filter buffer2src add frame failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
+				//return ret;
 			}
+
+			ret = ::av_buffersink_get_frame(g_buffersink_ctx, filter_frame);
+			if (ret < 0)
+			{
+				//有可能buuffersink还没有处理好数据 需要继续获取得啦 ~~~~
+				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+				{
+					// 需要释放资源啦 ~~~~
+					// av_frame_unref(filter_frame);
+					break;
+				}
+				printf("avfilter failed !!!\n");
+				continue;
+//				return ret;
+			}
+			printf("[width = %u][height = %u]\n", filter_frame->width, filter_frame->height);
+		 	encoder.push_frame(filter_frame);
+			// 
+			//::av_frame_unref(filter_frame);
+			//encoder.consume_frame2(frame_ptr/* data, step, width, height, cn*/);
 		}
+		std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
+		std::chrono::milliseconds diff_ms = cur_ms - ms;
+		//printf(" [frame = %u][%u][%u] ms [pts = %u]\n", frame_count, ::time(NULL), diff_ms.count(), m_pkt_ptr->dts);
+		ms = cur_ms;
+		printf("diff [%lu]ms[cpu = %u]\n", diff_ms.count(), av_cpu_count());
+		if (sleep_ms > diff_ms.count())
+		{
+			//std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
+		}
+	}
 	decode1.destroy();
 	decode2.destroy();
 	encoder.stop();
@@ -648,7 +639,7 @@ int testmain(int argc, char** argv)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}*/
 
-
+	//avcodec_register_all();
 	return EXIT_SUCCESS;
 	AVPacket* decodePacket;
 	AVPacket *encodePacket;
@@ -841,7 +832,7 @@ int testmain(int argc, char** argv)
 			encodePacket->dts = decodePacket->dts;// + (int)(duration*AV_TIME_BASE);
 			encodePacket->stream_index = 0;
 
-			printf("pts:%d , dts:%d , duration*AV_TIME_BASE:%d\n", 
+			printf("pts:%ld , dts:%ld , duration*AV_TIME_BASE:%d\n", 
 				encodePacket->pts, encodePacket->dts, (int)(duration * AV_TIME_BASE));
 			av_packet_rescale_ts( encodePacket, pInStream->time_base, pOutStream->time_base);
 			encodePacket->pos = -1;
