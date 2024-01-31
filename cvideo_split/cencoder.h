@@ -56,6 +56,7 @@ namespace chen {
 			, m_stoped(false)
 			, m_frame_count(0)
 			, m_pts(0)
+			, m_hw_frame_ptr(NULL)
 		{}
 		virtual ~cencoder(); 
 	public:
@@ -74,6 +75,9 @@ namespace chen {
 			/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/);
 	private:
 		void _work_pthread();
+
+
+		bool _init_gpu_frame();
 	private:
 		std::string			m_url;
 		uint32_t			m_width;
@@ -91,6 +95,7 @@ namespace chen {
 		std::thread			m_thread;
 		uint64_t				m_frame_count;
 		uint64_t				m_pts;
+		AVFrame* m_hw_frame_ptr;
 		std::chrono::microseconds m_mic; // = std::chrono::duration_cast<std::chrono::microseconds>(
 			//std::chrono::system_clock::now().time_since_epoch());
 		/*unsigned char* m_yuv420p_ptr;

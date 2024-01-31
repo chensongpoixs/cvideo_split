@@ -110,8 +110,9 @@ namespace chen {
 		}
 		m_codec_id = AV_CODEC_ID_H264;
 		AVBufferRef* hw_device_ctx = NULL;
-		 ret  = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA,
-			NULL, NULL, 0);
+		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
+		std::string gpu_index = "1";
+		 ret  = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
 		//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
 		m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");
 		if (!m_codec_ptr)
@@ -155,9 +156,17 @@ namespace chen {
 		m_frame_count = 0;
 		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 		std::chrono::system_clock::now().time_since_epoch());
-		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
+		// 设置GPU的id
+		//av_opt_set(m_codec_ctx_ptr->priv_data, "gpu", "1", 0);
+		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
+		
 		//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
-		//av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+		av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+		// profile 
+		::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+		//由于CBR的比特率是固定的，它在不同的设备上播放时的兼容性更好。
+		//VBR由于其压缩比率的不确定性，可能在某些设备上出现兼容性问题
+		::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
 		//av_dict_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 		//open the encoder
 		//AVDictionary* options = NULL;
@@ -212,8 +221,9 @@ namespace chen {
 		//	//}
 		//	
 		//}
-
-		ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr, NULL);
+		//AVDictionary* options= NULL;
+		//av_dict_set(&options, "gpu", "1", 0);
+		ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL );
 		if (ret < 0 ) 
 		{
 			printf( "[%s]Open encoder (%s)failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
@@ -278,6 +288,13 @@ namespace chen {
 			printf("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
 			return false;
 		}
+
+
+		//AVFrame* hw_frame = NULL;
+		return _init_gpu_frame();
+		
+
+
 	/*	m_yuv420p_ptr = static_cast<unsigned char *>(::malloc(sizeof(unsigned char) * (m_width * m_height * 471 * 2)));
 		
 		uint32_t frame_size = m_width * m_height * 3 / 2;
@@ -353,7 +370,7 @@ namespace chen {
 		//}
 		//else
 		{
-			AVFrame* hw_frame = NULL;
+			/*AVFrame* hw_frame = NULL;
 			if (!(hw_frame = av_frame_alloc())) {
 				ret = AVERROR(ENOMEM);
 				return;
@@ -365,22 +382,30 @@ namespace chen {
 			if (!hw_frame->hw_frames_ctx) {
 				ret = AVERROR(ENOMEM);
 				return;
+			}*/
+			if (!m_hw_frame_ptr)
+			{
+				if (!_init_gpu_frame())
+				{
+					// init gpu frame failed !!!
+					// init gpu frame failed !!!
+					return;
+				}
 			}
-
-			if ((ret = av_hwframe_transfer_data(hw_frame, frame_ptr, 0)) < 0) {
+			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) {
 				fprintf(stderr, "Error while transferring frame data to surface."
 					"Error code: %s.\n", ffmpeg_util::make_error_string(ret));
 				return;
 			}
 
-			ret = ::avcodec_send_frame(m_codec_ctx_ptr, hw_frame);
+			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
 				//::av_frame_unref(frame_ptr);
 				printf("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				return;
 			}
-			av_frame_free(&hw_frame);
+		//	av_frame_free(&hw_frame);
 		}
 
 		
@@ -425,6 +450,7 @@ namespace chen {
 		{
 			printf("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 		}
+		::av_packet_unref(m_pkt_ptr);
 		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		//AVFrame* temp = NULL;
@@ -656,6 +682,38 @@ namespace chen {
 			}
 			//std::this_thread::sleep_for(std::chrono::microseconds(10000000/25));
 		}
+	}
+
+	bool cencoder::_init_gpu_frame()
+	{
+		if (m_hw_frame_ptr)
+		{
+			// warring hw gpu frame !!!
+			return true;
+		}
+		int32_t ret = 0;
+		m_hw_frame_ptr = ::av_frame_alloc();
+		if (!m_hw_frame_ptr)
+		{
+			printf("alloc gpu hw frame  failed !!!\n");
+			return false;
+		}
+		/*if (!(m_hw_frame = av_frame_alloc())) {
+			ret = AVERROR(ENOMEM);
+			return;
+		}*/
+		ret = av_hwframe_get_buffer(m_codec_ctx_ptr->hw_frames_ctx, m_hw_frame_ptr, 0);
+		if (ret < 0) {
+			printf("Error code: %s.\n", ffmpeg_util::make_error_string(ret));
+			return false;
+		}
+		if (!m_hw_frame_ptr->hw_frames_ctx)
+		{
+			printf("[gpu hw frame ctx failed !!!]\n");
+			//	ret = AVERROR(ENOMEM);
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -507,7 +507,7 @@ int  main(int argc, char** argv)
 	}
 	 
 	chen::cencoder encoder;
-	if (!encoder.init( "udp://@239.255.255.250:54546", 3840, 1080  ))
+	if (!encoder.init( "udp://@239.255.255.250:54540", 3840, 1080  ))
 	{
 		encoder.stop();
 		
@@ -560,6 +560,7 @@ int  main(int argc, char** argv)
 				printf("filter buffer1src add frame failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
 				//return ret;
 			}
+			::av_frame_unref(frame_ptr);
 		//	encoder.consume_frame1(frame_ptr/*data, step, width, height, cn*/);
 		}
 		{
@@ -593,7 +594,7 @@ int  main(int argc, char** argv)
 				printf("filter buffer2src add frame failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
 				//return ret;
 			}
-
+			::av_frame_unref(frame_ptr);
 			ret = ::av_buffersink_get_frame(g_buffersink_ctx, filter_frame);
 			if (ret < 0)
 			{
@@ -610,6 +611,7 @@ int  main(int argc, char** argv)
 			}
 			printf("[width = %u][height = %u]\n", filter_frame->width, filter_frame->height);
 		 	encoder.push_frame(filter_frame);
+			::av_frame_unref(filter_frame);
 			// 
 			//::av_frame_unref(filter_frame);
 			//encoder.consume_frame2(frame_ptr/* data, step, width, height, cn*/);

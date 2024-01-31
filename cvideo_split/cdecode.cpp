@@ -310,8 +310,10 @@ namespace chen {
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
 			{
+				av_packet_unref(m_packet_ptr);
 				break;
 			}
+			av_packet_unref(m_packet_ptr);
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
 #else
 			int got_picture = 0;
