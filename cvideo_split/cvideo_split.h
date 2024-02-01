@@ -61,7 +61,32 @@ namespace chen {
 	class cvideo_splist : public cnoncopytable
 	{
 	public:
-		explicit cvideo_splist() {}
+		explicit cvideo_splist()
+			: m_stoped(false)
+			, m_video_split_name("")
+			, m_video_split_channel("")
+			, m_multicast_ip("")
+			, m_multicast_port(0)
+			, m_split_method(0)
+			, m_split_video_channels(0)
+			, m_split_video_lock_1080p(false)
+			, m_overlay(false)
+			, m_osd()
+			, m_out_video_width(0)
+			, m_out_video_height(0)
+			, m_canera_infos()
+			, m_decodes()
+			, m_encoder_ptr(NULL)
+			, m_filter_graph_ptr(NULL)
+			, m_buffers_ctx_ptr()
+			, m_buffers_crop_ctx_ptr()
+			, m_buffers_scale_ctx_ptr()
+			, m_hstack_ctx_ptr(NULL)
+			, m_vstack_ctx_ptr(NULL)
+			, m_overlay_ctx_ptr(NULL)
+			, m_osd_ctx_ptr(NULL)
+			, m_buffersink_ctx_ptr(NULL)
+		{}
 		virtual ~cvideo_splist(){}
 
 
@@ -74,6 +99,8 @@ namespace chen {
 
 	private:
 		bool _init_filter();
+
+		void _pthread_work();
 	private:
 		
 		std::atomic_bool		m_stoped;

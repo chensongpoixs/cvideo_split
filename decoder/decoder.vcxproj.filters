@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="cdecoder.cpp">
+      <Filter>decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="cdecoder_server.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="server">
+      <UniqueIdentifier>{e09f5b33-e804-45af-b75a-ae4219cd2845}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="decoder">
+      <UniqueIdentifier>{e7517815-f097-4b68-bc04-a9a4300799e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cdecoder.h">
+      <Filter>decoder</Filter>
+    </ClInclude>
+    <ClInclude Include="cdecoder_server.h" />
+  </ItemGroup>
+</Project>

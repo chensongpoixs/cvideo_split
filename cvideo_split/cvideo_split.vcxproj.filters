@@ -37,6 +37,9 @@
     <Filter Include="video_split">
       <UniqueIdentifier>{f7d93dc4-9c27-4406-9eb8-c2fb83f3fabf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="server">
+      <UniqueIdentifier>{ca15a5e9-1c9c-4cc0-a5b8-6db5ed9e387b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -53,12 +56,6 @@
     </ClCompile>
     <ClCompile Include="cencoder.cpp">
       <Filter>encoder</Filter>
-    </ClCompile>
-    <ClCompile Include="cffmpeg_util.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="cglobal_ffmpeg_register.cpp">
-      <Filter>global_logic</Filter>
     </ClCompile>
     <ClCompile Include="cvideo_split.cpp">
       <Filter>video_split</Filter>
@@ -78,12 +75,6 @@
     </ClInclude>
     <ClInclude Include="cencoder.h">
       <Filter>encoder</Filter>
-    </ClInclude>
-    <ClInclude Include="cffmpeg_util.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="cglobal_ffmpeg_register.h">
-      <Filter>global_logic</Filter>
     </ClInclude>
     <ClInclude Include="cvideo_split.h">
       <Filter>video_split</Filter>

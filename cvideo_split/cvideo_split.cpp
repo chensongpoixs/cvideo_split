@@ -205,4 +205,96 @@ namespace chen {
 		}
 		return false;
 	}
+
+
+
+	void cvideo_splist::_pthread_work()
+	{
+
+		AVFrame* filter_frame_ptr = ::av_frame_alloc();
+		if (!filter_frame_ptr)
+		{
+			// 
+			WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
+		}
+		int32_t ret = 0;
+		while (!m_stoped)
+		{
+			if (!filter_frame_ptr)
+			{
+				filter_frame_ptr = ::av_frame_alloc();
+			}
+			if (!filter_frame_ptr)
+			{
+				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
+				continue;
+			}
+
+			// add buffer filter -->
+			// decoder 
+			for (size_t i = 0; i < m_decodes.size(); ++i)
+			{
+				AVFrame* frame_ptr = NULL;
+				if (m_decodes[i])
+				{
+					if (m_decodes[i]->retrieve(frame_ptr) && !m_stoped)
+					{
+						// add buffer filter -->
+						if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
+						{
+							if (m_buffers_ctx_ptr[i])
+							{
+								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+								if (ret < 0)
+								{
+									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+									//return ret;
+								}
+							}
+						}
+
+					}
+				}
+				if (frame_ptr)
+				{
+					::av_frame_unref(frame_ptr);
+				}
+
+			}
+
+			if (m_stoped)
+			{
+				//中退出时啦 ^_^
+				break;
+			}
+
+			// get buffersink filer frame --> 
+			while ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
+			{
+				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+				{
+					// 需要继续处理啦
+					::av_frame_unref(filter_frame_ptr);
+					continue;
+				}
+				//filter error 
+				WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
+				break;
+			}
+			if (ret < 0)
+			{
+				// filter 错误啦 ^_^
+				continue;
+			}
+			// 放到编码器中去编码啦 ^_^
+			if (!m_stoped)
+			{
+				m_encoder_ptr->push_frame(filter_frame_ptr);
+			}
+			::av_frame_unref(filter_frame_ptr);
+		}
+
+		::av_frame_free(&filter_frame_ptr);
+		filter_frame_ptr = NULL;
+	}
 }

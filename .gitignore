@@ -9,3 +9,6 @@
 /clib/clib.vcxproj.user
 /common_web/common_web.vcxproj.user
 /lib
+/common_websocket/common_websocket.vcxproj.user
+/decoder/decoder.vcxproj.user
+/common_ffmpeg/common_ffmpeg.vcxproj.user

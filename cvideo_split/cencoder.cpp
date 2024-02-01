@@ -67,6 +67,7 @@ namespace chen {
 	}
 	 bool cencoder::init(  const char* url,  uint32_t width, uint32_t height)
 	{
+		 std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		int ret = 0;
 	//	if (m_stoped)
 		{
