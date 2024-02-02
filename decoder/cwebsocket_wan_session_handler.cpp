@@ -1,10 +1,11 @@
-﻿/***********************************************************************************************
-created: 		2023-11-18
+﻿/********************************************************************
+created:	2019-05-07
 
-author:			chensong
+author:		chensong
 
-purpose:		camera
+level:		网络层
 
+purpose:	网络数据的收发
 输赢不重要，答案对你们有什么意义才重要。
 
 光阴者，百代之过客也，唯有奋力奔跑，方能生风起时，是时代造英雄，英雄存在于时代。或许世人道你轻狂，可你本就年少啊。 看护好，自己的理想和激情。
@@ -20,38 +21,65 @@ purpose:		camera
 我叫他本心猎手。他可能是和宇宙同在的级别 但是我并不害怕，我仔细回忆自己平淡的一生 寻找本心猎手的痕迹。
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
-************************************************************************************************/
+*********************************************************************/
 
-
-#ifndef _C_DECODER_SERVER_H_
-#define _C_DECODER_SERVER_H_
-#include "cnet_type.h"
-#include <string>
+ 
 #include "cnoncopytable.h"
-#include "cffmpeg_util.h"
+#include "cnet_type.h"
+#include <list>
+#include <json/json.h>
+#include "cwebsocket_wan_session.h"
+#include "clog.h"
 namespace chen {
-	class cdecoder_server
+	
+	bool    cwebsocket_wan_session::handler_play_url(Json::Value& value)
 	{
-	public:
-		explicit cdecoder_server() 
-		: m_stoped(false){}
-		virtual ~cdecoder_server() {}
-
-	public:
-		bool init(const char* log_path, const char* config_file);
-		bool Loop();
-		void Destroy();
-
-
-		void stop();
-
-	private:
-
-		bool	m_stoped;
-
-	};
-
-	extern cdecoder_server		g_decoder_server;
-
+		Json::Value reply;
+		if (!value.isMember("url") || !value["url"].isString())
+		{
+			WARNING_EX_LOG("[remote_ip = %s][remote_port = %u]", m_remote_ip.c_str(), m_remote_port);
+			return false;
+		}
+		if (m_decoder_ptr)
+		{
+			WARNING_EX_LOG("decoder alloc ---> != NULL  ^_^");
+			return false;
+		}
+		std::string url  = value["url"].asCString();
+		m_decoder_ptr =   cdecoder::construct();
+		if (!m_decoder_ptr)
+		{
+			WARNING_EX_LOG("[url = %s]alloc decoder  failed !!!", url.c_str());
+			return false;
+		}
+		if (!m_decoder_ptr->init(m_session_id, url.c_str()))
+		{
+			WARNING_EX_LOG("[url = %s]  decoder init  failed !!!", url.c_str());
+			return false;
+		}
+		// 启动编码器读取数据发送数据
+		//if (!value.isMember("data") || !value["data"].isObject())
+		//{
+		//	WARNING_EX_LOG("[session_id = %llu]not find cmd type, [value = %s] !!! ", m_session_id, value.asCString());
+		//	send_msg(S2C_Login, EShareProtoData, reply);
+		//	return false;
+		//}
+		//if (!value["data"].isMember("user_name") || !value["data"]["user_name"].isString())
+		//{
+		//	WARNING_EX_LOG("[session_id = %llu]not find user_name      !!! ", m_session_id);
+		//	send_msg(S2C_Login, EShareProtoUserName, reply);
+		//	return false;
+		//}
+		//if (!value["data"].isMember("room_name") || !value["data"]["room_name"].isString())
+		//{
+		//	WARNING_EX_LOG("[session_id = %llu]not find room_name    !!! ", m_session_id);
+		//	send_msg(S2C_Login, EShareProtoRoomName, reply);
+		//	return false;
+		//}
+ 
+		return true;
+	}
+	
 }
-#endif // _C_DECODER_SERVER_H_
+
+ 

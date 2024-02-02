@@ -1,10 +1,11 @@
-﻿/***********************************************************************************************
-created: 		2023-11-18
+﻿/********************************************************************
+created:	2019-05-07
 
-author:			chensong
+author:		chensong
 
-purpose:		camera
+level:		网络层
 
+purpose:	网络数据的收发
 输赢不重要，答案对你们有什么意义才重要。
 
 光阴者，百代之过客也，唯有奋力奔跑，方能生风起时，是时代造英雄，英雄存在于时代。或许世人道你轻狂，可你本就年少啊。 看护好，自己的理想和激情。
@@ -20,38 +21,79 @@ purpose:		camera
 我叫他本心猎手。他可能是和宇宙同在的级别 但是我并不害怕，我仔细回忆自己平淡的一生 寻找本心猎手的痕迹。
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
-************************************************************************************************/
+*********************************************************************/
 
 
-#ifndef _C_DECODER_SERVER_H_
-#define _C_DECODER_SERVER_H_
-#include "cnet_type.h"
-#include <string>
+#ifndef _C_WEBSOCKET_WAN_SESSION_H_
+#define _C_WEBSOCKET_WAN_SESSION_H_
 #include "cnoncopytable.h"
-#include "cffmpeg_util.h"
+#include "cnet_type.h"
+#include <list>
+#include <json/json.h>
+#include "cdecoder.h"
+ 
 namespace chen {
-	class cdecoder_server
+	enum EWebSocketConnectType
 	{
-	public:
-		explicit cdecoder_server() 
-		: m_stoped(false){}
-		virtual ~cdecoder_server() {}
-
-	public:
-		bool init(const char* log_path, const char* config_file);
-		bool Loop();
-		void Destroy();
-
-
-		void stop();
-
-	private:
-
-		bool	m_stoped;
-
+		EWebSocketConnectNone = 0,
+		EWebSocketConnected,
+		EWebSocketConnectSession
 	};
 
-	extern cdecoder_server		g_decoder_server;
+	class cwebsocket_wan_session
+	{
+	public:
+		explicit cwebsocket_wan_session()
+			: m_session_id(0)
+			, m_client_connect_type(EWebSocketConnectNone)
+			, m_json_reader()
+			, m_json_response()
+			, m_remote_ip("")
+			, m_remote_port(0)
+			, m_decoder_ptr(NULL){}
+		virtual ~cwebsocket_wan_session();
+	public:
+		bool init(const char* ip, uint16_t port);
+		void destroy();
+	public:
+		void update(uint32 uDeltaTime);
 
+		void handler_msg(uint64_t session_id, const void* p, uint32 size);
+	public:
+		uint32 get_session_id() const { return m_session_id; }
+		void	set_session_id(uint64_t session_id) { m_session_id = session_id; }
+		void	close();
+	public:
+
+		bool    handler_play_url(Json::Value& value);
+		
+
+	private:
+		//void   _collecion_update_mediasoup_type(EMediasoupType type);
+	public:
+		bool is_used();
+		void set_used();
+		void disconnect();
+
+	public:
+		bool send_msg(uint16 msg_id, int32 error, Json::Value   data);
+	private:
+		//cnoncopyable(cnoncopyable&&);
+		cwebsocket_wan_session(const cwebsocket_wan_session&);
+		//cnoncopyable &operator =(cnoncopyable &&);
+		cwebsocket_wan_session& operator=(const cwebsocket_wan_session&);
+
+	private:
+		uint64_t					m_session_id; //会话id
+		EWebSocketConnectType      m_client_connect_type;  
+		Json::Reader							m_json_reader;					// json解析
+		Json::Value								m_json_response;
+		std::string								m_remote_ip;
+		uint16									m_remote_port;
+
+
+		cdecoder*					m_decoder_ptr;
+	};
 }
-#endif // _C_DECODER_SERVER_H_
+
+#endif // _C_WEBSOCKET_WAN_SESSION_H_

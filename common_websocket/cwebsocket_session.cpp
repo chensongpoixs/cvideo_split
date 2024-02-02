@@ -86,7 +86,10 @@ namespace chen {
 			clock_guard lock(m_mutex);
 			m_sending_buffer_list.swap(m_send_buffer_list);
 		}
-		m_ws.text(m_ws.got_text());
+		//m_ws.binary(true);
+		//m_ws.binary();
+		//m_ws.text(m_ws.got_text());
+		m_ws.binary(true);
 		m_ws.async_write(
 			boost::asio::buffer( m_sending_buffer_list.front(), m_sending_buffer_list.front().size()),
 			boost::asio::bind_executor(
@@ -260,7 +263,13 @@ namespace chen {
 		if (m_sending_buffer_list.size() > 1)
 		{
 			m_sending_buffer_list.pop_front();
-			m_ws.text(m_ws.got_text());
+			//m_ws.text(m_ws.got_text());
+			//m_ws.binary();
+			// 
+			m_ws.binary(true);
+			//m_ws.write();
+			//m_ws.binary();
+			//m_ws.got_binary();
 			m_ws.async_write(
 				boost::asio::buffer(m_sending_buffer_list.front(), m_sending_buffer_list.front().size()),
 				boost::asio::bind_executor(
@@ -279,7 +288,8 @@ namespace chen {
 				clock_guard lock(m_mutex);
 				m_sending_buffer_list.swap(m_send_buffer_list);
 			}
-			m_ws.text(m_ws.got_text());
+		//	m_ws.text(m_ws.got_text());
+			m_ws.binary(true);
 			m_ws.async_write(
 				boost::asio::buffer(m_sending_buffer_list.front(), m_sending_buffer_list.front().size()),
 				boost::asio::bind_executor(

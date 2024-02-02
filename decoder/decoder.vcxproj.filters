@@ -5,7 +5,33 @@
     <ClCompile Include="cdecoder.cpp">
       <Filter>decoder</Filter>
     </ClCompile>
-    <ClCompile Include="cdecoder_server.cpp" />
+    <ClCompile Include="cwebsocket_wan_server.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session_handler.cpp">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="cdecoder_server.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cclient_msg_dispatch.cpp">
+      <Filter>dispatch</Filter>
+    </ClCompile>
+    <ClCompile Include="ccfg.cpp">
+      <Filter>cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_handler.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_http_api_mgr.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_http_api_proxy.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="server">
@@ -14,11 +40,58 @@
     <Filter Include="decoder">
       <UniqueIdentifier>{e7517815-f097-4b68-bc04-a9a4300799e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="handler">
+      <UniqueIdentifier>{f1f98167-3852-40f7-9a6d-fcf4a61badf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dispatch">
+      <UniqueIdentifier>{2d445ab3-2121-4497-8b1c-d208636b2cf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="msg">
+      <UniqueIdentifier>{f84a1d86-c866-42b2-8ae3-2968e736e937}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cfg">
+      <UniqueIdentifier>{d2097c61-7cea-4043-a59b-66529ecf4d31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="web">
+      <UniqueIdentifier>{87a669fb-51c6-4d80-a469-2b83328ce4b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdecoder.h">
       <Filter>decoder</Filter>
     </ClInclude>
-    <ClInclude Include="cdecoder_server.h" />
+    <ClInclude Include="cwebsocket_wan_server.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cwebsocket_wan_session.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cdecoder_server.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cclient_msg_dispatch.h">
+      <Filter>dispatch</Filter>
+    </ClInclude>
+    <ClInclude Include="cmsg_base_id.h">
+      <Filter>msg</Filter>
+    </ClInclude>
+    <ClInclude Include="ccfg.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="chttp_code.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_interface.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_mgr.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_proxy.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_struct.h">
+      <Filter>web</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

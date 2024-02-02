@@ -137,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;BOOST_USE_WINDOWS_H;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -149,13 +149,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ccfg.cpp" />
+    <ClCompile Include="cclient_msg_dispatch.cpp" />
     <ClCompile Include="cdecoder.cpp" />
     <ClCompile Include="cdecoder_server.cpp" />
+    <ClCompile Include="cwebsocket_wan_server.cpp" />
+    <ClCompile Include="cwebsocket_wan_session.cpp" />
+    <ClCompile Include="cwebsocket_wan_session_handler.cpp" />
+    <ClCompile Include="cweb_handler.cpp" />
+    <ClCompile Include="cweb_http_api_mgr.cpp" />
+    <ClCompile Include="cweb_http_api_proxy.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ccfg.h" />
+    <ClInclude Include="cclient_msg_dispatch.h" />
     <ClInclude Include="cdecoder.h" />
     <ClInclude Include="cdecoder_server.h" />
+    <ClInclude Include="chttp_code.h" />
+    <ClInclude Include="cmsg_base_id.h" />
+    <ClInclude Include="cwebsocket_wan_server.h" />
+    <ClInclude Include="cwebsocket_wan_session.h" />
+    <ClInclude Include="cweb_http_api_interface.h" />
+    <ClInclude Include="cweb_http_api_mgr.h" />
+    <ClInclude Include="cweb_http_api_proxy.h" />
+    <ClInclude Include="cweb_http_struct.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

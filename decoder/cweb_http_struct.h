@@ -1,9 +1,9 @@
 ﻿/***********************************************************************************************
-created: 		2023-11-18
+created: 		2019-05-06
 
 author:			chensong
 
-purpose:		camera
+purpose:		gateway
 
 输赢不重要，答案对你们有什么意义才重要。
 
@@ -20,38 +20,87 @@ purpose:		camera
 我叫他本心猎手。他可能是和宇宙同在的级别 但是我并不害怕，我仔细回忆自己平淡的一生 寻找本心猎手的痕迹。
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
-************************************************************************************************/
-
-
-#ifndef _C_DECODER_SERVER_H_
-#define _C_DECODER_SERVER_H_
-#include "cnet_type.h"
+*********************************************************************/
+#ifndef _C_WEB_HTTP_STRUCT_H_
+#define _C_WEB_HTTP_STRUCT_H_
 #include <string>
 #include "cnoncopytable.h"
-#include "cffmpeg_util.h"
+#include "cnet_type.h"
+#include <string>
+#include <vector>
+#include "cnoncopytable.h"
+#include <unordered_map>  
+//#include "RenderCentral.pb.h"
 namespace chen {
-	class cdecoder_server
+	struct create_render_app_struct 
 	{
-	public:
-		explicit cdecoder_server() 
-		: m_stoped(false){}
-		virtual ~cdecoder_server() {}
-
-	public:
-		bool init(const char* log_path, const char* config_file);
-		bool Loop();
-		void Destroy();
-
-
-		void stop();
-
-	private:
-
-		bool	m_stoped;
+		std::string render_id;
+		std::string project_id;
+		std::string scene_id;
+		std::string user_name;
+		uint32_t auto_restart;
+		std::string signaling_ip;
+		uint32_t signaling_port;
+		std::string media_ip;
+		uint32_t	media_port;
+		uint32_t	app_render_type;
+		create_render_app_struct():render_id("")
+			, project_id("")
+			, scene_id("")
+			, user_name("")
+			, auto_restart(0)
+			, signaling_ip("")
+			, signaling_port(0)
+			, media_ip("")
+			, media_port(0)
+			, app_render_type(0){}
 
 	};
+	struct update_render_app_struct
+	{
+		std::string app_id;
+		std::string project_id;
+		std::string scene_id;
+		std::string user_name;
+		uint32_t auto_restart;
+		std::string signaling_ip;
+		uint32_t signaling_port;
+		std::string media_ip;
+		uint32_t	media_port;
+		uint32_t    app_render_type;
+		update_render_app_struct() :app_id("")
+			, project_id("")
+			, scene_id("")
+			, user_name("")
+			, auto_restart(0)
+			, signaling_ip("")
+			, signaling_port(0)
+			, media_ip("")
+			, media_port(0) 
+			, app_render_type(0){}
 
-	extern cdecoder_server		g_decoder_server;
+	};
+	struct cmd_render_app_struct
+	{
+		std::string app_id;
+		uint32_t cmd;
+		uint32_t app_show;
+		uint32_t app_render_type;
+		cmd_render_app_struct()
+			: app_id("")
+			, cmd(0)
+			, app_show(0)
+			, app_render_type(0){}
+	};
 
+
+	struct cresult_app_info
+	{
+		uint32 result;
+		//CloudAppRender app_render;
+		cresult_app_info ()
+			: result(0)
+			/*, app_render()*/{}
+	};
 }
-#endif // _C_DECODER_SERVER_H_
+#endif 

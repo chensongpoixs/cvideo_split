@@ -23,48 +23,36 @@ purpose:		camera
 ************************************************************************************************/
 #include "cdecoder.h"
 #include "clog.h"
- 
+#include "cwebsocket_wan_server.h"
 
 namespace chen {
 
 
-    void ffmpegLogCallback(void* ptr, int level, const char* fmt, va_list vl) {
-        static int printPrefix = 1;
-        static int count = 0;
-        static char prev[1024] = { 0 };
-        char line[1024] = { 0 };
-        static int is_atty;
-        AVClass* avc = ptr ? *(AVClass**)ptr : NULL;
-        if (level > AV_LOG_DEBUG) {
-            return;
-        }
-
-        line[0] = 0;
-
-        if (printPrefix && avc) {
-            if (avc->parent_log_context_offset) {
-                AVClass** parent = *(AVClass***)(((uint8_t*)ptr) + avc->parent_log_context_offset);
-                if (parent && *parent) {
-                    snprintf(line, sizeof(line), "[%s @ %p] ", (*parent)->item_name(parent), parent);
-                }
-            }
-            snprintf(line + strlen(line), sizeof(line) - strlen(line), "[%s @ %p] ", avc->item_name(ptr), ptr);
-        }
-
-        vsnprintf(line + strlen(line), sizeof(line) - strlen(line), fmt, vl);
-        line[strlen(line) + 1] = 0;
-       // simpleLog("%s", line);
-        NORMAL_EX_LOG("%s", line);
-        
-    }
-
+   
 
 	cdecoder::~cdecoder()
 	{
 	}
-    bool cdecoder::init(const char* url)
+    cdecoder* cdecoder::construct()
+    {
+        return new cdecoder();
+    }
+    void cdecoder::destroy(cdecoder* ptr)
+    {
+        delete ptr;
+    }
+    bool cdecoder::init(uint64 session_id, const char* url)
     {
        // destroy();
+        std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
+        m_session_id = session_id;
+        m_url = url;
+        m_open_timeout = LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
+        m_read_timeout = LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
+
+        /* interrupt callback */
+        m_interrupt_metadata.timeout_after_ms = m_open_timeout;
+        get_monotonic_time(&m_interrupt_metadata.value);
 
         m_format_ctx_ptr = avformat_alloc_context();
         if (!m_format_ctx_ptr)
@@ -72,9 +60,121 @@ namespace chen {
             WARNING_EX_LOG("alloc avformat context failed !!! url = [%s]", url);
             return false;
         }
+        m_format_ctx_ptr->interrupt_callback.callback = &ffmpeg_util::ffmpeg_interrupt_callback;
+        m_format_ctx_ptr->interrupt_callback.opaque = &m_interrupt_metadata;
 
 
 
-        return false;
+        const AVInputFormat* input_format = NULL;
+        AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
+        if (entry != 0)
+        {
+            input_format = av_find_input_format(entry->value);
+        }
+
+        // 1. 打开解封装上下文
+        int ret = avformat_open_input(
+            &m_format_ctx_ptr, //解封装上下文
+            url,  //文件路径
+            input_format, //指定输入格式 h264,h265, 之类的， 传入NULL则自动检测
+            &m_dict); //设置参数的字典
+		if (ret != 0)
+		{
+			WARNING_EX_LOG("%s\n", ffmpeg_util::make_error_string(ret));
+			return false;
+		}
+		//2.读取文件信息
+		ret = avformat_find_stream_info(m_format_ctx_ptr, NULL);
+		if (ret < 0)
+		{
+            WARNING_EX_LOG("%s\n", ffmpeg_util::make_error_string(ret));
+			return false;
+		}
+		//3.获取目标流索引
+		for (unsigned int i = 0; i < m_format_ctx_ptr->nb_streams; i++)
+		{
+			AVStream* stream = m_format_ctx_ptr->streams[i];
+			if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+			{
+                m_video_stream_index = i;
+                m_video_codec_id = stream->codecpar->codec_id;
+
+                uint16 codec_id = 28;   
+                // 174 --> H265  
+                // 28  --> H264
+                if (m_video_codec_id == AV_CODEC_ID_H264)
+                {
+                    codec_id = 28;
+                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(uint16));
+                    NORMAL_EX_LOG("--->>>>>>H264");
+                }
+                else if (m_video_codec_id == AV_CODEC_ID_HEVC)
+                {
+                    codec_id = 174;
+                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(uint16));
+                }
+			}
+			else if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+			{
+                m_audio_stream_index = i;
+				stream->discard = AVDISCARD_ALL;
+			}
+            else
+            {
+                stream->discard = AVDISCARD_ALL;
+            }
+		}
+        m_stoped = false;
+       
+        m_thread = std::thread(&cdecoder::_work_pthread, this);
+      
+
+
+        return true;
+    }
+    void cdecoder::_work_pthread()
+    {
+        int32_t ret = 0;
+        AVPacket* packet_ptr = ::av_packet_alloc();
+        if (!m_stoped)
+        {
+            ::av_packet_unref(packet_ptr);
+            get_monotonic_time(&m_interrupt_metadata.value);
+            m_interrupt_metadata.timeout_after_ms = m_read_timeout;
+
+
+            //读取一帧压缩数据
+            ret = ::av_read_frame(m_format_ctx_ptr, packet_ptr);
+            /*if (ret != AVERROR_EOF && pkt->stream_index != m_video_stream_index)
+            {
+                av_packet_unref(pkt);
+                continue;
+            }*/
+            if (ret == AVERROR(EAGAIN))
+            {
+                //continue;
+            }
+            else if (ret == AVERROR_EOF)
+            {
+                // flush cached frames from video decoder
+             /*   m_packet_ptr->data = NULL;
+                m_packet_ptr->size = 0;
+                m_packet_ptr->stream_index = m_video_stream_index;*/
+            }
+            else
+            {
+                if (packet_ptr->stream_index == m_video_stream_index)
+                {
+
+                    g_websocket_wan_server.send_msg(m_session_id, 3, packet_ptr->data, packet_ptr->size);
+                  //  packet_ptr->data
+                    ::av_packet_unref(packet_ptr);
+                }
+                //else
+                {
+                    ::av_packet_unref(packet_ptr);
+                }
+            }
+        }
     }
 }

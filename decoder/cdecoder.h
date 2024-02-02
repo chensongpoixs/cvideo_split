@@ -36,31 +36,49 @@ namespace chen {
 	public:
 		explicit cdecoder() 
 		: m_stoped(false)
+		, m_session_id(-1)
 		, m_url("")
 		, m_format_ctx_ptr(NULL)
 		, m_video_codec_ctx_ptr(NULL)
 		, m_audio_codec_ctx_ptr(NULL)
 		, m_video_stream_index(-1)
-		, m_audio_stream_index(-1){}
+		, m_audio_stream_index(-1)
+		, m_video_codec_id(AV_CODEC_ID_NONE)
+		, m_dict(NULL)
+		, m_open_timeout(0)
+		, m_read_timeout(0)
+		, m_interrupt_metadata(){}
 		virtual ~cdecoder();
 	public:
 		
-		bool init(const char * url);
+		static cdecoder* construct();
+		static void  destroy(cdecoder* ptr);
+
+
+
+		bool init(uint64 session_id, const char * url);
 
 	/*	void update(uint32 uDataTime);
 
 		void destroy();*/
 
-
+	private:
+		void _work_pthread();
 	private:
 		bool			 m_stoped;
+		uint64			 m_session_id;
 		std::string		 m_url;
 		AVFormatContext* m_format_ctx_ptr;
 		AVCodecContext*	 m_video_codec_ctx_ptr;
 		AVCodecContext* m_audio_codec_ctx_ptr;
 		uint32			m_video_stream_index;
 		uint32			m_audio_stream_index;
-
+		AVCodecID		m_video_codec_id;
+		AVDictionary*	m_dict;
+		uint32			m_open_timeout;
+		uint32			m_read_timeout;
+		AVInterruptCallbackMetadata m_interrupt_metadata;
+		std::thread		m_thread;
 	};
 }
 

@@ -12,3 +12,4 @@
 /common_websocket/common_websocket.vcxproj.user
 /decoder/decoder.vcxproj.user
 /common_ffmpeg/common_ffmpeg.vcxproj.user
+/bin/log
