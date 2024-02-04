@@ -28,9 +28,18 @@ purpose:		camera
 #include "cnet_type.h"
 #include <string>
 #include "cnoncopytable.h"
+#include <list>
 #include "cffmpeg_util.h"
 namespace chen {
 
+
+
+	struct cpacket
+	{
+		unsigned char* data;
+		uint64 size;
+		cpacket(): data(NULL), size(0){}
+	};
 	class cdecoder : public cnoncopytable
 	{
 	public:
@@ -47,7 +56,8 @@ namespace chen {
 		, m_dict(NULL)
 		, m_open_timeout(0)
 		, m_read_timeout(0)
-		, m_interrupt_metadata(){}
+		, m_interrupt_metadata()
+		, m_packets(){}
 		virtual ~cdecoder();
 	public:
 		
@@ -58,10 +68,12 @@ namespace chen {
 
 		bool init(uint64 session_id, const char * url);
 
-	/*	void update(uint32 uDataTime);
+	/*	void update(uint32 uDataTime);*/
 
-		void destroy();*/
+		void destroy();
 
+
+		void all_send_packet();
 	private:
 		void _work_pthread();
 	private:
@@ -78,6 +90,9 @@ namespace chen {
 		uint32			m_open_timeout;
 		uint32			m_read_timeout;
 		AVInterruptCallbackMetadata m_interrupt_metadata;
+		
+		std::mutex					  m_packet_lock;
+		std::list<cpacket  >    m_packets;
 		std::thread		m_thread;
 	};
 }

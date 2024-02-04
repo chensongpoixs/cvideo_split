@@ -43,7 +43,7 @@ namespace chen {
     }
     bool cdecoder::init(uint64 session_id, const char* url)
     {
-       // destroy();
+        destroy();
         std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
         m_session_id = session_id;
         m_url = url;
@@ -99,19 +99,19 @@ namespace chen {
                 m_video_stream_index = i;
                 m_video_codec_id = stream->codecpar->codec_id;
 
-                uint16 codec_id = 28;   
+                uint16 codec_id[8];   
                 // 174 --> H265  
                 // 28  --> H264
                 if (m_video_codec_id == AV_CODEC_ID_H264)
                 {
-                    codec_id = 28;
-                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(uint16));
+                    codec_id[0] = 28;
+                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
                     NORMAL_EX_LOG("--->>>>>>H264");
                 }
                 else if (m_video_codec_id == AV_CODEC_ID_HEVC)
                 {
-                    codec_id = 174;
-                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(uint16));
+                    codec_id[0] = 174;
+                    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
                 }
 			}
 			else if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
@@ -132,11 +132,74 @@ namespace chen {
 
         return true;
     }
+    void cdecoder::destroy()
+    {
+        m_stoped = true;
+
+        if(m_thread.joinable())
+        {
+            m_thread.join();
+        }
+        // deactivate interrupt callback
+        m_interrupt_metadata.timeout_after_ms = 0;
+ 
+
+
+
+         
+        if (m_format_ctx_ptr)
+        {
+            ::avformat_close_input(&m_format_ctx_ptr);
+            m_format_ctx_ptr = NULL;
+        }
+       
+        
+        if (m_dict)
+        {
+            av_dict_free(&m_dict);
+            m_dict = NULL;
+        }
+        
+        while (m_packets.size() > 0)
+        {
+            delete m_packets.front().data;
+            m_packets.pop_front();
+        }
+        m_session_id = -1;
+        m_stoped = true;
+        NORMAL_EX_LOG("decoder --> [url = %s] destroy OK !!!", m_url.c_str());
+        //m_open = false;
+        //m_pixfmt = AV_PIX_FMT_NONE;
+    }
+    void cdecoder::all_send_packet()
+    {
+        std::list<cpacket> listp;
+       
+        //{
+        //    std::lock_guard<std::mutex> lock(m_packet_lock);
+        //    if (m_packets.size() > 0)
+        //    {
+        //        listp = std::move(m_packets);
+        //        m_packets.clear();
+        //    }
+        //}
+        //while (listp.size() > 0)
+        //{
+        //    //listp.front();
+        //    //cpacket& packet = listp.front();
+        //    g_websocket_wan_server.send_msg(m_session_id, 3, listp.front().data, listp.front().size);
+        //    delete listp.front().data;
+        //    listp.pop_front();
+
+        //}
+
+
+    }
     void cdecoder::_work_pthread()
     {
         int32_t ret = 0;
         AVPacket* packet_ptr = ::av_packet_alloc();
-        if (!m_stoped)
+        while (!m_stoped)
         {
             ::av_packet_unref(packet_ptr);
             get_monotonic_time(&m_interrupt_metadata.value);
@@ -165,8 +228,24 @@ namespace chen {
             {
                 if (packet_ptr->stream_index == m_video_stream_index)
                 {
-
-                    g_websocket_wan_server.send_msg(m_session_id, 3, packet_ptr->data, packet_ptr->size);
+                    NORMAL_EX_LOG("send video size = [%u]", packet_ptr->size );
+                    /*cpacket packet;
+                     packet.data = new unsigned char[packet_ptr->size];
+                    if (packet.data)
+                    {
+                         
+                        memcpy(packet.data, packet_ptr->data, packet_ptr->size);
+                        packet.size = packet_ptr->size;
+                        {
+                            std::lock_guard<std::mutex> lock(m_packet_lock);
+                            m_packets.push_back(packet);
+                        }
+                    }
+                    else
+                    {
+                        WARNING_EX_LOG("[url = %s]alloc  pakcet failed !!!", m_url.c_str());
+                    }*/
+                      g_websocket_wan_server.send_msg(m_session_id, 3, packet_ptr->data, packet_ptr->size);
                   //  packet_ptr->data
                     ::av_packet_unref(packet_ptr);
                 }
@@ -175,6 +254,8 @@ namespace chen {
                     ::av_packet_unref(packet_ptr);
                 }
             }
+            NORMAL_EX_LOG("read_frame_packet ret = [%u]", ret);
         }
+        WARNING_EX_LOG("[url = %s][m_stoped = %u]", m_url.c_str(), m_stoped);
     }
 }

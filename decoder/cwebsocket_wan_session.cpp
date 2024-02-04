@@ -46,6 +46,10 @@ namespace chen {
 	}
 	void cwebsocket_wan_session::update(uint32 uDeltaTime)
 	{
+		if (m_decoder_ptr)
+		{
+			m_decoder_ptr->all_send_packet();
+		}
 	}
 	void cwebsocket_wan_session::handler_msg(uint64_t session_id, const void* p, uint32 size)
 	{
@@ -93,7 +97,12 @@ namespace chen {
 	{
 		m_client_connect_type = EWebSocketConnectNone;
 
-		 
+		if (m_decoder_ptr)
+		{
+			m_decoder_ptr->destroy();
+			cdecoder::destroy(m_decoder_ptr);
+			m_decoder_ptr = NULL;
+		 }
 		 
 		NORMAL_EX_LOG("session_id = %u, [ip = %s][port = %u]", m_session_id, m_remote_ip.c_str(), m_remote_port);
 		m_remote_ip = "";
