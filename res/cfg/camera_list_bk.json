@@ -1,0 +1,92 @@
+{
+    "t104": {
+        "address": "192.168.2.50",
+        "camera_id": "t104",
+        "ip": "",
+        "name": "测试1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.50"
+    },
+    "t105": {
+        "address": "192.168.2.51",
+        "camera_id": "t105",
+        "ip": "",
+        "name": "测试2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.51"
+    },
+    "t106": {
+        "address": "192.168.2.52",
+        "camera_id": "t106",
+        "ip": "",
+        "name": "测试3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.52"
+    },
+    "t107": {
+        "address": "192.168.2.53",
+        "camera_id": "t107",
+        "ip": "",
+        "name": "测试4",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.53"
+    },
+    "t108": {
+        "address": "192.168.3.100",
+        "camera_id": "t108",
+        "ip": "192.168.3.7",
+        "name": "走道1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.7"
+    },
+    "t109": {
+        "address": "192.168.3.101",
+        "camera_id": "t109",
+        "ip": "192.168.3.8",
+        "name": "走道2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.8"
+    },
+    "t110": {
+        "address": "192.168.3.102",
+        "camera_id": "t110",
+        "ip": "192.168.3.9",
+        "name": "走道3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.9"
+    },
+    "t111": {
+        "address": "192.168.3.103",
+        "camera_id": "t111",
+        "ip": "192.168.3.10",
+        "name": "走道4",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.10"
+    },
+    "t112": {
+        "address": "192.168.3.104",
+        "camera_id": "t112",
+        "ip": "192.168.3.6",
+        "name": "走道5",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.6"
+    },
+    "t113": {
+        "address": "192.168.2.54",
+        "camera_id": "t113",
+        "ip": "192.168.2.54",
+        "name": "测试5",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.2.54"
+    }
+}

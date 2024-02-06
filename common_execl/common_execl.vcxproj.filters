@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="endian.c" />
+    <ClCompile Include="execl_locale.c" />
+    <ClCompile Include="ole.c" />
+    <ClCompile Include="xls.c" />
+    <ClCompile Include="xls2csv.c" />
+    <ClCompile Include="xlstool.c" />
+    <ClCompile Include="XlsReader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="brdb.c.h" />
+    <ClInclude Include="brdb.h" />
+    <ClInclude Include="endian.h" />
+    <ClInclude Include="execl_locale.h" />
+    <ClInclude Include="ole.h" />
+    <ClInclude Include="xlsstruct.h" />
+    <ClInclude Include="xlstool.h" />
+    <ClInclude Include="xlstypes.h" />
+    <ClInclude Include="xls.h" />
+    <ClInclude Include="XlsReader.h" />
+  </ItemGroup>
+</Project>

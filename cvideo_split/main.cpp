@@ -13,7 +13,8 @@
 #include "cdecode.h"
 #include <cstdlib>
 #include "cencoder.h"
-
+#include "XlsReader.h"
+#include "cglobal_ffmpeg_register.h"
 //#pragma comment(lib, "opencv_world460.lib")
 //#pragma comment(lib, "opencv_img_hash460.lib")
 //#pragma comment(lib, "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\lib\x64\cudart_static.lib")
@@ -234,10 +235,36 @@ int test_main(int argc, char* argv[])
 
 
  
-#include "cglobal_ffmpeg_register.h"
+
 
 int  main(int argc, char** argv) 
 {
+	//::setlocale(LC_ALL, "chs");
+	xls::WorkBook test("test.xls");
+
+	xls::cellContent cell = test.GetCell(0, 1, 11 );
+	test.ShowCell(cell);
+
+	for (int sheetNum = 0; sheetNum < test.GetSheetCount(); ++sheetNum) 
+	{
+		if (sheetNum)
+		{
+			printf("\n\n");
+		}
+		printf("===>>> SheetName: %s\n\n", test.GetSheetName(sheetNum).c_str());
+
+		test.InitIterator(sheetNum);
+		while (true) 
+		{
+			xls::cellContent c = test.GetNextCell();
+			if (c.type == xls::cellBlank)
+			{
+				break;
+			}
+			test.ShowCell(c);
+		}
+	}
+	return 0;
 	//****初始化,分配内存,声明参数****//
 	
 	//avformat_network_init();

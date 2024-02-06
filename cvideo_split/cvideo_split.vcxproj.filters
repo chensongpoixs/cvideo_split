@@ -1,18 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="cuda">
       <UniqueIdentifier>{9cd68f70-acea-4f77-8344-aa483579b814}</UniqueIdentifier>
     </Filter>
@@ -40,25 +28,42 @@
     <Filter Include="server">
       <UniqueIdentifier>{ca15a5e9-1c9c-4cc0-a5b8-6db5ed9e387b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="execl">
+      <UniqueIdentifier>{e29c7ac8-5e5d-4227-bb07-10c55d2231e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="web">
+      <UniqueIdentifier>{1702eb6c-6543-4d6a-a82e-f625e553f81b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cfg">
+      <UniqueIdentifier>{28a359e5-f492-476e-9f97-d5df5d346225}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="cdecode.cpp">
       <Filter>decode</Filter>
     </ClCompile>
     <ClCompile Include="crect_mem_copy.cpp">
       <Filter>rect_mem</Filter>
     </ClCompile>
-    <ClCompile Include="encoder.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="cencoder.cpp">
       <Filter>encoder</Filter>
     </ClCompile>
     <ClCompile Include="cvideo_split.cpp">
       <Filter>video_split</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="encoder.c" />
+    <ClCompile Include="cweb_handler.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_http_api_mgr.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_http_api_proxy.cpp">
+      <Filter>web</Filter>
+    </ClCompile>
+    <ClCompile Include="ccfg.cpp">
+      <Filter>cfg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +83,24 @@
     </ClInclude>
     <ClInclude Include="cvideo_split.h">
       <Filter>video_split</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_interface.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_mgr.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_api_proxy.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_http_struct.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="ccfg.h">
+      <Filter>cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="chttp_code.h">
+      <Filter>web</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,3 +13,8 @@
 /decoder/decoder.vcxproj.user
 /common_ffmpeg/common_ffmpeg.vcxproj.user
 /bin/log
+/common_execl/common_execl.vcxproj.user
+/bin/x64
+/cvideo_split.7z
+/res/execl/摄像机表.xls
+/web_api

@@ -1,0 +1,200 @@
+{
+    "t100": {
+        "address": "192.168.2.28",
+        "camera_id": "t100",
+        "ip": "192.168.2.28",
+        "name": "测试9相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.28:8000"
+    },
+    "t101": {
+        "address": "192.168.2.29",
+        "camera_id": "t101",
+        "ip": "192.168.2.29",
+        "name": "测试10相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.29:8000"
+    },
+    "t102": {
+        "address": "192.168.2.30",
+        "camera_id": "t102",
+        "ip": "192.168.2.30",
+        "name": "测试11相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.30:8000"
+    },
+    "t103": {
+        "address": "192.168.2.31",
+        "camera_id": "t103",
+        "ip": "192.168.2.31",
+        "name": "测试12相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.31:8000"
+    },
+    "t104": {
+        "address": "192.168.2.32",
+        "camera_id": "t104",
+        "ip": "192.168.2.32",
+        "name": "测试13相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.32:8000"
+    },
+    "t105": {
+        "address": "192.168.2.33",
+        "camera_id": "t105",
+        "ip": "192.168.2.33",
+        "name": "测试14相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "udp://192.168.2.33:8000"
+    },
+    "t106": {
+        "address": "192.168.2.34",
+        "camera_id": "t106",
+        "ip": "192.168.2.34",
+        "name": "测试15相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t107": {
+        "address": "192.168.2.35",
+        "camera_id": "t107",
+        "ip": "192.168.2.35",
+        "name": "测试16相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t108": {
+        "address": "192.168.2.36",
+        "camera_id": "t108",
+        "ip": "192.168.2.36",
+        "name": "测试17相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t109": {
+        "address": "192.168.2.37",
+        "camera_id": "t109",
+        "ip": "192.168.2.37",
+        "name": "测试18相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t110": {
+        "address": "192.168.2.38",
+        "camera_id": "t110",
+        "ip": "192.168.2.38",
+        "name": "测试19相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t111": {
+        "address": "192.168.2.39",
+        "camera_id": "t111",
+        "ip": "192.168.2.39",
+        "name": "测试20相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t112": {
+        "address": "192.168.2.40",
+        "camera_id": "t112",
+        "ip": "192.168.2.40",
+        "name": "测试21相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t113": {
+        "address": "192.168.2.41",
+        "camera_id": "t113",
+        "ip": "192.168.2.41",
+        "name": "测试22相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t114": {
+        "address": "192.168.2.42",
+        "camera_id": "t114",
+        "ip": "192.168.2.42",
+        "name": "测试23相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t115": {
+        "address": "192.168.2.43",
+        "camera_id": "t115",
+        "ip": "192.168.2.43",
+        "name": "测试24相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t116": {
+        "address": "192.168.2.44",
+        "camera_id": "t116",
+        "ip": "192.168.2.44",
+        "name": "测试25相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t117": {
+        "address": "192.168.2.45",
+        "camera_id": "t117",
+        "ip": "192.168.2.45",
+        "name": "测试26相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t118": {
+        "address": "192.168.2.46",
+        "camera_id": "t118",
+        "ip": "192.168.2.46",
+        "name": "测试27相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t119": {
+        "address": "192.168.2.47",
+        "camera_id": "t119",
+        "ip": "192.168.2.47",
+        "name": "测试28相机",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "/root/out.mp4"
+    },
+    "t120": {
+        "address": "224.1.2.3",
+        "camera_id": "t120",
+        "ip": "192.168.2.33",
+        "name": "测试29相机",
+        "port": "20011",
+        "state": "1",
+        "urlorfile": "udp://224.1.2.3:20011"
+    },
+    "t121": {
+        "address": "224.1.2.3",
+        "camera_id": "t121",
+        "ip": "192.168.2.37",
+        "name": "测试30相机",
+        "port": "20012",
+        "state": "1",
+        "urlorfile": "udp://224.1.2.3:20012"
+    }
+}
