@@ -7,7 +7,9 @@ servers:
   - url: http://127.0.0.1:9002
   - url: http://127.0.0.1:8400
   - url: http://127.0.0.1:8203
-  - url: http://127.0.0.1:9800
+  - url: http://127.0.0.1:9700
+  - url: http://127.0.0.1:9800 
+  - url: http://127.0.0.1:9670 
 tags:
   - name: RenderApp
     description: 云渲染操作
@@ -260,19 +262,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VideoSplitData/ResultAddCameraInfo'
-  /video_split/v1/delete_camera_info:
-    post:
+  /video_split/v1/delete_camera/camera_id={camera_id}:
+    get:
       tags:
         - VideoSplit
       summary: "删除相机"
       description: "删除相机"
       operationId: delete_camera_info
-      requestBody:
-        description: "参数"
-        content: 
-          application/json: 
-            schema: 
-              $ref: '#/components/schemas/VideoSplitData/DeleteCameraInfo'
+      parameters:
+        - in: path
+          name: camera_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            description: "camera_id"
+            example: 0
       responses:
         default:
           description: successful operation
@@ -929,6 +934,11 @@ components:
       VideoSplitInfo:
         type: object
         properties:
+          id:
+            type: integer 
+            format: uint32 
+            descrioption: "序号"
+            example: 0
           split_channel_name:
             type: string 
             format: string 
@@ -954,11 +964,6 @@ components:
             format: uint32 
             description: "拼接方式: 0: 左右拼接 1: 上下拼接"
             exmpale: 0
-          split_type:
-            type: integer
-            format: uint32 
-            description: "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一"
-            example: 2
           lock_1080p:
             type: integer 
             format: uint32 
@@ -1129,7 +1134,7 @@ components:
             example: 0
       AddCameraInfo:
         type: object
-        properties:
+        properties: 
           camera_infos:
             type: array
             properties:
@@ -1140,10 +1145,16 @@ components:
         type: object
         properties:
           result:
-            type: integer 
-            format: uint32
-            description: "成功： 0"
+            type: integer
+            format: uint32 
+            descrioption: "0: 成功"
             example: 0
+          camera_infos:
+            type: array
+            properties:
+            items: {
+                $ref: '#/components/schemas/VideoSplitData/CameraInfo'
+              }
       DeleteCameraInfo:
         type: object
         properties:
