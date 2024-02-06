@@ -44,6 +44,16 @@ namespace chen {
 			, camera_infos()
 			/*, app_render()*/{}
 	};
+	struct cresult_camera_list
+	{
+		uint32 result;
+		PageInfo	page_info;
+		AddCameraInfos camera_infos;
+		cresult_camera_list()
+			: result(0)
+			, page_info()
+			, camera_infos(){}
+	};
 
 }
 #endif 

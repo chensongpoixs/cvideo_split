@@ -69,6 +69,18 @@ namespace chen {
 		}
 		return result;
 	}
+	cresult_camera_list ccamera_mgr::handler_camera_list(uint32 page, uint32 page_size)
+	{
+		cresult_camera_list result;
+		result.page_info.set_total_elements(m_camera_info_map.size());
+		//result.page_info.set_total_elements();
+		return result;
+	}
+
+	uint32			ccamera_mgr::handler_delete_camera(uint32 camera_id)
+	{
+		return 0;
+	}
 	void ccamera_mgr::_load_camera_config()
 	{
 		std::string camera_name = g_cfg.get_string(ECI_DataPath) + "/" + camera_json_name;

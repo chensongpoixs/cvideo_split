@@ -222,6 +222,24 @@ namespace chen {
 		 
 	}
 
+	void cweb_http_api_mgr::_handler_camera_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		//std::cout << "room_name = " << request->path_match[1] << ", username = " << request->path_match[2];
+		CWEB_GUARD_REPLY(response);
+		cresult_camera_list result = g_web_http_api_proxy.camera_list(std::atoi(request->path_match[1].str().c_str()), std::atoi(request->path_match[2].str().c_str()));
+	
+		// reply --> json
+	}
+
+	void cweb_http_api_mgr::_handler_delete_camera(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		uint32 result = g_web_http_api_proxy.delete_camera(std::atoi(request->path_match[1].str().c_str()));
+
+	}
+
+
+
  
 
 }

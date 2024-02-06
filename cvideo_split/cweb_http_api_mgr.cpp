@@ -62,7 +62,9 @@ namespace chen {
 		REGISTER_WEB_DEFAULT("GET", std::bind(&cweb_http_api_mgr::_handler_default_get, this, std::placeholders::_1, std::placeholders::_2));
 
 		REGISTER_WEB_HANDLER("add_camera_info", "POST", std::bind(&cweb_http_api_mgr::_handler_add_camera_infos, this, std::placeholders::_1, std::placeholders::_2));
-		 
+		REGISTER_WEB_HANDLER("camera_list/page=([0-9]+)&page_size=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_camera_list, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("delete_camera/camera_id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_camera, this, std::placeholders::_1, std::placeholders::_2));
+
 		m_server.on_error = [](std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> /*request*/, const SimpleWeb::error_code & /*ec*/) {
 			// Handle errors here
 			// Note that connection timeouts will also call this handle with ec set to SimpleWeb::errc::operation_canceled
@@ -229,6 +231,16 @@ namespace chen {
 	{
 		//cresult_add_camera_info result;
 		return g_camera_mgr.handler_add_camera_infos(msg); // g_global_logic_mgr.handler_web_create_render_app(msg );;
+	}
+
+	cresult_camera_list cweb_http_api_mgr::camera_list(uint32 page, uint32 page_size)
+	{
+		return g_camera_mgr.handler_camera_list(page, page_size);
+	}
+
+	uint32 cweb_http_api_mgr::delete_camera(uint32 camera_id)
+	{
+		return uint32();
 	}
 
 	 

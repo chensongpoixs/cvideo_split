@@ -43,8 +43,8 @@ namespace chen {
 	public:
 
 		cresult_add_camera_info handler_add_camera_infos(const AddCameraInfos& msg);
-
-
+		cresult_camera_list handler_camera_list(uint32 page, uint32 page_size);
+		uint32			handler_delete_camera(uint32 camera_id);
 
 	private:
 		void _load_camera_config();
