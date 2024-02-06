@@ -10,7 +10,7 @@
 #include <cinttypes>
 
 //#include "cserver_msg_header.h"
-
+#include "ccamera_mgr.h"
 
 #include "crandom.h"
 
@@ -61,7 +61,7 @@ namespace chen {
 		REGISTER_WEB_DEFAULT("OPTIONS", std::bind(&cweb_http_api_mgr::_handler_default_options, this, std::placeholders::_1, std::placeholders::_2));
 		REGISTER_WEB_DEFAULT("GET", std::bind(&cweb_http_api_mgr::_handler_default_get, this, std::placeholders::_1, std::placeholders::_2));
 
-		REGISTER_WEB_HANDLER("create_render_app", "POST", std::bind(&cweb_http_api_mgr::_handler_create_render_app, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("add_camera_info", "POST", std::bind(&cweb_http_api_mgr::_handler_add_camera_infos, this, std::placeholders::_1, std::placeholders::_2));
 		 
 		m_server.on_error = [](std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> /*request*/, const SimpleWeb::error_code & /*ec*/) {
 			// Handle errors here
@@ -106,25 +106,26 @@ namespace chen {
 
 	}
 
-	void cweb_http_api_mgr::_send_message(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, uint32 result, const char* message, const Json::Value& data)
-	{
-		Json::Value value;
-		value["result"] = result;
-		value["data"] = data;
-		value["message"] = message ? message : "";
-		Json::StyledWriter swriter;
-		std::string str = swriter.write(value);
-		//Content-Type: application/json
-		SimpleWeb::CaseInsensitiveMultimap header;
-		header.emplace("Content-Type",  "application/json");
-		// Content-Type: application/json; charset=utf-8
-		header.emplace("Content-Type", "charset=utf-8");
-		response->write(str, header);
-	}
+	//void cweb_http_api_mgr::_send_message(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, /*uint32 result, const char* message,*/ const Json::Value& data)
+	//{
+	//	/*Json::Value value;
+	//	value["result"] = result;
+	//	value["data"] = data;
+	//	value["message"] = message ? message : "";*/
+	//	Json::StyledWriter swriter;
+	//	std::string str = swriter.write(data);
+	//	//Content-Type: application/json
+	//	SimpleWeb::CaseInsensitiveMultimap header;
+	//	header.emplace("Content-Type",  "application/json");
+	//	// Content-Type: application/json; charset=utf-8
+	//	header.emplace("Content-Type", "charset=utf-8");
+	//	response->write(str, header);
+	//}
 
 	bool cweb_http_api_mgr::_register_web_handler(const char * function_name, const char * method, std::function<void(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response>response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request>request)> function)
 	{
-		
+		std::string pathpre = std::string("^/") + g_cfg.get_string(ECI_WebPathPrefix) + function_name;
+		NORMAL_EX_LOG("[pathpre = %s]", pathpre.c_str());
 		return m_server.resource[std::string("^/") + g_cfg.get_string(ECI_WebPathPrefix) + function_name].insert(std::make_pair(method, function)).second;
 	}
 
@@ -223,11 +224,11 @@ namespace chen {
 	//}
 	//
 
-
-	cresult_app_info cweb_http_api_mgr::create_render_app(const create_render_app_struct& msg)
+	//cresult_add_camera_info add_camera_infos(const AddCameraInfos & msg);
+	cresult_add_camera_info cweb_http_api_mgr::add_camera_infos(const AddCameraInfos& msg)
 	{
-		cresult_app_info result;
-		return result; // g_global_logic_mgr.handler_web_create_render_app(msg );;
+		//cresult_add_camera_info result;
+		return g_camera_mgr.handler_add_camera_infos(msg); // g_global_logic_mgr.handler_web_create_render_app(msg );;
 	}
 
 	 

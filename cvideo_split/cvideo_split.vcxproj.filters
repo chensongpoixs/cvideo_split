@@ -16,9 +16,6 @@
     <Filter Include="util">
       <UniqueIdentifier>{22929a86-4c8a-4760-832c-0751dd272b39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="global_logic">
-      <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="avtilter">
       <UniqueIdentifier>{715477ec-174f-46df-be40-0415edb5b577}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="cfg">
       <UniqueIdentifier>{28a359e5-f492-476e-9f97-d5df5d346225}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="logic">
+      <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +64,15 @@
     </ClCompile>
     <ClCompile Include="ccfg.cpp">
       <Filter>cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="ccamera_mgr.cpp">
+      <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="cvideo_split_server.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cweb_guard_reply.cpp">
+      <Filter>web</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +109,15 @@
       <Filter>cfg</Filter>
     </ClInclude>
     <ClInclude Include="chttp_code.h">
+      <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="ccamera_mgr.h">
+      <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="cvideo_split_server.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cweb_guard_reply.h">
       <Filter>web</Filter>
     </ClInclude>
   </ItemGroup>

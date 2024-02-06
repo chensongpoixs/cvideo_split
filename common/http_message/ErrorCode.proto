@@ -1,0 +1,55 @@
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+
+enum EErrorCode
+{ 
+	EEC_Success						= 0;	// 成功
+	EEC_Failed						= 1;	// 失败
+	 
+	//login
+	EEC_InvalidClientSessionID		= 2;	// 非法的client session id
+	EEC_OtherDeviceLogin			= 3;	// 您的帐号已在其他设备上登录
+	EEC_ClientConnectStatus 		= 4;    // 客户端连接状态错误
+    EEC_MemAllocFailed 				= 5;
+
+	// Log Server  
+ 
+	EEC_DongleAuthDb 				= 300; // 数据库错误
+	EEC_DongleAuthNotAppid 			= 301; //没有appid数据
+	EEC_DongLeAuthLoadDefaultProject = 302; //默认项目错误
+    EEC_DongleAuthNotfindDeviceOnlineServer = 304; //没有发现加密狗和在线服务
+	EEC_DongleAuthExpireTimestamp = 305; //时间过期
+	EEC_DongleAuthNotStartTimestamp = 306; //没有到开始授权时间
+	EEC_DongleAuthServiceModifyComputerTime = 307; //修改了Dongle狗计算机的时间
+	EEC_DongleAuthNotfindPOItag = 308; //Dongle not find POI tag 
+	EEC_DongleAuthNotfindtag = 309; //Dongle not find   tag 
+	EEC_DongleAuthNotfindCameraChannel = 310; //Dongle not find cameraChannel
+	EEC_DongleAuthNotfindTagString = 311; // Dongle not find Tag String //{"POI_tag":60,"tag":1,"cameraChannel":6}
+	EEC_DongleAuthcameraChannel = 312; //融合视频路数超过了
+	EEC_DongleAuthPoiTagCameraCount = 313; //POI的tag监控相机路数超过了
+	EEC_DongleAuthConfigTable = 314; // 配置格式错误
+	EEC_DongleAuthNotData 	= 315; //加密狗中没有数据
+	EEC_DongleAuthServerTimstamp = 316; //在服务验证错误
+	
+	
+	// 
+	EEC_RenderCentralNotFindDir = 500; //删除目录失败!!!
+	 
+ ////////////////////////Auth Render////////////////////////////////
+ 
+	EEC_AuthRenderDb 			 = 900; //mysql访问错误
+	EEC_AuthRenderNotAuth 		 = 901; //没有给用户授权账号
+	EEC_AuthRenderAuthPass 		 = 902; //用户授权签名错误
+	EEC_AuthRenderExpireTimestamp= 903; //时间过期
+	EEC_AuthRenderDiffDevice 	 = 904; //设备
+	EEC_AuthRenderOtherAuthLogin = 905; //其它设备登录了
+
+
+
+
+	// Server
+	EEC_RenderServerLogin 			= 1000; //render_server_name 已经登录了
+	EEC_SaveRenderServerDb 			= 1001; 
+	
+}

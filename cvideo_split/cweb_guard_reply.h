@@ -1,9 +1,11 @@
-﻿/***********************************************************************************************
-created: 		2019-05-06
+﻿/********************************************************************
+created:	2019-05-07
 
-author:			chensong
+author:		chensong
 
-purpose:		gateway
+level:		ÍøÂç²ã
+
+purpose:	ÍøÂçÊý¾ÝµÄÊÕ·¢
 
 输赢不重要，答案对你们有什么意义才重要。
 
@@ -21,29 +23,33 @@ purpose:		gateway
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 *********************************************************************/
-#ifndef _C_WEB_HTTP_STRUCT_H_
-#define _C_WEB_HTTP_STRUCT_H_
-#include <string>
-#include "cnoncopytable.h"
-#include "cnet_type.h"
-#include <string>
-#include <vector>
-#include "cnoncopytable.h"
-#include <unordered_map>  
-#include "VideoSplit.pb.h"
-//#include "RenderCentral.pb.h"
+#ifndef _C_WEB_GUARD_REPLY_H_
+#define _C_WEB_GUARD_REPLY_H_
+#include "clog.h"
+#include <google/protobuf/message_lite.h>
+#include <json/json.h>
+#include "cweb_http_api_mgr.h"
 namespace chen {
-	 
-
-	struct cresult_add_camera_info
+	class cweb_guard_reply
 	{
-		uint32 result; 
-		AddCameraInfos camera_infos;
-		cresult_add_camera_info()
-			: result(0)
-			, camera_infos()
-			/*, app_render()*/{}
+	public:
+		cweb_guard_reply(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response,   Json::Value& msg )
+			: m_response(response)
+			, m_message(msg) 
+			, m_result(0){}
+		~cweb_guard_reply();
+		void set_result(uint32 code);
+		//void cancel();
+	private: 
+		  Json::Value&						m_message; 
+		std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response>  m_response;
+		uint32				m_result;
 	};
 
+
+
+#define CWEB_GUARD_REPLY(response) Json::Value  reply;\
+        cweb_guard_reply web_guard_reply(response,  reply); 
 }
-#endif 
+
+#endif // _C_GUARD_REPLY_H_

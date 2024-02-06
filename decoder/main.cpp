@@ -1,6 +1,8 @@
 ﻿#include <iostream>
 #include <csignal>
 #include "cdecoder_server.h"
+
+
 void Stop(int i)
 {
 	chen::g_decoder_server.stop();
@@ -13,6 +15,8 @@ void RegisterSignal()
 	signal(SIGTERM, Stop);
 
 }
+
+
 
 int main(int argc, char* argv[])
 {

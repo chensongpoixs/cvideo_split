@@ -1,0 +1,19 @@
+
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+import "VideoSplitDefine.proto"; 
+
+
+
+//增加相机
+message AddCameraInfos
+{
+	repeated CameraInfo 		camera_infos = 1;
+}
+
+
+
+
+
+

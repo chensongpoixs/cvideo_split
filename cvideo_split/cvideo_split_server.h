@@ -21,44 +21,38 @@
 			沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 			安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 ************************************************************************************************/
-#ifndef _C_CFG_H_
-#define _C_CFG_H_
+#ifndef _C_VIDEO_SPLIT_SERVER_H_
+#define _C_VIDEO_SPLIT_SERVER_H_
 //#include "cconfig.h"
 #include "cconfig.h"
 //#include "csingleton.h"
-
-
+#include "cweb_http_api_mgr.h"
+#include "ccamera_mgr.h"
+#include "ccfg.h"
 namespace chen {
 
- 
- 
-	enum ECNGIndex
-	{
-
-		ECI_TimeZone,
-		ECI_TimeAdjust, 
-		// 
-		ECI_LogLevel, 
-		 
-		ECI_WebHttpWanIp,
-		ECI_WebHttpWanPort,
-		ECI_WebPathPrefix,
- 
-		ECI_DataPath,
-		ECI_Max,
-	};
-	class ccfg : public cconfig
+	class cvideo_split_server
 	{
 	public:
-	    explicit	ccfg();
-		virtual	~ccfg();
+		explicit cvideo_split_server()
+		: m_stoped(false){}
+		virtual ~cvideo_split_server() {}
+
 	public:
-		bool init(const char *file_name);
-		void destroy();
+		bool init(const char* log_path, const char* config_file);
+		bool Loop();
+		void Destroy();
+
+
+		void stop();
+
+	private:
+
+		bool	m_stoped;
+	private:
+
 	};
-
-	extern 	ccfg g_cfg;
-} //namespace chen
-
-#endif //!#define _C_CFG_H_
-
+	extern cvideo_split_server g_video_split_server;
+	
+}
+#endif // _C_VIDEO_SPLIT_SERVER_H_

@@ -21,44 +21,109 @@
 			沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 			安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 ************************************************************************************************/
-#ifndef _C_CFG_H_
-#define _C_CFG_H_
-//#include "cconfig.h"
-#include "cconfig.h"
-//#include "csingleton.h"
 
 
+#include "cvideo_split_server.h"
+#include "clog.h"
+#include "ctime_api.h"
+#include "ccamera_mgr.h"
+#include "ctime_elapse.h"
+#include "clib_util.h"
 namespace chen {
 
- 
- 
-	enum ECNGIndex
-	{
 
-		ECI_TimeZone,
-		ECI_TimeAdjust, 
-		// 
-		ECI_LogLevel, 
+	cvideo_split_server g_video_split_server;
+
+	bool cvideo_split_server::init(const char* log_path, const char* config_file)
+	{
+		printf("Log init ...\n");
+		if (!LOG::init(log_path, "video_split"))
+		{
+			return false;
+		}
+		SYSTEM_LOG("config init ...");
+		if (!g_cfg.init(config_file))
+		{
+			return false;
+		}
+		LOG::set_level(static_cast<ELogLevelType>(g_cfg.get_uint32(ECI_LogLevel)));
+		ctime_base_api::set_time_zone(g_cfg.get_int32(ECI_TimeZone));
+		ctime_base_api::set_time_adjust(g_cfg.get_int32(ECI_TimeAdjust));
 		 
-		ECI_WebHttpWanIp,
-		ECI_WebHttpWanPort,
-		ECI_WebPathPrefix,
- 
-		ECI_DataPath,
-		ECI_Max,
-	};
-	class ccfg : public cconfig
+		// check data path
+		
+
+		// load camera data 
+		SYSTEM_LOG("Load camera_list data ...");
+		if (!g_camera_mgr.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("load camera_list data OK !!!");
+
+
+
+		SYSTEM_LOG("Web Server API init ...");
+		if (!g_web_http_api_mgr.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("Web Server API startup ...");
+		g_web_http_api_mgr.startup();
+		SYSTEM_LOG("Web Server API startup OK ...");
+
+		SYSTEM_LOG("VideoSplit  server init ok");
+
+		return true;
+		return true;
+	}
+
+	bool cvideo_split_server::Loop()
 	{
-	public:
-	    explicit	ccfg();
-		virtual	~ccfg();
-	public:
-		bool init(const char *file_name);
-		void destroy();
-	};
+		static const uint32 TICK_TIME = 100;
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½
+		//NORMAL_EX_LOG("");
+		ctime_elapse time_elapse;
+		uint32 uDelta = 0;
+		while (!m_stoped)
+		{
+			uDelta += time_elapse.get_elapse();
+		 
+			g_http_queue_mgr.update();
+			g_camera_mgr.update(uDelta);
 
-	extern 	ccfg g_cfg;
-} //namespace chen
+			uDelta = time_elapse.get_elapse();
 
-#endif //!#define _C_CFG_H_
+			if (uDelta < TICK_TIME)
+			{
+				csleep(TICK_TIME - uDelta);
+			}
+		}
+
+		SYSTEM_LOG("Leave main loop");
+
+		return true;
+	}
+
+	void cvideo_split_server::Destroy()
+	{
+		g_web_http_api_mgr.destroy();
+		SYSTEM_LOG("Web Server Destroy OK !!!");
+		 
+		g_camera_mgr.destroy();
+		SYSTEM_LOG("camera_list destroy OK !!!");
+		
+		g_cfg.destroy();
+		LOG::destroy();
+		printf(" VideoSplit server Destroy End OK !!!\n");
+	}
+
+	void cvideo_split_server::stop()
+	{
+		m_stoped = true;
+	}
+
+}
+
+
 

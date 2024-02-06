@@ -61,7 +61,7 @@ namespace chen {
 		void startup();
 	public:
 		//virtual	  uint32_t update_auth_info(uint64_t auth_id);
-		virtual   cresult_app_info create_render_app(const create_render_app_struct & msg);
+		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos & msg);
 		
 		//virtual std::vector< croom_info>   get_all_room();
 		//virtual std::vector< chen::cuser_info>   get_room_info(const std::string& room_name );
@@ -74,14 +74,15 @@ namespace chen {
 		void _handler_default_options(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 
-		void _handler_create_render_app(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		void _handler_add_camera_infos(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		 
 	private:
 		void _pthread_work();
 
 	private:
 		//void _send_message(uint32 result);
-		void _send_message(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, uint32 result= 0, const char * message = NULL, const Json::Value & data = Json::Value());
+		// uint32 result= 0, const char * message = NULL,
+		//void _send_message(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response,  const Json::Value & data = Json::Value());
 	private:
 		bool _register_web_handler(const char * function_name, const char * method, std::function<void (std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)> function);
 		bool _register_web_default(const char * fun_name, std::function<void(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)> function);

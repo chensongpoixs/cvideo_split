@@ -1,9 +1,11 @@
-﻿/***********************************************************************************************
-created: 		2019-05-06
+﻿/********************************************************************
+created:	2019-05-07
 
-author:			chensong
+author:		chensong
 
-purpose:		gateway
+level:		ÍøÂç²ã
+
+purpose:	ÍøÂçÊý¾ÝµÄÊÕ·¢
 
 输赢不重要，答案对你们有什么意义才重要。
 
@@ -21,29 +23,27 @@ purpose:		gateway
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 *********************************************************************/
-#ifndef _C_WEB_HTTP_STRUCT_H_
-#define _C_WEB_HTTP_STRUCT_H_
-#include <string>
-#include "cnoncopytable.h"
-#include "cnet_type.h"
-#include <string>
-#include <vector>
-#include "cnoncopytable.h"
-#include <unordered_map>  
-#include "VideoSplit.pb.h"
-//#include "RenderCentral.pb.h"
+#include "cweb_guard_reply.h"
+
 namespace chen {
-	 
-
-	struct cresult_add_camera_info
+	cweb_guard_reply::~cweb_guard_reply()
 	{
-		uint32 result; 
-		AddCameraInfos camera_infos;
-		cresult_add_camera_info()
-			: result(0)
-			, camera_infos()
-			/*, app_render()*/{}
-	};
-
+		if (m_response)
+		{
+			m_message["result"] = m_result;
+			Json::StyledWriter swriter;
+			std::string str = swriter.write(m_message);
+			//Content-Type: application/json
+			SimpleWeb::CaseInsensitiveMultimap header;
+			header.emplace("Content-Type", "application/json");
+			// Content-Type: application/json; charset=utf-8
+			header.emplace("Content-Type", "charset=utf-8");
+			m_response->write(str, header);
+		}
+		
+	}
+	void cweb_guard_reply::set_result(uint32 code)
+	{
+		m_result = code;
+	}
 }
-#endif 

@@ -15,6 +15,24 @@
 #include "cencoder.h"
 #include "XlsReader.h"
 #include "cglobal_ffmpeg_register.h"
+#include <google/protobuf/util/json_util.h>
+#include <google/protobuf/util/message_differencer.h>
+#include <google/protobuf/util/time_util.h>
+#include <google/protobuf/util/type_resolver_util.h>
+#include "VideoSplit.pb.h"
+#include "cvideo_split_server.h"
+#include <json/json.h>
+void test_protobuf_json()
+{
+	// ... 你的protobuf消息定义 ...
+
+	AddCameraInfos message;
+	// 填充message对象
+
+	std::string json_output;
+	google::protobuf::util:: JsonOptions options;
+	//google::protobuf::util::MessageToJsonString(message, &json_output, options);
+}
 //#pragma comment(lib, "opencv_world460.lib")
 //#pragma comment(lib, "opencv_img_hash460.lib")
 //#pragma comment(lib, "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\lib\x64\cudart_static.lib")
@@ -44,7 +62,8 @@ bool					m_stoped = false;
 void Stop(int i)
 {
 
-	m_stoped = true;
+	//m_stoped = true;
+	chen::g_video_split_server.stop();
 }
 
 void RegisterSignal()
@@ -234,11 +253,63 @@ int test_main(int argc, char* argv[])
 }
 
 
- 
+void test_json()
+{
+	Json::Value value;
+	/*value["result"] = result;
+	value["data"] = data;
+	value["message"] = message ? message : "";*/
+	for (size_t i = 0; i < 3; ++i)
+	{
+		Json::Value Camera;
+		Camera["addres"] = "192.168.1.2" + std::to_string(i);
+		//value.append(Camera);
+		value.append( Camera);
+	}
+	Json::StyledWriter swriter;
+	std::string str = swriter.write(value);
+	printf("[camera_list = %s]\n", str.c_str());
+}
 
 
 int  main(int argc, char** argv) 
 {
+	RegisterSignal();
+	const char* config_filename = "server.cfg";
+	const char* log_path = "./log";
+	if (argc > 1)
+	{
+		config_filename = argv[1];
+	}
+	if (argc > 2)
+	{
+		log_path = argv[2];
+	}
+
+	bool init = chen::g_video_split_server.init(log_path, config_filename);
+
+	if (init)
+	{
+		init = chen::g_video_split_server.Loop();
+	}
+	chen::g_video_split_server.Destroy();
+	if (!init)
+	{
+		return 1;
+	}
+
+
+
+
+
+	return 0;
+	test_json();
+	return 0;
+
+
+
+
+
 	//::setlocale(LC_ALL, "chs");
 	xls::WorkBook test("test.xls");
 

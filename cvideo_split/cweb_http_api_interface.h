@@ -25,7 +25,8 @@ namespace chen {
 	public:
 
 		//virtual	  uint32_t update_auth_info(uint64_t auth_id) = 0;
-		virtual   cresult_app_info create_render_app(const create_render_app_struct& msg) = 0;
+		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos& msg) = 0;
+
 		 
 		//virtual std::vector< croom_info>   get_all_room() = 0;
 		//virtual std::vector< chen::cuser_info>   get_room_info(const std::string& room_name ) = 0;

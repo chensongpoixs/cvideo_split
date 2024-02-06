@@ -54,8 +54,8 @@ namespace chen {
 		//ECI_WebHttpWanPort,
 		set_string(ECI_WebHttpWanIp, "web_http_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebHttpWanPort, "web_http_wan_port", 9800);
-		set_string(ECI_WebPathPrefix, "web_path_prefix", "v1/video_split/");
-
+		set_string(ECI_WebPathPrefix, "web_path_prefix", "video_split/v1/");
+		set_string(ECI_DataPath, "data_path", "../../data");
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

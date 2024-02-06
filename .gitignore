@@ -18,3 +18,5 @@
 /cvideo_split.7z
 /res/execl/摄像机表.xls
 /web_api
+/common/common.vcxproj.user
+/bin/data/camera_list.json
