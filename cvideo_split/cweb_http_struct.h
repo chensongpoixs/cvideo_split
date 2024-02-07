@@ -54,6 +54,23 @@ namespace chen {
 			, page_info()
 			, camera_infos(){}
 	};
-
+	struct cresult_add_video_split
+	{
+		uint32 result;
+		VideoSplitInfo video_split_info;
+		cresult_add_video_split()
+			: result(0)
+			, video_split_info() {}
+	};
+	struct cresult_video_split_list
+	{
+		uint32 result;
+		PageInfo	page_info;
+		std::vector< VideoSplitInfo> video_split_infos;
+		cresult_video_split_list()
+			: result(0)
+			, page_info()
+			, video_split_infos() {}
+	};
 }
 #endif 

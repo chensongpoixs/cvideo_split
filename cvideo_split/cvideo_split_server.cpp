@@ -28,6 +28,7 @@
 #include "ctime_api.h"
 #include "ccamera_info_mgr.h"
 #include "ctime_elapse.h"
+#include "cvideo_split_info_mgr.h"
 #include "clib_util.h"
 namespace chen {
 
@@ -61,7 +62,12 @@ namespace chen {
 		}
 		SYSTEM_LOG("load camera_list data OK !!!");
 
-
+		SYSTEM_LOG("Load video_split_list data ...");
+		if (!g_video_split_info_mgr.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("Load video split list data OK !!!");
 
 		SYSTEM_LOG("Web Server API init ...");
 		if (!g_web_http_api_mgr.init())
@@ -91,7 +97,7 @@ namespace chen {
 		 
 			g_http_queue_mgr.update();
 			g_camera_info_mgr.update(uDelta);
-
+			g_video_split_info_mgr.update(uDelta);
 			uDelta = time_elapse.get_elapse();
 
 			if (uDelta < TICK_TIME)
@@ -111,8 +117,9 @@ namespace chen {
 		SYSTEM_LOG("Web Server Destroy OK !!!");
 		 
 		g_camera_info_mgr.destroy();
-		SYSTEM_LOG("camera_list destroy OK !!!");
-		
+		SYSTEM_LOG("camera_list info mgr destroy OK !!!");
+		g_video_split_info_mgr.destroy();
+		SYSTEM_LOG("video_split_info mgr destroy OK !!!");
 		g_cfg.destroy();
 		LOG::destroy();
 		printf(" VideoSplit server Destroy End OK !!!\n");

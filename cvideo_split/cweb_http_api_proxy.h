@@ -22,19 +22,16 @@ purpose:	Location
 //#include "croom.h"
 #include <vector>
 namespace chen {
-	BEGIN_PROXY_MAP(cweb_http_api) 
+	BEGIN_PROXY_MAP(cweb_http_api)
 
 		PROXY_WORKER_METHOD1(cresult_add_camera_info, add_camera_infos, const AddCameraInfos&)
-		PROXY_WORKER_METHOD2(cresult_camera_list,  camera_list, uint32, uint32)
+		PROXY_WORKER_METHOD2(cresult_camera_list, camera_list, uint32, uint32)
 		PROXY_WORKER_METHOD1(uint32, delete_camera, uint32)
 
-		//PROXY_WORKER_METHOD1(cresult_app_info,	update_render_app, const update_render_app_struct&)
-		//PROXY_WORKER_METHOD1(uint32_t, delete_render_app, const std::string&)
-		//PROXY_WORKER_METHOD1(uint32_t,  cmd_render_app, const cmd_render_app_struct& )
-		//virtual uint32_t  kick_room_username(const std::string& room_name, const std::string & user_name)
-		//PROXY_WORKER_METHOD2(uint32_t, kick_room_username, const std::string &, const std::string &)
-			//PROXY_WORKER_METHOD2(uint32_t, add_while_room_username, const std::string &, const std::string &)
-			//PROXY_WORKER_METHOD2(uint32_t, delete_while_room_username, const std::string &, const std::string &)
+
+		PROXY_WORKER_METHOD1(cresult_add_video_split, add_video_split, const VideoSplitInfo&)
+		PROXY_WORKER_METHOD2(cresult_video_split_list, video_split_list, uint32, uint32)
+		PROXY_WORKER_METHOD1(uint32, delete_video_split, uint32)
 	END_PROXY_MAP()
 
 

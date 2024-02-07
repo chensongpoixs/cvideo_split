@@ -84,7 +84,7 @@ namespace chen {
 		int32 start_index =  (page_size * (page));
 		if (m_camera_info_map.size() >= start_index)
 		{
-			show_page_size = (m_camera_info_map.size() - start_index)> page_size ? page_size : (m_camera_info_map.size() - start_index+1);
+			show_page_size = (m_camera_info_map.size() - start_index)> page_size ? page_size : (m_camera_info_map.size() - start_index);
 			result.page_info.set_page_size(show_page_size);
 			//CAMERA_INFO_MAP::const_iterator iter = m_camera_info_map.find(camera_id);
 			for (CAMERA_INFO_MAP::const_iterator iter = m_camera_info_map.begin();
@@ -254,22 +254,22 @@ namespace chen {
 			}
 			if (!data[i].isMember("address") || !data[i]["address"].isString())
 			{
-				WARNING_EX_LOG("config  warr camera_id !!!");
+				WARNING_EX_LOG("config  warr address !!!");
 				continue;
 			}
 			if (!data[i].isMember("camera_name") || !data[i]["camera_name"].isString())
 			{
-				WARNING_EX_LOG("config  warr camera_id !!!");
+				WARNING_EX_LOG("config  warr camera_name !!!");
 				continue;
 			}
 			if (!data[i].isMember("port") || !data[i]["port"].isUInt())
 			{
-				WARNING_EX_LOG("config  warr camera_id !!!");
+				WARNING_EX_LOG("config  warr port !!!");
 				continue;
 			}
 			if (!data[i].isMember("url") || !data[i]["url"].isString())
 			{
-				WARNING_EX_LOG("config  warr camera_id !!!");
+				WARNING_EX_LOG("config  warr url !!!");
 				continue;
 			}
 			camera_info.set_camera_id(data[i]["camera_id"].asUInt64());

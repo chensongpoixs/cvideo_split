@@ -37,6 +37,7 @@ namespace chen {
 		EWebRenderAppStop, //app已经停止了
 		EWebWait,   // 再试一次
 		EWebNotFindCameraId, //没有该摄像机ID
+		EWebNotFindVideoSplitId, //没有该视频拼接ID
 		
 	};
 }

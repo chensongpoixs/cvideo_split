@@ -31,6 +31,7 @@ namespace chen {
 		if (m_response)
 		{
 			m_message["result"] = m_result;
+			m_message["message"] = m_error;
 			Json::StyledWriter swriter;
 			std::string str = swriter.write(m_message);
 			//Content-Type: application/json
@@ -42,8 +43,9 @@ namespace chen {
 		}
 		
 	}
-	void cweb_guard_reply::set_result(uint32 code)
+	void cweb_guard_reply::set_result(uint32 code, const std::string& error)
 	{
 		m_result = code;
+		m_error = error;
 	}
 }

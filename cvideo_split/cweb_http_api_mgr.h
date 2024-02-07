@@ -64,13 +64,12 @@ namespace chen {
 		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos & msg);
 		virtual   cresult_camera_list camera_list(uint32 page, uint32 page_size);
 		virtual	  uint32			  delete_camera(uint32 camera_id);
-		//virtual std::vector< croom_info>   get_all_room();
-		//virtual std::vector< chen::cuser_info>   get_room_info(const std::string& room_name );
-		//virtual uint32_t  kick_room_username(const std::string& room_name, const std::string & user_name);
-		//virtual uint32_t  add_while_room_username(const std::string& room_name, const std::string & user_name);
-		//virtual uint32_t  delete_while_room_username(const std::string& room_name, const std::string & user_name);
+		 
+
+		virtual  cresult_add_video_split add_video_split(const VideoSplitInfo& video_split_info);
 	
-	
+		virtual cresult_video_split_list video_split_list(uint32 page, uint32 page_size);
+		virtual uint32				delete_video_split(uint32 id);
 	private:
 		void _handler_default_options(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
@@ -78,6 +77,11 @@ namespace chen {
 		void _handler_add_camera_infos(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_camera_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_delete_camera(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		
+		// video split -->
+		void _handler_add_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		void _handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		void _handler_delete_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 
 	private:
 		void _pthread_work();

@@ -8,6 +8,7 @@
 //#include <json.h>
 #include <json/json.h>
 #include <cinttypes>
+#include "cvideo_split_info_mgr.h"
 
 //#include "cserver_msg_header.h"
 #include "ccamera_info_mgr.h"
@@ -64,6 +65,12 @@ namespace chen {
 		REGISTER_WEB_HANDLER("add_camera_info", "POST", std::bind(&cweb_http_api_mgr::_handler_add_camera_infos, this, std::placeholders::_1, std::placeholders::_2));
 		REGISTER_WEB_HANDLER("camera_list/page=([0-9]+)&page_size=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_camera_list, this, std::placeholders::_1, std::placeholders::_2));
 		REGISTER_WEB_HANDLER("delete_camera/camera_id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_camera, this, std::placeholders::_1, std::placeholders::_2));
+
+		REGISTER_WEB_HANDLER("add_video_split", "POST", std::bind(&cweb_http_api_mgr::_handler_add_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("video_split_list/page=([0-9]+)&page_size=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_video_split_list, this, std::placeholders::_1, std::placeholders::_2));
+
+
+
 
 		m_server.on_error = [](std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> /*request*/, const SimpleWeb::error_code & /*ec*/) {
 			// Handle errors here
@@ -240,6 +247,17 @@ namespace chen {
 	{
 		return g_camera_info_mgr.handler_delete_camera(camera_id);
 	}
-
+	cresult_add_video_split cweb_http_api_mgr::add_video_split(const VideoSplitInfo& video_split_info)
+	{
+		return g_video_split_info_mgr.handler_web_add_video_split(video_split_info);
+	}
 	 
+	cresult_video_split_list cweb_http_api_mgr::video_split_list(uint32 page, uint32 page_size)
+	{
+		return g_video_split_info_mgr.handler_web_video_split_list(page, page_size);
+	}
+	  uint32				cweb_http_api_mgr::delete_video_split(uint32 id)
+	{
+		  return g_video_split_info_mgr.handler_web_delete_video_split(id);
+	}
 }

@@ -20,3 +20,4 @@
 /web_api
 /common/common.vcxproj.user
 /bin/data/camera_list.json
+/bin/data/video_split_list.json

@@ -22,25 +22,15 @@ message CameraGroup
 {
 	optional uint32 index = 1; //拼接索引
 	optional uint32 camera_id = 2; //相机id
+	optional double x = 3; // 
+	optional double y = 4;
+	optional double w = 5;
+	optional double h = 6;
 }
 
 
 
-message VideoSplitInfo
-{
 
-	optional uint64   id  = 1; //序号 
-	optional string   split_channel_name = 2; //拼接通道名称
-	optional string   split_channel_id   = 3; //拼接通道id
-	optional string   multicast_ip 		= 4; //组播地址
-	optional uint32   multicast_port 	= 5; //组播端口 
-	optional ESplitMethod   split_method = 6; //拼接方式: 0: 左右拼接 1: 上下拼接
-	//optional uint32   split_type = 7; //拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一
-	optional uint32   lock_1080p   = 8; //是否锁定1080p
-	optional uint32   overlay     = 9; // 是否折叠 0: 不折叠 1: 折叠
-	repeated CameraInfo 		camera_infos = 10;
-	
-}
 
 
 message PageInfo
@@ -51,4 +41,13 @@ message PageInfo
 	optional uint32 	total_elements = 4; //总数量
 }
 
+
+
+message  OsdInfo
+{
+	optional double 		x = 1;
+	optional double 		y = 2;
+	optional uint32 		font_size = 3; //字体的大小
+	optional string 		font_text = 4; //数据
+}
 

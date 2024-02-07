@@ -28,12 +28,11 @@ namespace chen {
 		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos& msg) = 0;
 		virtual   cresult_camera_list camera_list(uint32 page, uint32 page_size) = 0;
 		virtual	  uint32			  delete_camera(uint32 camera_id) = 0;
-		//virtual std::vector< croom_info>   get_all_room() = 0;
-		//virtual std::vector< chen::cuser_info>   get_room_info(const std::string& room_name ) = 0;
-		//
-		//virtual uint32_t  kick_room_username(const std::string& room_name, const std::string & user_name) = 0;
-		//virtual uint32_t  add_while_room_username(const std::string& room_name, const std::string & user_name) = 0;
-		//virtual uint32_t  delete_while_room_username(const std::string& room_name, const std::string & user_name) = 0;
+
+
+		virtual	  cresult_add_video_split add_video_split(const VideoSplitInfo& msg) = 0;
+		virtual  cresult_video_split_list video_split_list(uint32 page, uint32 page_size) = 0;
+		virtual   uint32				delete_video_split(uint32 id) = 0;
 		virtual ~cweb_http_api_interface() {}
 	};
 }

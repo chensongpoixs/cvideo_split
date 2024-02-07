@@ -74,6 +74,9 @@
     <ClCompile Include="cweb_guard_reply.cpp">
       <Filter>web</Filter>
     </ClCompile>
+    <ClCompile Include="cvideo_split_info_mgr.cpp">
+      <Filter>logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="video_split.cu">
@@ -119,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="cweb_guard_reply.h">
       <Filter>web</Filter>
+    </ClInclude>
+    <ClInclude Include="cvideo_split_info_mgr.h">
+      <Filter>logic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

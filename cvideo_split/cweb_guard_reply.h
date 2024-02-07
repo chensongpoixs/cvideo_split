@@ -36,14 +36,17 @@ namespace chen {
 		cweb_guard_reply(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response,   Json::Value& msg )
 			: m_response(response)
 			, m_message(msg) 
-			, m_result(0){}
+			, m_result(0)
+			, m_error("") {}
 		~cweb_guard_reply();
-		void set_result(uint32 code);
+		void set_result(uint32 code, const std::string & error = "");
+		void set_error_message(const std::string& error) { m_error = error; }
 		//void cancel();
 	private: 
 		  Json::Value&						m_message; 
 		std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response>  m_response;
 		uint32				m_result;
+		std::string			m_error;
 	};
 
 

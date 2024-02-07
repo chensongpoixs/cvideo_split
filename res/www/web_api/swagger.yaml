@@ -342,19 +342,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VideoSplitData/ResultAddVideoSplitChannel'
-  /video_split/v1/delete_video_split:
+  /video_split/v1/delete_video_split/id={id}:
     post:
       tags:
         - VideoSplit
       summary: "删除视频拼接"
       description: "删除视频拼接"
       operationId: delete_video_split
-      requestBody:
-        description: "参数"
-        content: 
-          application/json: 
-            schema: 
-              $ref: '#/components/schemas/VideoSplitData/DeleteVideoSplitChannel'
+      parameters:
+        - in: path
+          name: page
+          required: true
+          schema:
+            type: integer
+            format: uint64
+            description: "视频拼接序号ID"
+            example: 0
       responses:
         default:
           description: successful operation
@@ -930,6 +933,26 @@ components:
             format: uint32
             descrioption: "相机索引id  0, 1, 2, 3, 4, 5, 6 .. 9"
             example: 1
+          x:
+            type: double 
+            format: double 
+            descrioption: "视频开始位置x坐标 比例"
+            example: 0.35434324
+          y:
+            type: double 
+            format: double 
+            descrioption: "视频开始位置y坐标 比例"
+            example: 0.2323432
+          w: 
+            type: double 
+            format: double
+            descrioption: "视频宽度比例"
+            example: 0.34
+          h:
+            type: double
+            format: double 
+            descrioption: "视频高度比例"
+            example: 0.32
 
       VideoSplitInfo:
         type: object
@@ -974,7 +997,7 @@ components:
             format: uint32 
             description: "是否折叠 0: 不折叠 1: 折叠"
             example: 0
-          camera_infos:
+          camera_group:
             type: array
             properties:
             items: {
@@ -1086,11 +1109,11 @@ components:
             format: uint32 
             description: "拼接方式: 0: 左右拼接 1: 上下拼接"
             exmpale: 0
-          split_type:
-            type: integer
-            format: uint32 
-            description: "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一"
-            example: 2
+          # split_type:
+          #   type: integer
+          #   format: uint32 
+          #   description: "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一"
+          #   example: 2
           lock_1080p:
             type: integer 
             format: uint32 
@@ -1101,7 +1124,7 @@ components:
             format: uint32 
             description: "是否折叠 0: 不折叠 1: 折叠"
             example: 0
-          camera_infos:
+          camera_group:
             type: array
             properties:
             items: {

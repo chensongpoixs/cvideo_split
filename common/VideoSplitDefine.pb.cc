@@ -13,7 +13,6 @@
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 
-extern PROTOBUF_INTERNAL_EXPORT_VideoSplitDefine_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_CameraInfo_VideoSplitDefine_2eproto;
 class CameraInfoDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<CameraInfo> _instance;
@@ -22,14 +21,14 @@ class CameraGroupDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<CameraGroup> _instance;
 } _CameraGroup_default_instance_;
-class VideoSplitInfoDefaultTypeInternal {
- public:
-  ::google::protobuf::internal::ExplicitlyConstructed<VideoSplitInfo> _instance;
-} _VideoSplitInfo_default_instance_;
 class PageInfoDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<PageInfo> _instance;
 } _PageInfo_default_instance_;
+class OsdInfoDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<OsdInfo> _instance;
+} _OsdInfo_default_instance_;
 static void InitDefaultsCameraInfo_VideoSplitDefine_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -58,21 +57,6 @@ static void InitDefaultsCameraGroup_VideoSplitDefine_2eproto() {
 ::google::protobuf::internal::SCCInfo<0> scc_info_CameraGroup_VideoSplitDefine_2eproto =
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsCameraGroup_VideoSplitDefine_2eproto}, {}};
 
-static void InitDefaultsVideoSplitInfo_VideoSplitDefine_2eproto() {
-  GOOGLE_PROTOBUF_VERIFY_VERSION;
-
-  {
-    void* ptr = &::_VideoSplitInfo_default_instance_;
-    new (ptr) ::VideoSplitInfo();
-    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
-  }
-  ::VideoSplitInfo::InitAsDefaultInstance();
-}
-
-::google::protobuf::internal::SCCInfo<1> scc_info_VideoSplitInfo_VideoSplitDefine_2eproto =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsVideoSplitInfo_VideoSplitDefine_2eproto}, {
-      &scc_info_CameraInfo_VideoSplitDefine_2eproto.base,}};
-
 static void InitDefaultsPageInfo_VideoSplitDefine_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -86,6 +70,20 @@ static void InitDefaultsPageInfo_VideoSplitDefine_2eproto() {
 
 ::google::protobuf::internal::SCCInfo<0> scc_info_PageInfo_VideoSplitDefine_2eproto =
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsPageInfo_VideoSplitDefine_2eproto}, {}};
+
+static void InitDefaultsOsdInfo_VideoSplitDefine_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::_OsdInfo_default_instance_;
+    new (ptr) ::OsdInfo();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::OsdInfo::InitAsDefaultInstance();
+}
+
+::google::protobuf::internal::SCCInfo<0> scc_info_OsdInfo_VideoSplitDefine_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsOsdInfo_VideoSplitDefine_2eproto}, {}};
 
 
 // ===================================================================
@@ -664,11 +662,27 @@ class CameraGroup::HasBitSetters {
   static void set_has_camera_id(CameraGroup* msg) {
     msg->_has_bits_[0] |= 0x00000002u;
   }
+  static void set_has_x(CameraGroup* msg) {
+    msg->_has_bits_[0] |= 0x00000004u;
+  }
+  static void set_has_y(CameraGroup* msg) {
+    msg->_has_bits_[0] |= 0x00000008u;
+  }
+  static void set_has_w(CameraGroup* msg) {
+    msg->_has_bits_[0] |= 0x00000010u;
+  }
+  static void set_has_h(CameraGroup* msg) {
+    msg->_has_bits_[0] |= 0x00000020u;
+  }
 };
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int CameraGroup::kIndexFieldNumber;
 const int CameraGroup::kCameraIdFieldNumber;
+const int CameraGroup::kXFieldNumber;
+const int CameraGroup::kYFieldNumber;
+const int CameraGroup::kWFieldNumber;
+const int CameraGroup::kHFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 CameraGroup::CameraGroup()
@@ -682,15 +696,15 @@ CameraGroup::CameraGroup(const CameraGroup& from)
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::memcpy(&index_, &from.index_,
-    static_cast<size_t>(reinterpret_cast<char*>(&camera_id_) -
-    reinterpret_cast<char*>(&index_)) + sizeof(camera_id_));
+    static_cast<size_t>(reinterpret_cast<char*>(&h_) -
+    reinterpret_cast<char*>(&index_)) + sizeof(h_));
   // @@protoc_insertion_point(copy_constructor:CameraGroup)
 }
 
 void CameraGroup::SharedCtor() {
   ::memset(&index_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&camera_id_) -
-      reinterpret_cast<char*>(&index_)) + sizeof(camera_id_));
+      reinterpret_cast<char*>(&h_) -
+      reinterpret_cast<char*>(&index_)) + sizeof(h_));
 }
 
 CameraGroup::~CameraGroup() {
@@ -717,10 +731,10 @@ void CameraGroup::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000003fu) {
     ::memset(&index_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&camera_id_) -
-        reinterpret_cast<char*>(&index_)) + sizeof(camera_id_));
+        reinterpret_cast<char*>(&h_) -
+        reinterpret_cast<char*>(&index_)) + sizeof(h_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -751,6 +765,34 @@ const char* CameraGroup::_InternalParse(const char* begin, const char* end, void
         if (static_cast<::google::protobuf::uint8>(tag) != 16) goto handle_unusual;
         msg->set_camera_id(::google::protobuf::internal::ReadVarint(&ptr));
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional double x = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 25) goto handle_unusual;
+        msg->set_x(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional double y = 4;
+      case 4: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 33) goto handle_unusual;
+        msg->set_y(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional double w = 5;
+      case 5: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 41) goto handle_unusual;
+        msg->set_w(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional double h = 6;
+      case 6: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 49) goto handle_unusual;
+        msg->set_h(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
         break;
       }
       default: {
@@ -812,6 +854,58 @@ bool CameraGroup::MergePartialFromCodedStream(
         break;
       }
 
+      // optional double x = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (25 & 0xFF)) {
+          HasBitSetters::set_has_x(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double y = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (33 & 0xFF)) {
+          HasBitSetters::set_has_y(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double w = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (41 & 0xFF)) {
+          HasBitSetters::set_has_w(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &w_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double h = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (49 & 0xFF)) {
+          HasBitSetters::set_has_h(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &h_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -850,6 +944,26 @@ void CameraGroup::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->camera_id(), output);
   }
 
+  // optional double x = 3;
+  if (cached_has_bits & 0x00000004u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(3, this->x(), output);
+  }
+
+  // optional double y = 4;
+  if (cached_has_bits & 0x00000008u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(4, this->y(), output);
+  }
+
+  // optional double w = 5;
+  if (cached_has_bits & 0x00000010u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(5, this->w(), output);
+  }
+
+  // optional double h = 6;
+  if (cached_has_bits & 0x00000020u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->h(), output);
+  }
+
   output->WriteRaw(_internal_metadata_.unknown_fields().data(),
                    static_cast<int>(_internal_metadata_.unknown_fields().size()));
   // @@protoc_insertion_point(serialize_end:CameraGroup)
@@ -866,7 +980,7 @@ size_t CameraGroup::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000003fu) {
     // optional uint32 index = 1;
     if (cached_has_bits & 0x00000001u) {
       total_size += 1 +
@@ -879,6 +993,26 @@ size_t CameraGroup::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->camera_id());
+    }
+
+    // optional double x = 3;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 + 8;
+    }
+
+    // optional double y = 4;
+    if (cached_has_bits & 0x00000008u) {
+      total_size += 1 + 8;
+    }
+
+    // optional double w = 5;
+    if (cached_has_bits & 0x00000010u) {
+      total_size += 1 + 8;
+    }
+
+    // optional double h = 6;
+    if (cached_has_bits & 0x00000020u) {
+      total_size += 1 + 8;
     }
 
   }
@@ -900,12 +1034,24 @@ void CameraGroup::MergeFrom(const CameraGroup& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x00000003u) {
+  if (cached_has_bits & 0x0000003fu) {
     if (cached_has_bits & 0x00000001u) {
       index_ = from.index_;
     }
     if (cached_has_bits & 0x00000002u) {
       camera_id_ = from.camera_id_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      x_ = from.x_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      y_ = from.y_;
+    }
+    if (cached_has_bits & 0x00000010u) {
+      w_ = from.w_;
+    }
+    if (cached_has_bits & 0x00000020u) {
+      h_ = from.h_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
@@ -932,666 +1078,14 @@ void CameraGroup::InternalSwap(CameraGroup* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   swap(index_, other->index_);
   swap(camera_id_, other->camera_id_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(w_, other->w_);
+  swap(h_, other->h_);
 }
 
 ::std::string CameraGroup::GetTypeName() const {
   return "CameraGroup";
-}
-
-
-// ===================================================================
-
-void VideoSplitInfo::InitAsDefaultInstance() {
-}
-class VideoSplitInfo::HasBitSetters {
- public:
-  static void set_has_id(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000008u;
-  }
-  static void set_has_split_channel_name(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000001u;
-  }
-  static void set_has_split_channel_id(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000002u;
-  }
-  static void set_has_multicast_ip(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000004u;
-  }
-  static void set_has_multicast_port(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000010u;
-  }
-  static void set_has_split_method(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000020u;
-  }
-  static void set_has_lock_1080p(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000040u;
-  }
-  static void set_has_overlay(VideoSplitInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000080u;
-  }
-};
-
-#if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int VideoSplitInfo::kIdFieldNumber;
-const int VideoSplitInfo::kSplitChannelNameFieldNumber;
-const int VideoSplitInfo::kSplitChannelIdFieldNumber;
-const int VideoSplitInfo::kMulticastIpFieldNumber;
-const int VideoSplitInfo::kMulticastPortFieldNumber;
-const int VideoSplitInfo::kSplitMethodFieldNumber;
-const int VideoSplitInfo::kLock1080PFieldNumber;
-const int VideoSplitInfo::kOverlayFieldNumber;
-const int VideoSplitInfo::kCameraInfosFieldNumber;
-#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
-
-VideoSplitInfo::VideoSplitInfo()
-  : ::google::protobuf::MessageLite(), _internal_metadata_(nullptr) {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:VideoSplitInfo)
-}
-VideoSplitInfo::VideoSplitInfo(const VideoSplitInfo& from)
-  : ::google::protobuf::MessageLite(),
-      _internal_metadata_(nullptr),
-      _has_bits_(from._has_bits_),
-      camera_infos_(from.camera_infos_) {
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  split_channel_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.has_split_channel_name()) {
-    split_channel_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_name_);
-  }
-  split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.has_split_channel_id()) {
-    split_channel_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_id_);
-  }
-  multicast_ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.has_multicast_ip()) {
-    multicast_ip_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.multicast_ip_);
-  }
-  ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&overlay_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(overlay_));
-  // @@protoc_insertion_point(copy_constructor:VideoSplitInfo)
-}
-
-void VideoSplitInfo::SharedCtor() {
-  ::google::protobuf::internal::InitSCC(
-      &scc_info_VideoSplitInfo_VideoSplitDefine_2eproto.base);
-  split_channel_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  multicast_ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(&id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&overlay_) -
-      reinterpret_cast<char*>(&id_)) + sizeof(overlay_));
-}
-
-VideoSplitInfo::~VideoSplitInfo() {
-  // @@protoc_insertion_point(destructor:VideoSplitInfo)
-  SharedDtor();
-}
-
-void VideoSplitInfo::SharedDtor() {
-  split_channel_name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  split_channel_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  multicast_ip_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-
-void VideoSplitInfo::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-const VideoSplitInfo& VideoSplitInfo::default_instance() {
-  ::google::protobuf::internal::InitSCC(&::scc_info_VideoSplitInfo_VideoSplitDefine_2eproto.base);
-  return *internal_default_instance();
-}
-
-
-void VideoSplitInfo::Clear() {
-// @@protoc_insertion_point(message_clear_start:VideoSplitInfo)
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  camera_infos_.Clear();
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
-    if (cached_has_bits & 0x00000001u) {
-      split_channel_name_.ClearNonDefaultToEmptyNoArena();
-    }
-    if (cached_has_bits & 0x00000002u) {
-      split_channel_id_.ClearNonDefaultToEmptyNoArena();
-    }
-    if (cached_has_bits & 0x00000004u) {
-      multicast_ip_.ClearNonDefaultToEmptyNoArena();
-    }
-  }
-  if (cached_has_bits & 0x000000f8u) {
-    ::memset(&id_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&overlay_) -
-        reinterpret_cast<char*>(&id_)) + sizeof(overlay_));
-  }
-  _has_bits_.Clear();
-  _internal_metadata_.Clear();
-}
-
-#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-const char* VideoSplitInfo::_InternalParse(const char* begin, const char* end, void* object,
-                  ::google::protobuf::internal::ParseContext* ctx) {
-  auto msg = static_cast<VideoSplitInfo*>(object);
-  ::google::protobuf::int32 size; (void)size;
-  int depth; (void)depth;
-  ::google::protobuf::uint32 tag;
-  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
-  auto ptr = begin;
-  while (ptr < end) {
-    ptr = ::google::protobuf::io::Parse32(ptr, &tag);
-    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-    switch (tag >> 3) {
-      // optional uint64 id = 1;
-      case 1: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 8) goto handle_unusual;
-        msg->set_id(::google::protobuf::internal::ReadVarint(&ptr));
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        break;
-      }
-      // optional string split_channel_name = 2;
-      case 2: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 18) goto handle_unusual;
-        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        object = msg->mutable_split_channel_name();
-        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
-          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
-          goto string_till_end;
-        }
-        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
-        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
-        ptr += size;
-        break;
-      }
-      // optional string split_channel_id = 3;
-      case 3: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 26) goto handle_unusual;
-        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        object = msg->mutable_split_channel_id();
-        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
-          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
-          goto string_till_end;
-        }
-        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
-        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
-        ptr += size;
-        break;
-      }
-      // optional string multicast_ip = 4;
-      case 4: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 34) goto handle_unusual;
-        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        object = msg->mutable_multicast_ip();
-        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
-          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
-          goto string_till_end;
-        }
-        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
-        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
-        ptr += size;
-        break;
-      }
-      // optional uint32 multicast_port = 5;
-      case 5: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 40) goto handle_unusual;
-        msg->set_multicast_port(::google::protobuf::internal::ReadVarint(&ptr));
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        break;
-      }
-      // optional .ESplitMethod split_method = 6;
-      case 6: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 48) goto handle_unusual;
-        ::google::protobuf::uint64 val = ::google::protobuf::internal::ReadVarint(&ptr);
-        if (!::ESplitMethod_IsValid(val)) {
-          ::google::protobuf::internal::WriteVarint(6, val, msg->mutable_unknown_fields());
-          break;
-        }
-        msg->set_split_method(static_cast<::ESplitMethod>(val));
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        break;
-      }
-      // optional uint32 lock_1080p = 8;
-      case 8: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 64) goto handle_unusual;
-        msg->set_lock_1080p(::google::protobuf::internal::ReadVarint(&ptr));
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        break;
-      }
-      // optional uint32 overlay = 9;
-      case 9: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 72) goto handle_unusual;
-        msg->set_overlay(::google::protobuf::internal::ReadVarint(&ptr));
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        break;
-      }
-      // repeated .CameraInfo camera_infos = 10;
-      case 10: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 82) goto handle_unusual;
-        do {
-          ptr = ::google::protobuf::io::ReadSize(ptr, &size);
-          GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-          parser_till_end = ::CameraInfo::_InternalParse;
-          object = msg->add_camera_infos();
-          if (size > end - ptr) goto len_delim_till_end;
-          ptr += size;
-          GOOGLE_PROTOBUF_PARSER_ASSERT(ctx->ParseExactRange(
-              {parser_till_end, object}, ptr - size, ptr));
-          if (ptr >= end) break;
-        } while ((::google::protobuf::io::UnalignedLoad<::google::protobuf::uint64>(ptr) & 255) == 82 && (ptr += 1));
-        break;
-      }
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->EndGroup(tag);
-          return ptr;
-        }
-        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
-          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
-        ptr = res.first;
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
-        if (res.second) return ptr;
-      }
-    }  // switch
-  }  // while
-  return ptr;
-string_till_end:
-  static_cast<::std::string*>(object)->clear();
-  static_cast<::std::string*>(object)->reserve(size);
-  goto len_delim_till_end;
-len_delim_till_end:
-  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
-                               {parser_till_end, object}, size);
-}
-#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-bool VideoSplitInfo::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  ::google::protobuf::internal::LiteUnknownFieldSetter unknown_fields_setter(
-      &_internal_metadata_);
-  ::google::protobuf::io::StringOutputStream unknown_fields_output(
-      unknown_fields_setter.buffer());
-  ::google::protobuf::io::CodedOutputStream unknown_fields_stream(
-      &unknown_fields_output, false);
-  // @@protoc_insertion_point(parse_start:VideoSplitInfo)
-  for (;;) {
-    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint64 id = 1;
-      case 1: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (8 & 0xFF)) {
-          HasBitSetters::set_has_id(this);
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &id_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional string split_channel_name = 2;
-      case 2: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (18 & 0xFF)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_split_channel_name()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional string split_channel_id = 3;
-      case 3: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (26 & 0xFF)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_split_channel_id()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional string multicast_ip = 4;
-      case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (34 & 0xFF)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_multicast_ip()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional uint32 multicast_port = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (40 & 0xFF)) {
-          HasBitSetters::set_has_multicast_port(this);
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &multicast_port_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional .ESplitMethod split_method = 6;
-      case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (48 & 0xFF)) {
-          int value = 0;
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
-                 input, &value)));
-          if (::ESplitMethod_IsValid(value)) {
-            set_split_method(static_cast< ::ESplitMethod >(value));
-          } else {
-            unknown_fields_stream.WriteVarint32(48u);
-            unknown_fields_stream.WriteVarint32(
-                static_cast<::google::protobuf::uint32>(value));
-          }
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional uint32 lock_1080p = 8;
-      case 8: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (64 & 0xFF)) {
-          HasBitSetters::set_has_lock_1080p(this);
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &lock_1080p_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional uint32 overlay = 9;
-      case 9: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (72 & 0xFF)) {
-          HasBitSetters::set_has_overlay(this);
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &overlay_)));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // repeated .CameraInfo camera_infos = 10;
-      case 10: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (82 & 0xFF)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
-                input, add_camera_infos()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
-            input, tag, &unknown_fields_stream));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:VideoSplitInfo)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:VideoSplitInfo)
-  return false;
-#undef DO_
-}
-#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
-
-void VideoSplitInfo::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:VideoSplitInfo)
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  cached_has_bits = _has_bits_[0];
-  // optional uint64 id = 1;
-  if (cached_has_bits & 0x00000008u) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(1, this->id(), output);
-  }
-
-  // optional string split_channel_name = 2;
-  if (cached_has_bits & 0x00000001u) {
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->split_channel_name(), output);
-  }
-
-  // optional string split_channel_id = 3;
-  if (cached_has_bits & 0x00000002u) {
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      3, this->split_channel_id(), output);
-  }
-
-  // optional string multicast_ip = 4;
-  if (cached_has_bits & 0x00000004u) {
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      4, this->multicast_ip(), output);
-  }
-
-  // optional uint32 multicast_port = 5;
-  if (cached_has_bits & 0x00000010u) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->multicast_port(), output);
-  }
-
-  // optional .ESplitMethod split_method = 6;
-  if (cached_has_bits & 0x00000020u) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      6, this->split_method(), output);
-  }
-
-  // optional uint32 lock_1080p = 8;
-  if (cached_has_bits & 0x00000040u) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(8, this->lock_1080p(), output);
-  }
-
-  // optional uint32 overlay = 9;
-  if (cached_has_bits & 0x00000080u) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(9, this->overlay(), output);
-  }
-
-  // repeated .CameraInfo camera_infos = 10;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->camera_infos_size()); i < n; i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessage(
-      10,
-      this->camera_infos(static_cast<int>(i)),
-      output);
-  }
-
-  output->WriteRaw(_internal_metadata_.unknown_fields().data(),
-                   static_cast<int>(_internal_metadata_.unknown_fields().size()));
-  // @@protoc_insertion_point(serialize_end:VideoSplitInfo)
-}
-
-size_t VideoSplitInfo::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:VideoSplitInfo)
-  size_t total_size = 0;
-
-  total_size += _internal_metadata_.unknown_fields().size();
-
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // repeated .CameraInfo camera_infos = 10;
-  {
-    unsigned int count = static_cast<unsigned int>(this->camera_infos_size());
-    total_size += 1UL * count;
-    for (unsigned int i = 0; i < count; i++) {
-      total_size +=
-        ::google::protobuf::internal::WireFormatLite::MessageSize(
-          this->camera_infos(static_cast<int>(i)));
-    }
-  }
-
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    // optional string split_channel_name = 2;
-    if (cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->split_channel_name());
-    }
-
-    // optional string split_channel_id = 3;
-    if (cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->split_channel_id());
-    }
-
-    // optional string multicast_ip = 4;
-    if (cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->multicast_ip());
-    }
-
-    // optional uint64 id = 1;
-    if (cached_has_bits & 0x00000008u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->id());
-    }
-
-    // optional uint32 multicast_port = 5;
-    if (cached_has_bits & 0x00000010u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->multicast_port());
-    }
-
-    // optional .ESplitMethod split_method = 6;
-    if (cached_has_bits & 0x00000020u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::EnumSize(this->split_method());
-    }
-
-    // optional uint32 lock_1080p = 8;
-    if (cached_has_bits & 0x00000040u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->lock_1080p());
-    }
-
-    // optional uint32 overlay = 9;
-    if (cached_has_bits & 0x00000080u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->overlay());
-    }
-
-  }
-  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void VideoSplitInfo::CheckTypeAndMergeFrom(
-    const ::google::protobuf::MessageLite& from) {
-  MergeFrom(*::google::protobuf::down_cast<const VideoSplitInfo*>(&from));
-}
-
-void VideoSplitInfo::MergeFrom(const VideoSplitInfo& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:VideoSplitInfo)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom(from._internal_metadata_);
-  ::google::protobuf::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  camera_infos_.MergeFrom(from.camera_infos_);
-  cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x000000ffu) {
-    if (cached_has_bits & 0x00000001u) {
-      _has_bits_[0] |= 0x00000001u;
-      split_channel_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_name_);
-    }
-    if (cached_has_bits & 0x00000002u) {
-      _has_bits_[0] |= 0x00000002u;
-      split_channel_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_id_);
-    }
-    if (cached_has_bits & 0x00000004u) {
-      _has_bits_[0] |= 0x00000004u;
-      multicast_ip_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.multicast_ip_);
-    }
-    if (cached_has_bits & 0x00000008u) {
-      id_ = from.id_;
-    }
-    if (cached_has_bits & 0x00000010u) {
-      multicast_port_ = from.multicast_port_;
-    }
-    if (cached_has_bits & 0x00000020u) {
-      split_method_ = from.split_method_;
-    }
-    if (cached_has_bits & 0x00000040u) {
-      lock_1080p_ = from.lock_1080p_;
-    }
-    if (cached_has_bits & 0x00000080u) {
-      overlay_ = from.overlay_;
-    }
-    _has_bits_[0] |= cached_has_bits;
-  }
-}
-
-void VideoSplitInfo::CopyFrom(const VideoSplitInfo& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:VideoSplitInfo)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool VideoSplitInfo::IsInitialized() const {
-  return true;
-}
-
-void VideoSplitInfo::Swap(VideoSplitInfo* other) {
-  if (other == this) return;
-  InternalSwap(other);
-}
-void VideoSplitInfo::InternalSwap(VideoSplitInfo* other) {
-  using std::swap;
-  _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
-  CastToBase(&camera_infos_)->InternalSwap(CastToBase(&other->camera_infos_));
-  split_channel_name_.Swap(&other->split_channel_name_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  split_channel_id_.Swap(&other->split_channel_id_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  multicast_ip_.Swap(&other->multicast_ip_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
-  swap(id_, other->id_);
-  swap(multicast_port_, other->multicast_port_);
-  swap(split_method_, other->split_method_);
-  swap(lock_1080p_, other->lock_1080p_);
-  swap(overlay_, other->overlay_);
-}
-
-::std::string VideoSplitInfo::GetTypeName() const {
-  return "VideoSplitInfo";
 }
 
 
@@ -1962,6 +1456,396 @@ void PageInfo::InternalSwap(PageInfo* other) {
 }
 
 
+// ===================================================================
+
+void OsdInfo::InitAsDefaultInstance() {
+}
+class OsdInfo::HasBitSetters {
+ public:
+  static void set_has_x(OsdInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+  static void set_has_y(OsdInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000004u;
+  }
+  static void set_has_font_size(OsdInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000008u;
+  }
+  static void set_has_font_text(OsdInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+};
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int OsdInfo::kXFieldNumber;
+const int OsdInfo::kYFieldNumber;
+const int OsdInfo::kFontSizeFieldNumber;
+const int OsdInfo::kFontTextFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+OsdInfo::OsdInfo()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:OsdInfo)
+}
+OsdInfo::OsdInfo(const OsdInfo& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(nullptr),
+      _has_bits_(from._has_bits_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  font_text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_font_text()) {
+    font_text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.font_text_);
+  }
+  ::memcpy(&x_, &from.x_,
+    static_cast<size_t>(reinterpret_cast<char*>(&font_size_) -
+    reinterpret_cast<char*>(&x_)) + sizeof(font_size_));
+  // @@protoc_insertion_point(copy_constructor:OsdInfo)
+}
+
+void OsdInfo::SharedCtor() {
+  ::google::protobuf::internal::InitSCC(
+      &scc_info_OsdInfo_VideoSplitDefine_2eproto.base);
+  font_text_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&x_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&font_size_) -
+      reinterpret_cast<char*>(&x_)) + sizeof(font_size_));
+}
+
+OsdInfo::~OsdInfo() {
+  // @@protoc_insertion_point(destructor:OsdInfo)
+  SharedDtor();
+}
+
+void OsdInfo::SharedDtor() {
+  font_text_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void OsdInfo::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const OsdInfo& OsdInfo::default_instance() {
+  ::google::protobuf::internal::InitSCC(&::scc_info_OsdInfo_VideoSplitDefine_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void OsdInfo::Clear() {
+// @@protoc_insertion_point(message_clear_start:OsdInfo)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    font_text_.ClearNonDefaultToEmptyNoArena();
+  }
+  if (cached_has_bits & 0x0000000eu) {
+    ::memset(&x_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&font_size_) -
+        reinterpret_cast<char*>(&x_)) + sizeof(font_size_));
+  }
+  _has_bits_.Clear();
+  _internal_metadata_.Clear();
+}
+
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* OsdInfo::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<OsdInfo*>(object);
+  ::google::protobuf::int32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = ::google::protobuf::io::Parse32(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // optional double x = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 9) goto handle_unusual;
+        msg->set_x(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional double y = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 17) goto handle_unusual;
+        msg->set_y(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional uint32 font_size = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 24) goto handle_unusual;
+        msg->set_font_size(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional string font_text = 4;
+      case 4: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 34) goto handle_unusual;
+        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        object = msg->mutable_font_text();
+        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
+          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
+          goto string_till_end;
+        }
+        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
+        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
+        ptr += size;
+        break;
+      }
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+string_till_end:
+  static_cast<::std::string*>(object)->clear();
+  static_cast<::std::string*>(object)->reserve(size);
+  goto len_delim_till_end;
+len_delim_till_end:
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                               {parser_till_end, object}, size);
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+bool OsdInfo::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::LiteUnknownFieldSetter unknown_fields_setter(
+      &_internal_metadata_);
+  ::google::protobuf::io::StringOutputStream unknown_fields_output(
+      unknown_fields_setter.buffer());
+  ::google::protobuf::io::CodedOutputStream unknown_fields_stream(
+      &unknown_fields_output, false);
+  // @@protoc_insertion_point(parse_start:OsdInfo)
+  for (;;) {
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional double x = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (9 & 0xFF)) {
+          HasBitSetters::set_has_x(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double y = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (17 & 0xFF)) {
+          HasBitSetters::set_has_y(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 font_size = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (24 & 0xFF)) {
+          HasBitSetters::set_has_font_size(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &font_size_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional string font_text = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_font_text()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
+            input, tag, &unknown_fields_stream));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:OsdInfo)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:OsdInfo)
+  return false;
+#undef DO_
+}
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+
+void OsdInfo::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:OsdInfo)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional double x = 1;
+  if (cached_has_bits & 0x00000002u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(1, this->x(), output);
+  }
+
+  // optional double y = 2;
+  if (cached_has_bits & 0x00000004u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(2, this->y(), output);
+  }
+
+  // optional uint32 font_size = 3;
+  if (cached_has_bits & 0x00000008u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->font_size(), output);
+  }
+
+  // optional string font_text = 4;
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      4, this->font_text(), output);
+  }
+
+  output->WriteRaw(_internal_metadata_.unknown_fields().data(),
+                   static_cast<int>(_internal_metadata_.unknown_fields().size()));
+  // @@protoc_insertion_point(serialize_end:OsdInfo)
+}
+
+size_t OsdInfo::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:OsdInfo)
+  size_t total_size = 0;
+
+  total_size += _internal_metadata_.unknown_fields().size();
+
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x0000000fu) {
+    // optional string font_text = 4;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->font_text());
+    }
+
+    // optional double x = 1;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 + 8;
+    }
+
+    // optional double y = 2;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 + 8;
+    }
+
+    // optional uint32 font_size = 3;
+    if (cached_has_bits & 0x00000008u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->font_size());
+    }
+
+  }
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void OsdInfo::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const OsdInfo*>(&from));
+}
+
+void OsdInfo::MergeFrom(const OsdInfo& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:OsdInfo)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 0x0000000fu) {
+    if (cached_has_bits & 0x00000001u) {
+      _has_bits_[0] |= 0x00000001u;
+      font_text_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.font_text_);
+    }
+    if (cached_has_bits & 0x00000002u) {
+      x_ = from.x_;
+    }
+    if (cached_has_bits & 0x00000004u) {
+      y_ = from.y_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      font_size_ = from.font_size_;
+    }
+    _has_bits_[0] |= cached_has_bits;
+  }
+}
+
+void OsdInfo::CopyFrom(const OsdInfo& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:OsdInfo)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool OsdInfo::IsInitialized() const {
+  return true;
+}
+
+void OsdInfo::Swap(OsdInfo* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void OsdInfo::InternalSwap(OsdInfo* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
+  font_text_.Swap(&other->font_text_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(font_size_, other->font_size_);
+}
+
+::std::string OsdInfo::GetTypeName() const {
+  return "OsdInfo";
+}
+
+
 // @@protoc_insertion_point(namespace_scope)
 namespace google {
 namespace protobuf {
@@ -1971,11 +1855,11 @@ template<> PROTOBUF_NOINLINE ::CameraInfo* Arena::CreateMaybeMessage< ::CameraIn
 template<> PROTOBUF_NOINLINE ::CameraGroup* Arena::CreateMaybeMessage< ::CameraGroup >(Arena* arena) {
   return Arena::CreateInternal< ::CameraGroup >(arena);
 }
-template<> PROTOBUF_NOINLINE ::VideoSplitInfo* Arena::CreateMaybeMessage< ::VideoSplitInfo >(Arena* arena) {
-  return Arena::CreateInternal< ::VideoSplitInfo >(arena);
-}
 template<> PROTOBUF_NOINLINE ::PageInfo* Arena::CreateMaybeMessage< ::PageInfo >(Arena* arena) {
   return Arena::CreateInternal< ::PageInfo >(arena);
+}
+template<> PROTOBUF_NOINLINE ::OsdInfo* Arena::CreateMaybeMessage< ::OsdInfo >(Arena* arena) {
+  return Arena::CreateInternal< ::OsdInfo >(arena);
 }
 }  // namespace protobuf
 }  // namespace google

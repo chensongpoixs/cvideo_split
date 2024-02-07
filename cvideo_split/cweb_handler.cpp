@@ -261,8 +261,222 @@ namespace chen {
 		web_guard_reply.set_result(result);
 	}
 
+	void cweb_http_api_mgr::_handler_add_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		VideoSplitInfo video_split_info;
 
+		std::string  content = request->content.string();
+
+		// pase json 
+		Json::Reader reader;
+		Json::Value data;
+
+		if (!reader.parse((const char*)content.c_str(), (const char*)content.c_str() + content.size(), data))
+		{
+			WARNING_EX_LOG("parse  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonError, ret.c_str());
+			web_guard_reply.set_result(EWebJsonError, ret);
+			return;
+		}
+		 
+		 
+		try
+		{
+			if (!data.isMember("split_channel_name") || !data["split_channel_name"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "split_channel_name ");
+				return;
+			}
+			if (!data.isMember("split_channel_id") || !data["split_channel_id"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "split_channel_id ");
+				return;
+			}
+			if (!data.isMember("multicast_ip") || !data["multicast_ip"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "multicast_ip ");
+				return;
+			}
+			if (!data.isMember("multicast_port") || !data["multicast_port"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "multicast_port ");
+				return;
+			}
+			if (!data.isMember("split_method") || !data["split_method"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "split_method ");
+				return;
+			}
+			if (!data.isMember("lock_1080p") || !data["lock_1080p"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "lock_1080p ");
+				return;
+			}
+			if (!data.isMember("overlay") || !data["overlay"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "overlay ");
+				return;
+			}
+			if (!data.isMember("camera_group") || !data["camera_group"].isArray())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "camera_group ");
+				return;
+			}
+			Json::Value camera_group_json = data["camera_group"];
+			for (Json::ArrayIndex i = 0; i < camera_group_json.size(); ++i)
+			{
+				if (!camera_group_json[i].isMember("camera_id") || !camera_group_json[i]["camera_id"].isUInt())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  camera_id ");
+					return;
+				}
+				if (!camera_group_json[i].isMember("index") || !camera_group_json[i]["index"].isUInt())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  index ");
+					return;
+				}
+				if (!camera_group_json[i].isMember("x") || !camera_group_json[i]["x"].isDouble())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  x ");
+					return;
+				}
+				if (!camera_group_json[i].isMember("y") || !camera_group_json[i]["y"].isDouble())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  y ");
+					return;
+
+				}
+				if (!camera_group_json[i].isMember("w") || !camera_group_json[i]["w"].isDouble())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  w ");
+					return;
+				}
+				if (!camera_group_json[i].isMember("h") || !camera_group_json[i]["h"].isDouble())
+				{
+					web_guard_reply.set_result(EWebJsonParam, "camera_group  h ");
+					return;
+				}
+				CameraGroup * camera_group_ptr = video_split_info.add_camera_group();
+				if (!camera_group_ptr)
+				{
+					web_guard_reply.set_result(EWebWait, "alloc camera_group  failed !!! ");
+					return;
+				}
+				camera_group_ptr->set_index(camera_group_json[i]["h"].asUInt());
+				camera_group_ptr->set_camera_id(camera_group_json[i]["h"].asUInt());
+				camera_group_ptr->set_x(camera_group_json[i]["x"].asDouble());
+				camera_group_ptr->set_y(camera_group_json[i]["y"].asDouble());
+				camera_group_ptr->set_w(camera_group_json[i]["w"].asDouble());
+				camera_group_ptr->set_h(camera_group_json[i]["h"].asDouble());
+			}
+			video_split_info.set_split_channel_name(data["video_split_info"].asString());
+			video_split_info.set_split_channel_id(data["split_channel_id"].asString());
+			video_split_info.set_multicast_ip(data["multicast_ip"].asString());
+			video_split_info.set_multicast_port(data["multicast_port"].asUInt());
+			video_split_info.set_split_method(static_cast<ESplitMethod>(data["split_method"].asUInt()));
+			video_split_info.set_lock_1080p(data["lock_1080p"].asUInt());
+			video_split_info.set_overlay(data["overlay"].asUInt()); 
+
+		}
+		catch (const std::exception&)
+		{
+			WARNING_EX_LOG("parse value  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonParam, ret.c_str()); 
+			web_guard_reply.set_result(EWebJsonParam);
+			return;
+		}
+
+
+		cresult_add_video_split result = g_web_http_api_proxy.add_video_split(video_split_info);
+		web_guard_reply.set_result(result.result);
+
+		Json::Value reply_video_split;
+		if (result.result == EWebSuccess)
+		{
+			
+			reply_video_split["id"] = result.video_split_info.id();
+			reply_video_split["split_channel_name"] = result.video_split_info.split_channel_name();
+			reply_video_split["split_channel_id"] = result.video_split_info.split_channel_id();
+			reply_video_split["multicast_ip"] = result.video_split_info.multicast_ip();
+			reply_video_split["multicast_port"] = result.video_split_info.multicast_port();
+			reply_video_split["split_method"] = result.video_split_info.split_method();
+			reply_video_split["lock_1080p"] = result.video_split_info.lock_1080p();
+			reply_video_split["overlay"] = result.video_split_info.overlay();
+			reply_video_split["lock_1080p"] = result.video_split_info.lock_1080p();
+			
+			for (size_t i = 0; i < result.video_split_info.camera_group_size(); ++i)
+			{
+				Json::Value camera_group_reply;
+				camera_group_reply["camera_id"] = result.video_split_info.camera_group(i).camera_id();
+				camera_group_reply["index"] = result.video_split_info.camera_group(i).index();
+				camera_group_reply["x"] = result.video_split_info.camera_group(i).x();
+				camera_group_reply["y"] = result.video_split_info.camera_group(i).y();
+				camera_group_reply["w"] = result.video_split_info.camera_group(i).w();
+				camera_group_reply["h"] = result.video_split_info.camera_group(i).h();
+				reply_video_split["camera_group"].append(camera_group_reply);
+			}
+		 }
+
+		reply["data"] = reply_video_split;
+
+
+
+	}
+
+
+	void cweb_http_api_mgr::_handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		cresult_video_split_list result = g_web_http_api_proxy.video_split_list(std::atoi(request->path_match[1].str().c_str()), std::atoi(request->path_match[2].str().c_str()));
+		web_guard_reply.set_result(result.result);
+		reply["page_size"] = result.page_info.page_size();
+		reply["page_number"] = result.page_info.page_number();
+		reply["total_pages"] = result.page_info.total_pages();
+		reply["total_elements"] = result.page_info.total_elements();
+
+
+		for (size_t i = 0; i < result.video_split_infos.size(); ++i)
+		{
+			Json::Value  video_split_info;
+			video_split_info["id"] = result.video_split_infos[i].id();
+			video_split_info["split_channel_name"] = result.video_split_infos[i].split_channel_name();
+			video_split_info["split_channel_id"] = result.video_split_infos[i].split_channel_id();
+			video_split_info["multicast_ip"] = result.video_split_infos[i].multicast_ip();
+			video_split_info["multicast_port"] = result.video_split_infos[i].multicast_port();
+			video_split_info["split_method"] = result.video_split_infos[i].split_method();
+			video_split_info["lock_1080p"] = result.video_split_infos[i].lock_1080p();
+			video_split_info["overlay"] = result.video_split_infos[i].overlay();
+			video_split_info["split_method"] = result.video_split_infos[i].split_method();
+			for (size_t i = 0; i < result.video_split_infos[i].camera_group_size(); ++i)
+			{
+				Json::Value  CameraInfo;
+				CameraInfo["index"] = result.video_split_infos[i].camera_group(i).index();
+				CameraInfo["camera_id"] = result.video_split_infos[i].camera_group(i).camera_id();
+				CameraInfo["x"] = result.video_split_infos[i].camera_group(i).x();
+				CameraInfo["y"] = result.video_split_infos[i].camera_group(i).y();
+				CameraInfo["w"] = result.video_split_infos[i].camera_group(i).w();
+				CameraInfo["h"] = result.video_split_infos[i].camera_group(i).h();
+				video_split_info["camera_group"].append(CameraInfo);
+			}
+			reply["video_split_infos"].append(video_split_info);
+		}
+		if (result.video_split_infos.size() <= 0)
+		{
+			Json::Value  CameraInfo;
+			reply["video_split_infos"].append(CameraInfo);
+		}
+	}
 
  
+	void cweb_http_api_mgr :: _handler_delete_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		uint32 result = g_web_http_api_proxy.delete_video_split(std::atoi(request->path_match[1].str().c_str()));
+		web_guard_reply.set_result(result);
+	}
+
 
 }
