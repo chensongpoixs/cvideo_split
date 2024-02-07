@@ -27,7 +27,7 @@
 #include "cconfig.h"
 //#include "csingleton.h"
 #include "cweb_http_api_mgr.h"
-#include "ccamera_mgr.h"
+#include "ccamera_info_mgr.h"
 #include "ccfg.h"
 namespace chen {
 

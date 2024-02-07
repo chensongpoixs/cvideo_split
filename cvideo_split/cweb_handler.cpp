@@ -227,7 +227,30 @@ namespace chen {
 		//std::cout << "room_name = " << request->path_match[1] << ", username = " << request->path_match[2];
 		CWEB_GUARD_REPLY(response);
 		cresult_camera_list result = g_web_http_api_proxy.camera_list(std::atoi(request->path_match[1].str().c_str()), std::atoi(request->path_match[2].str().c_str()));
-	
+		web_guard_reply.set_result(result.result);
+		reply["page_size"] = result.page_info.page_size();
+		reply["page_number"] = result.page_info.page_number();
+		reply["total_pages"] = result.page_info.total_pages();
+		reply["total_elements"] = result.page_info.total_elements();
+
+		 
+		for (size_t i = 0; i < result.camera_infos.camera_infos_size(); ++i)
+		{
+			Json::Value  CameraInfo;
+			CameraInfo["index"] = result.camera_infos.camera_infos(i).index();
+			CameraInfo["camera_id"] = result.camera_infos.camera_infos(i).camera_id();
+			CameraInfo["address"] = result.camera_infos.camera_infos(i).address();
+			CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
+			CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
+			CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
+			reply["camera_infos"].append(CameraInfo);
+		}
+		if (result.camera_infos.camera_infos_size() <= 0)
+		{
+			Json::Value  CameraInfo; 
+			reply["camera_infos"].append(CameraInfo);
+		}
+		 
 		// reply --> json
 	}
 
@@ -235,7 +258,7 @@ namespace chen {
 	{
 		CWEB_GUARD_REPLY(response);
 		uint32 result = g_web_http_api_proxy.delete_camera(std::atoi(request->path_match[1].str().c_str()));
-
+		web_guard_reply.set_result(result);
 	}
 
 

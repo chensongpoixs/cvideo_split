@@ -26,7 +26,7 @@
 #include "cvideo_split_server.h"
 #include "clog.h"
 #include "ctime_api.h"
-#include "ccamera_mgr.h"
+#include "ccamera_info_mgr.h"
 #include "ctime_elapse.h"
 #include "clib_util.h"
 namespace chen {
@@ -55,7 +55,7 @@ namespace chen {
 
 		// load camera data 
 		SYSTEM_LOG("Load camera_list data ...");
-		if (!g_camera_mgr.init())
+		if (!g_camera_info_mgr.init())
 		{
 			return false;
 		}
@@ -90,7 +90,7 @@ namespace chen {
 			uDelta += time_elapse.get_elapse();
 		 
 			g_http_queue_mgr.update();
-			g_camera_mgr.update(uDelta);
+			g_camera_info_mgr.update(uDelta);
 
 			uDelta = time_elapse.get_elapse();
 
@@ -110,7 +110,7 @@ namespace chen {
 		g_web_http_api_mgr.destroy();
 		SYSTEM_LOG("Web Server Destroy OK !!!");
 		 
-		g_camera_mgr.destroy();
+		g_camera_info_mgr.destroy();
 		SYSTEM_LOG("camera_list destroy OK !!!");
 		
 		g_cfg.destroy();

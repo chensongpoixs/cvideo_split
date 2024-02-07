@@ -6,25 +6,26 @@ author:		chensong
 purpose:	camera mgr
 
 *********************************************************************/
-#include "ccamera_mgr.h"
+#include "ccamera_info_mgr.h"
 #include "ccfg.h"
 #include <json/json.h>
 #include "clog.h"
+#include "chttp_code.h"
 #include <json/json.h>
 namespace chen {
 
 
 
-	ccamera_mgr g_camera_mgr;
+	ccamera_info_mgr g_camera_info_mgr;
 
 	static const char* camera_json_name = "camera_list.json";
 
-	bool ccamera_mgr::init()
+	bool ccamera_info_mgr::init()
 	{
 		_load_camera_config();
 		return true;
 	}
-	void ccamera_mgr::update(uint32 uDateTime)
+	void ccamera_info_mgr::update(uint32 uDateTime)
 	{
 		if (m_data_type != EDataNone)
 		{
@@ -32,7 +33,7 @@ namespace chen {
 			m_data_type = EDataNone;
 		}
 	}
-	void ccamera_mgr::destroy()
+	void ccamera_info_mgr::destroy()
 	{
 		if (m_data_type != EDataNone)
 		{
@@ -41,7 +42,7 @@ namespace chen {
 		}
 		m_camera_info_map.clear();
 	}
-	cresult_add_camera_info ccamera_mgr::handler_add_camera_infos(const AddCameraInfos& msg)
+	cresult_add_camera_info ccamera_info_mgr::handler_add_camera_infos(const AddCameraInfos& msg)
 	{
 		cresult_add_camera_info result;
 		if (msg.camera_infos_size() > 0)
@@ -69,19 +70,74 @@ namespace chen {
 		}
 		return result;
 	}
-	cresult_camera_list ccamera_mgr::handler_camera_list(uint32 page, uint32 page_size)
+	cresult_camera_list ccamera_info_mgr::handler_camera_list(uint32 page, uint32 page_size)
 	{
 		cresult_camera_list result;
+
+		
+
+
+		result.page_info.set_total_pages((m_camera_info_map.size() / page_size) + ((m_camera_info_map.size() % page_size)> 0? 1: 0));
 		result.page_info.set_total_elements(m_camera_info_map.size());
+		result.page_info.set_page_number(page);
+		int32 show_page_size = 0;
+		int32 start_index =  (page_size * (page));
+		if (m_camera_info_map.size() >= start_index)
+		{
+			show_page_size = (m_camera_info_map.size() - start_index)> page_size ? page_size : (m_camera_info_map.size() - start_index+1);
+			result.page_info.set_page_size(show_page_size);
+			//CAMERA_INFO_MAP::const_iterator iter = m_camera_info_map.find(camera_id);
+			for (CAMERA_INFO_MAP::const_iterator iter = m_camera_info_map.begin();
+				iter != m_camera_info_map.end(); ++iter)
+			{
+				if (start_index <= 0)
+				{
+					if (show_page_size <= 0)
+					{
+						return result;
+					}
+					CameraInfo* camera_info_ptr = result.camera_infos.add_camera_infos();
+					if (!camera_info_ptr)
+					{
+						WARNING_EX_LOG("protobut alloc failed !!! ");
+						continue;
+					}
+					*camera_info_ptr = iter->second;
+					--show_page_size;
+				}
+				else
+				{
+					--start_index;
+				}
+			}
+		}
+		
 		//result.page_info.set_total_elements();
 		return result;
 	}
 
-	uint32			ccamera_mgr::handler_delete_camera(uint32 camera_id)
+	uint32			ccamera_info_mgr::handler_delete_camera(uint32 camera_id)
 	{
-		return 0;
+		CAMERA_INFO_MAP::iterator iter =  m_camera_info_map.find(camera_id);
+		if (iter != m_camera_info_map.end())
+		{
+			 m_camera_info_map.erase(iter);
+			 NORMAL_EX_LOG("delete [camera_id = %u]", camera_id);
+			_sync_save();
+			/*if (next_iter != m_camera_info_map.end())
+			{
+				WARNING_EX_LOG("=!======> [camera_id = %u][next_iter = %u]", camera_id, next_iter->first);
+			}
+			else
+			{
+				WARNING_EX_LOG("=======> camera_id = %u", camera_id);
+			}*/
+			return EWebSuccess;
+		}
+		WARNING_EX_LOG("not find [camera_id = %u]", camera_id);
+		return EWebNotFindCameraId;
 	}
-	void ccamera_mgr::_load_camera_config()
+	void ccamera_info_mgr::_load_camera_config()
 	{
 		std::string camera_name = g_cfg.get_string(ECI_DataPath) + "/" + camera_json_name;
 		FILE* read_file_ptr = ::fopen(camera_name.c_str(), "rb");
@@ -113,7 +169,7 @@ namespace chen {
 		/// parse json 
 		_parse_json_data(camera_data);
 	}
-	void ccamera_mgr::_write_all_camera_config()
+	void ccamera_info_mgr::_write_all_camera_config()
 	{
 		Json::Value value;
 		 
@@ -155,7 +211,11 @@ namespace chen {
 
 		//printf("[camera_list = %s]\n", str.c_str());
 	}
-	void ccamera_mgr::_parse_json_data(const std::string& camera)
+	void ccamera_info_mgr::_sync_save()
+	{
+		m_data_type = EDataLoad;
+	}
+	void ccamera_info_mgr::_parse_json_data(const std::string& camera)
 	{
 		Json::Reader reader;
 		Json::Value data;

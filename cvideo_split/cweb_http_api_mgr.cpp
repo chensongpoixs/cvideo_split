@@ -10,7 +10,7 @@
 #include <cinttypes>
 
 //#include "cserver_msg_header.h"
-#include "ccamera_mgr.h"
+#include "ccamera_info_mgr.h"
 
 #include "crandom.h"
 
@@ -126,8 +126,6 @@ namespace chen {
 
 	bool cweb_http_api_mgr::_register_web_handler(const char * function_name, const char * method, std::function<void(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response>response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request>request)> function)
 	{
-		std::string pathpre = std::string("^/") + g_cfg.get_string(ECI_WebPathPrefix) + function_name;
-		NORMAL_EX_LOG("[pathpre = %s]", pathpre.c_str());
 		return m_server.resource[std::string("^/") + g_cfg.get_string(ECI_WebPathPrefix) + function_name].insert(std::make_pair(method, function)).second;
 	}
 
@@ -230,17 +228,17 @@ namespace chen {
 	cresult_add_camera_info cweb_http_api_mgr::add_camera_infos(const AddCameraInfos& msg)
 	{
 		//cresult_add_camera_info result;
-		return g_camera_mgr.handler_add_camera_infos(msg); // g_global_logic_mgr.handler_web_create_render_app(msg );;
+		return g_camera_info_mgr.handler_add_camera_infos(msg); // g_global_logic_mgr.handler_web_create_render_app(msg );;
 	}
 
 	cresult_camera_list cweb_http_api_mgr::camera_list(uint32 page, uint32 page_size)
 	{
-		return g_camera_mgr.handler_camera_list(page, page_size);
+		return g_camera_info_mgr.handler_camera_list(page, page_size);
 	}
 
 	uint32 cweb_http_api_mgr::delete_camera(uint32 camera_id)
 	{
-		return uint32();
+		return g_camera_info_mgr.handler_delete_camera(camera_id);
 	}
 
 	 

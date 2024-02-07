@@ -7,8 +7,8 @@ purpose:	camera mgr
 
 *********************************************************************/
 
-#ifndef  _C_CAMERA_MGR_H_
-#define  _C_CAMERA_MGR_H_
+#ifndef  _C_CAMERA_INFO_MGR_H_
+#define  _C_CAMERA_INFO_MGR_H_
 #include "cnoncopytable.h"
 #include "cweb_http_api_proxy.h"
 #include "cweb_http_struct.h"
@@ -23,16 +23,16 @@ namespace chen {
 		EDataLoad ,
 	};
 
-	class ccamera_mgr : public cnoncopytable
+	class ccamera_info_mgr : public cnoncopytable
 	{
 	private:
 		typedef	std::map<uint32, CameraInfo>       CAMERA_INFO_MAP;
 	public:
-		explicit ccamera_mgr()
+		explicit ccamera_info_mgr()
 			: m_data_type(EDataNone)
 		, m_camera_info_map()
 		, m_camera_index(0){}
-		virtual ~ccamera_mgr() {}
+		virtual ~ccamera_info_mgr() {}
 	public:
 		//加载配置文件
 		bool init();
@@ -51,7 +51,7 @@ namespace chen {
 
 		void _write_all_camera_config();
 
-
+		void _sync_save();
 	private:
 		void _parse_json_data(const std::string & data);
 	private:
@@ -60,6 +60,6 @@ namespace chen {
 		CAMERA_INFO_MAP					m_camera_info_map;
 		uint32							m_camera_index;
 	};
-	extern ccamera_mgr g_camera_mgr;
+	extern ccamera_info_mgr g_camera_info_mgr;
 }
 #endif // 

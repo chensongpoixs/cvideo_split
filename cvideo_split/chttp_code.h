@@ -36,6 +36,7 @@ namespace chen {
 		EWebRenderAppStaring, // app已经运行中了
 		EWebRenderAppStop, //app已经停止了
 		EWebWait,   // 再试一次
+		EWebNotFindCameraId, //没有该摄像机ID
 		
 	};
 }

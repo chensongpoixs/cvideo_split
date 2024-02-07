@@ -65,7 +65,7 @@
     <ClCompile Include="ccfg.cpp">
       <Filter>cfg</Filter>
     </ClCompile>
-    <ClCompile Include="ccamera_mgr.cpp">
+    <ClCompile Include="ccamera_info_mgr.cpp">
       <Filter>logic</Filter>
     </ClCompile>
     <ClCompile Include="cvideo_split_server.cpp">
@@ -111,7 +111,7 @@
     <ClInclude Include="chttp_code.h">
       <Filter>web</Filter>
     </ClInclude>
-    <ClInclude Include="ccamera_mgr.h">
+    <ClInclude Include="ccamera_info_mgr.h">
       <Filter>logic</Filter>
     </ClInclude>
     <ClInclude Include="cvideo_split_server.h">
