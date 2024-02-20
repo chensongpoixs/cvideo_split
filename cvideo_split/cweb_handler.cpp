@@ -325,6 +325,12 @@ namespace chen {
 				return;
 			}
 			Json::Value camera_group_json = data["camera_group"];
+			if (camera_group_json.size() < 2 || camera_group_json.size () > 10)
+			{
+				std::string message = "camera_group [size = " + std::to_string(camera_group_json.size()) + "]";
+				web_guard_reply.set_result(EWebVideoSplitCameraGroupNum, message);
+				return;
+			}
 			for (Json::ArrayIndex i = 0; i < camera_group_json.size(); ++i)
 			{
 				if (!camera_group_json[i].isMember("camera_id") || !camera_group_json[i]["camera_id"].isUInt())
@@ -364,14 +370,14 @@ namespace chen {
 					web_guard_reply.set_result(EWebWait, "alloc camera_group  failed !!! ");
 					return;
 				}
-				camera_group_ptr->set_index(camera_group_json[i]["h"].asUInt());
-				camera_group_ptr->set_camera_id(camera_group_json[i]["h"].asUInt());
+				camera_group_ptr->set_index(camera_group_json[i]["index"].asUInt());
+				camera_group_ptr->set_camera_id(camera_group_json[i]["camera_id"].asUInt());
 				camera_group_ptr->set_x(camera_group_json[i]["x"].asDouble());
 				camera_group_ptr->set_y(camera_group_json[i]["y"].asDouble());
 				camera_group_ptr->set_w(camera_group_json[i]["w"].asDouble());
 				camera_group_ptr->set_h(camera_group_json[i]["h"].asDouble());
 			}
-			video_split_info.set_split_channel_name(data["video_split_info"].asString());
+			video_split_info.set_split_channel_name(data["split_channel_name"].asString());
 			video_split_info.set_split_channel_id(data["split_channel_id"].asString());
 			video_split_info.set_multicast_ip(data["multicast_ip"].asString());
 			video_split_info.set_multicast_port(data["multicast_port"].asUInt());
@@ -450,15 +456,15 @@ namespace chen {
 			video_split_info["lock_1080p"] = result.video_split_infos[i].lock_1080p();
 			video_split_info["overlay"] = result.video_split_infos[i].overlay();
 			video_split_info["split_method"] = result.video_split_infos[i].split_method();
-			for (size_t i = 0; i < result.video_split_infos[i].camera_group_size(); ++i)
+			for (size_t j = 0; j < result.video_split_infos[i].camera_group_size(); ++j)
 			{
 				Json::Value  CameraInfo;
-				CameraInfo["index"] = result.video_split_infos[i].camera_group(i).index();
-				CameraInfo["camera_id"] = result.video_split_infos[i].camera_group(i).camera_id();
-				CameraInfo["x"] = result.video_split_infos[i].camera_group(i).x();
-				CameraInfo["y"] = result.video_split_infos[i].camera_group(i).y();
-				CameraInfo["w"] = result.video_split_infos[i].camera_group(i).w();
-				CameraInfo["h"] = result.video_split_infos[i].camera_group(i).h();
+				CameraInfo["index"] = result.video_split_infos[i].camera_group(j).index();
+				CameraInfo["camera_id"] = result.video_split_infos[i].camera_group(j).camera_id();
+				CameraInfo["x"] = result.video_split_infos[i].camera_group(j).x();
+				CameraInfo["y"] = result.video_split_infos[i].camera_group(j).y();
+				CameraInfo["w"] = result.video_split_infos[i].camera_group(j).w();
+				CameraInfo["h"] = result.video_split_infos[i].camera_group(j).h();
 				video_split_info["camera_group"].append(CameraInfo);
 			}
 			reply["video_split_infos"].append(video_split_info);
@@ -478,5 +484,11 @@ namespace chen {
 		web_guard_reply.set_result(result);
 	}
 
+	void cweb_http_api_mgr::_handler_cmd_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		uint32 result = g_web_http_api_proxy.cmd_video_split(std::atoi(request->path_match[1].str().c_str()), std::atoi(request->path_match[2].str().c_str()));
+		web_guard_reply.set_result(result);
+	}
 
 }

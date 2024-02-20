@@ -24,6 +24,13 @@ purpose:		camera
 #include "cvideo_split.h"
 #include "clog.h"
 namespace chen {
+	bool cvideo_splist::init()
+	{
+		return true;
+	}
+	void cvideo_splist::update(uint32 uDateTime)
+	{
+	}
 	void cvideo_splist::destroy()
 	{
 

@@ -70,6 +70,10 @@ namespace chen {
 	
 		virtual cresult_video_split_list video_split_list(uint32 page, uint32 page_size);
 		virtual uint32				delete_video_split(uint32 id);
+
+
+		virtual uint32		cmd_video_split(uint32 id, uint32 cmd);
+
 	private:
 		void _handler_default_options(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
@@ -82,6 +86,8 @@ namespace chen {
 		void _handler_add_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_delete_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		
+		void _handler_cmd_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 
 	private:
 		void _pthread_work();

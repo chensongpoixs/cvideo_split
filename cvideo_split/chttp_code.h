@@ -38,6 +38,7 @@ namespace chen {
 		EWebWait,   // 再试一次
 		EWebNotFindCameraId, //没有该摄像机ID
 		EWebNotFindVideoSplitId, //没有该视频拼接ID
+		EWebVideoSplitCameraGroupNum, //拼接的数量必须大于1小于等于10
 		
 	};
 }

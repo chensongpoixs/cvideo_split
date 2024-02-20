@@ -33,6 +33,10 @@ namespace chen {
 		virtual	  cresult_add_video_split add_video_split(const VideoSplitInfo& msg) = 0;
 		virtual  cresult_video_split_list video_split_list(uint32 page, uint32 page_size) = 0;
 		virtual   uint32				delete_video_split(uint32 id) = 0;
+
+		virtual uint32	cmd_video_split(uint32 id, uint32 cmd) = 0;
+
+
 		virtual ~cweb_http_api_interface() {}
 	};
 }

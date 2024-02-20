@@ -68,7 +68,9 @@ namespace chen {
 
 		REGISTER_WEB_HANDLER("add_video_split", "POST", std::bind(&cweb_http_api_mgr::_handler_add_video_split, this, std::placeholders::_1, std::placeholders::_2));
 		REGISTER_WEB_HANDLER("video_split_list/page=([0-9]+)&page_size=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_video_split_list, this, std::placeholders::_1, std::placeholders::_2));
-
+		REGISTER_WEB_HANDLER("delete_video_split/id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		//_handler_cmd_video_split
+		REGISTER_WEB_HANDLER("cmd_video_split/id=([0-9]+)&cmd=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_cmd_video_split, this, std::placeholders::_1, std::placeholders::_2));
 
 
 
@@ -260,4 +262,8 @@ namespace chen {
 	{
 		  return g_video_split_info_mgr.handler_web_delete_video_split(id);
 	}
+	  uint32 cweb_http_api_mgr::cmd_video_split(uint32 id, uint32 cmd)
+	  {
+		  return uint32();
+	  }
 }
