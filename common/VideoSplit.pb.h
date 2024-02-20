@@ -384,6 +384,20 @@ class VideoSplitInfo final :
   ::google::protobuf::uint32 overlay() const;
   void set_overlay(::google::protobuf::uint32 value);
 
+  // optional uint32 out_video_width = 12;
+  bool has_out_video_width() const;
+  void clear_out_video_width();
+  static const int kOutVideoWidthFieldNumber = 12;
+  ::google::protobuf::uint32 out_video_width() const;
+  void set_out_video_width(::google::protobuf::uint32 value);
+
+  // optional uint32 out_video_height = 13;
+  bool has_out_video_height() const;
+  void clear_out_video_height();
+  static const int kOutVideoHeightFieldNumber = 13;
+  ::google::protobuf::uint32 out_video_height() const;
+  void set_out_video_height(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:VideoSplitInfo)
  private:
   class HasBitSetters;
@@ -401,6 +415,8 @@ class VideoSplitInfo final :
   int split_method_;
   ::google::protobuf::uint32 lock_1080p_;
   ::google::protobuf::uint32 overlay_;
+  ::google::protobuf::uint32 out_video_width_;
+  ::google::protobuf::uint32 out_video_height_;
   friend struct ::TableStruct_VideoSplit_2eproto;
 };
 // ===================================================================
@@ -786,6 +802,42 @@ inline void VideoSplitInfo::set_allocated_osd_info(::OsdInfo* osd_info) {
   }
   osd_info_ = osd_info;
   // @@protoc_insertion_point(field_set_allocated:VideoSplitInfo.osd_info)
+}
+
+// optional uint32 out_video_width = 12;
+inline bool VideoSplitInfo::has_out_video_width() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void VideoSplitInfo::clear_out_video_width() {
+  out_video_width_ = 0u;
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline ::google::protobuf::uint32 VideoSplitInfo::out_video_width() const {
+  // @@protoc_insertion_point(field_get:VideoSplitInfo.out_video_width)
+  return out_video_width_;
+}
+inline void VideoSplitInfo::set_out_video_width(::google::protobuf::uint32 value) {
+  _has_bits_[0] |= 0x00000200u;
+  out_video_width_ = value;
+  // @@protoc_insertion_point(field_set:VideoSplitInfo.out_video_width)
+}
+
+// optional uint32 out_video_height = 13;
+inline bool VideoSplitInfo::has_out_video_height() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void VideoSplitInfo::clear_out_video_height() {
+  out_video_height_ = 0u;
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline ::google::protobuf::uint32 VideoSplitInfo::out_video_height() const {
+  // @@protoc_insertion_point(field_get:VideoSplitInfo.out_video_height)
+  return out_video_height_;
+}
+inline void VideoSplitInfo::set_out_video_height(::google::protobuf::uint32 value) {
+  _has_bits_[0] |= 0x00000400u;
+  out_video_height_ = value;
+  // @@protoc_insertion_point(field_set:VideoSplitInfo.out_video_height)
 }
 
 #ifdef __GNUC__

@@ -137,6 +137,15 @@ namespace chen {
 		WARNING_EX_LOG("not find [camera_id = %u]", camera_id);
 		return EWebNotFindCameraId;
 	}
+	const CameraInfo* ccamera_info_mgr::get_camera_info(uint32 camera_id) const
+	{
+		CAMERA_INFO_MAP::const_iterator const_iterator =  m_camera_info_map.find(camera_id);
+		if (const_iterator != m_camera_info_map.end())
+		{
+			return &const_iterator->second;
+		}
+		return NULL;
+	}
 	void ccamera_info_mgr::_load_camera_config()
 	{
 		std::string camera_name = g_cfg.get_string(ECI_DataPath) + "/" + camera_json_name;

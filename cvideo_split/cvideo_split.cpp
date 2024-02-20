@@ -23,9 +23,89 @@ purpose:		camera
 ************************************************************************************************/
 #include "cvideo_split.h"
 #include "clog.h"
+
 namespace chen {
-	bool cvideo_splist::init()
+	bool cvideo_splist::init(const VideoSplitInfo* video_split_info)
 	{
+		if (!video_split_info)
+		{
+			return false;
+		}
+		m_stoped = false;
+		m_video_split_name = video_split_info->split_channel_name();
+		m_video_split_channel = video_split_info->split_channel_id();
+		m_multicast_ip = video_split_info->multicast_ip();
+		m_multicast_port = video_split_info->multicast_port();
+		m_split_method = video_split_info->split_method();
+		// 判断一下路数
+		if (video_split_info->camera_group_size() > 10 || video_split_info->camera_group_size() < 2)
+		{
+			WARNING_EX_LOG("camera group [size = %u]", video_split_info->camera_group_size());
+			return false;
+		}
+		m_split_video_channels = video_split_info->camera_group_size();
+		m_split_video_lock_1080p = video_split_info->lock_1080p();
+		m_overlay = video_split_info->overlay();
+		{
+			m_osd.x = video_split_info->osd_info().x();
+			m_osd.y = video_split_info->osd_info().y();
+			m_osd.fontsize = video_split_info->osd_info().font_size();
+			//m_osd.x = video_split_info->osd_info().x();
+			m_osd.text = video_split_info->osd_info().font_text();
+		}
+
+		m_out_video_width = 1920 * 2; //video_split_info->out_video_width();
+		m_out_video_height = 1080;// video_split_info->out_video_height();
+
+		// camera info arrays 
+		for (size_t i = 0; i < video_split_info->camera_group_size(); ++i)
+		{
+			ccamera_info camera_info;
+			camera_info.x = video_split_info->camera_group(i).x();
+			camera_info.y = video_split_info->camera_group(i).y();
+			camera_info.w = video_split_info->camera_group(i).w();
+			camera_info.h = video_split_info->camera_group(i).h();
+			camera_info.index = video_split_info->camera_group(i).index();
+			// 查询URL
+			const CameraInfo * camera_info_ptr = g_camera_info_mgr.get_camera_info(video_split_info->camera_group(i).camera_id());
+			if (!camera_info_ptr)
+			{
+				WARNING_EX_LOG("[video_splist  id = %u]not find [camera id = %u]", video_split_info->id(), video_split_info->camera_group(i).camera_id());
+			}
+			else
+			{
+				camera_info.url = (camera_info_ptr->url());
+			}
+			m_camera_infos.push_back(camera_info);
+			//camera_info.url = video_split_info->camera_group(i).();
+		}
+		if (!_init_decodes())
+		{
+			return false;
+		}
+		if (!_init_filter())
+		{
+			return false;
+		}
+		m_encoder_ptr = new cencoder();
+		if (!m_encoder_ptr)
+		{
+			WARNING_EX_LOG("split video name = [%s], alloc encoder failed !!!", m_video_split_name.c_str());
+			return false;
+		}
+		
+		std::string encoder_url = std::string("udp://@" + m_multicast_ip + ":" + std::to_string(m_multicast_port));
+		if (!m_encoder_ptr->init(encoder_url.c_str(), m_out_video_width, m_out_video_height))
+		{
+			WARNING_EX_LOG("video split name = [%s] encoder init (%s)failed !!!", m_video_split_name.c_str(), encoder_url.c_str());
+			return false;
+		}
+		// 编码器
+
+		//m_encoder_frame_ptr = av_frame_alloc();
+
+		m_thread = std::thread(&cvideo_splist::_pthread_work, this);
+
 		return true;
 	}
 	void cvideo_splist::update(uint32 uDateTime)
@@ -33,6 +113,11 @@ namespace chen {
 	}
 	void cvideo_splist::destroy()
 	{
+		m_stoped = true;
+		if (m_thread.joinable())
+		{
+			m_thread.join();
+		}
 
 		// filter 
 
@@ -62,6 +147,22 @@ namespace chen {
 			m_filter_graph_ptr = NULL;
 		}
 	}
+	bool cvideo_splist::_init_decodes()
+	{
+		for (int32 i = 0; i < m_camera_infos.size(); ++i)
+		{
+			cdecode* decoder_ptr = new cdecode();
+			if (!decoder_ptr->init(m_camera_infos[i].url.c_str()))
+			{
+				decoder_ptr->destroy();
+				delete decoder_ptr;
+				WARNING_EX_LOG("[m_video_split_name = %s][%u] not open  [camera = %s]", m_video_split_name.c_str(),i, m_camera_infos[i].url.c_str());
+				return false;
+			}
+			m_decodes.push_back(decoder_ptr);
+		}
+		return true;
+	}
 	bool cvideo_splist::_init_filter()
 	{
 		int32 ret = 0;
@@ -85,7 +186,7 @@ namespace chen {
 		}
 
 		/////   hstatck 
-		std::string hstack_str = "inputs=" + std::to_string(m_canera_infos.size());
+		std::string hstack_str = "inputs=" + std::to_string(m_camera_infos.size());
 		ret = avfilter_graph_create_filter(&m_hstack_ctx_ptr, ::avfilter_get_by_name("hstack"), "hstack", hstack_str.c_str(), NULL, m_filter_graph_ptr);
 		if (0 > ret)
 		{
@@ -96,15 +197,15 @@ namespace chen {
 			return false;
 		}
 		//osd
-		ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"), "fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'", NULL, NULL, m_filter_graph_ptr);
-		if (0 > ret)
-		{
+		//ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"), "fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'", NULL, NULL, m_filter_graph_ptr);
+		//if (0 > ret)
+		//{
 
-			WARNING_EX_LOG("avfilter_graph_create_filter osd failed !!! (%s)", ffmpeg_util::make_error_string(ret));
+		//	WARNING_EX_LOG("avfilter_graph_create_filter osd failed !!! (%s)", ffmpeg_util::make_error_string(ret));
 
-			//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
-			return false;
-		}
+		//	//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
+		//	return false;
+		//}
 		// sink
 		ret = avfilter_graph_create_filter(&m_buffersink_ctx_ptr, ::avfilter_get_by_name("buffersink"), "out", NULL, NULL, m_filter_graph_ptr);
 		if (0 > ret)
@@ -117,9 +218,9 @@ namespace chen {
 		}
 
 
-		m_buffers_ctx_ptr.resize(m_canera_infos.size());
-		m_buffers_crop_ctx_ptr.resize(m_canera_infos.size());
-		m_buffers_scale_ctx_ptr.resize(m_canera_infos.size());
+		m_buffers_ctx_ptr.resize(m_camera_infos.size());
+		m_buffers_crop_ctx_ptr.resize(m_camera_infos.size());
+		m_buffers_scale_ctx_ptr.resize(m_camera_infos.size());
 		for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
 		{
 			std::string args;
@@ -140,14 +241,14 @@ namespace chen {
 			ret = ::avfilter_graph_create_filter(&m_buffers_ctx_ptr[i], ::avfilter_get_by_name("buffer"), in.c_str(), args.c_str(), NULL/*buffer 用户数据*/, m_filter_graph_ptr);
 			if (ret < 0)
 			{
-				printf("in -->avfilter graph create filter failed !!!");
+				WARNING_EX_LOG("in -->avfilter graph create filter failed !!!");
 				return ret;
 			}
 
 			ret = ::avfilter_graph_create_filter(&m_buffers_crop_ctx_ptr[i], ::avfilter_get_by_name("crop"), "crop", crop_str.c_str(), NULL/*buffer 用户数据*/, m_filter_graph_ptr);
 			if (ret < 0)
 			{
-				printf("in -->avfilter graph create filter failed !!!");
+				WARNING_EX_LOG("in -->avfilter graph create filter failed !!!");
 				return ret;
 			}
 
@@ -155,30 +256,33 @@ namespace chen {
 			ret = ::avfilter_graph_create_filter(&m_buffers_scale_ctx_ptr[i], ::avfilter_get_by_name("scale"), "scale", scale_str.c_str(), NULL/*buffer 用户数据*/, m_filter_graph_ptr);
 			if (ret < 0)
 			{
-				printf("in -->avfilter graph create filter failed !!!");
+				WARNING_EX_LOG("in -->avfilter graph create filter failed !!!");
 				return ret;
 			}
 
 			// 配置  处理流程
-			ret = avfilter_link( m_buffers_ctx_ptr[i], 0, m_buffers_crop_ctx_ptr[i], i);
+			ret = avfilter_link( m_buffers_ctx_ptr[i], 0, m_buffers_crop_ctx_ptr[i], 0);
 			if (0 > ret)
 			{
+				WARNING_EX_LOG("[i = %d] avfilter_link  failed!!! : (%s)", i, ffmpeg_util::make_error_string(ret));
 				//char buf[1024] = { 0 };
 				//av_strerror(ret, buf, sizeof(buf) - 1);
 				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
 				return false;
 			}
-			ret = avfilter_link(m_buffers_crop_ctx_ptr[i], 0, m_buffers_scale_ctx_ptr[i], i);
+			ret = avfilter_link(m_buffers_crop_ctx_ptr[i], 0, m_buffers_scale_ctx_ptr[i], 0);
 			if (0 > ret)
 			{
 				char buf[1024] = { 0 };
 				av_strerror(ret, buf, sizeof(buf) - 1);
 				std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG("");
 				return false;
 			}
 			ret = avfilter_link(m_buffers_scale_ctx_ptr[i], 0, m_hstack_ctx_ptr, i);
 			if (0 > ret)
 			{
+				WARNING_EX_LOG("");
 				char buf[1024] = { 0 };
 				av_strerror(ret, buf, sizeof(buf) - 1);
 				std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
@@ -186,14 +290,14 @@ namespace chen {
 			}
 		}
 
-		ret = avfilter_link(m_osd_ctx_ptr, 0, m_hstack_ctx_ptr, 0);
+		/*ret = avfilter_link(m_osd_ctx_ptr, 0, m_hstack_ctx_ptr, 0);
 		if (0 > ret)
 		{
 			char buf[1024] = { 0 };
 			av_strerror(ret, buf, sizeof(buf) - 1);
 			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
 			return false;
-		}
+		}*/
 
 		ret = avfilter_link(m_hstack_ctx_ptr, 0, m_buffersink_ctx_ptr, 0);
 		if (0 > ret)
@@ -201,16 +305,18 @@ namespace chen {
 			char buf[1024] = { 0 };
 			av_strerror(ret, buf, sizeof(buf) - 1);
 			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+			
+			WARNING_EX_LOG("");
 			return false;
 		}
 		//graph 生效
 		ret = ::avfilter_graph_config(m_filter_graph_ptr, NULL);
 		if (ret < 0)
 		{
-			printf("filter graph config failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("filter graph config failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
 			return ret;
 		}
-		return false;
+		return true;
 	}
 
 
@@ -224,6 +330,7 @@ namespace chen {
 			// 
 			WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 		}
+		NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		while (!m_stoped)
 		{
@@ -268,7 +375,7 @@ namespace chen {
 				}
 
 			}
-
+			NORMAL_EX_LOG("");
 			if (m_stoped)
 			{
 				//中退出时啦 ^_^
@@ -276,10 +383,11 @@ namespace chen {
 			}
 
 			// get buffersink filer frame --> 
-			while ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
+			if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
 			{
 				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
+					NORMAL_EX_LOG("");
 					// 需要继续处理啦
 					::av_frame_unref(filter_frame_ptr);
 					continue;
@@ -293,6 +401,7 @@ namespace chen {
 				// filter 错误啦 ^_^
 				continue;
 			}
+			NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped)
 			{
@@ -300,7 +409,7 @@ namespace chen {
 			}
 			::av_frame_unref(filter_frame_ptr);
 		}
-
+		NORMAL_EX_LOG("");
 		::av_frame_free(&filter_frame_ptr);
 		filter_frame_ptr = NULL;
 	}

@@ -34,6 +34,7 @@ purpose:		camera
 #include "cdecode.h"
 #include <vector>
 #include <map>
+#include "cvideo_split_info_mgr.h"
 #include <string>
 namespace chen {
 
@@ -53,9 +54,10 @@ namespace chen {
 		double y;
 		double w;
 		double h;
-		std::string multicast_ip;
-		uint32 multicast_port;
-		ccamera_info() :index(0), x(0.0), y(0.0), w(0.0), h(0.0), multicast_ip(""), multicast_port(0){}
+		/*std::string multicast_ip;
+		uint32 multicast_port;*/
+		std::string url; //媒体流
+		ccamera_info() :index(0), x(0.0), y(0.0), w(0.0), h(0.0), url("") {}
 	};
 
 	class cvideo_splist : public cnoncopytable
@@ -74,7 +76,7 @@ namespace chen {
 			, m_osd()
 			, m_out_video_width(0)
 			, m_out_video_height(0)
-			, m_canera_infos()
+			, m_camera_infos()
 			, m_decodes()
 			, m_encoder_ptr(NULL)
 			, m_filter_graph_ptr(NULL)
@@ -86,18 +88,23 @@ namespace chen {
 			, m_overlay_ctx_ptr(NULL)
 			, m_osd_ctx_ptr(NULL)
 			, m_buffersink_ctx_ptr(NULL)
+			, m_decoder_frame_ptr(NULL)
+			, m_encoder_frame_ptr(NULL)
 		{}
 		virtual ~cvideo_splist(){}
 
 
 	public:
-		bool init();
+		bool init(const VideoSplitInfo * video_split_info);
 		void update(uint32 uDateTime);
 		void destroy();
 
 
 
 	private:
+
+		bool _init_decodes();
+
 		bool _init_filter();
 
 		void _pthread_work();
@@ -130,7 +137,7 @@ namespace chen {
 
 
 		// 视频信息
-		std::vector< ccamera_info> m_canera_infos;
+		std::vector< ccamera_info> m_camera_infos;
 
 		// 解码路数
 		std::vector<cdecode*>       m_decodes;
@@ -166,6 +173,15 @@ namespace chen {
 		// 输出 buffersink
 		AVFilterContext* m_buffersink_ctx_ptr;
 
+
+
+		// decoder Frame
+		AVFrame* m_decoder_frame_ptr;
+		// endoer Frame
+		AVFrame* m_encoder_frame_ptr;
+
+
+		std::thread			m_thread;
 
 	};
 

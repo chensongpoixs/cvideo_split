@@ -28,6 +28,8 @@ message VideoSplitInfo
 	optional uint32   overlay     = 9; // 是否折叠 0: 不折叠 1: 折叠
 	repeated CameraGroup 		camera_group = 10;
 	optional OsdInfo      osd_info 		= 11; // OSD 
+	optional uint32 	out_video_width = 12;
+	optional uint32 	out_video_height = 13; //视频输出高度
 	
 }
 

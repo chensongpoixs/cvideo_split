@@ -22,11 +22,11 @@ namespace chen {
 	class cvideo_split_info_mgr
 	{
 	private:
-		typedef std::map<uint32, VideoSplitInfo>			VIDEO_SPLIT_MAP;
+		typedef std::map<uint32, VideoSplitInfo>			VIDEO_SPLIT_INFO_MAP;
 	public:
 		explicit cvideo_split_info_mgr()
 		: m_data_type(EDataNone)
-		, m_video_split_map()
+		, m_video_split_info_map()
 		, m_video_split_index(0){}
 		virtual ~cvideo_split_info_mgr(){}
 
@@ -40,6 +40,9 @@ namespace chen {
 		cresult_add_video_split handler_web_add_video_split(const VideoSplitInfo& video_split_info);
 		cresult_video_split_list handler_web_video_split_list(uint32 page, uint32 page_size);
 		uint32					handler_web_delete_video_split(uint32 id);
+
+	public:
+		const  VideoSplitInfo* get_video_split_info(uint32 id) const ;
 	public:
 		void _load_video_split_config();
 
@@ -55,7 +58,7 @@ namespace chen {
 		void _sync_save_video_split_data();
 	private:
 		EDataType							m_data_type;
-		VIDEO_SPLIT_MAP						m_video_split_map;
+		VIDEO_SPLIT_INFO_MAP						m_video_split_info_map;
 		uint32								m_video_split_index;
 	};
 	extern cvideo_split_info_mgr g_video_split_info_mgr;

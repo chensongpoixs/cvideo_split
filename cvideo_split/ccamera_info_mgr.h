@@ -46,6 +46,10 @@ namespace chen {
 		cresult_camera_list handler_camera_list(uint32 page, uint32 page_size);
 		uint32			handler_delete_camera(uint32 camera_id);
 
+
+	public:
+		const CameraInfo* get_camera_info(uint32 camera_id) const ;
+
 	private:
 		void _load_camera_config();
 

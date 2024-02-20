@@ -77,6 +77,9 @@
     <ClCompile Include="cvideo_split_info_mgr.cpp">
       <Filter>logic</Filter>
     </ClCompile>
+    <ClCompile Include="cvideo_split_mgr.cpp">
+      <Filter>video_split</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="video_split.cu">
@@ -125,6 +128,9 @@
     </ClInclude>
     <ClInclude Include="cvideo_split_info_mgr.h">
       <Filter>logic</Filter>
+    </ClInclude>
+    <ClInclude Include="cvideo_split_mgr.h">
+      <Filter>video_split</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -33,7 +33,18 @@ namespace chen {
 		{
 			_sync_save_video_split_data();
 		}
-		m_video_split_map.clear();
+		m_video_split_info_map.clear();
+	}
+	const VideoSplitInfo* cvideo_split_info_mgr::get_video_split_info(uint32 id) const
+	{
+		// TODO: 在此处插入 return 语句
+		VIDEO_SPLIT_INFO_MAP::const_iterator const_iterator =  m_video_split_info_map.find(id);
+		if (const_iterator != m_video_split_info_map.end())
+		{
+			return &const_iterator->second;
+		}
+		return NULL;
+
 	}
 	void cvideo_split_info_mgr::_load_video_split_config()
 	{
@@ -71,7 +82,7 @@ namespace chen {
 	{
 		cresult_add_video_split result;
 
-		std::pair< VIDEO_SPLIT_MAP::iterator, bool> pi = m_video_split_map.insert(std::make_pair(m_video_split_index, video_split_info));
+		std::pair< VIDEO_SPLIT_INFO_MAP::iterator, bool> pi = m_video_split_info_map.insert(std::make_pair(m_video_split_index, video_split_info));
 		if (!pi.second)
 		{
 			result.result = EWebWait;
@@ -91,18 +102,18 @@ namespace chen {
 
 
 
-		result.page_info.set_total_pages((m_video_split_map.size() / page_size) + ((m_video_split_map.size() % page_size) > 0 ? 1 : 0));
-		result.page_info.set_total_elements(m_video_split_map.size());
+		result.page_info.set_total_pages((m_video_split_info_map.size() / page_size) + ((m_video_split_info_map.size() % page_size) > 0 ? 1 : 0));
+		result.page_info.set_total_elements(m_video_split_info_map.size());
 		result.page_info.set_page_number(page);
 		int32 show_page_size = 0;
 		int32 start_index = (page_size * (page));
-		if (m_video_split_map.size() >= start_index)
+		if (m_video_split_info_map.size() >= start_index)
 		{
-			show_page_size = (m_video_split_map.size() - start_index) > page_size ? page_size : (m_video_split_map.size() - start_index );
+			show_page_size = (m_video_split_info_map.size() - start_index) > page_size ? page_size : (m_video_split_info_map.size() - start_index );
 			result.page_info.set_page_size(show_page_size);
 			//CAMERA_INFO_MAP::const_iterator iter = m_camera_info_map.find(camera_id);
-			for (VIDEO_SPLIT_MAP::const_iterator iter = m_video_split_map.begin();
-				iter != m_video_split_map.end(); ++iter)
+			for (VIDEO_SPLIT_INFO_MAP::const_iterator iter = m_video_split_info_map.begin();
+				iter != m_video_split_info_map.end(); ++iter)
 			{
 				if (start_index <= 0)
 				{
@@ -132,10 +143,10 @@ namespace chen {
 	}
 	uint32 cvideo_split_info_mgr::handler_web_delete_video_split(uint32 id)
 	{
-		VIDEO_SPLIT_MAP::iterator iter = m_video_split_map.find(id);
-		if (iter != m_video_split_map.end())
+		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(id);
+		if (iter != m_video_split_info_map.end())
 		{
-			m_video_split_map.erase(iter);
+			m_video_split_info_map.erase(iter);
 			NORMAL_EX_LOG("delete [video_split_id = %u]", id);
 			m_data_type = EDataLoad;
 			//_sync_save_video_split_data();
@@ -277,7 +288,7 @@ namespace chen {
 			video_split_info.mutable_osd_info()->set_font_size(osd_json["font_size"].asUInt());
 			video_split_info.mutable_osd_info()->set_font_text(osd_json["font_text"].asString());
 
-			if (!m_video_split_map.insert(std::make_pair(video_split_info.id(), video_split_info)).second)
+			if (!m_video_split_info_map.insert(std::make_pair(video_split_info.id(), video_split_info)).second)
 			{
 				WARNING_EX_LOG("[videosplit id = %u] insert video_split info map failed !!!", video_split_info.id());
 			}
@@ -342,8 +353,8 @@ namespace chen {
 	{
 		Json::Value value;
 
-		for (VIDEO_SPLIT_MAP::const_iterator iter = m_video_split_map.begin();
-			iter != m_video_split_map.end(); ++iter)
+		for (VIDEO_SPLIT_INFO_MAP::const_iterator iter = m_video_split_info_map.begin();
+			iter != m_video_split_info_map.end(); ++iter)
 		{
 			Json::Value video_split_info;
 			video_split_info["id"] = iter->second.id();

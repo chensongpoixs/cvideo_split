@@ -23,7 +23,7 @@
  
 #include "chttp_code.h"
 //#include "cglobal_logic_mgr.h"
-
+#include "cvideo_split_mgr.h"
 
 namespace chen {
 
@@ -258,12 +258,13 @@ namespace chen {
 	{
 		return g_video_split_info_mgr.handler_web_video_split_list(page, page_size);
 	}
-	  uint32				cweb_http_api_mgr::delete_video_split(uint32 id)
+	  uint32		cweb_http_api_mgr::delete_video_split(uint32 id)
 	{
 		  return g_video_split_info_mgr.handler_web_delete_video_split(id);
 	}
 	  uint32 cweb_http_api_mgr::cmd_video_split(uint32 id, uint32 cmd)
 	  {
-		  return uint32();
+		  return g_video_split_mgr.handler_web_cmd_video_split(id, cmd);
+		//  return uint32();
 	  }
 }

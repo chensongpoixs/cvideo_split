@@ -162,6 +162,7 @@
     <ClCompile Include="crect_mem_copy.cpp" />
     <ClCompile Include="cvideo_split.cpp" />
     <ClCompile Include="cvideo_split_info_mgr.cpp" />
+    <ClCompile Include="cvideo_split_mgr.cpp" />
     <ClCompile Include="cvideo_split_server.cpp" />
     <ClCompile Include="cweb_guard_reply.cpp" />
     <ClCompile Include="cweb_handler.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="crect_mem_copy.h" />
     <ClInclude Include="cvideo_split.h" />
     <ClInclude Include="cvideo_split_info_mgr.h" />
+    <ClInclude Include="cvideo_split_mgr.h" />
     <ClInclude Include="cvideo_split_server.h" />
     <ClInclude Include="cweb_guard_reply.h" />
     <ClInclude Include="cweb_http_api_interface.h" />
