@@ -25,7 +25,7 @@ purpose:		camera
 #include "cencoder.h"
 #include "cffmpeg_util.h"
 #include "crect_mem_copy.h"
-
+#include "clog.h"
 namespace chen {
 
 
@@ -147,7 +147,7 @@ namespace chen {
 		{
 			/* set hw_frames_ctx for encoder's AVCodecContext */
 			if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, hw_device_ctx)) < 0) {
-				fprintf(stderr, "Failed to set hwframe context.\n");
+				WARNING_EX_LOG( "Failed to set hwframe context.\n");
 				//goto close;
 			}
 		
@@ -441,9 +441,11 @@ namespace chen {
 					return;
 				}
 			}
-			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) {
-				fprintf(stderr, "Error while transferring frame data to surface."
-					"Error code: %s.\n", ffmpeg_util::make_error_string(ret));
+			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
+			{
+				 
+				WARNING_EX_LOG("Error while transferring frame data to surface."
+					"Error code: %s. ", ffmpeg_util::make_error_string(ret));
 				return;
 			}
 
@@ -451,7 +453,7 @@ namespace chen {
 			if (ret < 0)
 			{
 				//::av_frame_unref(frame_ptr);
-				printf("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				return;
 			}
 		//	av_frame_free(&hw_frame);
@@ -465,7 +467,7 @@ namespace chen {
 		if (ret < 0)
 		{
 			av_packet_unref(m_pkt_ptr);
-			printf("[warr][url = %s]codec  receive packet  (%s) failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return;
 
 		}
@@ -477,7 +479,7 @@ namespace chen {
 		m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 
 		m_pkt_ptr->stream_index = 0;
-		printf(" [frame = %lu][%lu]  [pts = %lu][%lu ms]\n", m_frame_count, ::time(NULL), m_pkt_ptr->dts, current_mic.count());
+		//printf(" [frame = %lu][%lu]  [pts = %lu][%lu ms]\n", m_frame_count, ::time(NULL), m_pkt_ptr->dts, current_mic.count());
 
 		//1706158630000000 >= 1706158630000000
 
@@ -497,7 +499,7 @@ namespace chen {
 		ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		if (ret < 0)
 		{
-			printf("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 		}
 		::av_packet_unref(m_pkt_ptr);
 		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(

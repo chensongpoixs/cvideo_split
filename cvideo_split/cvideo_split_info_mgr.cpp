@@ -235,6 +235,17 @@ namespace chen {
 				WARNING_EX_LOG("config  warr overlay !!!");
 				continue;
 			}
+
+			if (!data[i].isMember("out_video_width") || !data[i]["out_video_width"].isUInt())
+			{
+				WARNING_EX_LOG("config  warr out_video_width !!!");
+				continue;
+			}
+			if (!data[i].isMember("out_video_height") || !data[i]["out_video_height"].isUInt())
+			{
+				WARNING_EX_LOG("config  warr out_video_height !!!");
+				continue;
+			}
 			if (!data[i].isMember("camera_group") || !data[i]["camera_group"].isArray())
 			{
 				WARNING_EX_LOG("config  warr camera_group !!!");
@@ -254,6 +265,8 @@ namespace chen {
 			video_split_info.set_split_method(static_cast<ESplitMethod>(data[i]["split_method"].asUInt64()));
 			video_split_info.set_lock_1080p(data[i]["lock_1080p"].asUInt64());
 			video_split_info.set_overlay(data[i]["overlay"].asUInt64()); 
+			video_split_info.set_out_video_width(data[i]["out_video_width"].asUInt64());
+			video_split_info.set_out_video_height(data[i]["out_video_height"].asUInt64());
 			
 			// camera info
 			Json::Value camera_infos_json = data[i]["camera_group"];
@@ -366,8 +379,8 @@ namespace chen {
 		//	video_split_info["split_type"] = static_cast<uint32>(iter->second.split_type());
 			video_split_info["lock_1080p"] = iter->second.lock_1080p();
 			video_split_info["overlay"] = iter->second.overlay();
-
-
+			video_split_info["out_video_width"] = iter->second.out_video_width();
+			video_split_info["out_video_height"] = iter->second.out_video_height();
 			
 			for (size_t i = 0; i < iter->second.camera_group_size(); ++i)
 			{

@@ -54,8 +54,8 @@ namespace chen {
 			m_osd.text = video_split_info->osd_info().font_text();
 		}
 
-		m_out_video_width = 1920 * 2; //video_split_info->out_video_width();
-		m_out_video_height = 1080;// video_split_info->out_video_height();
+		m_out_video_width = video_split_info->out_video_width();
+		m_out_video_height =   video_split_info->out_video_height();
 
 		// camera info arrays 
 		for (size_t i = 0; i < video_split_info->camera_group_size(); ++i)
@@ -190,22 +190,44 @@ namespace chen {
 		ret = avfilter_graph_create_filter(&m_hstack_ctx_ptr, ::avfilter_get_by_name("hstack"), "hstack", hstack_str.c_str(), NULL, m_filter_graph_ptr);
 		if (0 > ret)
 		{
-			char buf[1024] = { 0 };
-			av_strerror(ret, buf, sizeof(buf) - 1);
+			//char buf[1024] = { 0 };
+			//av_strerror(ret, buf, sizeof(buf) - 1);
 			WARNING_EX_LOG("avfilter_graph_create_filter hstack failed !!! (%s)", ffmpeg_util::make_error_string(ret));
 			//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
 			return false;
 		}
 		//osd
-		//ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"), "fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'", NULL, NULL, m_filter_graph_ptr);
-		//if (0 > ret)
+		//AVDictionary* options = NULL;
 		//{
-
-		//	WARNING_EX_LOG("avfilter_graph_create_filter osd failed !!! (%s)", ffmpeg_util::make_error_string(ret));
-
-		//	//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
-		//	return false;
+		//
+		//	// 设置drawtext的基本参数，例如文本内容、字体、颜色等
+		//	
+		//	av_dict_set(&options, "text", "Hello, World!", 0);
+		//	av_dict_set(&options, "fontfile", "simkai.ttf", 0);
+		//	av_dict_set(&options, "fontcolor", "red", 0);
+		//	av_dict_set(&options, "fontsize", "24", 0);
 		//}
+		//fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='chensong'
+		if (m_osd.text.size() > 0)
+		{
+			std::string osd_args = "fontfile=simkai.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
+				+ ":x=" + std::to_string(m_osd.x) + ":y=" + std::to_string(m_osd.y) + ":text='" + m_osd.text + "'";
+			ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"),
+				"drawtext", osd_args.c_str(), NULL, m_filter_graph_ptr);
+			NORMAL_EX_LOG("[osd_args = %s]", osd_args.c_str());
+			if (0 > ret)
+			{
+				// 清理字典
+				//av_dict_free(&options);
+				WARNING_EX_LOG("avfilter_graph_create_filter osd failed !!! (%s)", ffmpeg_util::make_error_string(ret));
+
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_graph_create_filter  failed! :" << buf << std::endl;
+				return false;
+			}
+		}
+		
+		// 清理字典
+		//av_dict_free(&options);
 		// sink
 		ret = avfilter_graph_create_filter(&m_buffersink_ctx_ptr, ::avfilter_get_by_name("buffersink"), "out", NULL, NULL, m_filter_graph_ptr);
 		if (0 > ret)
@@ -221,13 +243,38 @@ namespace chen {
 		m_buffers_ctx_ptr.resize(m_camera_infos.size());
 		m_buffers_crop_ctx_ptr.resize(m_camera_infos.size());
 		m_buffers_scale_ctx_ptr.resize(m_camera_infos.size());
+		
+		//TODO@chensong 2023-02-21 拼接效果视频放置每个宽度或者高度
+		uint32 split_one_width = m_out_video_width;
+		uint32 split_one_height = m_out_video_height;
+		if (!m_overlay) 
+		{
+			if (m_split_method)
+			{
+				split_one_height = m_out_video_height / m_camera_infos.size(); 
+			}
+			else
+			{
+				split_one_width = m_out_video_width / m_camera_infos.size();
+			}
+		}
+
 		for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
 		{
 			std::string args;
 			std::string in;
-			std::string crop_str = "1910:1000:10:10";
-			std::string scale_str = "1920:1080";
+
+			uint32 crop_x = m_camera_infos[i].x * m_decodes[i]->m_codec_ctx_ptr->width;
+			uint32 crop_y = m_camera_infos[i].y * m_decodes[i]->m_codec_ctx_ptr->height;
+			uint32 crop_width = m_camera_infos[i].w * m_decodes[i]->m_codec_ctx_ptr->width;
+			uint32 crop_height = m_camera_infos[i].h * m_decodes[i]->m_codec_ctx_ptr->height;
+			
+
+			std::string crop_str = std::to_string(crop_width)+ ":" + std::to_string(crop_height)
+				+ ":" + std::to_string(crop_x) + ":" + std::to_string(crop_y);// height:width:x:y/*"1910:1000:10:10";*/
+			std::string scale_str = std::to_string(split_one_width) + ":" + std::to_string(split_one_height); //"1920:1080";
 			in = "in" + std::to_string(i);
+			NORMAL_EX_LOG("[video split name = %s][%u][crop = %s][scale = %s]", m_video_split_name.c_str(), i, crop_str.c_str(), scale_str.c_str());
 			args.resize(1024);
 			snprintf((char *)args.data(), 1024,	"video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d"
 			, m_decodes[i]->m_codec_ctx_ptr->width, m_decodes[i]->m_codec_ctx_ptr->height,
@@ -273,47 +320,67 @@ namespace chen {
 			ret = avfilter_link(m_buffers_crop_ctx_ptr[i], 0, m_buffers_scale_ctx_ptr[i], 0);
 			if (0 > ret)
 			{
-				char buf[1024] = { 0 };
-				av_strerror(ret, buf, sizeof(buf) - 1);
-				std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
-				WARNING_EX_LOG("");
+				//char buf[1024] = { 0 };
+				//av_strerror(ret, buf, sizeof(buf) - 1);
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG("[i = %d] avfilter_link  failed!!! : (%s)", i, ffmpeg_util::make_error_string(ret));
 				return false;
 			}
 			ret = avfilter_link(m_buffers_scale_ctx_ptr[i], 0, m_hstack_ctx_ptr, i);
 			if (0 > ret)
 			{
-				WARNING_EX_LOG("");
-				char buf[1024] = { 0 };
-				av_strerror(ret, buf, sizeof(buf) - 1);
-				std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				//WARNING_EX_LOG("");
+				//char buf[1024] = { 0 };
+				//av_strerror(ret, buf, sizeof(buf) - 1);
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG("[i = %d] avfilter_link  failed!!! : (%s)", i, ffmpeg_util::make_error_string(ret));
+
 				return false;
 			}
 		}
-
-		/*ret = avfilter_link(m_osd_ctx_ptr, 0, m_hstack_ctx_ptr, 0);
-		if (0 > ret)
+		if (m_osd_ctx_ptr)
 		{
-			char buf[1024] = { 0 };
-			av_strerror(ret, buf, sizeof(buf) - 1);
-			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
-			return false;
-		}*/
+			ret = avfilter_link(m_hstack_ctx_ptr, 0, m_osd_ctx_ptr, 0);
+			if (0 > ret)
+			{
+				//char buf[1024] = { 0 };
+				//av_strerror(ret, buf, sizeof(buf) - 1);
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG(" osd avfilter_link  failed!!! : (%s)", ffmpeg_util::make_error_string(ret));
 
-		ret = avfilter_link(m_hstack_ctx_ptr, 0, m_buffersink_ctx_ptr, 0);
-		if (0 > ret)
-		{
-			char buf[1024] = { 0 };
-			av_strerror(ret, buf, sizeof(buf) - 1);
-			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
-			
-			WARNING_EX_LOG("");
-			return false;
+				return false;
+			}
+
+			ret = avfilter_link(m_osd_ctx_ptr, 0, m_buffersink_ctx_ptr, 0);
+			if (0 > ret)
+			{
+				//char buf[1024] = { 0 };
+				//av_strerror(ret, buf, sizeof(buf) - 1);
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG("[ideo_split_vname = %s]  avfilter_link  failed!!! : (%s)", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
+
+				return false;
+			}
 		}
+		else
+		{
+			ret = avfilter_link(m_hstack_ctx_ptr, 0, m_buffersink_ctx_ptr, 0);
+			if (0 > ret)
+			{
+				//char buf[1024] = { 0 };
+				//av_strerror(ret, buf, sizeof(buf) - 1);
+				//std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
+				WARNING_EX_LOG("[ideo_split_vname = %s]  avfilter_link  failed!!! : (%s)", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
+
+				return false;
+			}
+		}
+		
 		//graph 生效
 		ret = ::avfilter_graph_config(m_filter_graph_ptr, NULL);
 		if (ret < 0)
 		{
-			WARNING_EX_LOG("filter graph config failed (%s)!!!\n", chen::ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("[ideo_split_vname = %s] filter graph config failed (%s)!!!\n", m_video_split_name.c_str() , chen::ffmpeg_util::make_error_string(ret));
 			return ret;
 		}
 		return true;
@@ -330,7 +397,7 @@ namespace chen {
 			// 
 			WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 		}
-		NORMAL_EX_LOG("");
+		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		while (!m_stoped)
 		{
@@ -343,20 +410,28 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-
+			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
 			// add buffer filter -->
 			// decoder 
 			for (size_t i = 0; i < m_decodes.size(); ++i)
 			{
 				AVFrame* frame_ptr = NULL;
-				if (m_decodes[i])
-				{
-					if (m_decodes[i]->retrieve(frame_ptr) && !m_stoped)
+				//if (m_decodes[i])
+				{std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+					if (m_decodes[i]->retrieve(frame_ptr) /*&& !m_stoped*/)
 					{
+						std::chrono::milliseconds buffer_src_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+							std::chrono::system_clock::now().time_since_epoch());
+
+						std::chrono::milliseconds diff_ms = buffer_src_ms - buffer_ms;
+						NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
 						// add buffer filter -->
-						if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
+						//if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
 						{
-							if (m_buffers_ctx_ptr[i])
+							
+							//if (m_buffers_ctx_ptr[i])
 							{
 								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
 								if (ret < 0)
@@ -364,30 +439,41 @@ namespace chen {
 									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
 									//return ret;
 								}
+								
 							}
 						}
 
 					}
+					
 				}
 				if (frame_ptr)
 				{
 					::av_frame_unref(frame_ptr);
 				}
+				std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+
+				std::chrono::milliseconds diff_ms = decoder_ms - ms;
+				NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
 
 			}
-			NORMAL_EX_LOG("");
+			//NORMAL_EX_LOG("");
 			if (m_stoped)
 			{
 				//中退出时啦 ^_^
 				break;
 			}
+			std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
 
+			std::chrono::milliseconds diff_ms = decoder_ms - ms;
+			NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
 			if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
 			{
 				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
-					NORMAL_EX_LOG("");
+					//NORMAL_EX_LOG("");
 					// 需要继续处理啦
 					::av_frame_unref(filter_frame_ptr);
 					continue;
@@ -399,17 +485,22 @@ namespace chen {
 			if (ret < 0)
 			{
 				// filter 错误啦 ^_^
+				WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
 				continue;
 			}
-			NORMAL_EX_LOG("---> frame -- encoder ");
+			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped)
 			{
 				m_encoder_ptr->push_frame(filter_frame_ptr);
 			}
 			::av_frame_unref(filter_frame_ptr);
+			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			  diff_ms = encoder_ms - decoder_ms  ;
+			NORMAL_EX_LOG("[encoder_ms = %u]", diff_ms.count());
 		}
-		NORMAL_EX_LOG("");
+		//NORMAL_EX_LOG("");
 		::av_frame_free(&filter_frame_ptr);
 		filter_frame_ptr = NULL;
 	}

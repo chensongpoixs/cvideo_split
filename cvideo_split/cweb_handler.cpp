@@ -385,6 +385,25 @@ namespace chen {
 			video_split_info.set_lock_1080p(data["lock_1080p"].asUInt());
 			video_split_info.set_overlay(data["overlay"].asUInt()); 
 
+			// out split video width and height
+			if (!data.isMember("out_video_width") || !data["out_video_width"].isUInt())
+			{
+				//web_guard_reply.set_result(EWebJsonParam, "overlay ");
+				video_split_info.set_out_video_width(1080);
+			}
+			else
+			{
+				video_split_info.set_out_video_width(data["out_video_width"].asUInt());
+			}
+			if (!data.isMember("out_video_height") || !data["out_video_height"].isUInt())
+			{
+				//web_guard_reply.set_result(EWebJsonParam, "overlay ");
+				video_split_info.set_out_video_width(1920);
+			}
+			else
+			{
+				video_split_info.set_out_video_width(data["out_video_height"].asUInt());
+			}
 		}
 		catch (const std::exception&)
 		{
@@ -411,7 +430,8 @@ namespace chen {
 			reply_video_split["split_method"] = result.video_split_info.split_method();
 			reply_video_split["lock_1080p"] = result.video_split_info.lock_1080p();
 			reply_video_split["overlay"] = result.video_split_info.overlay();
-			reply_video_split["lock_1080p"] = result.video_split_info.lock_1080p();
+			reply_video_split["out_video_width"] = result.video_split_info.out_video_width();
+			reply_video_split["out_video_height"] = result.video_split_info.out_video_height();
 			
 			for (size_t i = 0; i < result.video_split_info.camera_group_size(); ++i)
 			{
@@ -456,6 +476,8 @@ namespace chen {
 			video_split_info["lock_1080p"] = result.video_split_infos[i].lock_1080p();
 			video_split_info["overlay"] = result.video_split_infos[i].overlay();
 			video_split_info["split_method"] = result.video_split_infos[i].split_method();
+			video_split_info["out_video_width"] = result.video_split_infos[i].out_video_width();
+			video_split_info["out_video_height"] = result.video_split_infos[i].out_video_height();
 			for (size_t j = 0; j < result.video_split_infos[i].camera_group_size(); ++j)
 			{
 				Json::Value  CameraInfo;

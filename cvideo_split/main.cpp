@@ -271,9 +271,22 @@ void test_json()
 	printf("[camera_list = %s]\n", str.c_str());
 }
 
-
+std::string core_name(const std::string& path)
+{
+	uint32_t index = 0;
+	for (uint32_t i = 0; i < path.length(); ++i)
+	{
+		if (path.at(i) == '/' || path.at(i) == '\\')
+		{
+			index = i;
+		}
+	}
+	return path.substr(index+1, path.length());
+}
 int  main(int argc, char** argv) 
 {
+
+	 
 	RegisterSignal();
 	const char* config_filename = "server.cfg";
 	const char* log_path = "./log";
