@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>拼接管理</title>
+    <link href="js/layui/css/layui.css" rel="stylesheet" />
+    <link href="js/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .layui-table thead tr, .layui-table-header {
+            background-color: #fff !important;
+        }
+        /*单元格内容超过，显示...*/
+        .layui-table tbody tr td div {
+            text-overflow: ellipsis;
+            overflow: hidden !important;
+            white-space: nowrap;
+        }
+
+        .layui-input-inline {
+            margin-right: 0px !important;
+        }
+
+        .layui-form-label {
+            width: 70px !important;
+        }
+
+        .layui-table-page {
+            text-align: center;
+        }
+
+        .layui-table-cell {
+            overflow: visible !important;
+        }
+
+        td .layui-form-select {
+            margin-top: -10px;
+        }
+
+        tr {
+            height: 48px;
+        }
+        .layui-form-item {
+            margin-bottom: 0px;
+        }
+        .layui-table{
+            width:100% !important
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-row">
+        <div class="layui-col-xs12">
+            <div class="layui-form">
+                <div class="layui-form-item">
+
+                    <div style="float:left;margin-left:64px; padding:8px 2px 0px;">
+                        <button id="AddClick" class="layui-btn layui-btn-normal" onclick="AddPJ();">添加</button>
+                    </div>
+                </div>
+                <hr />
+                <table class="layui-hide" id="datatable" lay-filter="table"></table>
+                <script type="text/html" id="xh">
+                    {{d.LAY_TABLE_INDEX+1}}
+                </script>
+                <script type="text/html" id="toolBar">
+                    <a lay-event="restart" style="color:#336DFF;cursor:pointer;" title="重启"><i class="fa fa-clock-o fa-2x"></i></a>
+                    &nbsp; &nbsp;
+                    <a lay-event="stop" style="color:#336DFF;cursor:pointer;" title="停止拼接"><i class="fa fa-stop-circle fa-2x"></i> </a>
+                    &nbsp; &nbsp;
+                    <a lay-event="modify" style="color:#336DFF;cursor:pointer;" title="修改拼接"><i class="fa fa-pencil-square-o fa-2x"></i> </a>
+                    &nbsp; &nbsp;
+                    <a lay-event="start" style="color:#336DFF;cursor:pointer;" title="开始拼接"><i class="fa fa-play-circle fa-2x"></i>  </a>
+                    &nbsp; &nbsp;
+                    <a lay-event="delete" style="color:red;cursor:pointer;" title="删除"><i class="fa fa-close fa-2x"></i> </a>
+                </script>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/layui/layui.js"></script>
+    <script>
+        var reg = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
+            var address = reg.exec(window.location.href)[0];
+         var apiAddress = "http://"+address+":6036/json"; //"http://192.168.2.76:6036/json";
+         /***************************正式版注释掉data**************************/
+		 //224.1.1.3:20000
+        var data=[{
+            "address":"224.1.1.3",
+            "fix_1080p":1,
+            "h":1080,
+            "id":"21040618254471",
+            "ip":"21040618254471",
+            "is_fold":0,
+            "islock":1,
+            "multicast_ip":"224.1.1.3",
+            "multicast_port":20000,
+            "name":"cs",
+            "port":"20000",
+            "state":1,
+            "style":4,
+            "w":1920
+        }]
+        layui.use(('form'), function () {
+            var $ = layui.jquery
+                , form = layui.form;
+        });
+
+        $(function () {
+          //  LoadTable(data);  /***************************正式版注释掉data**************************/
+            sendAjax(); //获取所有数据
+        });
+
+
+function ajaxGet(url, successCallback, errorCallback) {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        successCallback(xhr.responseText);
+      } else {
+        errorCallback(xhr.statusText);
+      }
+    }
+  };
+  xhr.send();
+}
+
+ 
+  //发送ajax，获取拼接数据
+  function sendAjax() {
+      var send_str='{"msg": "get_tile_info"}';
+      console.log(send_str);
+            //$.ajax({
+            //    type: "POST",
+            //    dataType: "text",
+            //    //url: '/json',
+            //    url: apiAddress,
+            //    contentType: "application/json",
+            //    data: send_str,
+            //    timeout: 5000,
+            //    success: function (result) {
+            //        var objs = JSON.parse(result);
+            //        LoadTable(objs.video_tile);
+            //    }
+            //});
+			
+			ajaxGet("http://127.0.0.1:9700/video_split/v1/video_split_list/page=0&page_size=10", 
+			function(result)
+			{
+					var objs = JSON.parse(result);
+					console.log(objs);
+                  LoadTable(objs.video_split_infos);
+			}, function(result)
+			{
+				console.log('get video split failed !!! = ' + result);
+			});
+        }
+		
+		
+        function LoadTable(data) {
+            layui.use(['form', 'table'], function () {
+                var table = layui.table
+                    , form = layui.form;
+                //展示已知数据
+              table.render({
+                    elem: '#datatable'
+                    , cols: [[ //标题栏
+                        {
+                            field: 'id', title: '序号', width: '4%', align: 'center', templet: '#id'
+                        }
+                        , { field: 'split_channel_name', title: '通道名称', width: '30%' }
+                        , { field: 'split_channel_id', title: 'ID', width: '15%' }
+                        , { field: 'multicast_ip', title: '组播地址', width: '10%' }
+                        , { field: 'multicast_port', title: '组播端口', width: '10%' }
+                        , {
+                             field: 'state', title: '设备状态', width: '10%' ,
+                            // templet: '<div><span id="{{d.name}}">{{d.state}}</div>'
+                        }
+                        , { title: '操作', toolbar: "#toolBar", align: 'center' }
+                    ]]
+                    , data: data
+                    , page: true
+                    , limits: [13, 20, 30]
+                    , limit: 13
+                    , even: true,
+                    done:function(res,curr,count)
+                    {
+                        if(res.data.length>0)
+                        {
+                            $.each(res.data, function (idenx, item) 
+                            {
+                                var html = $("table tr[data-index=" + item.LAY_TABLE_INDEX + "] td[data-field='state'] div").html("");
+                                if(item.state==1)
+                                  html.append("<div><span id='"+item.ip+"'>启动</span></div>");
+                                  else
+                                  html.append("<div><span id='"+item.ip+"'>停止</span></div>");
+                            });
+                        }
+                        ExecSetTimeout();//定时获取所有状态
+                    }
+                });
+                    table.on('tool(table)', function (obj) {
+                    var data = obj.data;
+                    if (obj.event === 'delete')//删除拼接
+                        DeletePJ(obj);
+                    else if (obj.event === 'modify')//修改拼接
+                        ModifyPJ(data);
+                        else if(obj.event === 'start')//启动拼接
+                        {
+                            EventTile(data.ip,0);
+                            $("#"+data.id+"").html('开启'); 
+
+                        }
+                        else if(obj.event === 'stop'){//停止拼接
+                            EventTile(data.ip,1);
+                            $("#"+data.id+"").html('停止'); 
+                        }else if(obj.event === 'restart')//重启拼接
+                        {
+                            // var send_str = '{"msg": "restart_tile","video_souce_info": [';
+                            // send_str+=videoMsg(data);
+                            // sendAjax(send_str,"restart");
+                        }
+                });
+            });
+        }
+
+        //删除行
+        function DeletePJ(obj) 
+		{
+			console.log(obj);
+            layer.confirm('确定要删除这条拼接信息？', function (index) {
+                EventTile(obj.data.ip,2);
+                obj.del();
+                layer.close(index);
+            });
+        }
+        //修改拼接信息
+        function ModifyPJ(obj) 
+		{
+			console.log(obj);
+            EventTile(obj.split_channel_id,0);
+                            $("#"+obj.split_channel_id+"").html('开启'); 
+                           
+            layer.open({
+                type: 2,
+                title: '编辑拼接信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['1445px', '717px'],
+                content: ['/Modify.html?name=' + obj.split_channel_name + '&guid=' + obj.split_channel_id + '&url=' + obj.multicast_ip + '&port=' + obj.multicast_port + '&state=' + obj.state + '&style=' + obj.style + '&islock=' + obj.lock_1080p + '&isfold='+obj.overlay+'', 'no']
+                ,end: function () {
+                    location.reload();
+                }
+            }); 
+        }
+//type=0 表示：启动拼接  type=1 停止拼接 type=2 删除拼接
+       function EventTile(ip,type)
+       {
+            var send_str ="";
+            if(type===0)
+            send_str='{"msg": "resume_tile", "tile_id": "'+ip+'"}';
+            else if(type===1)
+            send_str='{"msg": "pause_tile", "tile_id": "'+ip+'"}';
+            else if(type===2)
+            send_str = '{"msg": "stop_tile", "tile_id": "'+ip+'"}';
+            console.log(send_str);
+            sendActionAjax(send_str);
+       }
+
+        //添加拼接信息
+        function AddPJ() {
+            layer.open({
+                type: 2,
+                title: '添加拼接信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['1445px', '717px'],
+                content: ['/SplicInfos.html', 'no'],
+                end: function () {
+                    location.reload();
+                }
+            }); 
+        }
+        //Default父页面调用，关闭弹框
+        function CloseWindowForm() {
+            layer.closeAll();
+        }
+
+        //发送ajax，获取拼接流地址信息
+        function sendActionAjax(send_str) {
+            $.ajax({
+                type: "POST",
+                dataType: "text",
+                url: apiAddress,
+                contentType: "application/json",
+                data: send_str,
+                timeout: 10 * 1000,
+                async:false,
+                success: function (result) {
+                    console.log(result);
+                    var objs = JSON.parse(result);
+                }, error: function (result, xrr) {
+                }
+            });
+        }
+        //定时获取所有拼接数据状态
+        var loadTiles;
+        function ExecSetTimeout()
+        {
+            if(loadTiles!=null)
+              clearTimeout(loadTiles);
+              loadTiles=null;
+            loadTiles= setTimeout(() => {
+                var send_str = '{"msg": "get_tiles_status"}';
+                $.ajax({
+                    type: "POST",
+                    dataType: "text",
+                    url: apiAddress,
+                    contentType: "application/json",
+                    data: send_str,
+                    timeout: 5000,
+                    success: function (result) {
+                        console.log('ExecSetTimeout');
+                        var objs = JSON.parse(result);
+                        ForEachState(objs.states);
+                        ExecSetTimeout();
+                    }
+                });
+            }, 6000);
+        }
+        function ForEachState(arr)
+        {
+            if(typeof(arr)!='undefined'&& arr!=null&& arr!="" )
+            {
+                if(arr.length>0)
+                {
+                    $.each(arr,(index,item)=>{
+                        if(item.tile_state===1 && item.is_paused===0)
+                        $("#"+item.tile_id+"").html('开启');
+                         else if(item.tile_state===1 && item.is_paused===1)
+                         $("#"+item.tile_id+"").html('停止');
+                         else if(item.tile_state===0)
+                         $("#"+item.tile_id+"").html('异常');
+                         else
+                         $("#"+item.tile_id+"").html('停止');
+                    });
+                }
+            }
+        }
+
+
+
+    </script>
+</body>
+</html>
