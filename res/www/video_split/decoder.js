@@ -21,13 +21,18 @@ function Decoder() {
     this.requestCallback = null;
     this.ws == null
     this.hDec = 0;
+    this.width = 0;
+    this.height = 0;
 }
+
+
+
 
 
 ///////////////////////////////////////// lkpadd
 Decoder.prototype.onWsMsg = function (evt) 
 {
-	console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
+	//console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
     if (evt.data.byteLength == 16 && this.hDec == 0) {
         var param = new Int16Array(evt.data);
         //var codecId=174;//265
@@ -47,6 +52,16 @@ Decoder.prototype.onWsMsg = function (evt)
 
 
 }
+
+Decoder.prototype.width = function()
+{
+    return this.width;
+}
+Decoder.prototype.height = function()
+{
+    return this.height;
+}
+
 Decoder.prototype.CreateVideoDec = function (url, domain) {
 
     var dec = this;
@@ -152,7 +167,9 @@ Decoder.prototype.onWasmLoaded = function () {
             w: width,
             h: height
         };
-		console.log('t = '+ kVideoFrame + ' s = ' + timestamp + ', w = ' + width + ', height = ' + height);
+		//console.log('t = '+ kVideoFrame + ' s = ' + timestamp + ', w = ' + width + ', height = ' + height);
+        this.width = width;
+        this.height = height;
         this.postMessage(objData, [objData.d.buffer]);
     }, 'viid');
 

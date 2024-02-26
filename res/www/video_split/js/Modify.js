@@ -35,7 +35,9 @@ layui.use(['form', 'element'], function () {
             $("#left" + i).val('').attr("disabled", "disabled");
             $("#right" + i).val('').attr("disabled", "disabled")
         }
-		camera_paly();
+        //console.log('------------------>');
+		//ExecuteCanvas1();
+		//camera_paly();
     });
 	
 	function ajaxGet(url, successCallback, errorCallback) 
@@ -296,11 +298,12 @@ function LoadTileVideo(data)
 
 	function   camera_paly()
 	{
-		if (camera_play1 !== null)
+		if (camera_play1 != null)
 		{
 			return;
 		}
 		console.log('==camera_paly== ');
+		let container1 = document.getElementById('container1');
 		let imgDiv = document.getElementById('imgDiv1');    // 存放mycanvas
 		let clipImgDiv = document.getElementById('clipImgDiv1');    // 显示裁剪所获的图片
 		var scaleX = 1;// 图片宽度缩放比例（当前实际/原始）
@@ -316,8 +319,9 @@ function LoadTileVideo(data)
 		myCanvas.style.border = "1px solid #d3d3d3";
 		myCanvas.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
 		myCanvas.style.zIndex = 'auto';
+		container1.appendChild(myCanvas);
 		camera_play1 = new Player();
-		camera_play1.play(domain,/*url*/ 'udp://@224.1.1.3:20000' , myCanvas);
+		camera_play1.play("",/*url*/ 'udp://@224.1.1.3:20000' , myCanvas);
 	}
     //切换摄像机，加载图片
     function ChangeVideoNmae(img, num) 

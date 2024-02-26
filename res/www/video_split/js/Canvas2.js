@@ -178,7 +178,9 @@ $("#right2").val(100);
             params2.top = getCss2(target, "top");
         }
         //target是移动对象
-        point.onmousedown = function (event) {
+        point.onmousedown = function (event) 
+        {
+            console.log('---->>>> dsflkjd down');
             params2.kind = kind;
             params2.flag = true;
             clickFlag = true;
@@ -195,7 +197,9 @@ $("#right2").val(100);
                 return false;
             };
 
-            document.onmousemove = function (event) {
+            document.onmousemove = function (event) 
+            {
+                console.log('mouse move --> 2');
                 let e = event ? event : window.event;
                 clickFlag = false;
                 if (params2.flag) {
@@ -323,10 +327,14 @@ $("#right2").val(100);
 
 
     //图片不能被选中，目的在于使拖拽顺滑
-    ID2("myCanvas2").onselectstart = function () {
+    ID2("myCanvas2").onselectstart = function () 
+    {
+        console.log('onselectstart --> ');
         return false;
     };
-    img2.onselectstart = function () {
+    img2.onselectstart = function () 
+    {
+        console.log('onselectstart --->>>');
         return false;
     };
 }
