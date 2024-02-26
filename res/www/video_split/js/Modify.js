@@ -57,6 +57,7 @@ layui.use(['form', 'element'], function () {
 	}
      function InitCoordinate(num,t,l,d,r)
      {
+        console.log('InitCoordinate num= ' + num + 't =' + t);
          $("#up"+num).val(parseInt(t*bgheight));
          $("#down"+num).val(parseInt(d*bgheight));
          $("#left"+num).val(parseInt(l*bgwidth));
@@ -68,18 +69,18 @@ layui.use(['form', 'element'], function () {
      }
 
         //获取摄像头图片
-        window.onload=function()
-        {
-			console.log('window.onload = ');
-            loadJS(num);//根据拼接方式初始化右侧拼接图 num=2/3/4
-            var names=[];
-            for (var i = 1; i <=parseInt(num); i++) {
-                var name=$("#videoName"+i).val();
-                if(name!='-1')
-                  names.push(name);
-            }
-            GetVideoImgs(names,true,-1);  //正式需开启
+    window.onload=function()
+    {
+		console.log('window.onload = ');
+        loadJS(num);//根据拼接方式初始化右侧拼接图 num=2/3/4
+        var names=[];
+        for (var i = 1; i <=parseInt(num); i++) {
+            var name=$("#videoName"+i).val();
+            if(name!='-1')
+              names.push(name);
         }
+        GetVideoImgs(names,true,-1);  //正式需开启
+    }
 
    function GetParams()//如果是修改拼接，需要解析URL传递过来的参数
    {
@@ -150,13 +151,16 @@ layui.use(['form', 'element'], function () {
     }
 
     //绑定相机名称下拉列表 data:数据集合，num：2/3/4
-    function LoadVideo(data, num) {
+    function LoadVideo(data, num) 
+    {
+        console.log('LoadVideo = data = ' + JSON.stringify( data));
+        cameras = data;
         var parent=$(".layui-row");
         if (num > 0 && ValidateStringAnd(data)) 
 		{
             for (var i = 1; i <= num; i++) 
 			{
-				//console.log('------|||>>>>>>>');
+				// console.log('------|||>>>>>>>');
                 var obj = $("#videoName" + i);
                 obj.html('');
                 var str = "";
@@ -166,22 +170,24 @@ layui.use(['form', 'element'], function () {
                 //循环绑定所有通道未使用的相机
                 $.each(data, function (index, item) 
 				{
-					//console.log('dd--->>> dfa ' + JSON.stringify(item));
+				//	console.log('dd--->>> dfa ' + JSON.stringify(item));
                     if(ValidateStringAnd(item.camera_name))
                     {
+                      //  console.log('item.camera_name  ===== > '+ item.camera_name);
                         var camera = _.find(cameras, function (obj) { return obj.camera_id == item.camera_id });//已经使用过
                         var camera1= _.find(tileArray, function (obj) { return obj.camera_id == item.camera_id });//此通道不存在
                         if (camera != null && camera1==null) //表示已经使用，不再添加
                         {
                             return true;
                         }
+                       // console.log('');
                         // if (count == (i-1))
                         // str += "<option value='" + item.camera_id + "' selected>" + item.name + "</option>";
                         // else
                         str += "<option value='" + item.camera_id + "'>" + item.camera_name + "</option>";
                         //count++;
                     }
-					//console.log('------>>>>>>>' + JSON.stringify(item));
+					// console.log('------>>>>>>>' + JSON.stringify(item));
                     if (i == 1) //只给第一个绑定，
                     {
                         inputHidden += "<input type='hidden' id='name_" + item.camera_id + "' value='" + item.camera_name + "' />";
@@ -208,32 +214,51 @@ function LoadTileVideo(data)
 	console.log('data == ' + JSON.stringify(data));
 	console.log('tileArray.camera_group = ' + JSON.stringify(tileArray));
 	//console.log('LoadTileVideo [lenght = '+ tileArray.camera_group.size +'] [tileArray = ' + JSON.stringify(tileArray.camera_group) + ']');
-	$.each(tileArray,function(index,item)
-		{
-			console.log('find item = ' + JSON.stringify(item));
-			var cam = _.find(data, 
-			function (obj) 
-			{ 
-				console.log('find obj = ' + JSON.stringify(obj));
-				return index == obj.camera_id 
-				});
-			console.log('[index = '+index +']cam = ' + cam);
-			if(cam!=undefined && cam!=null)
-			{
-				console.log('+++++ cam.camera_name =' + cam.camera_name);
-				$("#videoName"+(index+1)).val(cam.camera_name);
-			}
-			else
-			{
-				console.log('----');
-				$("#videoName"+(index+1)).val(data[item.camera_id].camera_name);
-			}
-	})
+	// $.each(tileArray,function(index,item)
+	// 	{
+	// 		console.log('find item = ' + JSON.stringify(item));
+	// 		var cam = _.find(data, 
+	// 		function (obj) 
+	// 		{ 
+	// 			console.log('find obj = ' + JSON.stringify(obj));
+	// 			return index == obj.camera_id 
+	// 			});
+	// 		console.log('[index = '+index +']cam = ' + cam);
+	// 		if(cam!=undefined && cam!=null)
+	// 		{
+	// 			console.log('+++++ cam.camera_name =' + cam.camera_name);
+	// 			$("#videoName"+(index+1)).val(cam.camera_name);
+	// 		}
+	// 		else
+	// 		{
+	// 			console.log('----');
+	// 			$("#videoName"+(index+1)).val(data[item.camera_id].camera_name);
+	// 		}
+	// })
 	//tileArray.camera_group.forEach(function(item, index, array) 
 	//{
 	//  console.log(item, index, array);
 	//});
 	
+    for (let i = 0; i < tileArray.length; ++i)
+    {
+        //console.log('tileArray = ' + JSON.stringify(tileArray[i]));
+        for (let j = 0; j < data.length; ++j)
+        {
+          //   console.log('=== ' + JSON.stringify(data[j]));
+            if (data[j].camera_id === tileArray[i].camera_id)
+            {
+
+                var videoName = "videoName" +(parseInt(i) + 1);
+                let cur_select = document.getElementById(videoName);//.selectedIndex = 2;
+                cur_select.selectedIndex = parseInt(j);
+               // $("#videoName"+(i+1)).val(data[j].camera_name);
+                console.log('videoName = '+videoName+'cur_select = '+cur_select + '=== ' + $("#videoName"+(i+1)).val() + ", name = " + data[j].camera_name);
+               // break;
+            }
+        }
+    }
+
 	
     layui.use(['form'], function () {
         var form = layui.form;
@@ -327,12 +352,13 @@ function LoadTileVideo(data)
     function ChangeVideoNmae(img, num) 
 	{
 		
-		console.log('ChangeVideoNmae =-');
+		console.log('ChangeVideoNmae  num =' + num);
 		$("#imgDiv" + num).html('');
 		if (num == 1) 
 		{ 
 			image1 =  img; 
-			ExecuteCanvas1(); 
+            console.log('cameras[num].url = '+cameras[num]);
+			ExecuteCanvas1(cameras[num].url); 
 		}
 		else if (num == 2) { image2 =  img; ExecuteCanvas2(); }
 		else if (num == 3) { image3 =  img; ExecuteCanvas3(); }
@@ -348,9 +374,12 @@ function LoadTileVideo(data)
 
 		if (tileArray.length > 0 && num - 1 < tileArray.length)//初始化的数量存在和手动选择拼接方式数值不一样
 		{
-			for (let index = 0; index < tileArray.length; index++) {
-				if (tileArray[index].idx_in_tile == (num - 1))
-					InitCoordinate(num, tileArray[index].crop.t, tileArray[index].crop.l, tileArray[index].crop.b, tileArray[index].crop.r);
+			for (let index = 0; index < tileArray.length; index++) 
+            {
+				if (tileArray[index].index == (num - 1))
+				{
+                    InitCoordinate(num, tileArray[index].x, tileArray[index].y, tileArray[index].w, tileArray[index].h);
+                }
 			}
 		}
 	}
@@ -412,9 +441,11 @@ function LoadTileVideo(data)
         var style=parseInt($("#style").val());
         if(names.length<=0)
 		{
+            console.log('num = ' + num);
 			 return false;
 		}
-		
+        ChangeVideoNmae(null, num);
+		return true;
         for (let index = 1; index <= names.length; index++) 
 		{
 			console.log('names = ' + names[index -1]);
@@ -696,10 +727,16 @@ function LoadTileVideo(data)
                  {
                      for(var i=0;i<objs.video_split_infos.length;i++)
                      {
-                         if($("#TID").val()==objs.video_split_infos[i].split_channel_id)
+                         if($("#TID").val()===objs.video_split_infos[i].split_channel_id)
 						 {
-							  console.log('find --> ' +JSON.stringify(objs.video_split_infos[i].camera_group));
-							  tileArray.push(objs.video_split_infos[i].camera_group);
+							  
+							 for (let ww = 0; ww < objs.video_split_infos[i].camera_group.length; ++ww)
+                             {
+                                console.log('push tile Array  --> ' +JSON.stringify(objs.video_split_infos[i].camera_group[ww]));
+                                 tileArray.push(objs.video_split_infos[i].camera_group[ww]);
+                             }
+
+                             console.log('tileArray length = '+ tileArray.length);
 						 }
                      }
                      cameras=objs.video_split_infos;
@@ -739,7 +776,11 @@ function LoadTileVideo(data)
     function BtnOkClick()
     {
         var flag = JudgeCamID();
-        if (!flag) { layer.msg("不能有重复的摄像机！"); return false; }
+        if (!flag) 
+        { 
+            layer.msg("不能有重复的摄像机！"); 
+            return false; 
+        }
         var isfold = $("#isfold").val();
         var height = isfold === "1" ? 290 : 260;
         $("#playCanvas").css("height", height + "px");
@@ -761,16 +802,25 @@ function LoadTileVideo(data)
 
     function JudgeCamID() {
         var style = $("#style").val();
-        if (parseInt(style) > 0) {
+        console.log('JudgeCamID ==> '+ style);
+        if (parseInt(style) > 0)
+        {
             var cam_id = "";
-            for (let index = 1; index <= parseInt(style); index++) {
+            for (let index = 1; index <= parseInt(style); index++) 
+            {
                 var cam = $("#videoName" + index).val();
-                if (cam_id.indexOf(cam) >= 0) {
+                console.log('videoName = ' + cam );
+                if (cam_id.indexOf(cam) >= 0) 
+                {
+
                     return false;
                 }
-                else if (cam == '-1') { }
+                else if (cam == '-1') 
+                { }
                 else
+                {
                     cam_id += $("#videoName" + index).val() + ",";
+                }
             }
             return true;
         }
@@ -782,7 +832,7 @@ function LoadTileVideo(data)
             moveOSD();
         }
     
-  var moveOSD = function () {
+    var moveOSD = function () {
         //获取元素
         var dv = document.getElementById('osd');
         var x = 0;

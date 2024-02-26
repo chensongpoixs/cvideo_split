@@ -253,7 +253,7 @@ function ajaxGet(url, successCallback, errorCallback) {
                 shadeClose: true,
                 shade: 0.8,
                 area: ['1445px', '717px'],
-                content: ['/Modify.html?name=' + obj.split_channel_name + '&guid=' + obj.split_channel_id + '&url=' + obj.multicast_ip + '&port=' + obj.multicast_port + '&state=' + obj.state + '&style=' + obj.style + '&islock=' + obj.lock_1080p + '&isfold='+obj.overlay+'', 'no']
+                content: ['/Modify.html?name=' + obj.split_channel_name + '&guid=' + obj.split_channel_id + '&url=' + obj.multicast_ip + '&port=' + obj.multicast_port + '&state=' + obj.state + '&style=' + obj.camera_group.length + '&islock=' + obj.lock_1080p + '&isfold='+obj.overlay+'', 'no']
                 ,end: function () {
                     location.reload();
                 }

@@ -37,7 +37,7 @@ $(function () {
 
 // var img = new Image();
 
-function ExecuteCanvas1() 
+function ExecuteCanvas1( url ) 
 {
 	console.log('ExecuteCanvas1 --->>');
 	var myCanvas = document.createElement('canvas');
@@ -71,10 +71,10 @@ function ExecuteCanvas1()
 	//
 	//	//cutImg();
 	//};
-	
+	console.log('Canvas -- url = ' + url);
 /**********************************************************************/
 	camera_play1 = new Player();
-	camera_play1.play("",/*url*/ 'udp://@224.1.1.3:20000' , myCanvas);
+	camera_play1.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas);
     originWidth = bgwidth; //camera_play1.width();
     originHeigh = bgheight; //camera_play1.height();
 
