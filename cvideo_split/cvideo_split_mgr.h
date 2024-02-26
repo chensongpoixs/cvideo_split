@@ -22,7 +22,7 @@ namespace chen {
 	class cvideo_split_mgr : public cnoncopytable
 	{
 	private:
-		typedef    std::unordered_map<uint32, cvideo_splist*>		VIDEO_SPLIST_MAP;
+		typedef    std::unordered_map<std::string, cvideo_splist*>		VIDEO_SPLIST_MAP;
 	public:
 		explicit cvideo_split_mgr()
 			: m_video_split_map(){}
@@ -34,7 +34,7 @@ namespace chen {
 		void udpate(uint32 uDateTime);
 		void destroy();
 	public:
-		uint32 handler_web_cmd_video_split(uint32 id, uint32 cmd);
+		uint32 handler_web_cmd_video_split(const std::string & channel_name/*uint32 id*/, uint32 cmd);
 	public:
 
 

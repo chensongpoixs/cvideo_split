@@ -30,12 +30,14 @@ namespace chen {
 
 
 		PROXY_WORKER_METHOD1(cresult_add_video_split, add_video_split, const VideoSplitInfo&)
+		PROXY_WORKER_METHOD1(cresult_get_video_split, get_video_split, const std::string&)
 		PROXY_WORKER_METHOD2(cresult_video_split_list, video_split_list, uint32, uint32)
-		PROXY_WORKER_METHOD1(uint32, delete_video_split, uint32)
+		PROXY_WORKER_METHOD1(uint32, delete_video_split, const std::string&)
+		PROXY_WORKER_METHOD5(uint32, modify_video_split, const std::string&, const std::string&, uint32, double, double);
 
 
 
-		PROXY_WORKER_METHOD2(uint32, cmd_video_split, uint32, uint32)
+		PROXY_WORKER_METHOD2(uint32, cmd_video_split, const std::string&, uint32)
 	END_PROXY_MAP()
 
 

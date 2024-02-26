@@ -30,6 +30,8 @@ message VideoSplitInfo
 	optional OsdInfo      osd_info 		= 11; // OSD 
 	optional uint32 	out_video_width = 12;
 	optional uint32 	out_video_height = 13; //视频输出高度
+	optional uint32 	status   		= 14; //视频拼接的状态  0:未开始   1:开始拼接视频啦
+	optional uint32 	out_video = 15; //输出视频
 	
 }
 

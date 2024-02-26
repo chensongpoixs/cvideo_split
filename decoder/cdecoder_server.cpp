@@ -74,14 +74,14 @@ namespace chen {
 
 		  
 
-		SYSTEM_LOG("Web Http Server API init ...");
+	/*	SYSTEM_LOG("Web Http Server API init ...");
 		if (!g_web_http_api_mgr.init())
 		{
 			return false;
 		}
 		SYSTEM_LOG("Web Http Server API startup ...");
 		g_web_http_api_mgr.startup();
-		SYSTEM_LOG("Web Http Server API startup OK ...");
+		SYSTEM_LOG("Web Http Server API startup OK ...");*/
 		 
 
 		SYSTEM_LOG(" decoder server init ok");
@@ -106,7 +106,7 @@ namespace chen {
 
 
 			//g_global_logic_mgr.update(uDelta);
-			g_http_queue_mgr.update();
+		//	g_http_queue_mgr.update();
 			uDelta = time_elapse.get_elapse();
 
 			if (uDelta < TICK_TIME)
@@ -137,9 +137,7 @@ namespace chen {
 		 
 		//1 log
 		LOG::destroy();
-		printf("Log Destroy OK!\n");
-
-		printf(" media rtc  server Destroy End\n");
+		printf("Decoder Server  Destroy OK end !\n"); 
 	}
 	void cdecoder_server::stop()
 	{

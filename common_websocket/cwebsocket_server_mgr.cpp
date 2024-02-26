@@ -331,7 +331,7 @@ namespace chen{
 			clock_guard lock(m_session_mutex);
 			m_session_map.erase(session_id);
 			delete session_ptr;
-			 session_ptr = NULL;
+			// session_ptr = NULL;
 		}
 		/*
 		cnet_msg* msg_ptr = create_msg(EMIR_Disconnect, 0);

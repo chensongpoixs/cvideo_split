@@ -345,6 +345,12 @@ class VideoSplitInfo::HasBitSetters {
   static void set_has_out_video_height(VideoSplitInfo* msg) {
     msg->_has_bits_[0] |= 0x00000400u;
   }
+  static void set_has_status(VideoSplitInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000800u;
+  }
+  static void set_has_out_video(VideoSplitInfo* msg) {
+    msg->_has_bits_[0] |= 0x00001000u;
+  }
 };
 
 const ::OsdInfo&
@@ -371,6 +377,8 @@ const int VideoSplitInfo::kCameraGroupFieldNumber;
 const int VideoSplitInfo::kOsdInfoFieldNumber;
 const int VideoSplitInfo::kOutVideoWidthFieldNumber;
 const int VideoSplitInfo::kOutVideoHeightFieldNumber;
+const int VideoSplitInfo::kStatusFieldNumber;
+const int VideoSplitInfo::kOutVideoFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 VideoSplitInfo::VideoSplitInfo()
@@ -402,8 +410,8 @@ VideoSplitInfo::VideoSplitInfo(const VideoSplitInfo& from)
     osd_info_ = nullptr;
   }
   ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&out_video_height_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(out_video_height_));
+    static_cast<size_t>(reinterpret_cast<char*>(&out_video_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(out_video_));
   // @@protoc_insertion_point(copy_constructor:VideoSplitInfo)
 }
 
@@ -414,8 +422,8 @@ void VideoSplitInfo::SharedCtor() {
   split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   multicast_ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&osd_info_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&out_video_height_) -
-      reinterpret_cast<char*>(&osd_info_)) + sizeof(out_video_height_));
+      reinterpret_cast<char*>(&out_video_) -
+      reinterpret_cast<char*>(&osd_info_)) + sizeof(out_video_));
 }
 
 VideoSplitInfo::~VideoSplitInfo() {
@@ -467,10 +475,10 @@ void VideoSplitInfo::Clear() {
         reinterpret_cast<char*>(&lock_1080p_) -
         reinterpret_cast<char*>(&id_)) + sizeof(lock_1080p_));
   }
-  if (cached_has_bits & 0x00000700u) {
+  if (cached_has_bits & 0x00001f00u) {
     ::memset(&overlay_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&out_video_height_) -
-        reinterpret_cast<char*>(&overlay_)) + sizeof(out_video_height_));
+        reinterpret_cast<char*>(&out_video_) -
+        reinterpret_cast<char*>(&overlay_)) + sizeof(out_video_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -614,6 +622,20 @@ const char* VideoSplitInfo::_InternalParse(const char* begin, const char* end, v
       case 13: {
         if (static_cast<::google::protobuf::uint8>(tag) != 104) goto handle_unusual;
         msg->set_out_video_height(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional uint32 status = 14;
+      case 14: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 112) goto handle_unusual;
+        msg->set_status(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional uint32 out_video = 15;
+      case 15: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 120) goto handle_unusual;
+        msg->set_out_video(::google::protobuf::internal::ReadVarint(&ptr));
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         break;
       }
@@ -810,6 +832,32 @@ bool VideoSplitInfo::MergePartialFromCodedStream(
         break;
       }
 
+      // optional uint32 status = 14;
+      case 14: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (112 & 0xFF)) {
+          HasBitSetters::set_has_status(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &status_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 out_video = 15;
+      case 15: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (120 & 0xFF)) {
+          HasBitSetters::set_has_out_video(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &out_video_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -907,6 +955,16 @@ void VideoSplitInfo::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(13, this->out_video_height(), output);
   }
 
+  // optional uint32 status = 14;
+  if (cached_has_bits & 0x00000800u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(14, this->status(), output);
+  }
+
+  // optional uint32 out_video = 15;
+  if (cached_has_bits & 0x00001000u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(15, this->out_video(), output);
+  }
+
   output->WriteRaw(_internal_metadata_.unknown_fields().data(),
                    static_cast<int>(_internal_metadata_.unknown_fields().size()));
   // @@protoc_insertion_point(serialize_end:VideoSplitInfo)
@@ -991,7 +1049,7 @@ size_t VideoSplitInfo::ByteSizeLong() const {
     }
 
   }
-  if (cached_has_bits & 0x00000700u) {
+  if (cached_has_bits & 0x00001f00u) {
     // optional uint32 overlay = 9;
     if (cached_has_bits & 0x00000100u) {
       total_size += 1 +
@@ -1011,6 +1069,20 @@ size_t VideoSplitInfo::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->out_video_height());
+    }
+
+    // optional uint32 status = 14;
+    if (cached_has_bits & 0x00000800u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->status());
+    }
+
+    // optional uint32 out_video = 15;
+    if (cached_has_bits & 0x00001000u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->out_video());
     }
 
   }
@@ -1063,7 +1135,7 @@ void VideoSplitInfo::MergeFrom(const VideoSplitInfo& from) {
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  if (cached_has_bits & 0x00000700u) {
+  if (cached_has_bits & 0x00001f00u) {
     if (cached_has_bits & 0x00000100u) {
       overlay_ = from.overlay_;
     }
@@ -1072,6 +1144,12 @@ void VideoSplitInfo::MergeFrom(const VideoSplitInfo& from) {
     }
     if (cached_has_bits & 0x00000400u) {
       out_video_height_ = from.out_video_height_;
+    }
+    if (cached_has_bits & 0x00000800u) {
+      status_ = from.status_;
+    }
+    if (cached_has_bits & 0x00001000u) {
+      out_video_ = from.out_video_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
@@ -1111,6 +1189,8 @@ void VideoSplitInfo::InternalSwap(VideoSplitInfo* other) {
   swap(overlay_, other->overlay_);
   swap(out_video_width_, other->out_video_width_);
   swap(out_video_height_, other->out_video_height_);
+  swap(status_, other->status_);
+  swap(out_video_, other->out_video_);
 }
 
 ::std::string VideoSplitInfo::GetTypeName() const {

@@ -62,6 +62,7 @@ namespace chen {
 			: result(0)
 			, video_split_info() {}
 	};
+	typedef cresult_add_video_split  cresult_get_video_split;
 	struct cresult_video_split_list
 	{
 		uint32 result;

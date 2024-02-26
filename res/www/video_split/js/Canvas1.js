@@ -32,7 +32,7 @@ imgDiv.style.marginBottom = '20px';
 /**********************************************************************/
 // 创建canvas，用于显示被裁剪图片\
 $(function () {
-    ExecuteCanvas1();
+    ExecuteCanvas1( );
 })
 
 // var img = new Image();

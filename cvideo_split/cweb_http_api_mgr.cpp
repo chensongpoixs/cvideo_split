@@ -67,10 +67,13 @@ namespace chen {
 		REGISTER_WEB_HANDLER("delete_camera/camera_id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_camera, this, std::placeholders::_1, std::placeholders::_2));
 
 		REGISTER_WEB_HANDLER("add_video_split", "POST", std::bind(&cweb_http_api_mgr::_handler_add_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("get_video_split/split_channel_id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_get_video_split, this, std::placeholders::_1, std::placeholders::_2));
+
 		REGISTER_WEB_HANDLER("video_split_list/page=([0-9]+)&page_size=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_video_split_list, this, std::placeholders::_1, std::placeholders::_2));
-		REGISTER_WEB_HANDLER("delete_video_split/id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("delete_video_split/split_channel_id=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_delete_video_split, this, std::placeholders::_1, std::placeholders::_2));
 		//_handler_cmd_video_split
-		REGISTER_WEB_HANDLER("cmd_video_split/id=([0-9]+)&cmd=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_cmd_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("cmd_video_split/split_channel_id=([0-9]+)&cmd=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_cmd_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("modify_video_osd", "POST", std::bind(&cweb_http_api_mgr::_handler_modify_video_split, this, std::placeholders::_1, std::placeholders::_2));
 
 
 
@@ -251,20 +254,28 @@ namespace chen {
 	}
 	cresult_add_video_split cweb_http_api_mgr::add_video_split(const VideoSplitInfo& video_split_info)
 	{
-		return g_video_split_info_mgr.handler_web_add_video_split(video_split_info);
+		VideoSplitInfo data = video_split_info;
+		return g_video_split_info_mgr.handler_web_add_video_split(data);
 	}
-	 
+	   cresult_get_video_split cweb_http_api_mgr::get_video_split(const std::string& channel_name)
+	{
+		   return g_video_split_info_mgr.handler_web_get_video_split(channel_name);
+	}
 	cresult_video_split_list cweb_http_api_mgr::video_split_list(uint32 page, uint32 page_size)
 	{
 		return g_video_split_info_mgr.handler_web_video_split_list(page, page_size);
 	}
-	  uint32		cweb_http_api_mgr::delete_video_split(uint32 id)
+	  uint32		cweb_http_api_mgr::delete_video_split(const std::string& channel_name/*uint32 id*/)
 	{
-		  return g_video_split_info_mgr.handler_web_delete_video_split(id);
+		  return g_video_split_info_mgr.handler_web_delete_video_split(channel_name);
 	}
-	  uint32 cweb_http_api_mgr::cmd_video_split(uint32 id, uint32 cmd)
-	  {
-		  return g_video_split_mgr.handler_web_cmd_video_split(id, cmd);
-		//  return uint32();
-	  }
+	uint32 cweb_http_api_mgr::cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd)
+	{
+		return g_video_split_mgr.handler_web_cmd_video_split(channel_name, cmd);
+	//  return uint32();
+	}
+	uint32		cweb_http_api_mgr:: modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y)
+	{
+		return g_video_split_info_mgr.handler_web_modify_video_split(channel_id, txt, fontsize, x, y);
+	}
 }

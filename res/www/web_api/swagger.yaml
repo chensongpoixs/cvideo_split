@@ -342,8 +342,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VideoSplitData/ResultAddVideoSplitChannel'
-  /video_split/v1/delete_video_split/id={id}:
-    post:
+  /video_split/v1/get_video_split/split_channel_id={split_channel_id}:
+    get:
+      tags:
+        - VideoSplit
+      summary: "获取视频拼接信息"
+      descrioption: "获取视频拼接信息"
+      operationId: get_video_split 
+      parameters:
+        - in: path 
+          name: split_channel_id
+          required: true 
+          schema:
+            type: string 
+            format: string 
+            descrioption: "视频拼接通道ID"
+            example: "23234323"
+      responses:
+        default: 
+          descrioption: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VideoSplitData/ResultVideoSplitInfo'
+  /video_split/v1/delete_video_split/split_channel_id={split_channel_id}:
+    get:
       tags:
         - VideoSplit
       summary: "删除视频拼接"
@@ -351,13 +374,13 @@ paths:
       operationId: delete_video_split
       parameters:
         - in: path
-          name: page
+          name: split_channel_id
           required: true
           schema:
-            type: integer
-            format: uint64
-            description: "视频拼接序号ID"
-            example: 0
+            type: string
+            format: string
+            description: "视频拼接通道ID"
+            example: "232432432"
       responses:
         default:
           description: successful operation
@@ -398,19 +421,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/VideoSplitData/ResultVideoSplitLists'
                    
-  /video_split/v1/cmd_video_split:
-    post:
+  /video_split/v1/cmd_video_split/split_channel_id={split_channel_id}&cmd={cmd}:
+    get:
       tags:
         - VideoSplit
       summary: "开始或者停止视频拼接"
       description: "开始或者停止视频拼接"
       operationId: cmd_video_split
-      requestBody:
-        description: "参数"
-        content: 
-          application/json:
-            schema:
-               $ref: '#/components/schemas/VideoSplitData/CmdVideoSplit'
+      parameters:
+        - in: path
+          name: split_channel_id 
+          required: true 
+          schema:
+            type: string 
+            format: string
+            descrioption: "视频拼接通道ID"
+            example: "23432432"
+        - in: path 
+          name: cmd 
+          required: true 
+          schema:
+            type: integer
+            format: uint32 
+            descrioption: "0: 开始视频拼接 1: 停止视频拼接"
+            example: 0
+      # requestBody:
+      #   description: "参数"
+      #   content: 
+      #     application/json:
+      #       schema:
+      #          $ref: '#/components/schemas/VideoSplitData/CmdVideoSplit'
       responses:
         default:
           description: successful operation
@@ -918,7 +958,30 @@ components:
             descrioption: "相机的状态"
             example: 0
 
-     
+      OsdInfo:
+        type: object
+        properties:
+          x:
+            type: double
+            format: double
+            descrioption: "视频宽度比例"
+            example: 0.23
+          y:
+            type: double 
+            format: double 
+            descrioption: "视频高度比例"
+            example: 0.33
+          font_size:
+            type: integer 
+            format: uint32 
+            descrioption: "大小"
+            example: 32 
+          font_text:
+            type: string 
+            format: string 
+            descrioption: "OSD的文字"
+            example: "陈松"
+
       
       CameraGroup:
         type: object
@@ -997,12 +1060,31 @@ components:
             format: uint32 
             description: "是否折叠 0: 不折叠 1: 折叠"
             example: 0
+          out_video_width:
+            type: integer 
+            format: uint32 
+            descrioption: "视频拼接输出"
+            example: 1080
+          out_video_height:
+            type: integer 
+            format: uint32 
+            descrioption: "视频拼接输出"
+            example: 1920
+          osd_info:
+            type: array
+            properties:
+            items: {
+              $ref: '#/components/schemas/VideoSplitData/OsdInfo'
+            }  
+
           camera_group:
             type: array
             properties:
             items: {
                 $ref: '#/components/schemas/VideoSplitData/CameraInfo'
               }
+          
+             
 
       ResultCameraLists:
         type: object
@@ -1032,6 +1114,19 @@ components:
             items: {
                 $ref: '#/components/schemas/VideoSplitData/CameraInfo'
               }
+      ResultVideoSplitInfo:
+        type: object 
+        properties:
+            result:
+              type: integer 
+              format: uint32 
+              description: "0: 成功"
+              exmpale: 0
+            video_split_info:
+              type: object
+              format: object
+              descrioption: "视频拼接的信息"
+              $ref: '#/components/schemas/VideoSplitData/VideoSplitInfo'
       ResultVideoSplitLists:
         type: object
         properties:
@@ -1064,11 +1159,11 @@ components:
       CmdVideoSplit:
         type: object
         properties:
-          video_split_channle_id:
-            type: string
-            format: string 
-            description: "拼接通道ID"
-            example: "21040618254471"
+          id:
+            type: integer
+            format: uint32 
+            description: "拼接ID"
+            example: 5
           cmd:
             type: integer
             format: int32 
@@ -1124,6 +1219,16 @@ components:
             format: uint32 
             description: "是否折叠 0: 不折叠 1: 折叠"
             example: 0
+          out_video_width:
+            type: integer 
+            format: uint32 
+            descrioption: "拼接输出效果的宽度 default: 1080"
+            example: 1080
+          out_video_height:
+            type: integer 
+            format: uint32 
+            descrioption: "拼接输出效果的高度 default: 1920"
+            example: 1920
           camera_group:
             type: array
             properties:
@@ -1139,6 +1244,67 @@ components:
             format: uint32 
             description: "0: 成功"
             exmpale: 0
+          id:
+            type: integer 
+            format: uint32 
+            descrioption: "拼接ID"
+            example: 0
+          split_channel_name:
+            type: string 
+            format: string 
+            description: "拼接通道名称"
+            example: "chensong"
+          split_channel_id:
+            type: string 
+            format: string 
+            description: "拼接通道ID"
+            example: "24020518500674"
+          multicast_ip:
+            type: string 
+            format: string 
+            description: "组播地址"
+            example: "239.1.0.16"
+          multicast_port:
+            type: integer
+            format: uint32
+            description: "组播端口"
+            example: 9000
+          split_method:
+            type: integer
+            format: uint32 
+            description: "拼接方式: 0: 左右拼接 1: 上下拼接"
+            exmpale: 0
+          # split_type:
+          #   type: integer
+          #   format: uint32 
+          #   description: "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一"
+          #   example: 2
+          lock_1080p:
+            type: integer 
+            format: uint32 
+            description: "锁定1080P  0: 不锁定 1:锁定"
+            example: 1
+          overlay:
+            type: integer
+            format: uint32 
+            description: "是否折叠 0: 不折叠 1: 折叠"
+            example: 0
+          out_video_width:
+            type: integer 
+            format: uint32 
+            descrioption: "拼接输出效果的宽度 default: 1080"
+            example: 1080
+          out_video_height:
+            type: integer 
+            format: uint32 
+            descrioption: "拼接输出效果的高度 default: 1920"
+            example: 1920
+          camera_group:
+            type: array
+            properties:
+            items: {
+                $ref: '#/components/schemas/VideoSplitData/CameraGroup'
+              }
       DeleteVideoSplitChannel:
         type: object
         properties:

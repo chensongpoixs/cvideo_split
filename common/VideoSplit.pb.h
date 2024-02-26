@@ -398,6 +398,20 @@ class VideoSplitInfo final :
   ::google::protobuf::uint32 out_video_height() const;
   void set_out_video_height(::google::protobuf::uint32 value);
 
+  // optional uint32 status = 14;
+  bool has_status() const;
+  void clear_status();
+  static const int kStatusFieldNumber = 14;
+  ::google::protobuf::uint32 status() const;
+  void set_status(::google::protobuf::uint32 value);
+
+  // optional uint32 out_video = 15;
+  bool has_out_video() const;
+  void clear_out_video();
+  static const int kOutVideoFieldNumber = 15;
+  ::google::protobuf::uint32 out_video() const;
+  void set_out_video(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:VideoSplitInfo)
  private:
   class HasBitSetters;
@@ -417,6 +431,8 @@ class VideoSplitInfo final :
   ::google::protobuf::uint32 overlay_;
   ::google::protobuf::uint32 out_video_width_;
   ::google::protobuf::uint32 out_video_height_;
+  ::google::protobuf::uint32 status_;
+  ::google::protobuf::uint32 out_video_;
   friend struct ::TableStruct_VideoSplit_2eproto;
 };
 // ===================================================================
@@ -838,6 +854,42 @@ inline void VideoSplitInfo::set_out_video_height(::google::protobuf::uint32 valu
   _has_bits_[0] |= 0x00000400u;
   out_video_height_ = value;
   // @@protoc_insertion_point(field_set:VideoSplitInfo.out_video_height)
+}
+
+// optional uint32 status = 14;
+inline bool VideoSplitInfo::has_status() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void VideoSplitInfo::clear_status() {
+  status_ = 0u;
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline ::google::protobuf::uint32 VideoSplitInfo::status() const {
+  // @@protoc_insertion_point(field_get:VideoSplitInfo.status)
+  return status_;
+}
+inline void VideoSplitInfo::set_status(::google::protobuf::uint32 value) {
+  _has_bits_[0] |= 0x00000800u;
+  status_ = value;
+  // @@protoc_insertion_point(field_set:VideoSplitInfo.status)
+}
+
+// optional uint32 out_video = 15;
+inline bool VideoSplitInfo::has_out_video() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void VideoSplitInfo::clear_out_video() {
+  out_video_ = 0u;
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline ::google::protobuf::uint32 VideoSplitInfo::out_video() const {
+  // @@protoc_insertion_point(field_get:VideoSplitInfo.out_video)
+  return out_video_;
+}
+inline void VideoSplitInfo::set_out_video(::google::protobuf::uint32 value) {
+  _has_bits_[0] |= 0x00001000u;
+  out_video_ = value;
+  // @@protoc_insertion_point(field_set:VideoSplitInfo.out_video)
 }
 
 #ifdef __GNUC__

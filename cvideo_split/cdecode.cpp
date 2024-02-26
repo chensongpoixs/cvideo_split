@@ -35,6 +35,22 @@ namespace chen {
 		
 		return av_make_error_string(g_errorbuffer, AV_ERROR_MAX_STRING_SIZE, errCode);
 	}*/
+
+	static AVPixelFormat get_format(AVCodecContext* avctx, const enum AVPixelFormat* pix_fmts)
+	{
+		while (*pix_fmts != AV_PIX_FMT_NONE) {
+			if (*pix_fmts == AV_PIX_FMT_CUDA) {
+				return AV_PIX_FMT_CUDA;
+			}
+
+			pix_fmts++;
+		}
+
+		WARNING_EX_LOG( "The CUDA pixel format not offered in get_format()\n");
+
+		return AV_PIX_FMT_NONE;
+	}
+
 	static int set_hwframe_ctx(AVCodecContext* ctx, AVBufferRef* hw_device_ctx)
 	{
 		AVBufferRef* hw_frames_ref;
@@ -175,7 +191,7 @@ namespace chen {
 		}
 		AVBufferRef* hw_device_ctx = NULL;
 		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		std::string gpu_index = "1";
+		std::string gpu_index = "0";
 		ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
 
 		//5.创建解码器上下文
@@ -194,11 +210,12 @@ namespace chen {
 		}
 		{
 			/* set hw_frames_ctx for encoder's AVCodecContext */
-			if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, hw_device_ctx)) < 0) {
-				WARNING_EX_LOG("Failed to set hwframe context.\n");
-				//goto close;
-			}
-
+			//if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, hw_device_ctx)) < 0) {
+			//	WARNING_EX_LOG("Failed to set hwframe context.\n");
+			//	//goto close;
+			//}
+			//m_codec_ctx_ptr->hw_device_ctx = av_buffer_ref(hw_device_ctx);
+			//m_codec_ctx_ptr->get_format = get_format;
 		}
 		//7. 打开解码器上下文 */
 		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, nullptr)) < 0)

@@ -264,10 +264,10 @@ namespace chen {
 			std::string args;
 			std::string in;
 
-			uint32 crop_x = m_camera_infos[i].x * m_decodes[i]->m_codec_ctx_ptr->width;
-			uint32 crop_y = m_camera_infos[i].y * m_decodes[i]->m_codec_ctx_ptr->height;
-			uint32 crop_width = m_camera_infos[i].w * m_decodes[i]->m_codec_ctx_ptr->width;
-			uint32 crop_height = m_camera_infos[i].h * m_decodes[i]->m_codec_ctx_ptr->height;
+			uint32 crop_x =   m_camera_infos[i].x* m_decodes[i]->m_codec_ctx_ptr->width;
+			uint32 crop_y =   m_camera_infos[i].y* m_decodes[i]->m_codec_ctx_ptr->height;
+			uint32 crop_width =   m_camera_infos[i].w* m_decodes[i]->m_codec_ctx_ptr->width;
+			uint32 crop_height =   m_camera_infos[i].h* m_decodes[i]->m_codec_ctx_ptr->height;
 			
 
 			std::string crop_str = std::to_string(crop_width)+ ":" + std::to_string(crop_height)
@@ -381,7 +381,7 @@ namespace chen {
 		if (ret < 0)
 		{
 			WARNING_EX_LOG("[ideo_split_vname = %s] filter graph config failed (%s)!!!\n", m_video_split_name.c_str() , chen::ffmpeg_util::make_error_string(ret));
-			return ret;
+			return false;
 		}
 		return true;
 	}

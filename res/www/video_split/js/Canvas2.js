@@ -30,44 +30,52 @@ imgDiv2.style.marginBottom = '20px';
 
 /**********************************************************************/
 $(function () {
-    ExecuteCanvas2();
+    ExecuteCanvas2( );
 })
 
-var img2 = new Image();
-function ExecuteCanvas2() {
-// 创建canvas，用于显示被裁剪图片
-var myCanvas2 = document.createElement('canvas');
-myCanvas2.setAttribute('id', 'myCanvas2');
-myCanvas2.style.display = 'block';
-/*myCanvas.style.position = 'absolute';*/
-myCanvas2.width = bgwidth2;
-myCanvas2.height = bgheight2;
-myCanvas2.style.border = "1px solid #d3d3d3";
-myCanvas2.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
-myCanvas2.style.zIndex = 'auto';
+  //  var img2 = new Image();
 
-var ctx2 = myCanvas2.getContext('2d');
+function ExecuteCanvas2(url) 
+{
+    // 创建canvas，用于显示被裁剪图片
+    var myCanvas2 = document.createElement('canvas');
+    myCanvas2.setAttribute('id', 'myCanvas2');
+    myCanvas2.style.display = 'block';
+    /*myCanvas.style.position = 'absolute';*/
+    myCanvas2.width = bgwidth2;
+    myCanvas2.height = bgheight2;
+    myCanvas2.style.border = "1px solid #d3d3d3";
+    myCanvas2.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
+    myCanvas2.style.zIndex = 'auto';
 
-// 被裁剪图片
-    img2.src = image2;
-img2.setAttribute('id', 'img');
-img2.width = bgwidth2;
-img2.height = bgheight2;
-img2.onload = function () {
-    console.log('onload()执行...');
-    ctx2.drawImage(img2, 0, 0, bgwidth2, bgheight2);
-    originWidth2 = img2.naturalWidth;
-    originHeight2 = img2.naturalHeight;
-    console.log('图片原始宽度=', originWidth2);
-    console.log('图片原始高度=', originHeight2);
+   // var ctx2 = myCanvas2.getContext('2d');
 
+    // 被裁剪图片
+    //     img2.src = image2;
+    // img2.setAttribute('id', 'img');
+    // img2.width = bgwidth2;
+    // img2.height = bgheight2;
+    // img2.onload = function () {
+    // console.log('onload()执行...');
+    // ctx2.drawImage(img2, 0, 0, bgwidth2, bgheight2);
+    // originWidth2 = img2.naturalWidth;
+    // originHeight2 = img2.naturalHeight;
+    imgDiv2.appendChild(myCanvas2);
+    // console.log('图片原始宽度=', originWidth2);
+    // console.log('图片原始高度=', originHeight2);
+    camera_play2 = new Player();
+    camera_play2.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas2);
+    originWidth2 = bgwidth2; //camera_play1.width();
+    originHeigh2 = bgheight2; //camera_play1.height();
+
+    console.log('2  width2 = ' + originWidth2 + ', originHeigh2 = ' + originHeigh2) ;
     cutImg2();
 };
 /**********************************************************************/
 
-imgDiv2.appendChild(myCanvas2);
+// imgDiv2.appendChild(myCanvas2);
 
-}
+// }
 // 获取指定元素DOM
 const ID2 = function (id) {
     return document.getElementById(id);
@@ -80,22 +88,23 @@ let getCss2 = function (o, key) {
 
 
 // 裁剪得到的图片
-let clipImg2 = new Image();
-clipImg2.src = '';
-clipImg2.style.height = '100px';
-clipImg2.style.width = '100px';
-clipImg2.alt = '裁剪获得图片...';
+// let clipImg2 = new Image();
+// clipImg2.src = '';
+// clipImg2.style.height = '100px';
+// clipImg2.style.width = '100px';
+// clipImg2.alt = '裁剪获得图片...';
 
 //$(function () {
 //    cutImg();
 //});
 
 
-function cutImg2() {
+function cutImg2() 
+{
     var clickFlag = false;
     // 获取canvas中图片实际大小
-    var iCurWidth = img2.width;
-    var iCurHeight = img2.height;
+    var iCurWidth = originWidth2; /// img2.width;
+    var iCurHeight = originHeigh2; //img2.height;
     console.log('图片当前实际宽度=', iCurWidth);
     console.log('图片当前实际高度=', iCurHeight);
 
@@ -109,7 +118,7 @@ function cutImg2() {
     oRelDiv2.id = "cropContainer2";
 
     var iOrigWidth = originWidth2;
-    var iOrigHeight = originHeight2;
+    var iOrigHeight = originHeigh2;
     scaleX2 = iCurWidth / iOrigWidth; // 图片宽度缩放比例（当前实际/原始）
     scaleY2 = iCurHeight / iOrigHeight;  // 图片高度缩放比例（当前实际/原始）
     console.log('图片横向（宽度）缩放比=', scaleX2);
@@ -332,11 +341,11 @@ $("#right2").val(100);
         console.log('onselectstart --> ');
         return false;
     };
-    img2.onselectstart = function () 
-    {
-        console.log('onselectstart --->>>');
-        return false;
-    };
+    // img2.onselectstart = function () 
+    // {
+    //     console.log('onselectstart --->>>');
+    //     return false;
+    // };
 }
 
 //确认裁剪

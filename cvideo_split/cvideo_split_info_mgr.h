@@ -16,13 +16,14 @@ purpose:	video_split mgr
 #include "VideoSplit.pb.h"
 #include <map>
 #include "ccamera_info_mgr.h"
+#include <unordered_map>
 namespace chen {
 
 
 	class cvideo_split_info_mgr
 	{
 	private:
-		typedef std::map<uint32, VideoSplitInfo>			VIDEO_SPLIT_INFO_MAP;
+		typedef std::unordered_map<std::string, VideoSplitInfo>			VIDEO_SPLIT_INFO_MAP;
 	public:
 		explicit cvideo_split_info_mgr()
 		: m_data_type(EDataNone)
@@ -37,12 +38,13 @@ namespace chen {
 
 	public:
 
-		cresult_add_video_split handler_web_add_video_split(const VideoSplitInfo& video_split_info);
+		cresult_add_video_split handler_web_add_video_split(  VideoSplitInfo& video_split_info);
+		cresult_get_video_split handler_web_get_video_split(const std::string& channel_id) const;
 		cresult_video_split_list handler_web_video_split_list(uint32 page, uint32 page_size);
-		uint32					handler_web_delete_video_split(uint32 id);
-
+		uint32					handler_web_delete_video_split(const std::string & channel_id/*uint32 id*/);
+		uint32					handler_web_modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y);
 	public:
-		const  VideoSplitInfo* get_video_split_info(uint32 id) const ;
+		const  VideoSplitInfo* get_video_split_info(const std::string& channel_id/*uint32 id*/) const ;
 	public:
 		void _load_video_split_config();
 

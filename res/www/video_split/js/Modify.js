@@ -114,7 +114,7 @@ layui.use(['form', 'element'], function () {
 		ajaxGet(camera_url, 
 			function(result)
 			{
-				//console.log('camera ===> '+result);
+				console.log('camera ===> '+result);
 				var objs = JSON.parse(result);
 				LoadVideo(objs.camera_infos, 12);
 				layui.use(['form'], function () {
@@ -178,7 +178,7 @@ layui.use(['form', 'element'], function () {
                         var camera1= _.find(tileArray, function (obj) { return obj.camera_id == item.camera_id });//此通道不存在
                         if (camera != null && camera1==null) //表示已经使用，不再添加
                         {
-                            return true;
+                          //  return true;
                         }
                        // console.log('');
                         // if (count == (i-1))
@@ -213,32 +213,7 @@ function LoadTileVideo(data)
 	
 	console.log('data == ' + JSON.stringify(data));
 	console.log('tileArray.camera_group = ' + JSON.stringify(tileArray));
-	//console.log('LoadTileVideo [lenght = '+ tileArray.camera_group.size +'] [tileArray = ' + JSON.stringify(tileArray.camera_group) + ']');
-	// $.each(tileArray,function(index,item)
-	// 	{
-	// 		console.log('find item = ' + JSON.stringify(item));
-	// 		var cam = _.find(data, 
-	// 		function (obj) 
-	// 		{ 
-	// 			console.log('find obj = ' + JSON.stringify(obj));
-	// 			return index == obj.camera_id 
-	// 			});
-	// 		console.log('[index = '+index +']cam = ' + cam);
-	// 		if(cam!=undefined && cam!=null)
-	// 		{
-	// 			console.log('+++++ cam.camera_name =' + cam.camera_name);
-	// 			$("#videoName"+(index+1)).val(cam.camera_name);
-	// 		}
-	// 		else
-	// 		{
-	// 			console.log('----');
-	// 			$("#videoName"+(index+1)).val(data[item.camera_id].camera_name);
-	// 		}
-	// })
-	//tileArray.camera_group.forEach(function(item, index, array) 
-	//{
-	//  console.log(item, index, array);
-	//});
+ 
 	
     for (let i = 0; i < tileArray.length; ++i)
     {
@@ -249,11 +224,12 @@ function LoadTileVideo(data)
             if (data[j].camera_id === tileArray[i].camera_id)
             {
 
-                var videoName = "videoName" +(parseInt(i) + 1);
+                //console.log('data[j]. = ' + JSON.stringify(data[j]) + ", tileArray[j]" + JSON.stringify( tileArray[i]));
+                var videoName = "videoName" +(parseInt(tileArray[i].index) +1);
                 let cur_select = document.getElementById(videoName);//.selectedIndex = 2;
-                cur_select.selectedIndex = parseInt(j);
-               // $("#videoName"+(i+1)).val(data[j].camera_name);
-                console.log('videoName = '+videoName+'cur_select = '+cur_select + '=== ' + $("#videoName"+(i+1)).val() + ", name = " + data[j].camera_name);
+               // document.getElementById(videoName).selectedIndex = parseInt(j);
+                $("#videoName"+(parseInt(tileArray[i].index)+1)).val(j);
+                console.log('videoName = '+videoName+', cur_select = '+cur_select + '=== ' + $("#videoName"+(parseInt(tileArray[i].index)+1)).val() +  ", j = "+j +", name = " + data[j].camera_name);
                // break;
             }
         }
@@ -321,38 +297,13 @@ function LoadTileVideo(data)
         prevnum=num;
     }
 
-	function   camera_paly()
-	{
-		if (camera_play1 != null)
-		{
-			return;
-		}
-		console.log('==camera_paly== ');
-		let container1 = document.getElementById('container1');
-		let imgDiv = document.getElementById('imgDiv1');    // 存放mycanvas
-		let clipImgDiv = document.getElementById('clipImgDiv1');    // 显示裁剪所获的图片
-		var scaleX = 1;// 图片宽度缩放比例（当前实际/原始）
-		var scaleY = 1;  // 图片高度缩放比例（当前实际/原始）
-		var bgwidth = 417;
-		var bgheight = 220;
-		var myCanvas = document.createElement('canvas');
-		myCanvas.setAttribute('id', 'myCanvas');
-		myCanvas.style.display = 'block';
-		/*myCanvas.style.position = 'absolute';*/
-		myCanvas.width = bgwidth;
-		myCanvas.height = bgheight;
-		myCanvas.style.border = "1px solid #d3d3d3";
-		myCanvas.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
-		myCanvas.style.zIndex = 'auto';
-		container1.appendChild(myCanvas);
-		camera_play1 = new Player();
-		camera_play1.play("",/*url*/ 'udp://@224.1.1.3:20000' , myCanvas);
-	}
+	 
     //切换摄像机，加载图片
     function ChangeVideoNmae(img, num) 
 	{
 		
 		console.log('ChangeVideoNmae  num =' + num);
+        console.log('cameras = ' +JSON.stringify(cameras));
 		$("#imgDiv" + num).html('');
 		if (num == 1) 
 		{ 
@@ -360,7 +311,11 @@ function LoadTileVideo(data)
             console.log('cameras[num].url = '+cameras[num]);
 			ExecuteCanvas1(cameras[num].url); 
 		}
-		else if (num == 2) { image2 =  img; ExecuteCanvas2(); }
+		else if (num == 2)
+        {
+            image2 =  img; 
+            ExecuteCanvas2(cameras[num].url); 
+        }
 		else if (num == 3) { image3 =  img; ExecuteCanvas3(); }
 		else if (num == 4) { image4 =  img; ExecuteCanvas4(); }
 		else if (num == 5) { image5 =  img; ExecuteCanvas5(); }
@@ -378,11 +333,52 @@ function LoadTileVideo(data)
             {
 				if (tileArray[index].index == (num - 1))
 				{
+
                     InitCoordinate(num, tileArray[index].x, tileArray[index].y, tileArray[index].w, tileArray[index].h);
                 }
 			}
 		}
 	}
+    function ChangeVideoNmae(camera_id, img, num) 
+    {
+        
+        console.log('ChangeVideoNmae  num =' + camera_id);
+        console.log('cameras = ' +JSON.stringify(cameras));
+        $("#imgDiv" + num).html('');
+        if (num == 1) 
+        { 
+            image1 =  img; 
+            console.log('cameras[num].url = '+cameras[camera_id]);
+            ExecuteCanvas1(cameras[camera_id].url); 
+        }
+        else if (num == 2)
+        {
+            image2 =  img; 
+            ExecuteCanvas2(cameras[camera_id].url); 
+        }
+        else if (num == 3) { image3 =  img; ExecuteCanvas3(); }
+        else if (num == 4) { image4 =  img; ExecuteCanvas4(); }
+        else if (num == 5) { image5 =  img; ExecuteCanvas5(); }
+        else if (num == 6) { image6 =  img; ExecuteCanvas6(); }
+        else if (num == 7) { image7 =  img; ExecuteCanvas7(); }
+        else if (num == 8) { image8 =  img; ExecuteCanvas8(); }
+        else if (num == 9) { image9 =  img; ExecuteCanvas9(); }
+        else if (num == 10) { image10 =  img; ExecuteCanvas10(); }
+        else if (num == 11) { image11 =  img; ExecuteCanvas11(); }
+        else if (num == 12) { image12 =  img; ExecuteCanvas12(); }
+
+        if (tileArray.length > 0 && num - 1 < tileArray.length)//初始化的数量存在和手动选择拼接方式数值不一样
+        {
+            for (let index = 0; index < tileArray.length; index++) 
+            {
+                if (tileArray[index].index == (num - 1))
+                {
+
+                    InitCoordinate(num, tileArray[index].x, tileArray[index].y, tileArray[index].w, tileArray[index].h);
+                }
+            }
+        }
+    }
 
     //启用4个方位input
     function InputDisabled(num) {
@@ -444,7 +440,7 @@ function LoadTileVideo(data)
             console.log('num = ' + num);
 			 return false;
 		}
-        ChangeVideoNmae(null, num);
+        ChangeVideoNmae(names, null, num);
 		return true;
         for (let index = 1; index <= names.length; index++) 
 		{
@@ -572,24 +568,41 @@ function LoadTileVideo(data)
         if ( ValidateStringOR(TID)) { layer.msg('请输入通道ID'); return false; }
         if ( ValidateStringOR(address))  { layer.msg('请输入组播地址'); return false; }
         if ( ValidateStringOR(port)) { layer.msg('请输入组播端口'); return false; }
-        if (num > 0) {
-            for (var i = 1; i <= num; i++) {
+        
+
+
+        let camera_infos_group = [];
+
+        if (num > 0) 
+        {
+            for (var i = 1; i <= num; i++) 
+            {
                 var state=$("#container"+i).attr("data-state");
                 if(state=="false")
-                  continue;
+                {
+                  //  continue;
+                }
                 var msg = "{";
                 let videoName = $("#videoName" + i).val();
                 if(ValidateStringOR(videoName))
-               continue;
+                {
+                   // continue;
+                }
                 let up = $("#up" + i).val();
                 let down = $("#down" + i).val();
                 let left = $("#left" + i).val();
                 let right = $("#right" + i).val();
+                let cropImageWidth = $("#cropImageWidth" + i).val();
+                let cropImageHeight = $("#cropImageHeight" + i).val();
+                console.log('i = ' +i +', up = ' + left + 'down = ' + up1);
                 //转换0-1坐标
                 up = parseInt(up) / bgheight;
                 down = parseInt(down) / bgheight;
                 left = parseInt(left) / bgwidth;
                 right = parseInt(right) / bgwidth;
+                cropImageWidth = parseInt(cropImageWidth)/ bgwidth;
+                cropImageHeight = parseInt(cropImageHeight)/ bgheight;
+                //tileArray[]
                 msg += '"camera_id": "' + videoName + '",';
 
                 var cam_ip = $("#ip_" + videoName).val();
@@ -607,10 +620,18 @@ function LoadTileVideo(data)
                 msg += '"tile_video_id":"'+TID+'",';
                 msg += '"idx_in_tile":' + (i - 1) + '},';
                 messgae += msg;
+                camera_infos_group.push({   camera_id: parseInt(videoName),
+                                            index: parseInt((i-1)),
+                                            x: left,
+                                            y: up,
+                                            w: cropImageWidth ,
+                                            h: cropImageHeight});
             }
         }
         if(messgae=="")
-        return messgae;
+        {
+            return messgae;
+        }
         messgae = messgae.substring(0, messgae.length - 1) + "],";
         messgae += '"video_tile": [{';
         messgae += '"ip": "'+TID+'",';
@@ -626,43 +647,133 @@ function LoadTileVideo(data)
         messgae += '"multicast_ip":"'+address+'",';
         messgae += '"multicast_port":'+port+' }]';
         messgae += "}";
-        return messgae;
+
+
+
+        let split_video_message = {
+                "split_channel_name": Tname,
+                "split_channel_id": TID,
+                "multicast_ip": address,
+                "multicast_port": parseInt(port), 
+                "split_method": parseInt(islock) ,
+                "lock_1080p": parseInt(islock) ,
+                "overlay": 0,  
+                "camera_group" : camera_infos_group
+
+        };
+
+        console.log('split_video_message = ' + JSON.stringify(split_video_message));
+
+        return  JSON.stringify(split_video_message);
     }
 
     //发送ajax，获取拼接流地址信息，拼接视频播放
     function sendAjax(send_str,action) {
         console.log('====================>>>video split send_str = ' + send_str);
-        $.ajax({
+        if (action == 'osd')
+        {
+            $.ajax({
             type: "POST",
             dataType: "text",
             //url: '/json',
-            url: apiAddress,
+            url: modify_video_osd_url,
             contentType: "application/json",
             data: send_str,
             async:false,
             timeout: 5 * 1000,
-            success: function (result) {
+            success: function (result) 
+            {
                 console.log(result);
-                if(action==='get'){
+                // if(action==='get')
+                // {
                     var objs= JSON.parse(result);
-                    if(objs.video_tile.length>0)
-                    {
-                        for (let index = 0; index < objs.video_tile.length; index++) {
-                           if(objs.video_tile[index].id===$("#TID").val())
-                            {
-                                $("#pj_width").val(objs.video_tile[index].w);
-                                $("#pj_height").val(objs.video_tile[index].h);
-                                playVideo();
-                            }
-                        }
-                    }
+                    // if(objs.video_tile.length>0)
+                    // {
+                    //     for (let index = 0; index < objs.video_tile.length; index++) {
+                    //        if(objs.video_tile[index].id===$("#TID").val())
+                    //         {
+                    //             $("#pj_width").val(objs.video_tile[index].w);
+                    //             $("#pj_height").val(objs.video_tile[index].h);
+                    //             playVideo();
+                    //         }
+                    //     }
+                    // }
                   
-                }else if(action==='set')
-                {
-                   // console.log(result);
-                }
+                // }else if(action==='set')
+                // {
+                //    // console.log(result);
+                // }
             }
         });
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            dataType: "text",
+            //url: '/json',
+            url: modify_video_url,
+            contentType: "application/json",
+            data: send_str,
+            async:false,
+            timeout: 5 * 1000,
+            success: function (result) 
+            {
+                console.log(result);
+                // if(action==='get')
+                // {
+                    var objs= JSON.parse(result);
+                    // if(objs.video_tile.length>0)
+                    // {
+                    //     for (let index = 0; index < objs.video_tile.length; index++) {
+                    //        if(objs.video_tile[index].id===$("#TID").val())
+                    //         {
+                    //             $("#pj_width").val(objs.video_tile[index].w);
+                    //             $("#pj_height").val(objs.video_tile[index].h);
+                    //             playVideo();
+                    //         }
+                    //     }
+                    // }
+                  
+                // }else if(action==='set')
+                // {
+                //    // console.log(result);
+                // }
+            }
+        });
+
+
+        // $.ajax({
+        //     type: "POST",
+        //     dataType: "text",
+        //     //url: '/json',
+        //     url: apiAddress,
+        //     contentType: "application/json",
+        //     data: send_str,
+        //     async:false,
+        //     timeout: 5 * 1000,
+        //     success: function (result) {
+        //         console.log(result);
+        //         if(action==='get'){
+        //             var objs= JSON.parse(result);
+        //             if(objs.video_tile.length>0)
+        //             {
+        //                 for (let index = 0; index < objs.video_tile.length; index++) {
+        //                    if(objs.video_tile[index].id===$("#TID").val())
+        //                     {
+        //                         $("#pj_width").val(objs.video_tile[index].w);
+        //                         $("#pj_height").val(objs.video_tile[index].h);
+        //                         playVideo();
+        //                     }
+        //                 }
+        //             }
+                  
+        //         }else if(action==='set')
+        //         {
+        //            // console.log(result);
+        //         }
+        //     }
+        // });
     }
 
     //播放视频
@@ -789,15 +900,22 @@ function LoadTileVideo(data)
 
         //iscrop = true;
         let mess = videoMsg(parseInt(style)); //拼接发送json
-        if (!mess) {layer.msg('无有效相机进行拼接！');return false;}
+        if (!mess) 
+        {
+            layer.msg('无有效相机进行拼接！');
+            return false;
+        }
+
+        sendAjax(mess, "set");
+
         messageAll += mess;
         console.log(messageAll);
-        sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
+       // sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
         stopVideo();
         let TID = $("#TID").val();
         var gettileinfo = '{"msg": "get_tile_info"}';
         console.log(gettileinfo);
-        sendAjax(gettileinfo, "get");      
+       // sendAjax(gettileinfo, "get");      
     }
 
     function JudgeCamID() {
@@ -900,7 +1018,8 @@ function LoadTileVideo(data)
         var send_str='{"msg":"set_tile_osd",';
         if($("#pj_width").val()=="" || $("#pj_height").val()=="")
         { 
-            layer.msg('请先进行摄像机拼接');return false;
+            layer.msg('请先进行摄像机拼接');
+            return false;
         }
         var videoX= parseInt( $("#pj_width").val());
         var videoY=  parseInt($("#pj_height").val());
@@ -910,8 +1029,19 @@ function LoadTileVideo(data)
          var fontSize=Math.ceil( Math.round(parseInt(videoX)/520,2)*20);  
          fontSize=fontSize<100?fontSize:100;
         send_str+='"tile_id":"'+$("#TID").val()+'","txt":"'+obj.innerText+'","x":'+left+',"y":'+top+',"ft_size":'+fontSize+'}';
+
+
+        let osd_msg = {
+            channel_id : $("#TID").val(),
+            txt : obj.innerText,
+            fontsize: fontSize,
+            x : left,
+            y: top 
+        };
+
         console.log(send_str);
-        sendAjax(send_str,"osd");
+        console.log(JSON.stringify(osd_msg));
+        sendAjax(JSON.stringify(osd_msg),"osd");
         var gettileinfo = '{"msg": "get_tile_info"}';
         console.log(gettileinfo);
         sendAjax(gettileinfo, "get");
@@ -931,3 +1061,5 @@ function LoadTileVideo(data)
         flag= true;
         return flag;
     }
+
+

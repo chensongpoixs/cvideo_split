@@ -240,6 +240,7 @@ namespace chen {
 			CameraInfo["index"] = result.camera_infos.camera_infos(i).index();
 			CameraInfo["camera_id"] = result.camera_infos.camera_infos(i).camera_id();
 			CameraInfo["address"] = result.camera_infos.camera_infos(i).address();
+			CameraInfo["camera_name"] = result.camera_infos.camera_infos(i).camera_name();
 			CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
 			CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
 			CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
@@ -386,23 +387,24 @@ namespace chen {
 			video_split_info.set_overlay(data["overlay"].asUInt()); 
 
 			// out split video width and height
-			if (!data.isMember("out_video_width") || !data["out_video_width"].isUInt())
+			if (!data.isMember("out_video_width") || !data["out_video_width"].isUInt() || !data.isMember("out_video_height") || !data["out_video_height"].isUInt())
 			{
 				//web_guard_reply.set_result(EWebJsonParam, "overlay ");
-				video_split_info.set_out_video_width(1080);
+				//video_split_info.set_out_video_width(1080);
+				video_split_info.set_out_video(1);
 			}
 			else
 			{
 				video_split_info.set_out_video_width(data["out_video_width"].asUInt());
-			}
-			if (!data.isMember("out_video_height") || !data["out_video_height"].isUInt())
-			{
-				//web_guard_reply.set_result(EWebJsonParam, "overlay ");
-				video_split_info.set_out_video_width(1920);
-			}
-			else
-			{
-				video_split_info.set_out_video_width(data["out_video_height"].asUInt());
+			//}
+			//if ()
+			//{
+			//	//web_guard_reply.set_result(EWebJsonParam, "overlay ");
+			//	video_split_info.set_out_video_height(1920);
+			//}
+			//else
+			//{
+				video_split_info.set_out_video_height(data["out_video_height"].asUInt());
 			}
 		}
 		catch (const std::exception&)
@@ -451,6 +453,39 @@ namespace chen {
 
 
 	}
+	void cweb_http_api_mgr::_handler_get_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		cresult_get_video_split result = g_web_http_api_proxy.get_video_split( request->path_match[1].str()  );
+		web_guard_reply.set_result(result.result);
+		if (result.result == EWebSuccess)
+		{
+			Json::Value  video_split_info;
+			reply["video_split_infos"]["id"] = result.video_split_info.id();
+			reply["video_split_infos"]["split_channel_name"] = result.video_split_info.split_channel_name();
+			reply["video_split_infos"]["split_channel_id"] = result.video_split_info.split_channel_id();
+			reply["video_split_infos"]["multicast_ip"] = result.video_split_info.multicast_ip();
+			reply["video_split_infos"]["multicast_port"] = result.video_split_info.multicast_port();
+			reply["video_split_infos"]["split_method"] = result.video_split_info.split_method();
+			reply["video_split_infos"]["lock_1080p"] = result.video_split_info.lock_1080p();
+			reply["video_split_infos"]["overlay"] = result.video_split_info.overlay();
+			reply["video_split_infos"]["split_method"] = result.video_split_info.split_method();
+			reply["video_split_infos"]["out_video_width"] = result.video_split_info.out_video_width();
+			reply["video_split_infos"]["out_video_height"] = result.video_split_info.out_video_height();
+			for (size_t j = 0; j < result.video_split_info.camera_group_size(); ++j)
+			{
+				Json::Value  CameraInfo;
+				CameraInfo["index"] = result.video_split_info.camera_group(j).index();
+				CameraInfo["camera_id"] = result.video_split_info.camera_group(j).camera_id();
+				CameraInfo["x"] = result.video_split_info.camera_group(j).x();
+				CameraInfo["y"] = result.video_split_info.camera_group(j).y();
+				CameraInfo["w"] = result.video_split_info.camera_group(j).w();
+				CameraInfo["h"] = result.video_split_info.camera_group(j).h();
+				reply["video_split_infos"]["camera_group"].append(CameraInfo);
+			}
+			 
+		}
+	}
 
 
 	void cweb_http_api_mgr::_handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
@@ -482,11 +517,13 @@ namespace chen {
 			{
 				Json::Value  CameraInfo;
 				CameraInfo["index"] = result.video_split_infos[i].camera_group(j).index();
+				//NORMAL_EX_LOG("index = %u", result.video_split_infos[i].camera_group(j).index());
 				CameraInfo["camera_id"] = result.video_split_infos[i].camera_group(j).camera_id();
 				CameraInfo["x"] = result.video_split_infos[i].camera_group(j).x();
 				CameraInfo["y"] = result.video_split_infos[i].camera_group(j).y();
 				CameraInfo["w"] = result.video_split_infos[i].camera_group(j).w();
 				CameraInfo["h"] = result.video_split_infos[i].camera_group(j).h();
+				//NORMAL_EX_LOG("CameraInfo = %s", CameraInfo.asCString());
 				video_split_info["camera_group"].append(CameraInfo);
 			}
 			reply["video_split_infos"].append(video_split_info);
@@ -502,14 +539,88 @@ namespace chen {
 	void cweb_http_api_mgr :: _handler_delete_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
 	{
 		CWEB_GUARD_REPLY(response);
-		uint32 result = g_web_http_api_proxy.delete_video_split(std::atoi(request->path_match[1].str().c_str()));
+		uint32 result = g_web_http_api_proxy.delete_video_split((request->path_match[1].str()));
 		web_guard_reply.set_result(result);
 	}
 
 	void cweb_http_api_mgr::_handler_cmd_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
 	{
 		CWEB_GUARD_REPLY(response);
-		uint32 result = g_web_http_api_proxy.cmd_video_split(std::atoi(request->path_match[1].str().c_str()), std::atoi(request->path_match[2].str().c_str()));
+		uint32 result = g_web_http_api_proxy.cmd_video_split( (request->path_match[1].str() ), std::atoi(request->path_match[2].str().c_str()));
+		web_guard_reply.set_result(result);
+	}
+	void cweb_http_api_mgr::_handler_modify_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+
+		std::string  content = request->content.string();
+
+		// pase json 
+		Json::Reader reader;
+		Json::Value data;
+
+		if (!reader.parse((const char*)content.c_str(), (const char*)content.c_str() + content.size(), data))
+		{
+			WARNING_EX_LOG("parse  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonError, ret.c_str());
+			web_guard_reply.set_result(EWebJsonError, ret);
+			return;
+		}
+
+		std::string channel_id;
+		std::string txt;
+
+		uint32 fontsize ;
+		double x;
+		double y;
+		try
+		{
+			if (!data.isMember("channel_id") || !data["channel_id"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "channel_id ");
+				return;
+			}
+			if (!data.isMember("txt") || !data["txt"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "txt ");
+				return;
+			}
+			 
+			if (!data.isMember("fontsize") || !data["fontsize"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "fontsize ");
+				return;
+			}
+			if (!data.isMember("x") || !data["x"].isDouble())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "x ");
+				return;
+			}
+			if (!data.isMember("y") || !data["y"].isDouble())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "y ");
+				return;
+			}
+
+			channel_id = data["channel_id"].asString();
+			txt = data["txt"].asString();
+			fontsize = data["fontsize"].asUInt();
+
+			x = data["x"].asDouble();
+			y = data["y"].asDouble();
+		}
+		catch (const std::exception&)
+		{
+			WARNING_EX_LOG("parse value  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonParam, ret.c_str()); 
+			web_guard_reply.set_result(EWebJsonParam);
+			return;
+		}
+
+
+		uint32 result = g_web_http_api_proxy.modify_video_split(channel_id, txt, fontsize, x,y);
 		web_guard_reply.set_result(result);
 	}
 

@@ -38,9 +38,9 @@ namespace chen {
 		}
 		m_video_split_map.clear();
 	}
-	uint32 cvideo_split_mgr::handler_web_cmd_video_split(uint32 id, uint32 cmd)
+	uint32 cvideo_split_mgr::handler_web_cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd)
 	{
-		VIDEO_SPLIST_MAP::iterator iter = m_video_split_map.find(id);
+		VIDEO_SPLIST_MAP::iterator iter = m_video_split_map.find(channel_name);
 		if (cmd != 0)
 		{
 			
@@ -49,7 +49,7 @@ namespace chen {
 				return EWebVideoSplitNotStart;
 			}
 			
-			size_t size = m_video_split_map.erase(id);
+			size_t size = m_video_split_map.erase(channel_name);
 			if (size > 0)
 			{
 				iter->second->destroy();
@@ -57,7 +57,7 @@ namespace chen {
 
 				return EWebSuccess;
 			}
-			WARNING_EX_LOG("delete video split [id = %u] failed !!!", id);
+			WARNING_EX_LOG("delete video split [channel_name = %s] failed !!!", channel_name.c_str());
 			return EWebWait;
 
 		}
@@ -67,7 +67,7 @@ namespace chen {
 		}
 		 
 		// TODO@chensong 2023-02-20 获取拼接信息
-		const VideoSplitInfo* video_split_info_ptr =  g_video_split_info_mgr.get_video_split_info(id);
+		const VideoSplitInfo* video_split_info_ptr =  g_video_split_info_mgr.get_video_split_info(channel_name);
 		if (!video_split_info_ptr)
 		{
 			return EWebNotFindVideoSplitId;
@@ -75,7 +75,7 @@ namespace chen {
 		cvideo_splist* video_split_ptr = new cvideo_splist();
 		if (!video_split_ptr)
 		{
-			WARNING_EX_LOG("alloc video split   (%u) failed !!!", id);
+			WARNING_EX_LOG("alloc video split channel_name =   (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
 		if (!video_split_ptr->init(video_split_info_ptr))
@@ -83,16 +83,16 @@ namespace chen {
 			video_split_ptr->destroy();
 			delete video_split_ptr;
 			video_split_ptr = NULL;
-			WARNING_EX_LOG("init video split   (%u) failed !!!", id);
+			WARNING_EX_LOG("init video split  channel_name =  (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
-		std::pair<VIDEO_SPLIST_MAP::iterator, bool>  pi = m_video_split_map.insert(std::make_pair(id, video_split_ptr));
+		std::pair<VIDEO_SPLIST_MAP::iterator, bool>  pi = m_video_split_map.insert(std::make_pair(channel_name, video_split_ptr));
 		if (!pi.second)
 		{
 			video_split_ptr->destroy();
 			delete video_split_ptr;
 			video_split_ptr = NULL;
-			WARNING_EX_LOG("insert video split map (%u) failed !!!", id);
+			WARNING_EX_LOG("insert video split map channel_name = (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
 		return EWebSuccess;
