@@ -93,33 +93,37 @@ void CameraInfo::InitAsDefaultInstance() {
 class CameraInfo::HasBitSetters {
  public:
   static void set_has_index(CameraInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000008u;
-  }
-  static void set_has_camera_id(CameraInfo* msg) {
     msg->_has_bits_[0] |= 0x00000010u;
   }
-  static void set_has_address(CameraInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000001u;
-  }
-  static void set_has_camera_name(CameraInfo* msg) {
-    msg->_has_bits_[0] |= 0x00000002u;
-  }
-  static void set_has_port(CameraInfo* msg) {
+  static void set_has_camera_id(CameraInfo* msg) {
     msg->_has_bits_[0] |= 0x00000020u;
   }
-  static void set_has_url(CameraInfo* msg) {
+  static void set_has_camera_name(CameraInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+  static void set_has_ip(CameraInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+  static void set_has_address(CameraInfo* msg) {
     msg->_has_bits_[0] |= 0x00000004u;
   }
-  static void set_has_state(CameraInfo* msg) {
+  static void set_has_port(CameraInfo* msg) {
     msg->_has_bits_[0] |= 0x00000040u;
+  }
+  static void set_has_url(CameraInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000008u;
+  }
+  static void set_has_state(CameraInfo* msg) {
+    msg->_has_bits_[0] |= 0x00000080u;
   }
 };
 
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int CameraInfo::kIndexFieldNumber;
 const int CameraInfo::kCameraIdFieldNumber;
-const int CameraInfo::kAddressFieldNumber;
 const int CameraInfo::kCameraNameFieldNumber;
+const int CameraInfo::kIpFieldNumber;
+const int CameraInfo::kAddressFieldNumber;
 const int CameraInfo::kPortFieldNumber;
 const int CameraInfo::kUrlFieldNumber;
 const int CameraInfo::kStateFieldNumber;
@@ -135,13 +139,17 @@ CameraInfo::CameraInfo(const CameraInfo& from)
       _internal_metadata_(nullptr),
       _has_bits_(from._has_bits_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  address_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.has_address()) {
-    address_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.address_);
-  }
   camera_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (from.has_camera_name()) {
     camera_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.camera_name_);
+  }
+  ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_ip()) {
+    ip_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.ip_);
+  }
+  address_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_address()) {
+    address_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.address_);
   }
   url_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (from.has_url()) {
@@ -156,8 +164,9 @@ CameraInfo::CameraInfo(const CameraInfo& from)
 void CameraInfo::SharedCtor() {
   ::google::protobuf::internal::InitSCC(
       &scc_info_CameraInfo_VideoSplitDefine_2eproto.base);
-  address_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   camera_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  address_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   url_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&index_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&state_) -
@@ -170,8 +179,9 @@ CameraInfo::~CameraInfo() {
 }
 
 void CameraInfo::SharedDtor() {
-  address_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   camera_name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ip_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  address_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   url_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -191,18 +201,21 @@ void CameraInfo::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000007u) {
+  if (cached_has_bits & 0x0000000fu) {
     if (cached_has_bits & 0x00000001u) {
-      address_.ClearNonDefaultToEmptyNoArena();
-    }
-    if (cached_has_bits & 0x00000002u) {
       camera_name_.ClearNonDefaultToEmptyNoArena();
     }
+    if (cached_has_bits & 0x00000002u) {
+      ip_.ClearNonDefaultToEmptyNoArena();
+    }
     if (cached_has_bits & 0x00000004u) {
+      address_.ClearNonDefaultToEmptyNoArena();
+    }
+    if (cached_has_bits & 0x00000008u) {
       url_.ClearNonDefaultToEmptyNoArena();
     }
   }
-  if (cached_has_bits & 0x00000078u) {
+  if (cached_has_bits & 0x000000f0u) {
     ::memset(&index_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&state_) -
         reinterpret_cast<char*>(&index_)) + sizeof(state_));
@@ -238,24 +251,9 @@ const char* CameraInfo::_InternalParse(const char* begin, const char* end, void*
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         break;
       }
-      // optional string address = 3;
+      // optional string camera_name = 3;
       case 3: {
         if (static_cast<::google::protobuf::uint8>(tag) != 26) goto handle_unusual;
-        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
-        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
-        object = msg->mutable_address();
-        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
-          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
-          goto string_till_end;
-        }
-        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
-        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
-        ptr += size;
-        break;
-      }
-      // optional string camera_name = 4;
-      case 4: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 34) goto handle_unusual;
         ptr = ::google::protobuf::io::ReadSize(ptr, &size);
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         object = msg->mutable_camera_name();
@@ -268,16 +266,46 @@ const char* CameraInfo::_InternalParse(const char* begin, const char* end, void*
         ptr += size;
         break;
       }
-      // optional uint32 port = 5;
+      // optional string ip = 4;
+      case 4: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 34) goto handle_unusual;
+        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        object = msg->mutable_ip();
+        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
+          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
+          goto string_till_end;
+        }
+        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
+        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
+        ptr += size;
+        break;
+      }
+      // optional string address = 5;
       case 5: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 40) goto handle_unusual;
+        if (static_cast<::google::protobuf::uint8>(tag) != 42) goto handle_unusual;
+        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        object = msg->mutable_address();
+        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
+          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
+          goto string_till_end;
+        }
+        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
+        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
+        ptr += size;
+        break;
+      }
+      // optional uint32 port = 6;
+      case 6: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 48) goto handle_unusual;
         msg->set_port(::google::protobuf::internal::ReadVarint(&ptr));
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         break;
       }
-      // optional string url = 6;
-      case 6: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 50) goto handle_unusual;
+      // optional string url = 7;
+      case 7: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 58) goto handle_unusual;
         ptr = ::google::protobuf::io::ReadSize(ptr, &size);
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         object = msg->mutable_url();
@@ -290,12 +318,12 @@ const char* CameraInfo::_InternalParse(const char* begin, const char* end, void*
         ptr += size;
         break;
       }
-      // optional .ECameraStatusType state = 7;
-      case 7: {
-        if (static_cast<::google::protobuf::uint8>(tag) != 56) goto handle_unusual;
+      // optional .ECameraStatusType state = 8;
+      case 8: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 64) goto handle_unusual;
         ::google::protobuf::uint64 val = ::google::protobuf::internal::ReadVarint(&ptr);
         if (!::ECameraStatusType_IsValid(val)) {
-          ::google::protobuf::internal::WriteVarint(7, val, msg->mutable_unknown_fields());
+          ::google::protobuf::internal::WriteVarint(8, val, msg->mutable_unknown_fields());
           break;
         }
         msg->set_state(static_cast<::ECameraStatusType>(val));
@@ -368,20 +396,9 @@ bool CameraInfo::MergePartialFromCodedStream(
         break;
       }
 
-      // optional string address = 3;
+      // optional string camera_name = 3;
       case 3: {
         if (static_cast< ::google::protobuf::uint8>(tag) == (26 & 0xFF)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_address()));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
-      // optional string camera_name = 4;
-      case 4: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (34 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_camera_name()));
         } else {
@@ -390,9 +407,31 @@ bool CameraInfo::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 port = 5;
+      // optional string ip = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (34 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_ip()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional string address = 5;
       case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (40 & 0xFF)) {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (42 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_address()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 port = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (48 & 0xFF)) {
           HasBitSetters::set_has_port(this);
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
@@ -403,9 +442,9 @@ bool CameraInfo::MergePartialFromCodedStream(
         break;
       }
 
-      // optional string url = 6;
-      case 6: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (50 & 0xFF)) {
+      // optional string url = 7;
+      case 7: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (58 & 0xFF)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_url()));
         } else {
@@ -414,9 +453,9 @@ bool CameraInfo::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .ECameraStatusType state = 7;
-      case 7: {
-        if (static_cast< ::google::protobuf::uint8>(tag) == (56 & 0xFF)) {
+      // optional .ECameraStatusType state = 8;
+      case 8: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (64 & 0xFF)) {
           int value = 0;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
@@ -424,7 +463,7 @@ bool CameraInfo::MergePartialFromCodedStream(
           if (::ECameraStatusType_IsValid(value)) {
             set_state(static_cast< ::ECameraStatusType >(value));
           } else {
-            unknown_fields_stream.WriteVarint32(56u);
+            unknown_fields_stream.WriteVarint32(64u);
             unknown_fields_stream.WriteVarint32(
                 static_cast<::google::protobuf::uint32>(value));
           }
@@ -463,42 +502,48 @@ void CameraInfo::SerializeWithCachedSizes(
 
   cached_has_bits = _has_bits_[0];
   // optional uint32 index = 1;
-  if (cached_has_bits & 0x00000008u) {
+  if (cached_has_bits & 0x00000010u) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->index(), output);
   }
 
   // optional uint32 camera_id = 2;
-  if (cached_has_bits & 0x00000010u) {
+  if (cached_has_bits & 0x00000020u) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->camera_id(), output);
   }
 
-  // optional string address = 3;
+  // optional string camera_name = 3;
   if (cached_has_bits & 0x00000001u) {
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      3, this->address(), output);
+      3, this->camera_name(), output);
   }
 
-  // optional string camera_name = 4;
+  // optional string ip = 4;
   if (cached_has_bits & 0x00000002u) {
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      4, this->camera_name(), output);
+      4, this->ip(), output);
   }
 
-  // optional uint32 port = 5;
-  if (cached_has_bits & 0x00000020u) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->port(), output);
-  }
-
-  // optional string url = 6;
+  // optional string address = 5;
   if (cached_has_bits & 0x00000004u) {
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      6, this->url(), output);
+      5, this->address(), output);
   }
 
-  // optional .ECameraStatusType state = 7;
+  // optional uint32 port = 6;
   if (cached_has_bits & 0x00000040u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(6, this->port(), output);
+  }
+
+  // optional string url = 7;
+  if (cached_has_bits & 0x00000008u) {
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      7, this->url(), output);
+  }
+
+  // optional .ECameraStatusType state = 8;
+  if (cached_has_bits & 0x00000080u) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      7, this->state(), output);
+      8, this->state(), output);
   }
 
   output->WriteRaw(_internal_metadata_.unknown_fields().data(),
@@ -517,51 +562,58 @@ size_t CameraInfo::ByteSizeLong() const {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x0000007fu) {
-    // optional string address = 3;
+  if (cached_has_bits & 0x000000ffu) {
+    // optional string camera_name = 3;
     if (cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->address());
-    }
-
-    // optional string camera_name = 4;
-    if (cached_has_bits & 0x00000002u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->camera_name());
     }
 
-    // optional string url = 6;
+    // optional string ip = 4;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->ip());
+    }
+
+    // optional string address = 5;
     if (cached_has_bits & 0x00000004u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->address());
+    }
+
+    // optional string url = 7;
+    if (cached_has_bits & 0x00000008u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->url());
     }
 
     // optional uint32 index = 1;
-    if (cached_has_bits & 0x00000008u) {
+    if (cached_has_bits & 0x00000010u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->index());
     }
 
     // optional uint32 camera_id = 2;
-    if (cached_has_bits & 0x00000010u) {
+    if (cached_has_bits & 0x00000020u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->camera_id());
     }
 
-    // optional uint32 port = 5;
-    if (cached_has_bits & 0x00000020u) {
+    // optional uint32 port = 6;
+    if (cached_has_bits & 0x00000040u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->port());
     }
 
-    // optional .ECameraStatusType state = 7;
-    if (cached_has_bits & 0x00000040u) {
+    // optional .ECameraStatusType state = 8;
+    if (cached_has_bits & 0x00000080u) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->state());
     }
@@ -585,29 +637,33 @@ void CameraInfo::MergeFrom(const CameraInfo& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x0000007fu) {
+  if (cached_has_bits & 0x000000ffu) {
     if (cached_has_bits & 0x00000001u) {
       _has_bits_[0] |= 0x00000001u;
-      address_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.address_);
+      camera_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.camera_name_);
     }
     if (cached_has_bits & 0x00000002u) {
       _has_bits_[0] |= 0x00000002u;
-      camera_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.camera_name_);
+      ip_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.ip_);
     }
     if (cached_has_bits & 0x00000004u) {
       _has_bits_[0] |= 0x00000004u;
-      url_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.url_);
+      address_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.address_);
     }
     if (cached_has_bits & 0x00000008u) {
-      index_ = from.index_;
+      _has_bits_[0] |= 0x00000008u;
+      url_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.url_);
     }
     if (cached_has_bits & 0x00000010u) {
-      camera_id_ = from.camera_id_;
+      index_ = from.index_;
     }
     if (cached_has_bits & 0x00000020u) {
-      port_ = from.port_;
+      camera_id_ = from.camera_id_;
     }
     if (cached_has_bits & 0x00000040u) {
+      port_ = from.port_;
+    }
+    if (cached_has_bits & 0x00000080u) {
       state_ = from.state_;
     }
     _has_bits_[0] |= cached_has_bits;
@@ -633,9 +689,11 @@ void CameraInfo::InternalSwap(CameraInfo* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  address_.Swap(&other->address_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
   camera_name_.Swap(&other->camera_name_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  ip_.Swap(&other->ip_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  address_.Swap(&other->address_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   url_.Swap(&other->url_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());

@@ -168,25 +168,10 @@ class CameraInfo final :
 
   // accessors -------------------------------------------------------
 
-  // optional string address = 3;
-  bool has_address() const;
-  void clear_address();
-  static const int kAddressFieldNumber = 3;
-  const ::std::string& address() const;
-  void set_address(const ::std::string& value);
-  #if LANG_CXX11
-  void set_address(::std::string&& value);
-  #endif
-  void set_address(const char* value);
-  void set_address(const char* value, size_t size);
-  ::std::string* mutable_address();
-  ::std::string* release_address();
-  void set_allocated_address(::std::string* address);
-
-  // optional string camera_name = 4;
+  // optional string camera_name = 3;
   bool has_camera_name() const;
   void clear_camera_name();
-  static const int kCameraNameFieldNumber = 4;
+  static const int kCameraNameFieldNumber = 3;
   const ::std::string& camera_name() const;
   void set_camera_name(const ::std::string& value);
   #if LANG_CXX11
@@ -198,10 +183,40 @@ class CameraInfo final :
   ::std::string* release_camera_name();
   void set_allocated_camera_name(::std::string* camera_name);
 
-  // optional string url = 6;
+  // optional string ip = 4;
+  bool has_ip() const;
+  void clear_ip();
+  static const int kIpFieldNumber = 4;
+  const ::std::string& ip() const;
+  void set_ip(const ::std::string& value);
+  #if LANG_CXX11
+  void set_ip(::std::string&& value);
+  #endif
+  void set_ip(const char* value);
+  void set_ip(const char* value, size_t size);
+  ::std::string* mutable_ip();
+  ::std::string* release_ip();
+  void set_allocated_ip(::std::string* ip);
+
+  // optional string address = 5;
+  bool has_address() const;
+  void clear_address();
+  static const int kAddressFieldNumber = 5;
+  const ::std::string& address() const;
+  void set_address(const ::std::string& value);
+  #if LANG_CXX11
+  void set_address(::std::string&& value);
+  #endif
+  void set_address(const char* value);
+  void set_address(const char* value, size_t size);
+  ::std::string* mutable_address();
+  ::std::string* release_address();
+  void set_allocated_address(::std::string* address);
+
+  // optional string url = 7;
   bool has_url() const;
   void clear_url();
-  static const int kUrlFieldNumber = 6;
+  static const int kUrlFieldNumber = 7;
   const ::std::string& url() const;
   void set_url(const ::std::string& value);
   #if LANG_CXX11
@@ -227,17 +242,17 @@ class CameraInfo final :
   ::google::protobuf::uint32 camera_id() const;
   void set_camera_id(::google::protobuf::uint32 value);
 
-  // optional uint32 port = 5;
+  // optional uint32 port = 6;
   bool has_port() const;
   void clear_port();
-  static const int kPortFieldNumber = 5;
+  static const int kPortFieldNumber = 6;
   ::google::protobuf::uint32 port() const;
   void set_port(::google::protobuf::uint32 value);
 
-  // optional .ECameraStatusType state = 7;
+  // optional .ECameraStatusType state = 8;
   bool has_state() const;
   void clear_state();
-  static const int kStateFieldNumber = 7;
+  static const int kStateFieldNumber = 8;
   ::ECameraStatusType state() const;
   void set_state(::ECameraStatusType value);
 
@@ -248,8 +263,9 @@ class CameraInfo final :
   ::google::protobuf::internal::InternalMetadataWithArenaLite _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
-  ::google::protobuf::internal::ArenaStringPtr address_;
   ::google::protobuf::internal::ArenaStringPtr camera_name_;
+  ::google::protobuf::internal::ArenaStringPtr ip_;
+  ::google::protobuf::internal::ArenaStringPtr address_;
   ::google::protobuf::internal::ArenaStringPtr url_;
   ::google::protobuf::uint32 index_;
   ::google::protobuf::uint32 camera_id_;
@@ -717,120 +733,60 @@ class OsdInfo final :
 
 // optional uint32 index = 1;
 inline bool CameraInfo::has_index() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000010u) != 0;
 }
 inline void CameraInfo::clear_index() {
   index_ = 0u;
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000010u;
 }
 inline ::google::protobuf::uint32 CameraInfo::index() const {
   // @@protoc_insertion_point(field_get:CameraInfo.index)
   return index_;
 }
 inline void CameraInfo::set_index(::google::protobuf::uint32 value) {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000010u;
   index_ = value;
   // @@protoc_insertion_point(field_set:CameraInfo.index)
 }
 
 // optional uint32 camera_id = 2;
 inline bool CameraInfo::has_camera_id() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void CameraInfo::clear_camera_id() {
   camera_id_ = 0u;
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline ::google::protobuf::uint32 CameraInfo::camera_id() const {
   // @@protoc_insertion_point(field_get:CameraInfo.camera_id)
   return camera_id_;
 }
 inline void CameraInfo::set_camera_id(::google::protobuf::uint32 value) {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000020u;
   camera_id_ = value;
   // @@protoc_insertion_point(field_set:CameraInfo.camera_id)
 }
 
-// optional string address = 3;
-inline bool CameraInfo::has_address() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void CameraInfo::clear_address() {
-  address_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline const ::std::string& CameraInfo::address() const {
-  // @@protoc_insertion_point(field_get:CameraInfo.address)
-  return address_.GetNoArena();
-}
-inline void CameraInfo::set_address(const ::std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
-  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:CameraInfo.address)
-}
-#if LANG_CXX11
-inline void CameraInfo::set_address(::std::string&& value) {
-  _has_bits_[0] |= 0x00000001u;
-  address_.SetNoArena(
-    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:CameraInfo.address)
-}
-#endif
-inline void CameraInfo::set_address(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000001u;
-  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:CameraInfo.address)
-}
-inline void CameraInfo::set_address(const char* value, size_t size) {
-  _has_bits_[0] |= 0x00000001u;
-  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:CameraInfo.address)
-}
-inline ::std::string* CameraInfo::mutable_address() {
-  _has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_mutable:CameraInfo.address)
-  return address_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline ::std::string* CameraInfo::release_address() {
-  // @@protoc_insertion_point(field_release:CameraInfo.address)
-  if (!has_address()) {
-    return nullptr;
-  }
-  _has_bits_[0] &= ~0x00000001u;
-  return address_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-}
-inline void CameraInfo::set_allocated_address(::std::string* address) {
-  if (address != nullptr) {
-    _has_bits_[0] |= 0x00000001u;
-  } else {
-    _has_bits_[0] &= ~0x00000001u;
-  }
-  address_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), address);
-  // @@protoc_insertion_point(field_set_allocated:CameraInfo.address)
-}
-
-// optional string camera_name = 4;
+// optional string camera_name = 3;
 inline bool CameraInfo::has_camera_name() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
+  return (_has_bits_[0] & 0x00000001u) != 0;
 }
 inline void CameraInfo::clear_camera_name() {
   camera_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline const ::std::string& CameraInfo::camera_name() const {
   // @@protoc_insertion_point(field_get:CameraInfo.camera_name)
   return camera_name_.GetNoArena();
 }
 inline void CameraInfo::set_camera_name(const ::std::string& value) {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
   camera_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:CameraInfo.camera_name)
 }
 #if LANG_CXX11
 inline void CameraInfo::set_camera_name(::std::string&& value) {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
   camera_name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:CameraInfo.camera_name)
@@ -838,18 +794,18 @@ inline void CameraInfo::set_camera_name(::std::string&& value) {
 #endif
 inline void CameraInfo::set_camera_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
   camera_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:CameraInfo.camera_name)
 }
 inline void CameraInfo::set_camera_name(const char* value, size_t size) {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
   camera_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:CameraInfo.camera_name)
 }
 inline ::std::string* CameraInfo::mutable_camera_name() {
-  _has_bits_[0] |= 0x00000002u;
+  _has_bits_[0] |= 0x00000001u;
   // @@protoc_insertion_point(field_mutable:CameraInfo.camera_name)
   return camera_name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -858,57 +814,177 @@ inline ::std::string* CameraInfo::release_camera_name() {
   if (!has_camera_name()) {
     return nullptr;
   }
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
   return camera_name_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void CameraInfo::set_allocated_camera_name(::std::string* camera_name) {
   if (camera_name != nullptr) {
-    _has_bits_[0] |= 0x00000002u;
+    _has_bits_[0] |= 0x00000001u;
   } else {
-    _has_bits_[0] &= ~0x00000002u;
+    _has_bits_[0] &= ~0x00000001u;
   }
   camera_name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), camera_name);
   // @@protoc_insertion_point(field_set_allocated:CameraInfo.camera_name)
 }
 
-// optional uint32 port = 5;
+// optional string ip = 4;
+inline bool CameraInfo::has_ip() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void CameraInfo::clear_ip() {
+  ip_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline const ::std::string& CameraInfo::ip() const {
+  // @@protoc_insertion_point(field_get:CameraInfo.ip)
+  return ip_.GetNoArena();
+}
+inline void CameraInfo::set_ip(const ::std::string& value) {
+  _has_bits_[0] |= 0x00000002u;
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:CameraInfo.ip)
+}
+#if LANG_CXX11
+inline void CameraInfo::set_ip(::std::string&& value) {
+  _has_bits_[0] |= 0x00000002u;
+  ip_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:CameraInfo.ip)
+}
+#endif
+inline void CameraInfo::set_ip(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000002u;
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:CameraInfo.ip)
+}
+inline void CameraInfo::set_ip(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000002u;
+  ip_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:CameraInfo.ip)
+}
+inline ::std::string* CameraInfo::mutable_ip() {
+  _has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_mutable:CameraInfo.ip)
+  return ip_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* CameraInfo::release_ip() {
+  // @@protoc_insertion_point(field_release:CameraInfo.ip)
+  if (!has_ip()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000002u;
+  return ip_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void CameraInfo::set_allocated_ip(::std::string* ip) {
+  if (ip != nullptr) {
+    _has_bits_[0] |= 0x00000002u;
+  } else {
+    _has_bits_[0] &= ~0x00000002u;
+  }
+  ip_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ip);
+  // @@protoc_insertion_point(field_set_allocated:CameraInfo.ip)
+}
+
+// optional string address = 5;
+inline bool CameraInfo::has_address() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void CameraInfo::clear_address() {
+  address_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline const ::std::string& CameraInfo::address() const {
+  // @@protoc_insertion_point(field_get:CameraInfo.address)
+  return address_.GetNoArena();
+}
+inline void CameraInfo::set_address(const ::std::string& value) {
+  _has_bits_[0] |= 0x00000004u;
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:CameraInfo.address)
+}
+#if LANG_CXX11
+inline void CameraInfo::set_address(::std::string&& value) {
+  _has_bits_[0] |= 0x00000004u;
+  address_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:CameraInfo.address)
+}
+#endif
+inline void CameraInfo::set_address(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000004u;
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:CameraInfo.address)
+}
+inline void CameraInfo::set_address(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000004u;
+  address_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:CameraInfo.address)
+}
+inline ::std::string* CameraInfo::mutable_address() {
+  _has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_mutable:CameraInfo.address)
+  return address_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* CameraInfo::release_address() {
+  // @@protoc_insertion_point(field_release:CameraInfo.address)
+  if (!has_address()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000004u;
+  return address_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void CameraInfo::set_allocated_address(::std::string* address) {
+  if (address != nullptr) {
+    _has_bits_[0] |= 0x00000004u;
+  } else {
+    _has_bits_[0] &= ~0x00000004u;
+  }
+  address_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), address);
+  // @@protoc_insertion_point(field_set_allocated:CameraInfo.address)
+}
+
+// optional uint32 port = 6;
 inline bool CameraInfo::has_port() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void CameraInfo::clear_port() {
   port_ = 0u;
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline ::google::protobuf::uint32 CameraInfo::port() const {
   // @@protoc_insertion_point(field_get:CameraInfo.port)
   return port_;
 }
 inline void CameraInfo::set_port(::google::protobuf::uint32 value) {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000040u;
   port_ = value;
   // @@protoc_insertion_point(field_set:CameraInfo.port)
 }
 
-// optional string url = 6;
+// optional string url = 7;
 inline bool CameraInfo::has_url() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void CameraInfo::clear_url() {
   url_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline const ::std::string& CameraInfo::url() const {
   // @@protoc_insertion_point(field_get:CameraInfo.url)
   return url_.GetNoArena();
 }
 inline void CameraInfo::set_url(const ::std::string& value) {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   url_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
   // @@protoc_insertion_point(field_set:CameraInfo.url)
 }
 #if LANG_CXX11
 inline void CameraInfo::set_url(::std::string&& value) {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   url_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
   // @@protoc_insertion_point(field_set_rvalue:CameraInfo.url)
@@ -916,18 +992,18 @@ inline void CameraInfo::set_url(::std::string&& value) {
 #endif
 inline void CameraInfo::set_url(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   url_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:CameraInfo.url)
 }
 inline void CameraInfo::set_url(const char* value, size_t size) {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   url_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
   // @@protoc_insertion_point(field_set_pointer:CameraInfo.url)
 }
 inline ::std::string* CameraInfo::mutable_url() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000008u;
   // @@protoc_insertion_point(field_mutable:CameraInfo.url)
   return url_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
@@ -936,26 +1012,26 @@ inline ::std::string* CameraInfo::release_url() {
   if (!has_url()) {
     return nullptr;
   }
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000008u;
   return url_.ReleaseNonDefaultNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void CameraInfo::set_allocated_url(::std::string* url) {
   if (url != nullptr) {
-    _has_bits_[0] |= 0x00000004u;
+    _has_bits_[0] |= 0x00000008u;
   } else {
-    _has_bits_[0] &= ~0x00000004u;
+    _has_bits_[0] &= ~0x00000008u;
   }
   url_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), url);
   // @@protoc_insertion_point(field_set_allocated:CameraInfo.url)
 }
 
-// optional .ECameraStatusType state = 7;
+// optional .ECameraStatusType state = 8;
 inline bool CameraInfo::has_state() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void CameraInfo::clear_state() {
   state_ = 0;
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline ::ECameraStatusType CameraInfo::state() const {
   // @@protoc_insertion_point(field_get:CameraInfo.state)
@@ -963,7 +1039,7 @@ inline ::ECameraStatusType CameraInfo::state() const {
 }
 inline void CameraInfo::set_state(::ECameraStatusType value) {
   assert(::ECameraStatusType_IsValid(value));
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000080u;
   state_ = value;
   // @@protoc_insertion_point(field_set:CameraInfo.state)
 }

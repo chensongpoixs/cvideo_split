@@ -187,6 +187,7 @@ namespace chen {
 		{
 			Json::Value camera;
 			camera["camera_id"] = iter->second.camera_id();
+			camera["ip"] = iter->second.ip();
 			camera["camera_name"] = iter->second.camera_name();
 			camera["address"] = iter->second.address();
 			camera["port"] = iter->second.port();
@@ -261,6 +262,11 @@ namespace chen {
 				WARNING_EX_LOG("config  warr camera_id !!!");
 				continue;
 			}
+			if (!data[i].isMember("ip") || !data[i]["ip"].asCString())
+			{
+				WARNING_EX_LOG("config  warr ip !!!");
+				continue;
+			}
 			if (!data[i].isMember("address") || !data[i]["address"].isString())
 			{
 				WARNING_EX_LOG("config  warr address !!!");
@@ -281,6 +287,7 @@ namespace chen {
 				WARNING_EX_LOG("config  warr url !!!");
 				continue;
 			}
+			camera_info.set_ip(data[i]["ip"].asString());
 			camera_info.set_camera_id(data[i]["camera_id"].asUInt64());
 			camera_info.set_address(data[i]["address"].asString());
 			camera_info.set_camera_name(data[i]["camera_name"].asString());

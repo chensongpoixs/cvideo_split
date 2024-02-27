@@ -58,7 +58,25 @@
         var address = reg.exec(window.location.href)[0];
         var apiAddress = "http://"+address+":6036/json";//"http://30.17.58.3:6036/json";
         var coreApiAddress="http://"+address+":8087/"; //"http://30.17.58.3:8087/";
+        var api_data_address = 'http://127.0.0.1:9700/';// video_split/v1/camera_list/page=0&page_size=10';
         var playsStyle="/root/out.mp4";
+
+        function ajaxGet(url, successCallback, errorCallback) 
+        {
+            console.log("http get = " + url);
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', url);
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+              if (xhr.status === 200) {
+                successCallback(xhr.responseText);
+              } else {
+                errorCallback(xhr.statusText);
+              }
+            }
+          };
+          xhr.send();
+        }
         //上传excel
         layui.use(['form', 'upload'], function () {
             var $ = layui.jquery
@@ -91,26 +109,35 @@
         })
 
         //初始化数据
-        function InitData() {
-            var message = '{"msg":"get_camera_info"}';
-            $.ajax({
-                type: "POST",
-                dataType: "text",
-                //url: '/json',
-                url: apiAddress,
-                contentType: "application/json",
-                timeout: 5000,
-                data: message,
-                success: function (result) {
-                    // console.log("摄像头资源InitData:" + result);
-                    var obj = JSON.parse(result);
-                    LoadTable(obj.video_souce_info);
-                }
-            });
+        function InitData() 
+        {
+            console.log('InitData');
+            // var message = '{"msg":"get_camera_info"}';
+            var cameras_url = api_data_address + 'video_split/v1/camera_list/page=0&page_size=1000';
+            ajaxGet(cameras_url, function(result){
+                console.log('camera_list = ' + result);
+                var obj = JSON.parse(result);
+                LoadTable(obj.camera_infos);
+            }, function(result){});
+            // $.ajax({
+            //     type: "POST",
+            //     dataType: "text",
+            //     //url: '/json',
+            //     url: apiAddress,
+            //     contentType: "application/json",
+            //     timeout: 5000,
+            //     data: message,
+            //     success: function (result) {
+            //         // console.log("摄像头资源InitData:" + result);
+            //         var obj = JSON.parse(result);
+            //         LoadTable(obj.video_souce_info);
+            //     }
+            // });
         }
 
         //发送execl导入请求
-        function SendData(data) {
+        function SendData(data) 
+        {
             var send_str = message(data);
             $.ajax({
                 type: "POST",
@@ -124,7 +151,8 @@
                 }
             });
         }
-        var message = function EachExcelData(data) {
+        var message = function EachExcelData(data) 
+        {
             var message = '{"msg": "set_camera_info","video_souce_info": [';
             if (data.length > 0) {
                 $.each(data, function (index, item) {
@@ -156,8 +184,10 @@
         }
 
         //渲染table
-        function LoadTable(data) {
-            layui.use(['form', 'table'], function () {
+        function LoadTable(data)
+        {
+            layui.use(['form', 'table'], function () 
+            {
                 var table = layui.table
                     , form = layui.form;
                 //展示已知数据
@@ -165,9 +195,9 @@
                     elem: '#datatable'
                     , cols: [[ //标题栏
                         {
-                            field: 'xh', title: '序号', width: '4%', align: 'center', templet: '#xh'
+                            field: 'camera_id', title: '序号', width: '4%', align: 'center', templet: '#camera_id'
                         }
-                        , { field: 'name', title: '摄像机名称', width: '30%' }
+                        , { field: 'camera_name', title: '摄像机名称', width: '30%' }
                         , { field: 'ip', title: 'IP地址', width: '15%' }
                         , { field: 'address', title: '组播地址', width: '10%' }
                         , { field: 'port', title: '组播端口', width: '10%' }
@@ -198,7 +228,9 @@
                 table.on('tool(table)', function (obj) {
                     var data = obj.data;
                     if (obj.event === 'delete')
+                    {
                         DeletePJ(obj);
+                    }
                     // else if (obj.event === 'start')//此功能服务端没提供，暂停使用
                     //     Play(data);
                 });
@@ -206,45 +238,56 @@
         }
 
         //删除行
-        function DeletePJ(obj) {
-        cameras=sendGetTileAjax();
-        if(cameras.length>0)
+        function DeletePJ(obj) 
         {
-            var flag= ValidateCameraIsUse(cameras,obj.data.camera_id);
-            if(flag)
+            cameras=sendGetTileAjax();
+            if(cameras.length>0)
             {
-                layer.msg("【"+obj.data.name+"】"+'摄像机拼接使用中，无法删除');
-                return false;
+                var flag= ValidateCameraIsUse(cameras,obj.data.camera_id);
+                if(flag)
+                {
+                    layer.msg("【"+obj.data.name+"】"+'摄像机拼接使用中，无法删除');
+                    return false;
+                }
             }
-        }
-            layer.confirm('确定要删除这条摄像头信息？', function (index) {
-            Deletecamera(obj.data);
-            obj.del();
-            layer.close(index);
+            layer.confirm('确定要删除这条摄像头信息？', function (index) 
+            {
+                console.log('obj = ' + JSON.stringify(obj.data));
+                Deletecamera(obj.data);
+                obj.del();
+                layer.close(index);
             });
         }
 
 function Deletecamera(data)
 {
-    
+    // http://127.0.0.1:9700/video_split/v1/delete_camera/camera_id=99
+    var delete_camera_url = api_data_address + 'video_split/v1/delete_camera/camera_id=' + data.camera_id;
     var send_str='{"msg":"del_camera_info","camera_id":["'+data.camera_id+'"]}';
-    $.ajax({
-                type: "POST",
-                dataType: "text",
-                url: apiAddress,
-                contentType: "application/json",
-                data: send_str,
-                timeout: 5000,
-                success: function (result) {
-                    console.log("删除摄像头资源:"+result);
-                    var objs = JSON.parse(result);
-                    if(objs.status==="success")
-                    {
-                        layer.msg('删除成功');
-                    }
+
+    ajaxGet(delete_camera_url, function(result){
+        console.log('delete camera_id = ' + data.camera_id + ' OK !!! （result = '+result+'）');
+    }, function(result){
+        console.log('delete camera_id = ' + data.camera_id + ' Failed  (result = '+result+')!!!');
+    });
+    // $.ajax({
+    //             type: "POST",
+    //             dataType: "text",
+    //             url: apiAddress,
+    //             contentType: "application/json",
+    //             data: send_str,
+    //             timeout: 5000,
+    //             success: function (result) 
+    //             {
+    //                 console.log("删除摄像头资源:"+result);
+    //                 var objs = JSON.parse(result);
+    //                 if(objs.status==="success")
+    //                 {
+    //                     layer.msg('删除成功');
+    //                 }
                     
-                }
-            });
+    //             }
+    //         });
 }
 
 function sendGetTileAjax() {
@@ -319,7 +362,7 @@ function ValidateCameraIsUse(cameras,camera_id)
             button.value = "Play";
             button.src = "img/play.png";
         }
-var loadCameras;
+    var loadCameras;
     //定时获取所有拼接数据状态
     function ExecSetCamerasTimeout()
         {

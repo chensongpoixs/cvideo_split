@@ -172,8 +172,10 @@ namespace chen {
 				std::string	camera_name;
 				uint32 port = 0;
 				std::string url;
+				std::string ip;
 				PARSE_VALUE(camera_id, UInt);
 				PARSE_VALUE(address, String);
+				PARSE_VALUE(ip, String);
 				PARSE_VALUE(camera_name, String);
 				PARSE_VALUE(port, UInt);
 				PARSE_VALUE(url, String);
@@ -183,6 +185,7 @@ namespace chen {
 					WARNING_EX_LOG("web parse json alloc protobuff failed !!!");
 					continue;
 				}
+				camera_ptr->set_ip(ip);
 				camera_ptr->set_camera_id(camera_id);
 				camera_ptr->set_address(address);
 				camera_ptr->set_camera_name(camera_name);
@@ -213,6 +216,7 @@ namespace chen {
 				CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
 				CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
 				CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
+				CameraInfo["ip"] = result.camera_infos.camera_infos(i).ip();
 				reply["camera_infos"].append(CameraInfo);
 			} 
 		}
@@ -243,6 +247,7 @@ namespace chen {
 			CameraInfo["camera_name"] = result.camera_infos.camera_infos(i).camera_name();
 			CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
 			CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
+			CameraInfo["ip"] = result.camera_infos.camera_infos(i).ip();
 			CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
 			reply["camera_infos"].append(CameraInfo);
 		}
