@@ -126,7 +126,8 @@ namespace chen {
 			else
 				throw std::invalid_argument("could not read file");
 		}
-		catch (const std::exception& e) {
+		catch (const std::exception& e) 
+		{
 			response->write(SimpleWeb::StatusCode::client_error_bad_request, "Could not open path " + request->path + ": " + e.what());
 		}
 	}

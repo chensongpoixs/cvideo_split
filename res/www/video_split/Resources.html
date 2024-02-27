@@ -59,6 +59,7 @@
         var apiAddress = "http://"+address+":6036/json";//"http://30.17.58.3:6036/json";
         var coreApiAddress="http://"+address+":8087/"; //"http://30.17.58.3:8087/";
         var api_data_address = 'http://127.0.0.1:9700/';// video_split/v1/camera_list/page=0&page_size=10';
+        var api_execl_address = 'http://127.0.0.1:8808/';
         var playsStyle="/root/out.mp4";
 
         function ajaxGet(url, successCallback, errorCallback) 
@@ -85,18 +86,23 @@
 
             var uploadFile = upload.render({ //允许上传的文件后缀
                 elem: '#onexcel',
-                url: coreApiAddress+'api/values/ee',
+                url: api_execl_address + 'user/parse_table',//coreApiAddress+'api/values/ee',
                 //drag: false,
                 accept: 'file',
                 size: 4096000,
                 exts: 'xls|xlsx|csv|CSV',
                 auto: true,
-                done: function (res) {
+                done: function (res)
+                {
                     if (res.code == 0) {
-                        SendData(res.data);//先将excel发送存储
-                        InitData();//再读取绑定table
+                        SendData(res.camera_group);//先将excel发送存储
+                        // InitData();//再读取绑定table
                     }
-                    else layer.msg('上传失败！');
+                    else 
+                    {
+                        console.log(res);
+                        layer.msg('上传失败！');
+                    }
                 },
                 error: function (index, upload) {
                     $("#UploadWindow").css({ "display": "none" });
@@ -139,48 +145,66 @@
         function SendData(data) 
         {
             var send_str = message(data);
+            console.log(send_str);
             $.ajax({
                 type: "POST",
                 dataType: "text",
-                url: apiAddress,
+                url: api_data_address + 'video_split/v1/add_camera_info',
                 contentType: "application/json",
                 data: send_str,
                 timeout: 5000,
                 success: function (result) {
                     var objs = JSON.parse(result);
+                    if (objs.result == 0)
+                    {
+                        InitData();//再读取绑定table
+                    }
+                    
                 }
             });
         }
         var message = function EachExcelData(data) 
         {
-            var message = '{"msg": "set_camera_info","video_souce_info": [';
-            if (data.length > 0) {
-                $.each(data, function (index, item) {
-                    message += '{';
-                    message += '"camera_id":"' + item.camera_id + '",';
-                    // message+='"urlorfile":"/root/1.264",';
+            // var message = '{"msg": "set_camera_info","video_souce_info": [';
+            // if (data.length > 0) {
+            //     $.each(data, function (index, item) {
+            //         message += '{';
+            //         message += '"camera_id":"' + item.camera_id + '",';
+            //         // message+='"urlorfile":"/root/1.264",';
 
-                    //message+='"urlorfile":"'+playsStyle+'",';
-                    // if(item.ip==""||item.ip==null||typeof(item.ip)=='undefined')
-                    // {
-                    //     //message += '"urlorfile":"udp://' + item.address + ':' + item.port + '",';
-                    //     message += '"urlorfile":"rtsp://admin:zhuoshi123@' + item.address +'",';
-                    // }else
-                    // {
-                    //     message += '"urlorfile":"rtsp://admin:admin12345@' + item.ip +'",';
-                    // }
-                    message += '"urlorfile":"udp://' + item.address + ':' + item.port + '",';
-                    message += '"name":"' + item.name + '",';
-                    message += '"ip":"' + item.ip + '",';
-                    message += '"address":"' + item.address + '",';
-                    message += '"port":"' + item.port + '",';
-                    message += '"state":"' + item.state + '"';
-                    message += '},';
-                });
-                message = message.substring(0, message.length - 1);
+            //         //message+='"urlorfile":"'+playsStyle+'",';
+            //         // if(item.ip==""||item.ip==null||typeof(item.ip)=='undefined')
+            //         // {
+            //         //     //message += '"urlorfile":"udp://' + item.address + ':' + item.port + '",';
+            //         //     message += '"urlorfile":"rtsp://admin:zhuoshi123@' + item.address +'",';
+            //         // }else
+            //         // {
+            //         //     message += '"urlorfile":"rtsp://admin:admin12345@' + item.ip +'",';
+            //         // }
+            //         message += '"urlorfile":"udp://' + item.address + ':' + item.port + '",';
+            //         message += '"name":"' + item.name + '",';
+            //         message += '"ip":"' + item.ip + '",';
+            //         message += '"address":"' + item.address + '",';
+            //         message += '"port":"' + item.port + '",';
+            //         message += '"state":"' + item.state + '"';
+            //         message += '},';
+            //     });
+            //     message = message.substring(0, message.length - 1);
+            // }
+            // message += "]}";
+            let camera_infos_ = [];
+            for (var i = 0; i < data.length; ++i)
+            {
+                camera_infos_.push({"ip": data[i].ip,
+                                    "camera_name": data[i].camera_name,
+                                    "address": data[i].address, 
+                                    "port": parseInt(data[i].port),
+                                    "url": "udp://@"+data[i].address+":"+ parseInt(data[i].port) });
             }
-            message += "]}";
-            return message;
+            
+            return JSON.stringify({
+                "camera_infos": camera_infos_
+            });
         }
 
         //渲染table
@@ -240,16 +264,16 @@
         //删除行
         function DeletePJ(obj) 
         {
-            cameras=sendGetTileAjax();
-            if(cameras.length>0)
-            {
-                var flag= ValidateCameraIsUse(cameras,obj.data.camera_id);
-                if(flag)
-                {
-                    layer.msg("【"+obj.data.name+"】"+'摄像机拼接使用中，无法删除');
-                    return false;
-                }
-            }
+            // cameras=sendGetTileAjax();
+            // if(cameras.length>0)
+            // {
+            //     var flag= ValidateCameraIsUse(cameras,obj.data.camera_id);
+            //     if(flag)
+            //     {
+            //         layer.msg("【"+obj.data.name+"】"+'摄像机拼接使用中，无法删除');
+            //         return false;
+            //     }
+            // }
             layer.confirm('确定要删除这条摄像头信息？', function (index) 
             {
                 console.log('obj = ' + JSON.stringify(obj.data));

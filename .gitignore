@@ -17,7 +17,9 @@
 /bin/x64
 /cvideo_split.7z
 /res/execl/摄像机表.xls
-/web_api
+ 
 /common/common.vcxproj.user
 /bin/data/camera_list.json
 /bin/data/video_split_list.json
+/web_api/springboot-knife4j/target
+/web_api/springboot-knife4j/.idea
