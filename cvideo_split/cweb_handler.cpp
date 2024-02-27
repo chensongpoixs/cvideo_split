@@ -326,12 +326,12 @@ namespace chen {
 				return;
 			}
 			Json::Value camera_group_json = data["camera_group"];
-			if (camera_group_json.size() < 2 || camera_group_json.size () > 10)
+			/*if (camera_group_json.size() < 2 || camera_group_json.size () > 10)
 			{
 				std::string message = "camera_group [size = " + std::to_string(camera_group_json.size()) + "]";
 				web_guard_reply.set_result(EWebVideoSplitCameraGroupNum, message);
 				return;
-			}
+			}*/
 			for (Json::ArrayIndex i = 0; i < camera_group_json.size(); ++i)
 			{
 				if (!camera_group_json[i].isMember("camera_id") || !camera_group_json[i]["camera_id"].isUInt())
@@ -396,14 +396,6 @@ namespace chen {
 			else
 			{
 				video_split_info.set_out_video_width(data["out_video_width"].asUInt());
-			//}
-			//if ()
-			//{
-			//	//web_guard_reply.set_result(EWebJsonParam, "overlay ");
-			//	video_split_info.set_out_video_height(1920);
-			//}
-			//else
-			//{
 				video_split_info.set_out_video_height(data["out_video_height"].asUInt());
 			}
 		}
@@ -568,17 +560,23 @@ namespace chen {
 			return;
 		}
 
-		std::string channel_id;
-		std::string txt;
-
-		uint32 fontsize ;
-		double x;
-		double y;
+		
+		VideoSplitOsd video_osd;
 		try
 		{
-			if (!data.isMember("channel_id") || !data["channel_id"].isString())
+			if (!data.isMember("split_channel_id") || !data["split_channel_id"].isString())
 			{
-				web_guard_reply.set_result(EWebJsonParam, "channel_id ");
+				web_guard_reply.set_result(EWebJsonParam, "split_channel_id ");
+				return;
+			}
+			if (!data.isMember("out_video_width") || !data["out_video_width"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "out_video_width ");
+				return;
+			}
+			if (!data.isMember("out_video_height") || !data["out_video_height"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "out_video_height ");
 				return;
 			}
 			if (!data.isMember("txt") || !data["txt"].isString())
@@ -603,12 +601,13 @@ namespace chen {
 				return;
 			}
 
-			channel_id = data["channel_id"].asString();
-			txt = data["txt"].asString();
-			fontsize = data["fontsize"].asUInt();
-
-			x = data["x"].asDouble();
-			y = data["y"].asDouble();
+			video_osd.set_split_channel_id(data["split_channel_id"].asString());
+			video_osd.set_txt( data["txt"].asString());
+			video_osd.set_fontsize(data["fontsize"].asUInt());
+			video_osd.set_video_width(data["out_video_width"].asUInt());
+			video_osd.set_video_height(data["out_video_height"].asUInt());
+			video_osd.set_x( data["x"].asDouble());
+			video_osd.set_y( data["y"].asDouble());
 		}
 		catch (const std::exception&)
 		{
@@ -620,8 +619,18 @@ namespace chen {
 		}
 
 
-		uint32 result = g_web_http_api_proxy.modify_video_split(channel_id, txt, fontsize, x,y);
-		web_guard_reply.set_result(result);
+		cresult_video_split_osd result = g_web_http_api_proxy.modify_video_split(video_osd);
+		web_guard_reply.set_result(result.result);
+		if (result.result == EWebSuccess)
+		{
+			reply["split_channel_id"] = result.video_split_osd.split_channel_id();
+			reply["out_video_width"] = result.video_split_osd.video_width();
+			reply["out_video_height"] = result.video_split_osd.video_height();
+			reply["txt"] = result.video_split_osd.txt();
+			reply["fontsize"] = result.video_split_osd.fontsize();
+			reply["x"] = result.video_split_osd.x();
+			reply["y"] = result.video_split_osd.y();
+		}
 	}
 
 }

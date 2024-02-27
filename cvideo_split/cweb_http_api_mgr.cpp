@@ -274,8 +274,8 @@ namespace chen {
 		return g_video_split_mgr.handler_web_cmd_video_split(channel_name, cmd);
 	//  return uint32();
 	}
-	uint32		cweb_http_api_mgr:: modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y)
+	cresult_video_split_osd		cweb_http_api_mgr:: modify_video_split(const VideoSplitOsd& video_osd)
 	{
-		return g_video_split_info_mgr.handler_web_modify_video_split(channel_id, txt, fontsize, x, y);
+		return g_video_split_info_mgr.handler_web_modify_video_split(video_osd);
 	}
 }

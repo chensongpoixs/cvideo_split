@@ -160,18 +160,26 @@ function LoadVideo(data, num)
 }
 
 //确定事件/***/@@@@@@@@@@@@@@@@@@
-function RequeryCropArray() {
+function RequeryCropArray() 
+{
+    console.log('RequeryCropArray');
     var messageAll = '{"msg": "start_tile","video_souce_info": [';
     var style = $("#style").val();
+    console.log('style = ' + style);
     //iscrop = true;
     let mess = videoMsg(parseInt(style)); //拼接发送json
-    if (!mess) {layer.msg('无有效相机进行拼接！');return false;}
-    messageAll += mess;
-    console.log(messageAll);
-    sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
-    let TID = $("#TID").val();
-    var gettileinfo = '{"msg": "get_tile_info"}';
-    sendAjax(gettileinfo, "get");
+    if (!mess) 
+    {
+        layer.msg('无有效相机进行拼接！');
+        return false;
+    }
+     send_video_split(mess);
+    // messageAll += mess;
+    // console.log(messageAll);
+    // sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
+    // let TID = $("#TID").val();
+    // var gettileinfo = '{"msg": "get_tile_info"}';
+    // sendAjax(gettileinfo, "get");
 }
 
 
@@ -454,7 +462,8 @@ function GetCameraImage(message,init,num,i)
 }
 
 //拼接发送信息  playCanvas
-let videoMsg = function (num) {
+let videoMsg = function (num)
+{
     let Tname = $("#Tname").val();
     let TID = $("#TID").val();
     let address = $("#playAdd").val();
@@ -463,19 +472,41 @@ let videoMsg = function (num) {
     var style = $("#style").val();
     var isfold=$("#isfold").val();
     let messgae = "";
-    if (ValidateStringOR(Tname)) { layer.msg('请输入拼接通道名称'); return false; }
-    if (ValidateStringOR(TID)) { layer.msg('请输入通道ID'); return false; }
-    if (ValidateStringOR(address)) { layer.msg('请输入组播地址'); return false; }
-    if (ValidateStringOR(port)) { layer.msg('请输入组播端口'); return false; }
-    if (num > 0) {
+    if (ValidateStringOR(Tname)) 
+    { 
+        layer.msg('请输入拼接通道名称'); 
+        console.log(' not find split_channel_id == null');
+        return false; 
+    }
+    if (ValidateStringOR(TID)) 
+    { 
+        layer.msg('请输入通道ID'); 
+        return false; 
+    }
+    if (ValidateStringOR(address)) 
+    { 
+        layer.msg('请输入组播地址'); 
+        return false; 
+    }
+    if (ValidateStringOR(port)) 
+    { 
+        layer.msg('请输入组播端口'); 
+        return false; 
+    }
+    let camera_infos_group = [];
+    if (num > 0) 
+    {
         for (var i = 1; i <= num; i++) {
             var state=$("#container"+i).attr("data-state");
             if(state=="false")
-                continue;
+            {
+                // continue;
+            }    
+
             var msg = "{";
             let videoName = $("#videoName" + i).val();
-            if(videoName=='-1' || typeof(videoName)=='undefined')
-               continue;
+            // if(videoName=='-1' || typeof(videoName)=='undefined')
+               // continue;
             let up = $("#up" + i).val();
             let down = $("#down" + i).val();
             let left = $("#left" + i).val();
@@ -485,44 +516,117 @@ let videoMsg = function (num) {
             down = parseInt(down) / bgheight;
             left = parseInt(left) / bgwidth;
             right = parseInt(right) / bgwidth;
-            msg += '"camera_id": "' + videoName + '",';
+            let cropImageWidth = $("#cropImageWidth" + i).val();
+            let cropImageHeight = $("#cropImageHeight" + i).val();
+            // msg += '"camera_id": "' + videoName + '",';
             //msg+='"urlorfile":"'+addStyle+'",';
             //msg+='"urlorfile":"/root/1.264",';
-            var cam_ip = $("#ip_" + videoName).val();
-            // if (ValidateStringOR(cam_ip)) {
-            //    // msg += '"urlorfile":"udp://' + $("#address_" + videoName).val() + ':' + $("#port_" + videoName).val() + '",';
-            //    msg += '"urlorfile":"rtsp://admin:zhuoshi123@' + $("#address_" + videoName).val() + '",';
-            // } else {
-            //     msg += '"urlorfile":"rtsp://admin:admin12345@' + $("#ip_" + videoName).val() + '",';
-            // }
-            msg += '"urlorfile":"udp://' + $("#address_" + videoName).val() + ':' + $("#port_" + videoName).val() + '",';
-            msg += '"vendor": 1,';
-            msg += '"crop": { "l":' + left + ',"t":' + up + ',"r":' + right + ',"b":' + down + '},';
-            msg += '"tile_video_id":"' + TID + '",';
-            msg += '"idx_in_tile":' + (i - 1) + '},';
-            messgae += msg;
+            // var cam_ip = $("#ip_" + videoName).val();
+            // // if (ValidateStringOR(cam_ip)) {
+            // //    // msg += '"urlorfile":"udp://' + $("#address_" + videoName).val() + ':' + $("#port_" + videoName).val() + '",';
+            // //    msg += '"urlorfile":"rtsp://admin:zhuoshi123@' + $("#address_" + videoName).val() + '",';
+            // // } else {
+            // //     msg += '"urlorfile":"rtsp://admin:admin12345@' + $("#ip_" + videoName).val() + '",';
+            // // }
+            // msg += '"urlorfile":"udp://' + $("#address_" + videoName).val() + ':' + $("#port_" + videoName).val() + '",';
+            // msg += '"vendor": 1,';
+            // msg += '"crop": { "l":' + left + ',"t":' + up + ',"r":' + right + ',"b":' + down + '},';
+            // msg += '"tile_video_id":"' + TID + '",';
+            // msg += '"idx_in_tile":' + (i - 1) + '},';
+            // messgae += msg;
+
+            cropImageWidth = parseInt(cropImageWidth)/ bgwidth;
+            cropImageHeight = parseInt(cropImageHeight)/ bgheight;
+            //tileArray[]
+            
+            camera_infos_group.push({   camera_id: parseInt(videoName),
+                                        index: parseInt((i-1)),
+                                        x: left,
+                                        y: up,
+                                        w: cropImageWidth ,
+                                        h: cropImageHeight});
         }
       
         // messageAll += messgae;
     }
-    if(messgae=="")
-     return messgae;
-     messgae = messgae.substring(0, messgae.length - 1) + "],";
-    messgae += '"video_tile": [{';
-    messgae += '"ip": "' + TID + '",';
-    messgae += '"name": "' + Tname + '",';
-    messgae += '"address": "' + address + '",';
-    messgae += '"port": "' + port + '",';
-    messgae += '"style": ' + style + ',';
-    messgae += '"state": 1,';
-    messgae += '"islock":' + parseInt(islock) + ',';
-    messgae += '"id": "' + TID + '",';
-    messgae += '"fix_1080p":' + parseInt(islock) + ',';
-    messgae += '"is_fold": ' + isfold + ',';
-    messgae += '"multicast_ip":"' + address + '",';
-    messgae += '"multicast_port":' + port + ' }]';
-    messgae += "}";
-    return messgae;
+        let split_video_message = {
+                "split_channel_name": Tname,
+                "split_channel_id": TID,
+                "multicast_ip": address,
+                "multicast_port": parseInt(port), 
+                "split_method": 0 ,
+                "lock_1080p": parseInt(islock) ,
+                "overlay": 0,  
+                "camera_group" : camera_infos_group
+
+        };
+
+        console.log('split_video_message = ' + JSON.stringify(split_video_message));
+
+    return  JSON.stringify(split_video_message); 
+    // if(messgae=="")
+    // {
+    //     console.log('messgae num = ' + num);
+    //     return messgae;
+    // }
+    // messgae = messgae.substring(0, messgae.length - 1) + "],";
+    // messgae += '"video_tile": [{';
+    // messgae += '"ip": "' + TID + '",';
+    // messgae += '"name": "' + Tname + '",';
+    // messgae += '"address": "' + address + '",';
+    // messgae += '"port": "' + port + '",';
+    // messgae += '"style": ' + style + ',';
+    // messgae += '"state": 1,';
+    // messgae += '"islock":' + parseInt(islock) + ',';
+    // messgae += '"id": "' + TID + '",';
+    // messgae += '"fix_1080p":' + parseInt(islock) + ',';
+    // messgae += '"is_fold": ' + isfold + ',';
+    // messgae += '"multicast_ip":"' + address + '",';
+    // messgae += '"multicast_port":' + port + ' }]';
+    // messgae += "}";
+    // console.log('messgae = ' + messgae);
+    // return messgae;
+}
+function send_video_split(msg)
+{
+    restart_video_split(1);
+    $.ajax({
+        type: "POST",
+        dataType: "text",
+        //url: '/json',
+        url: modify_video_url,
+        contentType: "application/json",
+        data: msg,
+        async:false,
+        timeout: 5 * 1000,
+        success: function (result) 
+        {
+            console.log(result); 
+            var objs= JSON.parse(result);
+            if (objs.result == 0)
+            {
+                // 设置高度和宽度
+                $("#pj_width").val(objs.data.out_video_width);
+                $("#pj_height").val(objs.data.out_video_height);
+                restart_video_split(0);
+               
+            }
+                
+        }
+    }); 
+}
+function  restart_video_split(code)
+{
+     let TID = $("#TID").val();
+    var   http_url = cmd_split_video_url + 'split_channel_id=' + TID + '&cmd=';
+
+    ajaxGet(http_url + code, function(result){
+        if (code == 0)
+        {
+             playVideo();
+        }
+    }, function(result){});
+     
 }
 
 //发送ajax，获取拼接流地址信息，拼接视频播放
@@ -559,27 +663,40 @@ function sendAjax(send_str, action) {
 }
 
 //播放视频
-function playVideo() {
+function playVideo() 
+{
     var domain = document.domain;
+    let address = $("#playAdd").val();
+         
+    let port = $("#playPort").val();
+    if ( ValidateStringOR(address))  { layer.msg('请输入组播地址'); return false; }
+    if ( ValidateStringOR(port)) { layer.msg('请输入组播端口'); return false; }
     //var domain = "likp.top";
     var canvas = document.getElementById("playCanvas");
     if (!canvas) {
         return false;
     }
-    if (!document.player) {
+    if (!document.player)
+     {
         document.player = new Player();
     }
     //var playAdd = "tstream://"+id;
-    var playAdd = "tstream://" + $("#TID").val();
+    // var playAdd = "tstream://" + $("#TID").val();
+    // document.player.play(domain, playAdd, canvas);
+     var playAdd = "udp://@" + address + ":" + port;
+    console.log('split video url = ' + playAdd);
     document.player.play(domain, playAdd, canvas);
     return true;
 }
 
 //停止播放
-function stopVideo() {
+function stopVideo()
+{
     var canvas = document.getElementById("playCanvas");
     if(document.player!=null)
-      document.player.stop();
+    {
+        document.player.stop();
+    }
 }
 //点击取消事件，摄像头1，2重置， 注意：num为全局变量
 function BtnCancel() {
@@ -644,9 +761,15 @@ function sendGetTileAjax() {
 }
 
 var isFirst = true;
-function BtnOkClick() {
+function BtnOkClick() 
+{
+    console.log('BtnOkClick');
     var flag = JudgeCamID();
-    if (!flag) { layer.msg("不能有重复的摄像机！"); return false; }
+    if (!flag) 
+    { 
+        layer.msg("不能有重复的摄像机！"); 
+        return false; 
+    }
     var isfold=$("#isfold").val();
     var height= isfold==="1"?290:260;
     $("#playCanvas").css("height",height+"px");
@@ -654,16 +777,22 @@ function BtnOkClick() {
         var messageAll = '{"msg": "start_tile","video_souce_info": [';
         var style = $("#style").val();
         //iscrop = true;
+        console.log('style = ' + style);
         let mess = videoMsg(parseInt(style)); //拼接发送json
-        if (!mess) {layer.msg('无有效相机进行拼接！');return false};
-        messageAll += mess;
-        console.log(messageAll);
-        sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
-        stopVideo();
-        let TID = $("#TID").val();
-        var gettileinfo = '{"msg": "get_tile_info"}';
-        console.log(gettileinfo);
-        sendAjax(gettileinfo, "get");
+        if (!mess) 
+        {
+            layer.msg('无有效相机进行拼接！');
+            return false;
+        };
+        send_video_split(mess);
+        // messageAll += mess;
+        // console.log(messageAll);
+        // sendAjax(messageAll, "set"); //发送拼接，获取拼接视频流
+        // stopVideo();
+        // let TID = $("#TID").val();
+        // var gettileinfo = '{"msg": "get_tile_info"}';
+        // console.log(gettileinfo);
+        // sendAjax(gettileinfo, "get");
     } else {
         RequeryCropArray();
         isFirst = false;
@@ -787,14 +916,41 @@ var moveOSD = function () {
     }
 
 }
-
+    function send_osd(msg)
+    {
+            restart_video_split(1);
+            $.ajax({
+            type: "POST",
+            dataType: "text",
+            //url: '/json',
+            url: modify_video_osd_url,
+            contentType: "application/json",
+            data: msg,
+            async:false,
+            timeout: 5 * 1000,
+                success: function (result) 
+                {
+                        console.log(result); 
+                        var objs= JSON.parse(result);
+                        if (objs.result == 0)
+                        {
+                            $("#pj_width").val(objs.out_video_width);
+                            $("#pj_height").val(objs.out_video_height);
+                            //console.log(objs);
+                            restart_video_split(0);
+                          //  playVideo();
+                        }   
+                }
+            });
+    }
 function SendOSD() {
     var obj = document.getElementById("txtOSD");//获取文本框字体大小
     var top = parseInt(getCss(ID("osd"), "top"));
     var left = parseInt(getCss(ID("osd"), "left"));
     //实际top值为：top+input-fontsize   parseInt(obj.style.fontSize)
     var send_str = '{"msg":"set_tile_osd",';
-    if ($("#pj_width").val() == "" || $("#pj_height").val() == "") {
+    if ($("#pj_width").val() == "" || $("#pj_height").val() == "")
+    {
         layer.msg('请先进行摄像机拼接'); return false;
     }
     var videoX = parseInt($("#pj_width").val());
@@ -804,12 +960,26 @@ function SendOSD() {
     var canvasHei= parseInt(getCss(ID("playCanvas"), "height")); 
     left = parseInt(left) / 520;
     top = parseInt(top) / canvasHei;
-    send_str += '"tile_id":"' + $("#TID").val() + '","txt":"' + obj.innerText + '","x":' + left + ',"y":' + top + ',"ft_size":' + fontSize + '}';
+     let osd_msg = {
+            split_channel_id : $("#TID").val(),
+            txt : obj.innerText,
+            fontsize: fontSize,
+            out_video_width: videoX,
+            out_video_height: videoY,
+            x : left,
+            y: top 
+        };
+
     console.log(send_str);
-    sendAjax(send_str, "osd");
-    var gettileinfo = '{"msg": "get_tile_info"}';
-    console.log(gettileinfo);
-    sendAjax(gettileinfo, "get");
+    console.log(JSON.stringify(osd_msg));
+    send_osd(JSON.stringify(osd_msg));
+
+    // send_str += '"tile_id":"' + $("#TID").val() + '","txt":"' + obj.innerText + '","x":' + left + ',"y":' + top + ',"ft_size":' + fontSize + '}';
+    // console.log(send_str);
+    // sendAjax(send_str, "osd");
+    // var gettileinfo = '{"msg": "get_tile_info"}';
+    // console.log(gettileinfo);
+    // sendAjax(gettileinfo, "get");
     $("#osd").css("display", "none");
 } 
 

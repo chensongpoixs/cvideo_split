@@ -189,10 +189,10 @@ namespace chen {
 			WARNING_EX_LOG("can't find codec, codec id:%d ", m_video_stream_ptr->codecpar->codec_id);
 			return false;
 		}
-		AVBufferRef* hw_device_ctx = NULL;
-		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		std::string gpu_index = "0";
-		ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
+		//AVBufferRef* hw_device_ctx = NULL;
+		////创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
+		//std::string gpu_index = "0";
+		//ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
 
 		//5.创建解码器上下文
 		if (!(m_codec_ctx_ptr = avcodec_alloc_context3(codec)))
@@ -217,13 +217,24 @@ namespace chen {
 			//m_codec_ctx_ptr->hw_device_ctx = av_buffer_ref(hw_device_ctx);
 			//m_codec_ctx_ptr->get_format = get_format;
 		}
+		AVDictionary* codec_opts = NULL;
+		//av_dict_set(&codec_opts, "b", "2.5M", 0);
+		av_dict_set(&codec_opts, "gpu", "0", 0);
+		av_dict_set(&codec_opts, "threads", "auto", 0);
+		av_dict_set(&codec_opts, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
+	/*	name dirtc[key = gpu][value = 1]
+			name dirtc[key = threads][value = auto]
+			name dirtc[key = flags][value = +copy_opaque]*/
+
 		//7. 打开解码器上下文 */
-		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, nullptr)) < 0)
+		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, &codec_opts)) < 0)
 		{
-			WARNING_EX_LOG("Failed to open %s codec ",
-				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type));
+			::av_dict_free(&codec_opts);
+			WARNING_EX_LOG("Failed to open %s codec (%s)",
+				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
+		::av_dict_free(&codec_opts);
 		//创建一个frame接收解码之后的帧数据
 		m_picture_ptr = av_frame_alloc();
 		m_packet_ptr = av_packet_alloc();
@@ -260,11 +271,7 @@ namespace chen {
 		 
 
 		
-		if (m_codec_ctx_ptr)
-		{
-			//::avcodec_free_context(&m_codec_ctx_ptr);
-			m_codec_ctx_ptr = NULL;
-		}
+		
 		if (m_sws_ctx_ptr)
 		{
 			::sws_freeContext(m_sws_ctx_ptr);
@@ -274,6 +281,11 @@ namespace chen {
 		{
 			::avformat_close_input(&m_ic_ptr);
 			m_ic_ptr = NULL;
+		}
+		if (m_codec_ctx_ptr)
+		{
+			::avcodec_free_context(&m_codec_ctx_ptr);
+			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
 		if (m_picture_ptr)

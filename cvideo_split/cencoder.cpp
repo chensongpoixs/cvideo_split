@@ -314,16 +314,17 @@ namespace chen {
 		}
 		m_url.clear();
 
-		if (m_codec_ctx_ptr)
-		{
-			//::avcodec_free_context(&m_codec_ctx_ptr);
-			m_codec_ctx_ptr = NULL;
-		}
+		
 		 
 		if (m_push_format_context_ptr)
 		{
 			::avformat_close_input(&m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
+		}
+		if (m_codec_ctx_ptr)
+		{
+			::avcodec_free_context(&m_codec_ctx_ptr);
+			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
 		if (m_hw_frame_ptr)
@@ -385,7 +386,7 @@ namespace chen {
 			std::chrono::system_clock::now().time_since_epoch()) - m_mic;
 		//frame_ptr->pts = (current_mic.count() / 10) + AV_TIME_BASE;
 		++m_frame_count;
-		if (m_frame_count == 1000)
+		if (m_frame_count == 65535)
 		{
 			m_frame_count = 0;
 		}

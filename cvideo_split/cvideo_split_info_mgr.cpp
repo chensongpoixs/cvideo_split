@@ -90,6 +90,35 @@ namespace chen {
 				video_split_info.set_out_video_width(iter->second.out_video_width());
 				video_split_info.set_out_video_height(iter->second.out_video_height());
 			}
+
+			{
+				for (size_t i = 0; i < video_split_info.camera_group_size(); ++i)
+				{
+					bool find = false;
+					for (size_t j = 0; j < iter->second.camera_group_size(); ++j)
+					{
+						if (video_split_info.camera_group(i).index() == iter->second.camera_group(j).index())
+						{
+							find = true;
+							*iter->second.mutable_camera_group(j) = video_split_info.camera_group(i);
+						}
+					}
+					if (!find)
+					{
+						CameraGroup * camera_group_ptr = iter->second.add_camera_group();
+						if (camera_group_ptr)
+						{
+							*camera_group_ptr = video_split_info.camera_group(i);
+						}
+					}
+				}
+				*video_split_info.mutable_camera_group() = iter->second.camera_group();
+			}
+			
+
+
+
+			*video_split_info.mutable_osd_info() = iter->second.osd_info();
 			result.video_split_info = video_split_info;
 			iter->second = video_split_info;
 			m_data_type = EDataLoad;
@@ -194,20 +223,29 @@ namespace chen {
 		WARNING_EX_LOG("not find [video_split_ channel_id  = %s]", channel_id.c_str());
 		return EWebNotFindVideoSplitId;
 	}
-	uint32	cvideo_split_info_mgr::handler_web_modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y)
+	cresult_video_split_osd	cvideo_split_info_mgr::handler_web_modify_video_split(const VideoSplitOsd& video_osd)
 	{
-		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(channel_id);
+		cresult_video_split_osd result;
+		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(video_osd.split_channel_id());
 		if (iter != m_video_split_info_map.end())
 		{
 			//m_video_split_info_map.erase(iter);
-			NORMAL_EX_LOG("  [video_split_channel_id = %s]", channel_id.c_str());
+			NORMAL_EX_LOG("  [video_split_channel_id = %s]", video_osd.split_channel_id().c_str());
 			OsdInfo* osd_info = iter->second.mutable_osd_info();;
 			if (osd_info)
 			{
-				osd_info->set_font_text(txt);
-				osd_info->set_font_size(fontsize);
-				osd_info->set_x(x);
-				osd_info->set_y(y);
+				osd_info->set_font_text(video_osd.txt());
+				osd_info->set_font_size(video_osd.fontsize());
+				osd_info->set_x(video_osd.x());
+				osd_info->set_y(video_osd.y());
+			}
+			//if (video_osd.width() != 0)
+			{
+				iter->second.set_out_video_width(video_osd.video_width());
+			}
+			//if (video_osd.height() != 0)
+			{
+				iter->second.set_out_video_height(video_osd.video_height());
 			}
 			//iter->second.mutable_osd_info
 			m_data_type = EDataLoad;
@@ -220,10 +258,12 @@ namespace chen {
 			{
 				WARNING_EX_LOG("=======> camera_id = %u", camera_id);
 			}*/
-			return EWebSuccess;
+			result.video_split_osd = video_osd;
+			return result;
 		}
-		WARNING_EX_LOG("not find [video_split_ channel_id  = %s]", channel_id.c_str());
-		return EWebNotFindVideoSplitId;
+		WARNING_EX_LOG("not find [video_split_ channel_id  = %s]", video_osd.split_channel_id().c_str());
+		result.result = EWebNotFindVideoSplitId;
+		return result;
 	}
 	void cvideo_split_info_mgr::_parse_json_data(const std::string& json_data)
 	{

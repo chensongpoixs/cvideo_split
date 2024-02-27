@@ -24,6 +24,10 @@ class VideoSplitInfoDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<VideoSplitInfo> _instance;
 } _VideoSplitInfo_default_instance_;
+class VideoSplitOsdDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<VideoSplitOsd> _instance;
+} _VideoSplitOsd_default_instance_;
 static void InitDefaultsAddCameraInfos_VideoSplit_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -54,6 +58,20 @@ static void InitDefaultsVideoSplitInfo_VideoSplit_2eproto() {
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsVideoSplitInfo_VideoSplit_2eproto}, {
       &scc_info_CameraGroup_VideoSplitDefine_2eproto.base,
       &scc_info_OsdInfo_VideoSplitDefine_2eproto.base,}};
+
+static void InitDefaultsVideoSplitOsd_VideoSplit_2eproto() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::_VideoSplitOsd_default_instance_;
+    new (ptr) ::VideoSplitOsd();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::VideoSplitOsd::InitAsDefaultInstance();
+}
+
+::google::protobuf::internal::SCCInfo<0> scc_info_VideoSplitOsd_VideoSplit_2eproto =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsVideoSplitOsd_VideoSplit_2eproto}, {}};
 
 
 // ===================================================================
@@ -1198,6 +1216,536 @@ void VideoSplitInfo::InternalSwap(VideoSplitInfo* other) {
 }
 
 
+// ===================================================================
+
+void VideoSplitOsd::InitAsDefaultInstance() {
+}
+class VideoSplitOsd::HasBitSetters {
+ public:
+  static void set_has_split_channel_id(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000001u;
+  }
+  static void set_has_txt(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000002u;
+  }
+  static void set_has_fontsize(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000004u;
+  }
+  static void set_has_video_width(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000008u;
+  }
+  static void set_has_video_height(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000040u;
+  }
+  static void set_has_x(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000010u;
+  }
+  static void set_has_y(VideoSplitOsd* msg) {
+    msg->_has_bits_[0] |= 0x00000020u;
+  }
+};
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int VideoSplitOsd::kSplitChannelIdFieldNumber;
+const int VideoSplitOsd::kTxtFieldNumber;
+const int VideoSplitOsd::kFontsizeFieldNumber;
+const int VideoSplitOsd::kVideoWidthFieldNumber;
+const int VideoSplitOsd::kVideoHeightFieldNumber;
+const int VideoSplitOsd::kXFieldNumber;
+const int VideoSplitOsd::kYFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+VideoSplitOsd::VideoSplitOsd()
+  : ::google::protobuf::MessageLite(), _internal_metadata_(nullptr) {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:VideoSplitOsd)
+}
+VideoSplitOsd::VideoSplitOsd(const VideoSplitOsd& from)
+  : ::google::protobuf::MessageLite(),
+      _internal_metadata_(nullptr),
+      _has_bits_(from._has_bits_) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_split_channel_id()) {
+    split_channel_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_id_);
+  }
+  txt_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.has_txt()) {
+    txt_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.txt_);
+  }
+  ::memcpy(&fontsize_, &from.fontsize_,
+    static_cast<size_t>(reinterpret_cast<char*>(&video_height_) -
+    reinterpret_cast<char*>(&fontsize_)) + sizeof(video_height_));
+  // @@protoc_insertion_point(copy_constructor:VideoSplitOsd)
+}
+
+void VideoSplitOsd::SharedCtor() {
+  ::google::protobuf::internal::InitSCC(
+      &scc_info_VideoSplitOsd_VideoSplit_2eproto.base);
+  split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  txt_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&fontsize_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&video_height_) -
+      reinterpret_cast<char*>(&fontsize_)) + sizeof(video_height_));
+}
+
+VideoSplitOsd::~VideoSplitOsd() {
+  // @@protoc_insertion_point(destructor:VideoSplitOsd)
+  SharedDtor();
+}
+
+void VideoSplitOsd::SharedDtor() {
+  split_channel_id_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  txt_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+
+void VideoSplitOsd::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const VideoSplitOsd& VideoSplitOsd::default_instance() {
+  ::google::protobuf::internal::InitSCC(&::scc_info_VideoSplitOsd_VideoSplit_2eproto.base);
+  return *internal_default_instance();
+}
+
+
+void VideoSplitOsd::Clear() {
+// @@protoc_insertion_point(message_clear_start:VideoSplitOsd)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      split_channel_id_.ClearNonDefaultToEmptyNoArena();
+    }
+    if (cached_has_bits & 0x00000002u) {
+      txt_.ClearNonDefaultToEmptyNoArena();
+    }
+  }
+  if (cached_has_bits & 0x0000007cu) {
+    ::memset(&fontsize_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&video_height_) -
+        reinterpret_cast<char*>(&fontsize_)) + sizeof(video_height_));
+  }
+  _has_bits_.Clear();
+  _internal_metadata_.Clear();
+}
+
+#if GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+const char* VideoSplitOsd::_InternalParse(const char* begin, const char* end, void* object,
+                  ::google::protobuf::internal::ParseContext* ctx) {
+  auto msg = static_cast<VideoSplitOsd*>(object);
+  ::google::protobuf::int32 size; (void)size;
+  int depth; (void)depth;
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::ParseFunc parser_till_end; (void)parser_till_end;
+  auto ptr = begin;
+  while (ptr < end) {
+    ptr = ::google::protobuf::io::Parse32(ptr, &tag);
+    GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+    switch (tag >> 3) {
+      // optional string split_channel_id = 1;
+      case 1: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 10) goto handle_unusual;
+        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        object = msg->mutable_split_channel_id();
+        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
+          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
+          goto string_till_end;
+        }
+        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
+        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
+        ptr += size;
+        break;
+      }
+      // optional string txt = 2;
+      case 2: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 18) goto handle_unusual;
+        ptr = ::google::protobuf::io::ReadSize(ptr, &size);
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        object = msg->mutable_txt();
+        if (size > end - ptr + ::google::protobuf::internal::ParseContext::kSlopBytes) {
+          parser_till_end = ::google::protobuf::internal::GreedyStringParser;
+          goto string_till_end;
+        }
+        GOOGLE_PROTOBUF_PARSER_ASSERT(::google::protobuf::internal::StringCheck(ptr, size, ctx));
+        ::google::protobuf::internal::InlineGreedyStringParser(object, ptr, size, ctx);
+        ptr += size;
+        break;
+      }
+      // optional uint32 fontsize = 3;
+      case 3: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 24) goto handle_unusual;
+        msg->set_fontsize(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional uint32 video_width = 4;
+      case 4: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 32) goto handle_unusual;
+        msg->set_video_width(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional uint32 video_height = 5;
+      case 5: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 40) goto handle_unusual;
+        msg->set_video_height(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
+      // optional double x = 6;
+      case 6: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 49) goto handle_unusual;
+        msg->set_x(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      // optional double y = 7;
+      case 7: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 57) goto handle_unusual;
+        msg->set_y(::google::protobuf::io::UnalignedLoad<double>(ptr));
+        ptr += sizeof(double);
+        break;
+      }
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->EndGroup(tag);
+          return ptr;
+        }
+        auto res = UnknownFieldParse(tag, {_InternalParse, msg},
+          ptr, end, msg->_internal_metadata_.mutable_unknown_fields(), ctx);
+        ptr = res.first;
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr != nullptr);
+        if (res.second) return ptr;
+      }
+    }  // switch
+  }  // while
+  return ptr;
+string_till_end:
+  static_cast<::std::string*>(object)->clear();
+  static_cast<::std::string*>(object)->reserve(size);
+  goto len_delim_till_end;
+len_delim_till_end:
+  return ctx->StoreAndTailCall(ptr, end, {_InternalParse, msg},
+                               {parser_till_end, object}, size);
+}
+#else  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+bool VideoSplitOsd::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!PROTOBUF_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  ::google::protobuf::internal::LiteUnknownFieldSetter unknown_fields_setter(
+      &_internal_metadata_);
+  ::google::protobuf::io::StringOutputStream unknown_fields_output(
+      unknown_fields_setter.buffer());
+  ::google::protobuf::io::CodedOutputStream unknown_fields_stream(
+      &unknown_fields_output, false);
+  // @@protoc_insertion_point(parse_start:VideoSplitOsd)
+  for (;;) {
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string split_channel_id = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (10 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_split_channel_id()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional string txt = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (18 & 0xFF)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_txt()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 fontsize = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (24 & 0xFF)) {
+          HasBitSetters::set_has_fontsize(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &fontsize_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 video_width = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (32 & 0xFF)) {
+          HasBitSetters::set_has_video_width(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &video_width_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional uint32 video_height = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (40 & 0xFF)) {
+          HasBitSetters::set_has_video_height(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &video_height_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double x = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (49 & 0xFF)) {
+          HasBitSetters::set_has_x(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &x_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional double y = 7;
+      case 7: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (57 & 0xFF)) {
+          HasBitSetters::set_has_y(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   double, ::google::protobuf::internal::WireFormatLite::TYPE_DOUBLE>(
+                 input, &y_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormatLite::SkipField(
+            input, tag, &unknown_fields_stream));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:VideoSplitOsd)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:VideoSplitOsd)
+  return false;
+#undef DO_
+}
+#endif  // GOOGLE_PROTOBUF_ENABLE_EXPERIMENTAL_PARSER
+
+void VideoSplitOsd::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:VideoSplitOsd)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional string split_channel_id = 1;
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->split_channel_id(), output);
+  }
+
+  // optional string txt = 2;
+  if (cached_has_bits & 0x00000002u) {
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->txt(), output);
+  }
+
+  // optional uint32 fontsize = 3;
+  if (cached_has_bits & 0x00000004u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->fontsize(), output);
+  }
+
+  // optional uint32 video_width = 4;
+  if (cached_has_bits & 0x00000008u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->video_width(), output);
+  }
+
+  // optional uint32 video_height = 5;
+  if (cached_has_bits & 0x00000040u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->video_height(), output);
+  }
+
+  // optional double x = 6;
+  if (cached_has_bits & 0x00000010u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(6, this->x(), output);
+  }
+
+  // optional double y = 7;
+  if (cached_has_bits & 0x00000020u) {
+    ::google::protobuf::internal::WireFormatLite::WriteDouble(7, this->y(), output);
+  }
+
+  output->WriteRaw(_internal_metadata_.unknown_fields().data(),
+                   static_cast<int>(_internal_metadata_.unknown_fields().size()));
+  // @@protoc_insertion_point(serialize_end:VideoSplitOsd)
+}
+
+size_t VideoSplitOsd::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:VideoSplitOsd)
+  size_t total_size = 0;
+
+  total_size += _internal_metadata_.unknown_fields().size();
+
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x0000007fu) {
+    // optional string split_channel_id = 1;
+    if (cached_has_bits & 0x00000001u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->split_channel_id());
+    }
+
+    // optional string txt = 2;
+    if (cached_has_bits & 0x00000002u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->txt());
+    }
+
+    // optional uint32 fontsize = 3;
+    if (cached_has_bits & 0x00000004u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->fontsize());
+    }
+
+    // optional uint32 video_width = 4;
+    if (cached_has_bits & 0x00000008u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->video_width());
+    }
+
+    // optional double x = 6;
+    if (cached_has_bits & 0x00000010u) {
+      total_size += 1 + 8;
+    }
+
+    // optional double y = 7;
+    if (cached_has_bits & 0x00000020u) {
+      total_size += 1 + 8;
+    }
+
+    // optional uint32 video_height = 5;
+    if (cached_has_bits & 0x00000040u) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->video_height());
+    }
+
+  }
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void VideoSplitOsd::CheckTypeAndMergeFrom(
+    const ::google::protobuf::MessageLite& from) {
+  MergeFrom(*::google::protobuf::down_cast<const VideoSplitOsd*>(&from));
+}
+
+void VideoSplitOsd::MergeFrom(const VideoSplitOsd& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:VideoSplitOsd)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 0x0000007fu) {
+    if (cached_has_bits & 0x00000001u) {
+      _has_bits_[0] |= 0x00000001u;
+      split_channel_id_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.split_channel_id_);
+    }
+    if (cached_has_bits & 0x00000002u) {
+      _has_bits_[0] |= 0x00000002u;
+      txt_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.txt_);
+    }
+    if (cached_has_bits & 0x00000004u) {
+      fontsize_ = from.fontsize_;
+    }
+    if (cached_has_bits & 0x00000008u) {
+      video_width_ = from.video_width_;
+    }
+    if (cached_has_bits & 0x00000010u) {
+      x_ = from.x_;
+    }
+    if (cached_has_bits & 0x00000020u) {
+      y_ = from.y_;
+    }
+    if (cached_has_bits & 0x00000040u) {
+      video_height_ = from.video_height_;
+    }
+    _has_bits_[0] |= cached_has_bits;
+  }
+}
+
+void VideoSplitOsd::CopyFrom(const VideoSplitOsd& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:VideoSplitOsd)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool VideoSplitOsd::IsInitialized() const {
+  return true;
+}
+
+void VideoSplitOsd::Swap(VideoSplitOsd* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void VideoSplitOsd::InternalSwap(VideoSplitOsd* other) {
+  using std::swap;
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
+  split_channel_id_.Swap(&other->split_channel_id_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  txt_.Swap(&other->txt_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(fontsize_, other->fontsize_);
+  swap(video_width_, other->video_width_);
+  swap(x_, other->x_);
+  swap(y_, other->y_);
+  swap(video_height_, other->video_height_);
+}
+
+::std::string VideoSplitOsd::GetTypeName() const {
+  return "VideoSplitOsd";
+}
+
+
 // @@protoc_insertion_point(namespace_scope)
 namespace google {
 namespace protobuf {
@@ -1206,6 +1754,9 @@ template<> PROTOBUF_NOINLINE ::AddCameraInfos* Arena::CreateMaybeMessage< ::AddC
 }
 template<> PROTOBUF_NOINLINE ::VideoSplitInfo* Arena::CreateMaybeMessage< ::VideoSplitInfo >(Arena* arena) {
   return Arena::CreateInternal< ::VideoSplitInfo >(arena);
+}
+template<> PROTOBUF_NOINLINE ::VideoSplitOsd* Arena::CreateMaybeMessage< ::VideoSplitOsd >(Arena* arena) {
+  return Arena::CreateInternal< ::VideoSplitOsd >(arena);
 }
 }  // namespace protobuf
 }  // namespace google

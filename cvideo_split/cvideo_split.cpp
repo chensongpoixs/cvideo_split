@@ -46,16 +46,18 @@ namespace chen {
 		m_split_video_channels = video_split_info->camera_group_size();
 		m_split_video_lock_1080p = video_split_info->lock_1080p();
 		m_overlay = video_split_info->overlay();
+
+		m_out_video_width = video_split_info->out_video_width();
+		m_out_video_height = video_split_info->out_video_height();
 		{
-			m_osd.x = video_split_info->osd_info().x();
-			m_osd.y = video_split_info->osd_info().y();
+			m_osd.x = video_split_info->osd_info().x() * m_out_video_width;
+			m_osd.y = video_split_info->osd_info().y() * m_out_video_height;
 			m_osd.fontsize = video_split_info->osd_info().font_size();
 			//m_osd.x = video_split_info->osd_info().x();
 			m_osd.text = video_split_info->osd_info().font_text();
+			NORMAL_EX_LOG("[osd  font_size = %u][x = %s]", m_osd.fontsize, std::to_string(m_osd.x).c_str());
 		}
 
-		m_out_video_width = video_split_info->out_video_width();
-		m_out_video_height =   video_split_info->out_video_height();
 
 		// camera info arrays 
 		for (size_t i = 0; i < video_split_info->camera_group_size(); ++i)
@@ -143,6 +145,10 @@ namespace chen {
 			m_buffers_scale_ctx_ptr.clear();
 			::avfilter_free(m_hstack_ctx_ptr);
 			::avfilter_free(m_buffersink_ctx_ptr);
+			if (m_osd_ctx_ptr)
+			{
+				::avfilter_free(m_osd_ctx_ptr);
+			}
 			::avfilter_graph_free(&m_filter_graph_ptr);
 			m_filter_graph_ptr = NULL;
 		}
@@ -211,7 +217,7 @@ namespace chen {
 		if (m_osd.text.size() > 0)
 		{
 			std::string osd_args = "fontfile=simkai.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
-				+ ":x=" + std::to_string(m_osd.x) + ":y=" + std::to_string(m_osd.y) + ":text='" + m_osd.text + "'";
+				+ ":x=" + std::to_string(m_osd.x ) + ":y=" + std::to_string(m_osd.y  ) + ":text='" + m_osd.text + "'";
 			ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"),
 				"drawtext", osd_args.c_str(), NULL, m_filter_graph_ptr);
 			NORMAL_EX_LOG("[osd_args = %s]", osd_args.c_str());

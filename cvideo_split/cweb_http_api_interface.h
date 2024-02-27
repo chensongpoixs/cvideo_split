@@ -39,7 +39,7 @@ namespace chen {
 		virtual uint32	cmd_video_split(const std::string & channel_id/*uint32 id*/, uint32 cmd) = 0;
 
 
-		virtual   uint32			  modify_video_split(const std::string & channel_id, const std::string & txt, uint32 fontsize, double x, double y ) = 0;
+		virtual   cresult_video_split_osd			  modify_video_split(const VideoSplitOsd &video_osd) = 0;
 
 
 		virtual ~cweb_http_api_interface() {}

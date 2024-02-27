@@ -42,7 +42,7 @@ namespace chen {
 		cresult_get_video_split handler_web_get_video_split(const std::string& channel_id) const;
 		cresult_video_split_list handler_web_video_split_list(uint32 page, uint32 page_size);
 		uint32					handler_web_delete_video_split(const std::string & channel_id/*uint32 id*/);
-		uint32					handler_web_modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y);
+		cresult_video_split_osd	handler_web_modify_video_split(const VideoSplitOsd& video_osd);
 	public:
 		const  VideoSplitInfo* get_video_split_info(const std::string& channel_id/*uint32 id*/) const ;
 	public:

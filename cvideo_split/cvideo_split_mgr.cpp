@@ -48,11 +48,11 @@ namespace chen {
 			{ 
 				return EWebVideoSplitNotStart;
 			}
-			
+			iter->second->destroy();
 			size_t size = m_video_split_map.erase(channel_name);
 			if (size > 0)
 			{
-				iter->second->destroy();
+				//iter->second->destroy();
 				delete iter->second;
 
 				return EWebSuccess;
@@ -72,6 +72,7 @@ namespace chen {
 		{
 			return EWebNotFindVideoSplitId;
 		}
+
 		cvideo_splist* video_split_ptr = new cvideo_splist();
 		if (!video_split_ptr)
 		{

@@ -37,4 +37,16 @@ message VideoSplitInfo
 
 
 
+message VideoSplitOsd
+{
+	optional  string 		split_channel_id = 1; //视频通道id
+	optional  string 		txt 		 = 2; // osd txt 
+	optional  uint32 		fontsize     = 3; 
+	optional  uint32 		video_width  = 4; // 
+	optional  uint32 		video_height = 5; // 
+	optional  double 		x 			 = 6;
+	optional  double 		y 			 = 7; 
+}
+
+
 

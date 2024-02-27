@@ -164,7 +164,11 @@ namespace chen{
 		CWEBSOCKET_SESSION_MAP::iterator iter =  m_session_map.find(sessionId);
 		if (iter != m_session_map.end())
 		{
-			  
+			if (!iter->second)
+			{
+				WARNING_EX_LOG("websocket session null !!!");
+				return false;
+			}
 			return iter->second->send_msg(sessionId, msg_ptr, msg_size);
 		}
 		return false;
@@ -176,6 +180,10 @@ namespace chen{
 		CWEBSOCKET_SESSION_MAP::iterator iter = m_session_map.find(sessionId);
 		if (iter != m_session_map.end())
 		{
+			if (!iter->second)
+			{
+				return;
+			}
 			  iter->second->close(sessionId );
 		}
 	}
@@ -314,7 +322,7 @@ namespace chen{
 		cwebsocket_msg * msg_ptr = new cwebsocket_msg();
 		if (!msg_ptr)
 		{
-			WARNING_EX_LOG(" alloc failed !!!!");
+			WARNING_EX_LOG(" alloc websocker session destroy failed !!!!");
 			clock_guard lock(m_session_mutex);
 			m_session_map.erase(session_ptr->get_session_id());
 			delete session_ptr;
@@ -329,9 +337,16 @@ namespace chen{
 		
 		{
 			clock_guard lock(m_session_mutex);
-			m_session_map.erase(session_id);
-			delete session_ptr;
-			// session_ptr = NULL;
+			size_t size = m_session_map.erase(session_id);
+			if (size > 0)
+			{
+				delete session_ptr;
+				session_ptr = NULL;
+			}
+			else
+			{
+				WARNING_EX_LOG("delete websocket session id = %u failed !!!", session_id);
+			}
 		}
 		/*
 		cnet_msg* msg_ptr = create_msg(EMIR_Disconnect, 0);

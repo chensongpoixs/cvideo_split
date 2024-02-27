@@ -54,6 +54,9 @@ namespace chen {
 		}
 		if (!m_decoder_ptr->init(m_session_id, url.c_str()))
 		{
+			m_decoder_ptr->destroy();
+			delete m_decoder_ptr;
+			m_decoder_ptr = NULL;
 			WARNING_EX_LOG("[url = %s]  decoder init  failed !!!", url.c_str());
 			return false;
 		}

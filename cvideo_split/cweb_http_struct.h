@@ -73,5 +73,13 @@ namespace chen {
 			, page_info()
 			, video_split_infos() {}
 	};
+	struct cresult_video_split_osd
+	{
+		uint32 result;
+		VideoSplitOsd video_split_osd;
+		cresult_video_split_osd()
+			: result(0)
+			, video_split_osd(){}
+	};
 }
 #endif 

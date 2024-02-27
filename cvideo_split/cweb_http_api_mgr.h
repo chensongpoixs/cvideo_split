@@ -74,7 +74,7 @@ namespace chen {
 
 
 		virtual uint32		cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd);
-		virtual uint32		modify_video_split(const std::string& channel_id, const std::string& txt, uint32 fontsize, double x, double y);
+		virtual cresult_video_split_osd		modify_video_split(const VideoSplitOsd& video_osd);
 	private:
 		void _handler_default_options(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
