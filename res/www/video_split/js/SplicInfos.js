@@ -61,55 +61,85 @@ window.onload = function () {
     //GetVideoStream($("#videoName2").val(), 2);
   this.names.push($("#videoName1").val());
   this.names.push($("#videoName2").val());
+
     GetVideoImgs(names,false,-1,1);
 
 }
 //初始化相机数据，绑定下拉列表
-function InitData() {
+function InitData() 
+{
     var message = '{"msg":"get_camera_info"}';
-    $.ajax({
-        type: "POST",
-        dataType: "text",
-        //url: '/json',
-        url: apiAddress,
-        contentType: "application/json",
-        data: message,
-       // async: false,
-        success: function (result) {
-            var objs = JSON.parse(result);
-            LoadVideo(objs.video_souce_info, 12);//12个下拉列表都绑定，只有前2个启用
-            layui.use(['form'], function () {
-                var form = layui.form;
-                form.render();
-            });
-        }
-    });
+    console.log('get camera info ...');
+        ajaxGet(camera_url, 
+            function(result)
+            {
+                console.log('camera ===> '+result);
+                var objs = JSON.parse(result);
+                LoadVideo(objs.camera_infos, 12);
+                layui.use(['form'], function () {
+                    var form = layui.form;
+                    form.render();
+                });
+            },
+            function(result)
+            {
+                console.log('get camera_url '+ camera_url +' failed !!! = ' + result);
+            }
+        );
+    // $.ajax({
+    //     type: "POST",
+    //     dataType: "text",
+    //     //url: '/json',
+    //     url: apiAddress,
+    //     contentType: "application/json",
+    //     data: message,
+    //    // async: false,
+    //     success: function (result) {
+    //         var objs = JSON.parse(result);
+    //         LoadVideo(objs.video_souce_info, 12);//12个下拉列表都绑定，只有前2个启用
+    //         layui.use(['form'], function () {
+    //             var form = layui.form;
+    //             form.render();
+    //         });
+    //     }
+    // });
 
 }
 
 //绑定相机名称下拉列表 data:数据集合，num：2/3/4
-function LoadVideo(data, num) {
+function LoadVideo(data, num) 
+{
+     cameras = data;
     var parent = $(".layui-row");
-    if (num > 0 &&  ValidateStringAnd(data)) {
-        for (var i = 1; i <= num; i++) {
+    if (num > 0 &&  ValidateStringAnd(data)) 
+    {
+        for (var i = 1; i <= num; i++) 
+        {
             var obj = $("#videoName" + i);
             obj.html('');
             var str = "";
             var inputHidden = "";
             var count = 0;//记录$.each剔除已使用的相机后循环次数
            str += "<option value='-1'>请选择</option>";
-            $.each(data, function (index, item) {
-                if (ValidateStringAnd(item.name)) {
+
+            $.each(data, function (index, item) 
+            {
+                if (ValidateStringAnd(item.camera_name)) 
+                {
                     var camera = _.find(cameras, function (obj) { return obj.camera_id == item.camera_id });
-                    if (camera != null) //表示已经使用，不再添加
-                    {
-                        return true;
-                    }
+                    // if (camera != null) //表示已经使用，不再添加
+                    // {
+                    //     return true;
+                    // }
                     //if (count == (i - 1))
                     if (count == (i - 1) &&(i==1 || i==2))
-                        str += "<option value='" + item.camera_id + "' selected>" + item.name + "</option>";
-                    else
-                        str += "<option value='" + item.camera_id + "'>" + item.name + "</option>";
+                    {
+                        str += "<option value='" + item.camera_id + "' selected>" + item.camera_name + "</option>";
+                    }
+                     else
+                    {
+                        str += "<option value='" + item.camera_id + "'>" + item.camera_name + "</option>"; 
+                    }
                     count++;
                 }
                 if (i == 1) //只给第一个绑定，
@@ -121,9 +151,11 @@ function LoadVideo(data, num) {
                     inputHidden += "<input type='hidden' id='state_" + item.camera_id + "' value='" + item.state + "' />";
                 }
             });
+
             $(str).appendTo(obj);
             $(inputHidden).appendTo(parent);
         }
+        // console.log('LoadVideo ==>'+ str);
     }
 }
 
@@ -141,6 +173,26 @@ function RequeryCropArray() {
     var gettileinfo = '{"msg": "get_tile_info"}';
     sendAjax(gettileinfo, "get");
 }
+
+
+    function ajaxGet(url, successCallback, errorCallback) 
+    {
+        console.log("http get = " + url);
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            successCallback(xhr.responseText);
+          } else {
+            errorCallback(xhr.statusText);
+          }
+        }
+      };
+      xhr.send();
+    }
+
+
 //根据选择方式进行canvas处理
 function loadJS(num) {
     if (num - prevnum > 0)//追加js
@@ -180,8 +232,44 @@ function loadJS(num) {
 //切换摄像机，加载图片
 function ChangeVideoNmae(img, num) {
     $("#imgDiv" + num).html('');
-    if (num == 1) { image1 = img; ExecuteCanvas1(); }
-    else if (num == 2) { image2 = img; ExecuteCanvas2(); }
+    if (num == 1) 
+    {
+          image1 = img; 
+          ExecuteCanvas1(cameras[num].url);  
+    }
+    else if (num == 2) 
+    { 
+        image2 = img; 
+        ExecuteCanvas2(cameras[num].url); 
+    }
+    else if (num == 3) { image3 = img; ExecuteCanvas3(); }
+    else if (num == 4) { image4 =  img; ExecuteCanvas4(); }
+    else if (num == 5) { image5 = img; ExecuteCanvas5(); }
+    else if (num == 6) { image6 = img; ExecuteCanvas6(); }
+    else if (num == 7) { image7 = img; ExecuteCanvas7(); }
+    else if (num == 8) { image8 =  img; ExecuteCanvas8(); }
+    else if (num == 9) { image9 = img; ExecuteCanvas9(); }
+    else if (num == 10) { image10 =  img; ExecuteCanvas10(); }
+    else if (num == 11) { image11 = img; ExecuteCanvas11(); }
+    else if (num == 12) { image12 =  img; ExecuteCanvas12(); }
+}
+
+//切换摄像机，加载图片
+function ChangeVideoNmae(camera_id, img, num) 
+{
+    console.log('ChangeVideoNmae  num =' + camera_id);
+    console.log('cameras = ' +JSON.stringify(cameras));
+    $("#imgDiv" + num).html('');
+    if (num == 1) 
+    {
+          image1 = img; 
+          ExecuteCanvas1(cameras[camera_id].url);  
+    }
+    else if (num == 2) 
+    { 
+        image2 = img; 
+        ExecuteCanvas2(cameras[camera_id].url); 
+    }
     else if (num == 3) { image3 = img; ExecuteCanvas3(); }
     else if (num == 4) { image4 =  img; ExecuteCanvas4(); }
     else if (num == 5) { image5 = img; ExecuteCanvas5(); }
@@ -252,10 +340,16 @@ function ChangeRight1(e, xh) {
 //先获取视频流num
 
 var names=[];
-function GetVideoImgs(names,init, num,i) {
+function GetVideoImgs(names,init, num,i) 
+{
     var style=parseInt($("#style").val());
     if(names.length<=0)
-    return false;
+    {
+        return false;
+    }
+    console.log('names = ' + names + ', num = ' + num);
+    ChangeVideoNmae(names, null, num);
+    return true;
     for (let index = 1; index <= names.length; index++) {
            var message = '{"msg": "set_camera_info","video_souce_info": [';
             message += '{';
@@ -508,23 +602,45 @@ function BtnCancel() {
 function sendGetTileAjax() {
     cameras = [];
     var send_str = '{"msg": "get_tile_info"}';
-    $.ajax({
-        type: "POST",
-        dataType: "text",
-        //url: '/json',
-        url: apiAddress,
-        contentType: "application/json",
-        data: send_str,
-        timeout: 5000,
-        //async: false,
-        success: function (result) {
-            console.log(result);
-            var objs = JSON.parse(result);
-            if (objs != null && typeof (objs) != 'undefined') {
-                cameras = objs.video_souce_info;
+    // $.ajax({
+    //     type: "POST",
+    //     dataType: "text",
+    //     //url: '/json',
+    //     url: apiAddress,
+    //     contentType: "application/json",
+    //     data: send_str,
+    //     timeout: 5000,
+    //     //async: false,
+    //     success: function (result) {
+    //         console.log(result);
+    //         var objs = JSON.parse(result);
+    //         if (objs != null && typeof (objs) != 'undefined') {
+    //             cameras = objs.video_souce_info;
+    //         }
+    //     }
+    // });
+    return;
+    ajaxGet(all_video_split_url, 
+            function(result)
+            {
+                console.log('video split info all  ===> '+result);
+                var objs = JSON.parse(result);
+                //LoadVideo(objs.camera_infos, 12);
+                //layui.use(['form'], function () {
+                //  var form = layui.form;
+                //  form.render();
+                //});
+                 if(objs!=null&&typeof(objs)!='undefined')
+                 {
+                    // console.log(JSON.);
+                     cameras=objs.video_split_infos;
+                 }
+            },
+            function(result)
+            {
+                console.log('get camera_url '+ camera_url +' failed !!! = ' + result);
             }
-        }
-    });
+        );
 }
 
 var isFirst = true;

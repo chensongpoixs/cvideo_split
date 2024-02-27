@@ -85,7 +85,7 @@ Player.prototype.play = function (domain, url, canvas) {
 
             var VisiableEvent = {
                 t: kVisiableEvent,
-                v: visible
+                v: url
             };
             decWork.postMessage(VisiableEvent);
             if (visible) {

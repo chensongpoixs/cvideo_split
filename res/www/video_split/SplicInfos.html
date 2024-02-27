@@ -883,6 +883,14 @@
         var image9 = '../images/bg.png'; var image10 = '../images/bg.png'; var image11 = '../images/bg.png'; var image12 = '../images/bg.png';
         var port = 9000;
         var cameras = [];//只记录当前通道下的所有相机
+        var camera_url = 'http://127.0.0.1:9700/video_split/v1/camera_list/page=0&page_size=10000';
+        var video_split_url = 'http://127.0.0.1:9700/video_split/v1/get_video_split/split_channel_id=';
+        var all_video_split_url = "http://127.0.0.1:9700/video_split/v1/video_split_list/page=0&page_size=1000";
+        var modify_video_url = 'http://127.0.0.1:9700/video_split/v1/add_video_split';
+        var modify_video_osd_url = 'http://127.0.0.1:9700/video_split/v1/modify_video_osd';
+        var cmd_split_video_url = 'http://127.0.0.1:9700/video_split/v1/cmd_video_split/';//split_channel_id=20202322674&cmd=0
+        var camera_play1 = null;
+        var camera_play2 = null;
     </script>
 </body>
 

@@ -23,6 +23,7 @@ function Decoder() {
     this.hDec = 0;
     this.width = 0;
     this.height = 0;
+    this.url = null;
 }
 
 
@@ -78,6 +79,7 @@ Decoder.prototype.CreateVideoDec = function (url, domain) {
                                                url: url
                                            });
                                console.log(`paly -> SS: offer:\n${play_data}`);
+            this.url = url;
             dec.ws.send(play_data);//lkpmd
         };
 
@@ -125,11 +127,18 @@ Decoder.prototype.processReq = function (req) {
             this.ReleaseVideoDecode();
             break;
         case kVisiableEvent:
-            if (this.ws && this.ws.readyState == WebSocket.OPEN) {
-                if (req.v)
-                    this.ws.send("onshow");
-                else
-                    this.ws.send("onhide");
+            if (this.ws && this.ws.readyState == WebSocket.OPEN) 
+            {
+                let play_data  = JSON.stringify({
+                                               msg_id: 202,
+                                               url: this.url
+                                           });
+                               console.log(`paly -> SS: offer:\n${play_data}: req: ${req}`);
+                               this.ws.send(play_data);
+                // if (req.v)
+                //     this.ws.send("onshow");
+                // else
+                //     this.ws.send("onhide");
             }
             break;
 
