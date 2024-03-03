@@ -153,6 +153,7 @@
     <ClCompile Include="VideoSplitDefine.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cmsg_base_id.h" />
     <ClInclude Include="EnumDefine.pb.h" />
     <ClInclude Include="ErrorCode.pb.h" />
     <ClInclude Include="VideoSplit.pb.h" />

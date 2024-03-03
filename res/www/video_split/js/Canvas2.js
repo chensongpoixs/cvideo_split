@@ -63,6 +63,12 @@ function ExecuteCanvas2(url)
     imgDiv2.appendChild(myCanvas2);
     // console.log('图片原始宽度=', originWidth2);
     // console.log('图片原始高度=', originHeight2);
+    if ( camera_play2 != null)
+    {
+         camera_play2.stop();
+        // camera_play2 = null;
+    }
+
     camera_play2 = new Player();
     camera_play2.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas2);
     originWidth2 = bgwidth2; //camera_play1.width();

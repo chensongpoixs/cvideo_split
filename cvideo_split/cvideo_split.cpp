@@ -89,7 +89,7 @@ namespace chen {
 		{
 			return false;
 		}
-		m_encoder_ptr = new cencoder();
+		 m_encoder_ptr = new cencoder();
 		if (!m_encoder_ptr)
 		{
 			WARNING_EX_LOG("split video name = [%s], alloc encoder failed !!!", m_video_split_name.c_str());
@@ -101,7 +101,7 @@ namespace chen {
 		{
 			WARNING_EX_LOG("video split name = [%s] encoder init (%s)failed !!!", m_video_split_name.c_str(), encoder_url.c_str());
 			return false;
-		}
+		} 
 		// 编码器
 
 		//m_encoder_frame_ptr = av_frame_alloc();
@@ -152,6 +152,24 @@ namespace chen {
 			::avfilter_graph_free(&m_filter_graph_ptr);
 			m_filter_graph_ptr = NULL;
 		}
+
+		for (size_t i = 0; i < m_decodes.size(); ++i)
+		{
+			if (m_decodes[i])
+			{
+				m_decodes[i]->destroy();
+				delete m_decodes[i];
+			}
+		}
+		m_camera_infos.clear();
+		m_decodes.clear();
+		if (m_encoder_ptr)
+		{
+			m_encoder_ptr->stop();
+			m_encoder_ptr->destroy();
+			delete m_encoder_ptr;
+			m_encoder_ptr = NULL;
+		}
 	}
 	bool cvideo_splist::_init_decodes()
 	{
@@ -171,6 +189,7 @@ namespace chen {
 	}
 	bool cvideo_splist::_init_filter()
 	{
+		//return true;
 		int32 ret = 0;
 		if (m_stoped)
 		{
@@ -405,6 +424,7 @@ namespace chen {
 		}
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
+		AVFrame* frame_ptr = NULL;
 		while (!m_stoped)
 		{
 			if (!filter_frame_ptr)
@@ -422,22 +442,25 @@ namespace chen {
 			// decoder 
 			for (size_t i = 0; i < m_decodes.size(); ++i)
 			{
-				AVFrame* frame_ptr = NULL;
+				
 				//if (m_decodes[i])
-				{std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				//if (false)
+				{
+					std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
-					if (m_decodes[i]->retrieve(frame_ptr) /*&& !m_stoped*/)
+					if (m_decodes[i]->retrieve(frame_ptr) && !m_stoped)
 					{
 						std::chrono::milliseconds buffer_src_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 							std::chrono::system_clock::now().time_since_epoch());
 
 						std::chrono::milliseconds diff_ms = buffer_src_ms - buffer_ms;
-						NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
+						//NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
 						// add buffer filter -->
-						//if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
+						if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
 						{
 							
 							//if (m_buffers_ctx_ptr[i])
+							//if (false)
 							{
 								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
 								if (ret < 0)
@@ -451,16 +474,22 @@ namespace chen {
 
 					}
 					
-				}
-				if (frame_ptr)
-				{
 					::av_frame_unref(frame_ptr);
 				}
+				if (m_stoped)
+				{
+					break;
+				}
+				 if (frame_ptr)
+				{
+					::av_frame_unref(frame_ptr);
+				} 
+			
 				std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 
 				std::chrono::milliseconds diff_ms = decoder_ms - ms;
-				NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
+				//NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
 
 			}
 			//NORMAL_EX_LOG("");
@@ -469,11 +498,12 @@ namespace chen {
 				//中退出时啦 ^_^
 				break;
 			}
+			//continue;
 			std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch());
 
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
-			NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
+			//NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
 			if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
 			{
@@ -504,10 +534,16 @@ namespace chen {
 			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch());
 			  diff_ms = encoder_ms - decoder_ms  ;
-			NORMAL_EX_LOG("[encoder_ms = %u]", diff_ms.count());
+			//NORMAL_EX_LOG("[encoder_ms = %u]", diff_ms.count());
 		}
 		//NORMAL_EX_LOG("");
 		::av_frame_free(&filter_frame_ptr);
+		if (frame_ptr)
+		{
+			::av_frame_unref(frame_ptr);
+			//::av_frame_free(&frame_ptr);
+			frame_ptr = NULL;
+		}
 		filter_frame_ptr = NULL;
 	}
 }

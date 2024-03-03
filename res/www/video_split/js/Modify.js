@@ -10,7 +10,13 @@ layui.use(['form', 'element'], function () {
             loadJS(parseInt(data.value));
             num = parseInt(data.value);
         });
-        form.on('select(videoName1)', function (data) {var names=[data.value]; GetVideoImgs(names,false,1); });
+        form.on('select(videoName1)', function (data) 
+        {
+            var names=[data.value]; 
+
+            console.log('select(videoName1) === > ' + JSON.stringify(names) + ', data = ' + JSON.stringify(data));
+            GetVideoImgs(names,false,1); 
+        });
         form.on('select(videoName2)', function (data) { var names=[data.value]; GetVideoImgs(names,false,2); });
         form.on('select(videoName3)', function (data) { var names=[data.value]; GetVideoImgs(names,false,3); });
         form.on('select(videoName4)', function (data) { var names=[data.value]; GetVideoImgs(names,false,4); });
@@ -28,7 +34,7 @@ layui.use(['form', 'element'], function () {
     $(function () {
         GetParams();//获取路径参数
         sendGetTileAjax();
-        InitData();//下拉列表绑定摄像头名称
+        InitDataModify();//下拉列表绑定摄像头名称
         for (var i = 12; i > num; i--) 
         {
             $("#up" + i).val('').attr("disabled", "disabled");
@@ -36,9 +42,15 @@ layui.use(['form', 'element'], function () {
             $("#left" + i).val('').attr("disabled", "disabled");
             $("#right" + i).val('').attr("disabled", "disabled")
         }
+        var style = $("#style").val();
+        console.log('style = [' + style + ']');
         //console.log('------------------>');
 		//ExecuteCanvas1();
 		//camera_paly();
+        //BtnOkClick();
+          console.log('------funciton -------- names = '+names.length +'-------------------->');
+        restart_video_split(1);
+        restart_video_split(0);
     });
 	
 	function ajaxGet(url, successCallback, errorCallback) 
@@ -75,13 +87,23 @@ layui.use(['form', 'element'], function () {
     {
 		console.log('window.onload = ');
         loadJS(num);//根据拼接方式初始化右侧拼接图 num=2/3/4
+        console.log('num ===> ' + num);
         var names=[];
-        for (var i = 1; i <=parseInt(num); i++) {
+        for (var i = 1; i <=parseInt(num); i++) 
+        {
             var name=$("#videoName"+i).val();
             if(name!='-1')
-              names.push(name);
+            {
+                names.push(name);
+            }
         }
-        GetVideoImgs(names,true,-1);  //正式需开启
+        // for (var i = 0; i < names.length; ++i)
+        // {
+        //      GetVideoImgs(names,true,-1);  //正式需开启
+        //    // ChangeVideoNmae(i+1, null, num);
+        // }
+       
+      
     }
 
    function GetParams()//如果是修改拼接，需要解析URL传递过来的参数
@@ -109,7 +131,7 @@ layui.use(['form', 'element'], function () {
         }
    }
     //初始化相机数据，绑定下拉列表
-    function InitData() 
+    function InitDataModify() 
 	{
 		
 		console.log('get camera info ...');
@@ -118,6 +140,7 @@ layui.use(['form', 'element'], function () {
 			{
 				//console.log('camera ===> '+result);
 				var objs = JSON.parse(result);
+                cameras = objs.camera_infos;
 				LoadVideo(objs.camera_infos, 12);
 				layui.use(['form'], function () {
 					var form = layui.form;
@@ -155,8 +178,8 @@ layui.use(['form', 'element'], function () {
     //绑定相机名称下拉列表 data:数据集合，num：2/3/4
     function LoadVideo(data, num) 
     {
-       // console.log('LoadVideo = data = ' + JSON.stringify( data));
-        cameras = data;
+        console.log('LoadVideo = data = ' + JSON.stringify( data));
+        //cameras = data;
         var parent=$(".layui-row");
         if (num > 0 && ValidateStringAnd(data)) 
 		{
@@ -231,6 +254,7 @@ function LoadTileVideo(data)
                 let cur_select = document.getElementById(videoName);//.selectedIndex = 2;
                // document.getElementById(videoName).selectedIndex = parseInt(j);
                 $("#videoName"+(parseInt(tileArray[i].index)+1)).val(j);
+                GetVideoImgs(data[j].camera_id, null, parseInt(tileArray[i].index) +1);
                // console.log('videoName = '+videoName+', cur_select = '+cur_select + '=== ' + $("#videoName"+(parseInt(tileArray[i].index)+1)).val() +  ", j = "+j +", name = " + data[j].camera_name);
                // break;
             }
@@ -317,8 +341,8 @@ function LoadTileVideo(data)
 		if (num == 1) 
 		{ 
 			image1 =  img; 
-            console.log('cameras[num].url = '+cameras[num]);
-			ExecuteCanvas1(cameras[num].url); 
+            console.log('cameras.length() = '+ cameras.length +',cameras[num] = '+cameras[num]);
+			//ExecuteCanvas1(cameras[num].url); 
 		}
 		else if (num == 2)
         {
@@ -351,21 +375,30 @@ function LoadTileVideo(data)
     function ChangeVideoNmae(camera_id, img, num) 
     {
         
-        console.log('ChangeVideoNmae  num =' + camera_id);
+        console.log('ChangeVideoNmae  camera_id =' + camera_id + ', num = ' + num);
         console.log('cameras = ' +JSON.stringify(cameras));
+        var camera_index = 0;
+        for (var i = 0; i < cameras.length; ++i)
+        {
+            if (cameras[i].camera_id === camera_id)
+            {
+                camera_index = i;
+                break;
+            }
+        }
         $("#imgDiv" + num).html('');
          $("#container"+num).attr("data-state",true);
         if (num == 1) 
         { 
             image1 =  img; 
-            console.log('cameras[num].url = '+cameras[camera_id]);
-            ExecuteCanvas1(cameras[camera_id].url); 
-           
+            console.log('cameras.length() = '+ cameras.length +',cameras[num] = '+cameras[camera_index]);
+             
+            ExecuteCanvas1(cameras[camera_index].url); 
         }
         else if (num == 2)
         {
             image2 =  img; 
-            ExecuteCanvas2(cameras[camera_id].url); 
+            ExecuteCanvas2(cameras[camera_index].url); 
             
         }
         else if (num == 3) { image3 =  img; ExecuteCanvas3(); }
@@ -449,13 +482,17 @@ function LoadTileVideo(data)
         var style=parseInt($("#style").val());
         if(names.length<=0)
 		{
-            console.log('num = ' + num);
-			 return false;
+             console.log('=======>num = ' + num);
+            // ChangeVideoNmae(names, null, 1);
+            // ChangeVideoNmae(names, null, 2);
+			 return true;
 		}
+        console.log('===============> names = ' + names);
         ChangeVideoNmae(names, null, num);
+        
 		return true;
-          
     }
+        
 
    
 
@@ -585,7 +622,7 @@ function LoadTileVideo(data)
                     $("#pj_width").val(objs.data.out_video_width);
                     $("#pj_height").val(objs.data.out_video_height);
                     restart_video_split(0);
-                   
+                    console.log('restart ->> video split video --> ');
                 }
                     
             }
@@ -597,13 +634,17 @@ function LoadTileVideo(data)
          let TID = $("#TID").val();
         var   http_url = cmd_split_video_url + 'split_channel_id=' + TID + '&cmd=';
 
-        ajaxGet(http_url + code, function(result){
+            ajaxGet(http_url + code, function(result){
             if (code == 0)
             {
                  playVideo();
             }
+
         }, function(result){});
-         
+         if (code === 1)
+         {
+            stopVideo();
+         }
     }
 
     function send_osd(msg)
@@ -677,6 +718,7 @@ function LoadTileVideo(data)
         {
             document.player.stop();
         }
+        document.player = null;
     }
     //点击取消事件，摄像头1，2重置， 注意：num为全局变量
     function BtnCancel() {
@@ -700,6 +742,23 @@ function LoadTileVideo(data)
     
     function sendGetTileAjax() 
 	{
+        // ajaxGet(camera_url, 
+        //     function(result)
+        //     {
+        //         console.log('camera ===> '+result);
+        //         var objs = JSON.parse(result);
+        //         cameras=objs.camera_infos;
+        //         // LoadVideo(objs.camera_infos, 12);
+        //         // layui.use(['form'], function () {
+        //         //     var form = layui.form;
+        //         //     form.render();
+        //         // });
+        //     },
+        //     function(result)
+        //     {
+        //         console.log('get camera_url '+ camera_url +' failed !!! = ' + result);
+        //     }
+        // );
 		//camera_url
 		//let TID = $("#TID").val();
 		//var new_video_split_url = video_split_url + TID;
@@ -730,7 +789,7 @@ function LoadTileVideo(data)
                              console.log('tileArray length = '+ tileArray.length);
 						 }
                      }
-                     cameras=objs.video_split_infos;
+                     //cameras=objs.video_split_infos;
                  }
 			},
 			function(result)
@@ -766,6 +825,7 @@ function LoadTileVideo(data)
 
     function BtnOkClick()
     {
+       // console.log('BtnOkClick');
         var flag = JudgeCamID();
         if (!flag) 
         { 
@@ -810,7 +870,7 @@ function LoadTileVideo(data)
                 console.log('videoName = ' + cam );
                 if (cam_id.indexOf(cam) >= 0) 
                 {
-
+                    console.log('JudgeCamID  error = ' + cam);
                     return false;
                 }
                 else if (cam == '-1') 

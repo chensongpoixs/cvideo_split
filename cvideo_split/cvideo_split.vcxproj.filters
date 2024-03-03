@@ -37,6 +37,15 @@
     <Filter Include="logic">
       <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dispatch">
+      <UniqueIdentifier>{0cde7bf6-e541-4077-a1ac-aa120ffb03cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="handler">
+      <UniqueIdentifier>{b3bfed65-52db-427e-a1a9-d06610b7cdcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="player">
+      <UniqueIdentifier>{dadd64bd-0866-4b38-8845-0b0bff4ff04d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cdecode.cpp">
@@ -79,6 +88,24 @@
     </ClCompile>
     <ClCompile Include="cvideo_split_mgr.cpp">
       <Filter>video_split</Filter>
+    </ClCompile>
+    <ClCompile Include="cclient_msg_dispatch.cpp">
+      <Filter>dispatch</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_server.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session_handler.cpp">
+      <Filter>handler</Filter>
+    </ClCompile>
+    <ClCompile Include="cdecoder.cpp">
+      <Filter>decode</Filter>
+    </ClCompile>
+    <ClCompile Include="ccamera_decoder_mgr.cpp">
+      <Filter>player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +158,21 @@
     </ClInclude>
     <ClInclude Include="cvideo_split_mgr.h">
       <Filter>video_split</Filter>
+    </ClInclude>
+    <ClInclude Include="cclient_msg_dispatch.h">
+      <Filter>dispatch</Filter>
+    </ClInclude>
+    <ClInclude Include="cwebsocket_wan_server.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cwebsocket_wan_session.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="cdecoder.h">
+      <Filter>decode</Filter>
+    </ClInclude>
+    <ClInclude Include="ccamera_decoder_mgr.h">
+      <Filter>player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

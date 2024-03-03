@@ -30,7 +30,9 @@
 #include "ctime_elapse.h"
 #include "cvideo_split_info_mgr.h"
 #include "cvideo_split_mgr.h"
+#include "cwebsocket_wan_server.h"
 #include "clib_util.h"
+#include "cclient_msg_dispatch.h"
 namespace chen {
 
 
@@ -85,7 +87,24 @@ namespace chen {
 		SYSTEM_LOG("Web Server API startup ...");
 		g_web_http_api_mgr.startup();
 		SYSTEM_LOG("Web Server API startup OK ...");
+		SYSTEM_LOG("dispatch init ...");
 
+		if (!g_client_msg_dispatch.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("client_msg dispatch init OK !!!");
+
+		SYSTEM_LOG("websocket wan server  init ...");
+		if (!g_websocket_wan_server.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("websocket wan server  startup ...");
+		if (!g_websocket_wan_server.startup())
+		{
+			return false;
+		}
 		SYSTEM_LOG("VideoSplit  server init ok");
 
 		return true;
@@ -102,11 +121,12 @@ namespace chen {
 		while (!m_stoped)
 		{
 			uDelta += time_elapse.get_elapse();
-		 
-			g_http_queue_mgr.update();
+			g_websocket_wan_server.update(uDelta);
+			g_http_queue_mgr.update(); 
 			g_camera_info_mgr.update(uDelta);
 			g_video_split_info_mgr.update(uDelta);
 			g_video_split_mgr.udpate(uDelta);
+
 			uDelta = time_elapse.get_elapse();
 
 			if (uDelta < TICK_TIME)
@@ -122,6 +142,9 @@ namespace chen {
 
 	void cvideo_split_server::Destroy()
 	{
+		g_websocket_wan_server.shutdown();
+		g_websocket_wan_server.destroy();
+		SYSTEM_LOG("g_wan_server Destroy OK!!!");
 		g_web_http_api_mgr.destroy();
 		SYSTEM_LOG("Web Server Destroy OK !!!");
 		g_video_split_mgr.destroy();
@@ -131,6 +154,9 @@ namespace chen {
 		SYSTEM_LOG("camera_list info mgr destroy OK !!!");
 		g_video_split_info_mgr.destroy();
 		SYSTEM_LOG("video_split_info mgr destroy OK !!!");
+		g_client_msg_dispatch.destroy();
+		SYSTEM_LOG("msg dispath destroy OK !!!");
+
 		g_cfg.destroy();
 		LOG::destroy();
 		printf(" VideoSplit server Destroy End OK !!!\n");

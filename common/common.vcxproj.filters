@@ -16,6 +16,9 @@
     <Filter Include="http_message">
       <UniqueIdentifier>{034ffff0-c358-47af-be65-d95b9fe63ffb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="msg_base">
+      <UniqueIdentifier>{9fc8e03b-5bd2-4773-a55a-a6da884c6a09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EnumDefine.pb.cc">
@@ -43,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="VideoSplitDefine.pb.h">
       <Filter>http_message</Filter>
+    </ClInclude>
+    <ClInclude Include="cmsg_base_id.h">
+      <Filter>msg_base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

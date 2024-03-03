@@ -280,10 +280,12 @@ namespace chen {
 		if (m_ic_ptr)
 		{
 			::avformat_close_input(&m_ic_ptr);
+			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
 		if (m_codec_ctx_ptr)
 		{
+			::avcodec_close(m_codec_ctx_ptr);
 			::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
@@ -292,7 +294,7 @@ namespace chen {
 		{
 			::av_frame_free(&m_picture_ptr);
 			m_picture_ptr = NULL;
-		}
+		} 
 		if (m_sws_frame_ptr)
 		{
 			::av_frame_free(&m_sws_frame_ptr);

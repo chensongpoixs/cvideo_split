@@ -73,6 +73,12 @@ function ExecuteCanvas1( url )
 	//};
 	console.log('Canvas -- url = ' + url);
 /**********************************************************************/
+    if ( camera_play1 != null)
+    {
+         camera_play1.stop();
+        // camera_play1 = NULL;
+    }
+    
 	camera_play1 = new Player();
 	camera_play1.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas);
     originWidth = bgwidth; //camera_play1.width();

@@ -88,20 +88,20 @@ namespace chen {
 		m_push_format_context_ptr = avformat_alloc_context();
 		if (!m_push_format_context_ptr)
 		{
-			printf("alloc  avformat context  failed !!! \n");
+			WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
 			return false;
 		}
 		ret = avformat_alloc_output_context2(&m_push_format_context_ptr,  NULL, "mpegts", std::string(m_url + "?pkt_size=1316").c_str());
 		if (ret < 0)
 		{
-			printf("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 
 		m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
 		if (!m_stream_ptr)
 		{
-			printf("[%s] alloc stream failed !!!\n", m_url.c_str());
+			WARNING_EX_LOG("[%s] alloc stream failed !!!\n", m_url.c_str());
 			return false;
 		}
 		//::avcodec_register_all();
@@ -110,21 +110,23 @@ namespace chen {
 			m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}
 		m_codec_id = AV_CODEC_ID_H264;
-		AVBufferRef* hw_device_ctx = NULL;
+		 
+		//AVBufferRef* m_hw_device_ctx = NULL;
 		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		std::string gpu_index = "1";
-		 ret  = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
+		std::string gpu_index = "0";
+		ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
+		 
 		//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
 		m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");
 		if (!m_codec_ptr)
 		{
-			printf("Could not find [encoder = %s]   failed !!!\n", ::avcodec_get_name(m_codec_id));
+			WARNING_EX_LOG("Could not find [encoder = %s]   failed !!!\n", ::avcodec_get_name(m_codec_id));
 			return false;
 		}
 		m_codec_ctx_ptr = avcodec_alloc_context3(m_codec_ptr);
 		if (!m_codec_ctx_ptr)
 		{
-			printf("Conlu not alloc video context (%s)failed !!!\n", m_url.c_str());
+			WARNING_EX_LOG("Conlu not alloc video context (%s)failed !!!\n", m_url.c_str());
 			return false;
 		}
 		//avctx->width = width;
@@ -133,8 +135,8 @@ namespace chen {
 		//avctx->framerate = (AVRational){ 25, 1 };
 		//avctx->sample_aspect_ratio = (AVRational){ 1, 1 };
 		//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
-
-		m_codec_ctx_ptr->bit_rate = 4000 * 1024;//m_width * m_height * 25 *1;
+		//4000 * 1024;//
+		 m_codec_ctx_ptr->bit_rate = m_width * m_height * 25 * 1;
 		m_codec_ctx_ptr->width = m_width;
 		m_codec_ctx_ptr->height = m_height;
 		AVRational rate;
@@ -142,11 +144,12 @@ namespace chen {
 		rate.den = 25;
 		m_codec_ctx_ptr->time_base = rate;
 		m_codec_ctx_ptr->gop_size = 300;
-		m_codec_ctx_ptr->max_b_frames = 0;
-		m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
+		m_codec_ctx_ptr->max_b_frames = 4;
+		m_codec_ctx_ptr->pix_fmt =  AV_PIX_FMT_CUDA;
+	//	if (false)
 		{
 			/* set hw_frames_ctx for encoder's AVCodecContext */
-			if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, hw_device_ctx)) < 0) {
+			if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, m_hw_device_ctx_ptr)) < 0) {
 				WARNING_EX_LOG( "Failed to set hwframe context.\n");
 				//goto close;
 			}
@@ -235,7 +238,7 @@ namespace chen {
 		ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
 		if (ret < 0) 
 		{
-			printf(  "[%s]Failed to copy encoder parameters to output stream #%s\n", m_url.c_str(),  ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG(  "[%s]Failed to copy encoder parameters to output stream #%s\n", m_url.c_str(),  ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
@@ -243,7 +246,7 @@ namespace chen {
 		const AVDictionaryEntry* e = NULL; 
 		while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
 		{
-			printf("[key = %s][value = %s]\n", e->key, e->value);
+			NORMAL_EX_LOG("[key = %s][value = %s]\n", e->key, e->value);
 		}
 
 
@@ -251,14 +254,14 @@ namespace chen {
 		ret = ::avio_open2(&m_push_format_context_ptr->pb, m_url.c_str(), AVIO_FLAG_WRITE, NULL, &m_options_ptr);
 		if (ret < 0) 
 		{
-			printf("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		//写入头
 		ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
 		if (ret < 0) 
 		{
-			printf("[%s]Error occurred when opening output file [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("[%s]Error occurred when opening output file [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		/*m_frame_ptr = ::av_frame_alloc();
@@ -286,11 +289,11 @@ namespace chen {
 		m_pkt_ptr = av_packet_alloc();
 		if (!m_pkt_ptr)
 		{
-			printf("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
+			WARNING_EX_LOG("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
 			return false;
 		}
 
-
+		return true;
 		//AVFrame* hw_frame = NULL;
 		return _init_gpu_frame();
 		
@@ -309,7 +312,7 @@ namespace chen {
 	{
 		if (!m_stoped)
 		{
-			printf("[url = %s] stop = false\n", m_url.c_str());
+			WARNING_EX_LOG("[url = %s] stop = false\n", m_url.c_str());
 		//	return;
 		}
 		m_url.clear();
@@ -318,17 +321,28 @@ namespace chen {
 		 
 		if (m_push_format_context_ptr)
 		{
+			if (m_push_format_context_ptr->pb)
+			{
+				//::avio_flush(m_push_format_context_ptr->pb);
+				//::avio_close(m_push_format_context_ptr->pb);
+				//::avio_context_free(&m_push_format_context_ptr->pb);
+				//m_push_format_context_ptr->pb = NULL;
+			}
+
 			::avformat_close_input(&m_push_format_context_ptr);
+			::avformat_free_context(m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
 		}
 		if (m_codec_ctx_ptr)
 		{
+			::avcodec_close(m_codec_ctx_ptr);
 			::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
 		if (m_hw_frame_ptr)
 		{
+			::av_frame_unref(m_hw_frame_ptr);
 			::av_frame_free(&m_hw_frame_ptr);
 			m_hw_frame_ptr = NULL;
 		}
@@ -340,9 +354,14 @@ namespace chen {
 		}
 		if (m_pkt_ptr)
 		{
-			av_packet_free(&m_pkt_ptr);
+			::av_packet_unref(m_pkt_ptr);
+			//av_packet_close(m_pkt_ptr);
+			::av_packet_free(&m_pkt_ptr);
 			m_pkt_ptr = NULL;
 		}
+		 
+		::av_buffer_unref(&m_hw_device_ctx_ptr);
+		m_hw_device_ctx_ptr = NULL;
 		m_codec_id = AV_CODEC_ID_NONE;
 		m_stoped = true;
 		//std::string			m_url;
@@ -372,6 +391,7 @@ namespace chen {
 
 	void cencoder::push_frame(  AVFrame* frame_ptr)
 	{
+		//return;
 		if (m_stoped)
 		{
 			//::av_frame_unref(frame_ptr);
@@ -503,6 +523,8 @@ namespace chen {
 			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 		}
 		::av_packet_unref(m_pkt_ptr);
+
+		::avio_flush(m_push_format_context_ptr->pb);
 		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		//AVFrame* temp = NULL;
@@ -683,7 +705,7 @@ namespace chen {
 				ret = ::avcodec_send_frame(m_codec_ctx_ptr, frame_ptr);
 				if (ret < 0)
 				{
-					printf("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 					continue;
 				}
 				::av_frame_free(&frame_ptr);
@@ -691,7 +713,7 @@ namespace chen {
 				ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
 				if (ret < 0)
 				{
-					printf("[warr][url = %s]codec  receive packet  (%s) failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 					continue;
 
 				}
@@ -703,7 +725,7 @@ namespace chen {
 				m_pkt_ptr->dts = (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 
 				m_pkt_ptr->stream_index = 0;
-				printf(" [frame = %lu][%lu]  [pts = %lu]\n", frame_count, ::time(NULL), m_pkt_ptr->dts);
+				//NORMAL_EX_LOG(" [frame = %lu][%lu]  [pts = %lu]\n", frame_count, ::time(NULL), m_pkt_ptr->dts);
 
 				//1706158630000000 >= 1706158630000000
 
@@ -717,7 +739,7 @@ namespace chen {
 				ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 				if (ret < 0)
 				{
-					printf("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				}
 			}
 			if (frame_num <= 0)

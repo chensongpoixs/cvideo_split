@@ -146,6 +146,15 @@ namespace chen {
 		}
 		return NULL;
 	}
+	CameraInfo* ccamera_info_mgr::get_camera_info(uint32 camera_id)  
+	{
+		CAMERA_INFO_MAP::iterator iterator = m_camera_info_map.find(camera_id);
+		if (iterator != m_camera_info_map.end())
+		{
+			return &iterator->second;
+		}
+		return NULL;
+	}
 	void ccamera_info_mgr::_load_camera_config()
 	{
 		std::string camera_name = g_cfg.get_string(ECI_DataPath) + "/" + camera_json_name;

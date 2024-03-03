@@ -64,7 +64,7 @@
 
         function ajaxGet(url, successCallback, errorCallback) 
         {
-            console.log("http get = " + url);
+         //   console.log("http get = " + url);
           const xhr = new XMLHttpRequest();
           xhr.open('GET', url);
           xhr.onreadystatechange = function() {
@@ -241,22 +241,30 @@
                             {
                                 var html = $("table tr[data-index=" + item.LAY_TABLE_INDEX + "] td[data-field='state'] div").html("");
                                 if(item.state==1)
-                                  html.append("<div><span id='"+item.camera_id+"'>正常</span></div>");
-                                  else
-                                  html.append("<div><span id='"+item.camera_id+"'>异常</span></div>");
+                                {
+                                    html.append("<div><span id='"+item.camera_id+"'>正常</span></div>");
+                                }
+                                else
+                                {
+                                    html.append("<div><span id='"+item.camera_id+"'>异常</span></div>");
+                                }
                             });
                         }
                         ExecSetCamerasTimeout();
                     }
                 });
-                table.on('tool(table)', function (obj) {
+                table.on('tool(table)', function (obj) 
+                {
+                    console.log('table = '+ data);
                     var data = obj.data;
                     if (obj.event === 'delete')
                     {
                         DeletePJ(obj);
                     }
-                    // else if (obj.event === 'start')//此功能服务端没提供，暂停使用
-                    //     Play(data);
+                    else if (obj.event === 'start')//此功能服务端没提供，暂停使用
+                    {
+                        Play(data);
+                    }
                 });
             });
         }
@@ -340,94 +348,125 @@ function ValidateCameraIsUse(cameras,camera_id)
 {
     var cam = _.find(cameras, function (obj) { return camera_id == obj.camera_id });
     if(cam!=null)
-      return true;
+    {
+		return true;
+	}
 }
-        function Play(data) {
-            playVideo(data);
-            layer.open({
-                type: 1,
-                btn: ['播放', '暂停'],
-                title: '播放视频',
-                skin: 'layui-layer-rim', //加上边框
-                area: ['531px', '361px'], //宽高
-                content: $("#Unaudited"),
-                btnAlign: 'c', //按钮居中
-                btn1: function (index, layero) {
-                    playVideo(data);
-                },
-                btn2: function () {
-                    stopVideo();
-                }
-            });
-        }
-        function playVideo(data) {
-            // var domain = document.domain;
-            var domain = "likp.top";
-            if (!document.player) {
-                document.player = new Player();
-                const canvasId = "playCanvas_camera";
-                var canvas = document.getElementById(canvasId);
-                if (!canvas) {
-                    return false;
-                }
-                var url = " tstream://" + data.camera_id;
-                //var url = " tstream://t100";
-                document.player.play(domain, url, canvas);
-            }
-            else {
-                console.log("is playering");
-            }
-            return true;
-        }
+function Play(data) 
+{
+    console.log('Paly = ' + JSON.stringify(data));
+	playVideo(data);
+	layer.open({
+		type: 1,
+		btn: ['播放', '暂停'],
+		title: '播放视频',
+		skin: 'layui-layer-rim', //加上边框
+		area: ['531px', '361px'], //宽高
+		content: $("#Unaudited"),
+		btnAlign: 'c', //按钮居中
+		btn1: function (index, layero)
+        {
+			playVideo(data);
+		},
+		btn2: function () {
+			stopVideo();
+		}
+	});
+}
 
-        function stopVideo() {
-            self.player.stop();
-            var button = document.getElementById("btnPlayVideo");
-            button.value = "Play";
-            button.src = "img/play.png";
+
+function playVideo(data) 
+{
+    console.log(JSON.stringify(data));
+    // var domain = document.domain;
+    var domain = "likp.top";
+    if (!document.player) 
+    {
+        document.player = new Player();
+        const canvasId = "playCanvas_camera";
+        var canvas = document.getElementById(canvasId);
+        if (!canvas) 
+        {
+            return false;
         }
+        //var url = " tstream://" + data.camera_id;
+        //var url = " tstream://t100";
+        var url = data.url;
+        document.player.play(domain, url, canvas);
+    }
+    else 
+    {
+        console.log("is playering");
+    }
+    return true;
+}
+
+function stopVideo() 
+{
+    self.player.stop();
+    var button = document.getElementById("btnPlayVideo");
+    button.value = "Play";
+    button.src = "img/play.png";
+}
     var loadCameras;
     //定时获取所有拼接数据状态
-    function ExecSetCamerasTimeout()
+function ExecSetCamerasTimeout()
+{
+    if(loadCameras!=null)
+    {
+        clearTimeout(loadCameras);
+    }
+    loadCameras=null;
+    loadCameras= setTimeout(() => {
+        // var send_str = '{"msg": "get_cameras_status"}';
+        // $.ajax({
+        //     type: "POST",
+        //     dataType: "text",
+        //     url: apiAddress,
+        //     contentType: "application/json",
+        //     data: send_str,
+        //     timeout: 5000,
+        //     success: function (result) {
+        //         // console.log('ExecSetCamerasTimeout');
+        //         var objs = JSON.parse(result);
+        //         ForEachState(objs.states);
+        //         ExecSetCamerasTimeout();
+        //     }
+        // });
+         var cameras_url = api_data_address + 'video_split/v1/camera_list/page=0&page_size=1000';
+            ajaxGet(cameras_url, function(result){
+               // console.log('camera_list = ' + result);
+                var obj = JSON.parse(result);
+                ForEachState(obj.camera_infos);
+                ExecSetCamerasTimeout();
+                //LoadTable(obj.camera_infos);
+            }, function(result){});
+    }, 10000);
+}
+function ForEachState(arr)
+{
+    if(typeof(arr)!='undefined'&& arr!=null&& arr!="" )
+    {
+        if(arr.length>0)
         {
-            if(loadCameras!=null)
-              clearTimeout(loadCameras);
-            loadCameras=null;
-            loadCameras= setTimeout(() => {
-                var send_str = '{"msg": "get_cameras_status"}';
-                $.ajax({
-                    type: "POST",
-                    dataType: "text",
-                    url: apiAddress,
-                    contentType: "application/json",
-                    data: send_str,
-                    timeout: 5000,
-                    success: function (result) {
-                        // console.log('ExecSetCamerasTimeout');
-                        var objs = JSON.parse(result);
-                        ForEachState(objs.states);
-                        ExecSetCamerasTimeout();
-                    }
-                });
-            }, 10000);
-        }
-        function ForEachState(arr)
-        {
-            if(typeof(arr)!='undefined'&& arr!=null&& arr!="" )
-            {
-                if(arr.length>0)
+            $.each(arr,(index,item)=>{
+                console.log('ForEachState = ' + JSON.stringify(arr));
+                if(item.state===1)
                 {
-                    $.each(arr,(index,item)=>{
-                        if(item.state===1)
-                        $("#"+item.camera_id+"").html('正常');
-                         else if(item.state===0)
-                         $("#"+item.camera_id+"").html('异常');
-                         else
-                         $("#"+item.camera_id+"").html('正常');
-                    });
-                }
-            }
+					$("#"+item.camera_id+"").html('正常')
+				}
+                else if(item.state===0)
+                {
+					$("#"+item.camera_id+"").html('异常');
+				}
+                else
+                {
+					$("#"+item.camera_id+"").html('正常');
+				}
+            });
         }
+    }
+}
     </script>
 </body>
 </html>

@@ -49,7 +49,7 @@ namespace chen {
 
 	public:
 		const CameraInfo* get_camera_info(uint32 camera_id) const ;
-
+		CameraInfo* get_camera_info(uint32 camera_id);
 	private:
 		void _load_camera_config();
 

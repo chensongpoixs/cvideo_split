@@ -1,5 +1,5 @@
 ﻿/***********************************************************************************************
-created: 		2024-01-25
+created: 		2023-11-18
 
 author:			chensong
 
@@ -23,86 +23,78 @@ purpose:		camera
 ************************************************************************************************/
 
 
-#ifndef _C_ENCODER_H_
-#define _C_ENCODER_H_
- 
-#include <stdint.h>
-//#include <GL/eglew.h>
-#include <vector>
+#ifndef _C_DECODER_H_
+#define _C_DECODER_H_
+#include "cnet_type.h"
 #include <string>
-#include <thread>
-#include "cffmpeg_util.h"
+#include "cnoncopytable.h"
 #include <list>
+#include "cffmpeg_util.h"
 namespace chen {
 
-	class cencoder
+
+
+	struct cpacket
 	{
-	private:
-		typedef  std::mutex				clock_type;
-		typedef  std::lock_guard<clock_type>  clock_guard;
+		unsigned char* data;
+		uint64 size;
+		cpacket(): data(NULL), size(0){}
+	};
+	class cdecoder : public cnoncopytable
+	{
 	public:
-		explicit cencoder()
-			: m_url("")
-			, m_width(0)
-			, m_height(0)
-			, m_push_format_context_ptr(NULL)
-			, m_codec_id(AV_CODEC_ID_NONE)
-			, m_codec_ctx_ptr(NULL)
-			, m_hw_device_ctx_ptr(NULL)
-			, m_codec_ptr(NULL)
-			, m_stream_ptr(NULL)
-			, m_options_ptr(NULL)
-			, m_pkt_ptr(NULL)
-			, m_frame_list()
-			, m_stoped(false)
-			, m_frame_count(0)
-			, m_pts(0)
-			, m_hw_frame_ptr(NULL)
-		{}
-		virtual ~cencoder(); 
+		explicit cdecoder() 
+		: m_stoped(false)
+		, m_session_id(-1)
+		, m_url("")
+		, m_format_ctx_ptr(NULL)
+		, m_video_codec_ctx_ptr(NULL)
+		, m_audio_codec_ctx_ptr(NULL)
+		, m_video_stream_index(-1)
+		, m_audio_stream_index(-1)
+		, m_video_codec_id(AV_CODEC_ID_NONE)
+		, m_dict(NULL)
+		, m_open_timeout(0)
+		, m_read_timeout(0)
+		, m_interrupt_metadata()
+		, m_packets(){}
+		virtual ~cdecoder();
 	public:
-		bool init( const char * url, uint32_t width, uint32_t height);
+		
+		static cdecoder* construct();
+		static void  destroy(cdecoder* ptr);
+
+
+
+		bool init(uint64 session_id, const char * url);
+
+	/*	void update(uint32 uDataTime);*/
 
 		void destroy();
 
-		void stop();
 
-
-	public:
-		void push_frame(  AVFrame* frame_ptr);
-		void consume_frame1(const AVFrame * frame_ptr
-		 /*const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn*/ );
-		void consume_frame2(const AVFrame * frame_ptr
-			/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/);
+		void all_send_packet();
 	private:
 		void _work_pthread();
-
-
-		bool _init_gpu_frame();
 	private:
-		std::string			m_url;
-		uint32_t			m_width;
-		uint32_t			m_height;
-		AVFormatContext*	m_push_format_context_ptr;
-		enum AVCodecID		m_codec_id;
-		AVCodecContext*		m_codec_ctx_ptr;
-		AVBufferRef* m_hw_device_ctx_ptr;
-		const AVCodec*			m_codec_ptr;
-		AVStream*			m_stream_ptr;
-		AVDictionary*		m_options_ptr; // 参数
-		AVPacket*			m_pkt_ptr;
-		clock_type			  m_frame_lock;
-		std::list< AVFrame* > m_frame_list;
-		bool				m_stoped;
-		std::thread			m_thread;
-		uint64_t				m_frame_count;
-		uint64_t				m_pts;
-		AVFrame* m_hw_frame_ptr;
-		std::chrono::microseconds m_mic; // = std::chrono::duration_cast<std::chrono::microseconds>(
-			//std::chrono::system_clock::now().time_since_epoch());
-		/*unsigned char* m_yuv420p_ptr;
-		FILE* m_input_file_ptr;*/
+		bool			 m_stoped;
+		uint64			 m_session_id;
+		std::string		 m_url;
+		AVFormatContext* m_format_ctx_ptr;
+		AVCodecContext*	 m_video_codec_ctx_ptr;
+		AVCodecContext* m_audio_codec_ctx_ptr;
+		uint32			m_video_stream_index;
+		uint32			m_audio_stream_index;
+		AVCodecID		m_video_codec_id;
+		AVDictionary*	m_dict;
+		uint32			m_open_timeout;
+		uint32			m_read_timeout;
+		AVInterruptCallbackMetadata m_interrupt_metadata;
+		
+		std::mutex					  m_packet_lock;
+		std::list<cpacket  >    m_packets;
+		std::thread		m_thread;
 	};
 }
 
-#endif // _C_ENCODER_H_
+#endif // 

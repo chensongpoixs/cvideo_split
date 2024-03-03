@@ -12,6 +12,10 @@ purpose:	video_split mgr
 #include "chttp_code.h"
 namespace chen {
 
+
+	static std::unordered_set<std::string>    g_global_channel_id;
+
+
 	static const char* g_video_split_json_name = "video_split_list.json";
 	cvideo_split_info_mgr g_video_split_info_mgr;
 	bool cvideo_split_info_mgr::init()
@@ -90,7 +94,26 @@ namespace chen {
 				video_split_info.set_out_video_width(iter->second.out_video_width());
 				video_split_info.set_out_video_height(iter->second.out_video_height());
 			}
+			video_split_info.set_id(iter->second.id());
+			 
+			if (video_split_info.split_channel_id().size()> 0&& video_split_info.split_channel_id() != iter->second.split_channel_id())
+			{
+				if (!g_global_channel_id.insert(video_split_info.split_channel_id()).second)
+				{
+					result.result = EWebFindVideoSplitId;
+					WARNING_EX_LOG("insert channel id = [%s] failed !!!", video_split_info.split_channel_id().c_str());
+					return result;
 
+				}
+				else
+				{
+					g_global_channel_id.erase(iter->second.split_channel_id());
+				}
+			}
+			else
+			{
+				video_split_info.set_split_channel_id(iter->second.split_channel_id());
+			}
 			{
 				for (size_t i = 0; i < video_split_info.camera_group_size(); ++i)
 				{
@@ -128,6 +151,12 @@ namespace chen {
 		{
 			video_split_info.set_out_video_width(1920);
 			video_split_info.set_out_video_height(1080);
+		}
+		if (!g_global_channel_id.insert(video_split_info.split_channel_id()).second)
+		{
+			result.result = EWebFindVideoSplitId;
+			WARNING_EX_LOG("insert channel id = [%s] failed !!!", video_split_info.split_channel_id().c_str());
+			return result;
 		}
 		std::pair< VIDEO_SPLIT_INFO_MAP::iterator, bool> pi = m_video_split_info_map.insert(std::make_pair(video_split_info.split_channel_id(), video_split_info));
 		if (!pi.second)
@@ -362,6 +391,12 @@ namespace chen {
 			video_split_info.set_id(data[i]["id"].asUInt64());
 			video_split_info.set_split_channel_name(data[i]["split_channel_name"].asString());
 			video_split_info.set_split_channel_id(data[i]["split_channel_id"].asString());
+
+
+			if (!g_global_channel_id.insert(video_split_info.split_channel_id()).second)
+			{
+				WARNING_EX_LOG("global channel id [%s](channel_name =%s) insert failed !!!", video_split_info.split_channel_id().c_str(), video_split_info.split_channel_name().c_str());
+			}
 			video_split_info.set_multicast_ip(data[i]["multicast_ip"].asString());
 			video_split_info.set_multicast_port(data[i]["multicast_port"].asUInt64());
 			video_split_info.set_split_method(static_cast<ESplitMethod>(data[i]["split_method"].asUInt64()));

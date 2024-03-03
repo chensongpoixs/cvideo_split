@@ -1,10 +1,7 @@
 ﻿/***********************************************************************************************
-			created: 		2019-05-01
-
+			created: 		2022-09-19
 			author:			chensong
-
-			purpose:		ccfg
-
+			purpose:		client_msg_dipatch
 			输赢不重要，答案对你们有什么意义才重要。
 
 			光阴者，百代之过客也，唯有奋力奔跑，方能生风起时，是时代造英雄，英雄存在于时代。或许世人道你轻狂，可你本就年少啊。 看护好，自己的理想和激情。
@@ -21,47 +18,59 @@
 			沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 			安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 ************************************************************************************************/
-#ifndef _C_CFG_H_
-#define _C_CFG_H_
-//#include "cconfig.h"
-#include "cconfig.h"
-//#include "csingleton.h"
 
+#ifndef _C_CLIENT_MSG_DIPATCH_H_
+#define _C_CLIENT_MSG_DIPATCH_H_
 
+#include "cnet_type.h"
+#include <atomic>
+//#include "cwebsocket_wan_session.h"
+#include <json/json.h>
+#include "cnoncopytable.h"
+#include <unordered_map>
+#include "cmsg_base_id.h"
 namespace chen {
+	class  cwebsocket_wan_session;
+	//typedef void (cwebrtc_mgr::*handler_webrtc_type)(Json::Value & value);
+	typedef bool (cwebsocket_wan_session::*handler_client_type)(  Json::Value & value);
+#pragma pack(push, 4)
 
- 
- 
-	enum ECNGIndex
+	struct cclient_msg_handler
 	{
+		std::string							msg_name;
+		std::atomic<long>					handle_count;
+		handler_client_type						handler;
 
-		ECI_TimeZone,
-		ECI_TimeAdjust, 
-		// 
-		ECI_LogLevel, 
-		 
-		ECI_WebHttpWanIp,
-		ECI_WebHttpWanPort,
-		ECI_WebPathPrefix,
- 
-		ECI_DataPath,
-		ECI_WebSocketWanIp,
-		ECI_WebSocketWanPort,
-	 
-		ECI_Max,
+		cclient_msg_handler() : msg_name(""), handle_count(0), handler(NULL) {}
 	};
-	class ccfg : public cconfig
+
+	//handler_type
+
+	class cclient_msg_dispatch :private cnoncopytable
 	{
 	public:
-	    explicit	ccfg();
-		virtual	~ccfg();
+
 	public:
-		bool init(const char *file_name);
+		explicit cclient_msg_dispatch();
+		~cclient_msg_dispatch();
+	public:
+
+		bool init();
 		void destroy();
+
+		cclient_msg_handler* get_msg_handler(uint16 msg_id);
+
+	private:
+		void _register_msg_handler(uint16 msg_id, const std::string& msg_name, handler_client_type handler);
+		//void _register_webrtc_transport_msg_handler(uint16 msg_id, const std::string& msg_name, handler_type handler);
+	private:
+		cclient_msg_handler		m_msg_handler[Msg_Client_Max];
+
 	};
 
-	extern 	ccfg g_cfg;
-} //namespace chen
+#pragma pack(pop)
+	//extern cmsg_dispatch<handler_webrtc_type> g_webrtc_mgr_msg_dispatch;
+	extern cclient_msg_dispatch g_client_msg_dispatch;
+}
 
-#endif //!#define _C_CFG_H_
-
+#endif // _C_CLIENT_MSG_DIPATCH_H_

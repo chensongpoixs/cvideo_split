@@ -23,3 +23,4 @@
 /bin/data/video_split_list.json
 /web_api/springboot-knife4j/target
 /web_api/springboot-knife4j/.idea
+/decoder/log/20240226143414_decoder_server.log

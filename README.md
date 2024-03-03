@@ -126,6 +126,24 @@ ffmpeg.exe -re -stream_loop -1 -i C:\U_01.mp4 -f mpegts  "udp://239.255.255.250:
 ffmpeg-6.1版本
 
 ```
-./configure  --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc   --enable-avfilter  --enable-libx264          --enable-static   --enable-gpl   --enable-cross-compile  --extra-cflags="-I/home/pc/Work/nv-codec-headers"  --extra-ldflags="-L/usr/lib64"  
+./configure     --enable-version3  --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc   --enable-avfilter  --enable-libx264          --enable-static   --enable-gpl   --enable-cross-compile  --extra-cflags="-I/home/pc/Work/nv-codec-headers"  --extra-ldflags="-L/usr/lib64"  
+
+```
+
+
+## 1、 查看当前编译ffmpeg支持avfilter模块
+
+```
+./ffmpeg --list-filters
+```
+
+
+
+
+## 2、测试ffmpeg功能命令
+
+
+
+```
 
 ```

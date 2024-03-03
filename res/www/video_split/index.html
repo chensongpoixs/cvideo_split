@@ -199,9 +199,13 @@ function ajaxGet(url, successCallback, errorCallback) {
                             {
                                 var html = $("table tr[data-index=" + item.LAY_TABLE_INDEX + "] td[data-field='state'] div").html("");
                                 if(item.state==1)
-                                  html.append("<div><span id='"+item.ip+"'>启动</span></div>");
+                                {
+                                    html.append("<div><span id='"+item.ip+"'>启动</span></div>");
+                                }
                                   else
-                                  html.append("<div><span id='"+item.ip+"'>停止</span></div>");
+                                {
+                                    html.append("<div><span id='"+item.ip+"'>停止</span></div>");
+                                }
                             });
                         }
                         ExecSetTimeout();//定时获取所有状态

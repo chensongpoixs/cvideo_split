@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>cn.edu.sgu.www</groupId>
-    <artifactId>springboot-knife4j</artifactId>
+    <artifactId>ExeclTool</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
