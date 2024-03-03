@@ -1,0 +1,54 @@
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+import "EnumDefine.proto"; 
+
+
+
+message CameraInfo
+{
+	optional  uint32 index = 1;  // 拼接索引
+	optional  uint32 camera_id = 2; // 相机id
+	optional  string camera_name = 3; // 相机的名称
+	optional  string ip 		= 4; // 相机ip
+	optional  string address = 5; //相机的组播地址
+	optional  uint32 port 	= 6; //相机的组播端口 
+	optional  string url    = 7; //媒体流 
+	optional  ECameraStatusType   state = 8; // 状态
+ 
+	
+}
+
+
+message CameraGroup
+{
+	optional uint32 index = 1; //拼接索引
+	optional uint32 camera_id = 2; //相机id
+	optional double x = 3; // 
+	optional double y = 4;
+	optional double w = 5;
+	optional double h = 6;
+}
+
+
+
+
+
+
+message PageInfo
+{
+	optional uint32 	page_size = 1;//每页显示多少数据
+	optional uint32 	page_number = 2; //当前页码
+	optional uint32 	total_pages = 3; //总页码
+	optional uint32 	total_elements = 4; //总数量
+}
+
+
+
+message  OsdInfo
+{
+	optional double 		x = 1;
+	optional double 		y = 2;
+	optional uint32 		font_size = 3; //字体的大小
+	optional string 		font_text = 4; //数据
+}
+

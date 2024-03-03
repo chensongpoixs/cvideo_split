@@ -31,26 +31,15 @@ purpose:		camera
 #include <vector>
 #include <string>
 #include <thread>
-extern "C"
-{
-#include <libavutil/frame.h>
-#include <libavutil/avutil.h>
-#include <libavutil/avutil.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-}
-
+#include "cffmpeg_util.h"
+#include <list>
 namespace chen {
 
 	class cencoder
 	{
+	private:
+		typedef  std::mutex				clock_type;
+		typedef  std::lock_guard<clock_type>  clock_guard;
 	public:
 		explicit cencoder()
 			: m_url("")
@@ -59,12 +48,16 @@ namespace chen {
 			, m_push_format_context_ptr(NULL)
 			, m_codec_id(AV_CODEC_ID_NONE)
 			, m_codec_ctx_ptr(NULL)
+			, m_hw_device_ctx_ptr(NULL)
 			, m_codec_ptr(NULL)
 			, m_stream_ptr(NULL)
 			, m_options_ptr(NULL)
 			, m_pkt_ptr(NULL)
-			, m_frame_ptr(NULL)
+			, m_frame_list()
 			, m_stoped(false)
+			, m_frame_count(0)
+			, m_pts(0)
+			, m_hw_frame_ptr(NULL)
 		{}
 		virtual ~cencoder(); 
 	public:
@@ -76,12 +69,16 @@ namespace chen {
 
 
 	public:
+		void push_frame(  AVFrame* frame_ptr);
 		void consume_frame1(const AVFrame * frame_ptr
 		 /*const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn*/ );
 		void consume_frame2(const AVFrame * frame_ptr
 			/*const uint8_t* data, int32_t step, int32_t width, uint32_t height, int32_t cn*/);
 	private:
 		void _work_pthread();
+
+
+		bool _init_gpu_frame();
 	private:
 		std::string			m_url;
 		uint32_t			m_width;
@@ -89,13 +86,20 @@ namespace chen {
 		AVFormatContext*	m_push_format_context_ptr;
 		enum AVCodecID		m_codec_id;
 		AVCodecContext*		m_codec_ctx_ptr;
+		AVBufferRef* m_hw_device_ctx_ptr;
 		const AVCodec*			m_codec_ptr;
 		AVStream*			m_stream_ptr;
 		AVDictionary*		m_options_ptr; // 参数
 		AVPacket*			m_pkt_ptr;
-		AVFrame*			m_frame_ptr;
+		clock_type			  m_frame_lock;
+		std::list< AVFrame* > m_frame_list;
 		bool				m_stoped;
 		std::thread			m_thread;
+		uint64_t				m_frame_count;
+		uint64_t				m_pts;
+		AVFrame* m_hw_frame_ptr;
+		std::chrono::microseconds m_mic; // = std::chrono::duration_cast<std::chrono::microseconds>(
+			//std::chrono::system_clock::now().time_since_epoch());
 		/*unsigned char* m_yuv420p_ptr;
 		FILE* m_input_file_ptr;*/
 	};

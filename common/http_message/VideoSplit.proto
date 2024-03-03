@@ -1,0 +1,52 @@
+
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+import "VideoSplitDefine.proto"; 
+import "EnumDefine.proto"; 
+
+
+
+
+//增加相机
+message AddCameraInfos
+{
+	repeated CameraInfo 		camera_infos = 1;
+}
+
+message VideoSplitInfo
+{
+
+	optional uint64   id  = 1; //序号 
+	optional string   split_channel_name = 2; //拼接通道名称
+	optional string   split_channel_id   = 3; //拼接通道id
+	optional string   multicast_ip 		= 4; //组播地址
+	optional uint32   multicast_port 	= 5; //组播端口 
+	optional ESplitMethod   split_method = 6; //拼接方式: 0: 左右拼接 1: 上下拼接
+	//optional uint32   split_type = 7; //拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一
+	optional uint32   lock_1080p   = 8; //是否锁定1080p
+	optional uint32   overlay     = 9; // 是否折叠 0: 不折叠 1: 折叠
+	repeated CameraGroup 		camera_group = 10;
+	optional OsdInfo      osd_info 		= 11; // OSD 
+	optional uint32 	out_video_width = 12;
+	optional uint32 	out_video_height = 13; //视频输出高度
+	optional uint32 	status   		= 14; //视频拼接的状态  0:未开始   1:开始拼接视频啦
+	optional uint32 	out_video = 15; //输出视频
+	
+}
+
+
+
+message VideoSplitOsd
+{
+	optional  string 		split_channel_id = 1; //视频通道id
+	optional  string 		txt 		 = 2; // osd txt 
+	optional  uint32 		fontsize     = 3; 
+	optional  uint32 		video_width  = 4; // 
+	optional  uint32 		video_height = 5; // 
+	optional  double 		x 			 = 6;
+	optional  double 		y 			 = 7; 
+}
+
+
+

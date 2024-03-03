@@ -1,0 +1,155 @@
+{
+    "t101": {
+        "address": "192.168.2.104",
+        "camera_id": "t101",
+        "ip": "null",
+        "name": "室内测试1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.104"
+    },
+    "t102": {
+        "address": "192.168.2.105",
+        "camera_id": "t102",
+        "ip": "null",
+        "name": "室内测试2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.105"
+    },
+    "t103": {
+        "address": "null",
+        "camera_id": "t103",
+        "ip": "192.168.2.102",
+        "name": "室外枪机1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.2.102"
+    },
+    "t110": {
+        "address": "192.168.2.100",
+        "camera_id": "t110",
+        "ip": "null",
+        "name": "室内测试3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.100"
+    },
+    "t116": {
+        "address": "",
+        "camera_id": "t116",
+        "ip": "192.168.2.209",
+        "name": "室外枪机2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.2.209"
+    },
+    "t117": {
+        "address": "",
+        "camera_id": "t117",
+        "ip": "192.168.2.210",
+        "name": "室外枪机3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.2.210"
+    },
+    "t118": {
+        "address": "",
+        "camera_id": "t118",
+        "ip": "192.168.2.211",
+        "name": "室外枪机4",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.2.211"
+    },
+    "t119": {
+        "address": "192.168.2.212",
+        "camera_id": "t119",
+        "ip": "",
+        "name": "室外球机1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.212"
+    },
+    "t120": {
+        "address": "192.168.2.213",
+        "camera_id": "t120",
+        "ip": "",
+        "name": "室外球机2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.213"
+    },
+    "t121": {
+        "address": "null",
+        "camera_id": "t121",
+        "ip": "192.168.3.7",
+        "name": "走道1",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.7"
+    },
+    "t122": {
+        "address": "null",
+        "camera_id": "t122",
+        "ip": "192.168.3.8",
+        "name": "走道2",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.8"
+    },
+    "t123": {
+        "address": "null",
+        "camera_id": "t123",
+        "ip": "192.168.3.9",
+        "name": "走道3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.9"
+    },
+    "t124": {
+        "address": "null",
+        "camera_id": "t124",
+        "ip": "192.168.3.10",
+        "name": "走道4",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.10"
+    },
+    "t125": {
+        "address": "null",
+        "camera_id": "t125",
+        "ip": "192.168.3.6",
+        "name": "走道5",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:123456@192.168.3.6"
+    },
+    "t126": {
+        "address": "192.168.2.215",
+        "camera_id": "t126",
+        "ip": "null",
+        "name": "室外枪机5",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.215"
+    },
+    "t127": {
+        "address": "192.168.2.214",
+        "camera_id": "t127",
+        "ip": "null",
+        "name": "室外球机3",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.214"
+    },
+    "t128": {
+        "address": "192.168.2.101",
+        "camera_id": "t128",
+        "ip": "null",
+        "name": "室内测试4",
+        "port": "8000",
+        "state": "1",
+        "urlorfile": "rtsp://admin:admin12345@192.168.2.101"
+    }
+}

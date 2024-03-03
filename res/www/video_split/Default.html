@@ -1,0 +1,73 @@
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>视频拼接转码服务</title>
+    <link rel="stylesheet" href="js/layui/css/layui.css" />
+    <link href="js/plugins/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <style>
+        body {
+            border: 0px;
+            margin: 0px;
+            width: 100%;
+            overflow: hidden;
+            /*height: 750px;
+            overflow:hidden;*/
+        }
+        iframe {
+        border:0px;
+        margin:0px;
+        width:100%;
+        /*height:890px;*/
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-tab" lay-filter="test">
+        <ul class="layui-tab-title">
+            <li class="layui-this" lay-id="11">拼接管理</li>
+            <li lay-id="22">摄像头资源</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+
+                <iframe id="index" src="index.html" scrolling="no" frameborder="0"></iframe>
+            </div>
+            <div class="layui-tab-item">
+                <iframe id="Resources" src="Resources.html" scrolling="no" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+   
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/layui/layui.js"></script>
+    <script>
+        layui.use('element', function () {
+            var $ = layui.jquery
+                , element = layui.element;
+            element.on('tab(test)', function(data){
+                    if (data.index == 1) {
+                        window.frames["index"].contentWindow.CloseWindowForm();
+                   }
+                });
+        });
+
+        function changeFrameHeight() {
+            var ifm1 = document.getElementById("Resources");
+            var ifm2 = document.getElementById("index");
+            var height = document.documentElement.clientHeight;
+            if (height < 800)
+                ifm2.height= ifm1.height = document.documentElement.clientHeight - 80;
+            else
+                ifm2.height =ifm1.height = 884;
+        }
+        window.onresize = function () {
+            changeFrameHeight();
+        }
+        window.onload = function () {
+            changeFrameHeight();
+        }
+    </script>
+</body>
+</html>

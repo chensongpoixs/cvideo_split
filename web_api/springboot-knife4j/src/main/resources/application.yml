@@ -1,0 +1,5 @@
+server:
+  port: 8808
+
+knife4j:
+  enable: true

@@ -1,0 +1,32 @@
+syntax = "proto2";
+option optimize_for = LITE_RUNTIME;
+
+
+enum EAppStatusType
+{
+	EAppStatusInit 					= 1;
+	EAppStatusStartup				= 2;
+	EAppStatusWebsocketInit 		= 3;
+	EAppStatusWebsocketConnected  	= 4; 
+	EAppStatusWebsocketJoin 		= 5;
+	EAppStatusWebsocketProduce 		= 6; 
+	EAppStatusWebsocketVideoPause 	= 7;
+	EAppStatusWebsocketVideoResume 	= 8;
+	EAppStatusWebsocketDestroy 		= 9; //---> connected
+	EAppStatusDestroy 				= 10;
+}
+
+
+enum ECameraStatusType
+{
+	ECameraNone = 0; //
+	ECameraRuning = 1;
+}
+
+
+//视频拼接方式
+enum ESplitMethod
+{
+	ELeftRightSplit = 0; //左右拼接
+	EUpperLowerSplit = 1; //上下拼接
+}

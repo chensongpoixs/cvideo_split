@@ -1,0 +1,1581 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cloud Render Result API ",
+    "description": "Result API 接口",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:9002"
+    },
+    {
+      "url": "http://127.0.0.1:8400"
+    },
+    {
+      "url": "http://127.0.0.1:8203"
+    },
+    {
+      "url": "http://127.0.0.1:9800"
+    }
+  ],
+  "tags": [
+    {
+      "name": "RenderApp",
+      "description": "云渲染操作"
+    },
+    {
+      "name": "PmsAuthMgr",
+      "description": "Pms授权管理"
+    },
+    {
+      "name": "NetAuthMgr",
+      "description": "网络权限管理后台"
+    },
+    {
+      "name": "VideoSplit",
+      "description": "视频拼接接口"
+    }
+  ],
+  "paths": {
+    "/cloudrender/v1/create_render_app": {
+      "post": {
+        "tags": [
+          "RenderApp"
+        ],
+        "summary": "创建渲染app应用",
+        "description": "创建渲染app应用",
+        "operationId": "CreateRenderApp",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRenderApp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCreateRenderApp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudrender/v1/update_render_app": {
+      "post": {
+        "tags": [
+          "RenderApp"
+        ],
+        "summary": "修改渲染app应用",
+        "description": "修改渲染app应用",
+        "operationId": "UpdateRenderApp",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRenderApp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUpdateRenderApp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudrender/v1/delete_render_app": {
+      "post": {
+        "tags": [
+          "RenderApp"
+        ],
+        "summary": "删除渲染app应用",
+        "description": "删除渲染app应用",
+        "operationId": "DeleteRenderApp",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRenderApp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultDRenderApp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cloudrender/v1/cmd_render_app": {
+      "post": {
+        "tags": [
+          "RenderApp"
+        ],
+        "summary": "打开或者关闭渲染app",
+        "description": "打开或者关闭渲染app",
+        "operationId": "RenderApp",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CmdRenderApp"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "aplication/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCmdRenderApp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pms/v1/authinfo": {
+      "get": {
+        "tags": [
+          "PmsAuthMgr"
+        ],
+        "summary": "获取当前授权信息",
+        "description": "获取当前授权信息",
+        "operationId": "authinfo",
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPmsAuthInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pms/v1/switchauth": {
+      "post": {
+        "tags": [
+          "PmsAuthMgr"
+        ],
+        "summary": "切换授权方式",
+        "description": "切换授权方式",
+        "operationId": "switchauth",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PmsSwitchAuth"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPmsSwitchAuth"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/netauth/v1/login": {
+      "post": {
+        "tags": [
+          "NetAuthMgr"
+        ],
+        "summary": "网络授权管理后台登录",
+        "description": "网络授权登录",
+        "operationId": "login",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetAuthLogin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNetAuthLogin"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/netauth/v1/updateuserpassword": {
+      "post": {
+        "tags": [
+          "NetAuthMgr"
+        ],
+        "summary": "修改授权后台管理系统的用户密码",
+        "description": "修改授权后台管理系统的用户密码",
+        "operationId": "updateuserpassword",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetAuthUpdateUserPassWord"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": " '{'result':0}'",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUpdateUserPassWord"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/netauth/v1/search": {
+      "post": {
+        "tags": [
+          "NetAuthMgr"
+        ],
+        "summary": "网络授权管理后台查询",
+        "description": "网络授权查询",
+        "operationId": "search",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NetAuthSearch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultNetAuthSearch"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/netauth/v1/insertauthuser": {
+      "post": {
+        "tags": [
+          "NetAuthMgr"
+        ],
+        "summary": "网络授权 插入用户信息",
+        "description": "插入用户信息",
+        "operationId": "insert user",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InsertAuthUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultInsertAuthUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/netauth/v1/updateauthuser": {
+      "post": {
+        "tags": [
+          "NetAuthMgr"
+        ],
+        "summary": "修改授权系统后台管理员授权信息",
+        "description": "修改授权系统后台管理员授权信息",
+        "operationId": "updateauthuser",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAuthUser"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUpdateAuthUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/add_camera_info": {
+      "post": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "增加相机",
+        "description": "增加相机",
+        "operationId": "add_camera_info",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSplitData/AddCameraInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultAddCameraInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/delete_camera_info": {
+      "post": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "删除相机",
+        "description": "删除相机",
+        "operationId": "delete_camera_info",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSplitData/DeleteCameraInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultDeleteCameraInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/camera_list/page={page}&page_size={page_size}": {
+      "get": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "查询相机列表",
+        "descrioption": "查询相机列表",
+        "operationId": "camera_list",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "当前页码",
+              "example": 0
+            }
+          },
+          {
+            "in": "path",
+            "name": "page_size",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "descrioption": "每页显示多少数据",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "未找到用户"
+          },
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultCameraLists"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/add_video_split": {
+      "post": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "创建视频拼接",
+        "description": "创建视频拼接",
+        "operationId": "add_video_split",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSplitData/AddVideoSplitChannel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultAddVideoSplitChannel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/delete_video_split": {
+      "post": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "删除视频拼接",
+        "description": "删除视频拼接",
+        "operationId": "delete_video_split",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSplitData/DeleteVideoSplitChannel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultDeleteVideoSplitChannel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/video_split_list/page={page}&page_size={page_size}": {
+      "get": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "查询视频拼接列表",
+        "descrioption": "查询视频拼接列表",
+        "operationId": "camera_list",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "page",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "description": "当前页码",
+              "example": 0
+            }
+          },
+          {
+            "in": "path",
+            "name": "page_size",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "descrioption": "每页显示多少数据",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultVideoSplitLists"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/video_split/v1/cmd_video_split": {
+      "post": {
+        "tags": [
+          "VideoSplit"
+        ],
+        "summary": "开始或者停止视频拼接",
+        "description": "开始或者停止视频拼接",
+        "operationId": "cmd_video_split",
+        "requestBody": {
+          "description": "参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoSplitData/CmdVideoSplit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VideoSplitData/ResultCmdVideoSplit"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateRenderApp": {
+        "type": "object",
+        "properties": {
+          "render_id": {
+            "type": "string",
+            "description": "渲染节点id",
+            "example": "chensong"
+          },
+          "project_id": {
+            "type": "string",
+            "formt": "string",
+            "description": "项目ID",
+            "example": "chensong"
+          },
+          "scene_id": {
+            "type": "string",
+            "format": "string",
+            "description": "场景ID",
+            "example": "chensong"
+          },
+          "user_name": {
+            "type": "string",
+            "format": "string",
+            "description": "用户名",
+            "example": "chensong"
+          },
+          "auto_restart": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "app应用是否自动启动 默认不自动启动 0: 不自动启动 1:自动启动",
+            "example": 0
+          },
+          "media_ip": {
+            "type": "string",
+            "format": "string",
+            "description": "媒体服务IP",
+            "example": "127.0.0.1"
+          },
+          "media_port": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "媒体服务端口",
+            "example": 8888
+          },
+          "signaling_ip": {
+            "type": "string",
+            "format": "string",
+            "description": "信令服务IP",
+            "example": "127.0.0.1"
+          },
+          "signaling_port": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "信令服务端口",
+            "example": 8888
+          },
+          "app_render_type": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0:共享模式 1:独享模式",
+            "example": 0
+          }
+        }
+      },
+      "ResultCreateRenderApp": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "0:成功",
+            "example": 0
+          }
+        }
+      },
+      "UpdateRenderApp": {
+        "type": "object",
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "description": "app_id",
+            "example": "chensong"
+          },
+          "project_id": {
+            "type": "string",
+            "formt": "string",
+            "description": "项目ID",
+            "example": "chensong"
+          },
+          "scene_id": {
+            "type": "string",
+            "format": "string",
+            "description": "场景ID",
+            "example": "chensong"
+          },
+          "user_name": {
+            "type": "string",
+            "format": "string",
+            "description": "用户名",
+            "example": "chensong"
+          },
+          "auto_restart": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "app应用是否自动启动 默认不自动启动 0: 不自动启动 1:自动启动",
+            "example": 0
+          },
+          "media_ip": {
+            "type": "string",
+            "format": "string",
+            "description": "媒体服务IP",
+            "example": "127.0.0.1"
+          },
+          "media_port": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "媒体服务端口",
+            "example": 8888
+          },
+          "signaling_ip": {
+            "type": "string",
+            "format": "string",
+            "description": "信令服务IP",
+            "example": "127.0.0.1"
+          },
+          "signaling_port": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "信令服务端口",
+            "example": 8888
+          },
+          "app_render_type": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0:共享模式 1:独享模式",
+            "example": 0
+          }
+        }
+      },
+      "ResultUpdateRenderApp": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "0:成功",
+            "example": 0
+          }
+        }
+      },
+      "DeleteRenderApp": {
+        "type": "object",
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "description": "渲染节点id",
+            "example": "chensong"
+          }
+        }
+      },
+      "ResultDRenderApp": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "0:成功",
+            "example": 0
+          }
+        }
+      },
+      "CmdRenderApp": {
+        "type": "object",
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "description": "app 云渲染唯一id",
+            "example": "1696720106886782976_C1"
+          },
+          "cmd": {
+            "type": "integer",
+            "description": "0:启动 1:关闭",
+            "format": "uint32",
+            "example": 0,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "app_show": {
+            "type": "integer",
+            "description": "app 是否显示  0:隐藏app 1: 显示app 默认值0",
+            "example": 0,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "app_render_type": {
+            "type": "integer",
+            "description": "模式0.独占 1.共享 默认值 0",
+            "example": 0
+          }
+        }
+      },
+      "ResultCmdRenderApp": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "0:成功",
+            "example": 0
+          }
+        }
+      },
+      "ResultPmsAuthInfo": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "0:成功",
+            "example": 0
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "auth_type": {
+                "type": "integer",
+                "format": "uint32",
+                "description": "0: 表示硬狗授权 1:表示网络授权"
+              },
+              "auth_status": {
+                "type": "integer",
+                "format": "uint32",
+                "description": "0: 硬狗未检查到硬狗 1: 硬狗产品码错误 2: 网络授权失败 3:  授权未到开始时间 4: 授权过期 5:授权失败 6: 正常"
+              },
+              "start_timestamp": {
+                "type": "integer",
+                "format": "uint64",
+                "description": "授权开始时间戳"
+              },
+              "expire_timestamp": {
+                "type": "integer",
+                "format": "uint64",
+                "description": "授权结束时间戳"
+              },
+              "container_num": {
+                "type": "integer",
+                "format": "uint32",
+                "description": "容器的数量"
+              },
+              "video_num": {
+                "type": "integer",
+                "format": "uint32",
+                "description": "视频融合数量"
+              }
+            }
+          }
+        }
+      },
+      "PmsSwitchAuth": {
+        "type": "object",
+        "properties": {
+          "auth_type": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 表示硬狗授权 1:表示网络授权"
+          },
+          "identification_code": {
+            "type": "string",
+            "format": "string",
+            "description": "识别码",
+            "example": " 432"
+          }
+        }
+      },
+      "ResultPmsSwitchAuth": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 成功"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "identification_code": {
+                "type": "string",
+                "format": "string",
+                "description": "系统识别码",
+                "example": "432"
+              }
+            }
+          }
+        }
+      },
+      "TokenAuthUser": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "format": "string",
+            "description": "token",
+            "example": "3243-23432-32423"
+          }
+        }
+      },
+      "NetAuthLogin": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "format": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "format": "string",
+            "description": "密码",
+            "example": "123456"
+          }
+        }
+      },
+      "ResultNetAuthLogin": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 成功"
+          },
+          "data": {
+            "type": "array",
+            "properties": null,
+            "items": {
+              "$ref": "#/components/schemas/TokenAuthUser"
+            }
+          }
+        }
+      },
+      "NetAuthSearch": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "第几页",
+            "example": 0
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "每页显示多少数据",
+            "example": 10
+          },
+          "sort": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0:升序 1: 降序",
+            "example": 0
+          },
+          "system_code": {
+            "type": "string",
+            "format": "string",
+            "description": "授权码",
+            "example": "23432-23-432432"
+          }
+        }
+      },
+      "AuthUserInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "string",
+            "description": "客户名称",
+            "example": "杭州大华"
+          },
+          "province": {
+            "type": "string",
+            "format": "string",
+            "description": "省份",
+            "example": "浙江"
+          },
+          "system_code": {
+            "type": "string",
+            "format": "string",
+            "description": "系统识别码",
+            "example": "2323-23432-23323"
+          },
+          "register_timestamp": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "注册时间",
+            "example": "232323323"
+          },
+          "expire_timestamp": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "有效时间",
+            "example": "232323323"
+          },
+          "cycle": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "认证周期",
+            "example": 23432
+          },
+          "auth_timestamp": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "上一次认证的时间戳",
+            "example": 23432
+          }
+        }
+      },
+      "ResultNetAuthSearch": {
+        "type": "object",
+        "properties": {
+          "page_size": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "显示数据个数",
+            "example": 3
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "总页数",
+            "example": 11
+          },
+          "page_number": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "当前页",
+            "example": 3
+          },
+          "total_elements": {
+            "type": "integer",
+            "format": "uint64",
+            "description": "总数据个数",
+            "exmaple": 33
+          },
+          "data": {
+            "type": "array",
+            "properties": null,
+            "items": {
+              "$ref": "#/components/schemas/AuthUserInfo"
+            }
+          }
+        }
+      },
+      "InsertAuthUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "string",
+            "description": "客户名称",
+            "example": "杭州大华"
+          },
+          "province": {
+            "type": "string",
+            "format": "string",
+            "description": "省份",
+            "example": "浙江"
+          },
+          "expire_timestamp": {
+            "type": "number",
+            "format": "uint64",
+            "description": "有效时间",
+            "example": 323243
+          },
+          "cycle": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "认证周期",
+            "example": 23432
+          }
+        }
+      },
+      "ResultInsertAuthUser": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 成功",
+            "example": 0
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthUserInfo"
+          }
+        }
+      },
+      "UpdateAuthUser": {
+        "type": "object",
+        "properties": {
+          "system_code": {
+            "type": "string",
+            "format": "string",
+            "description": "系统识别码",
+            "example": "8998-989-89"
+          },
+          "name": {
+            "type": "string",
+            "format": "string",
+            "description": "客户名称",
+            "example": "杭州大华"
+          },
+          "province": {
+            "type": "string",
+            "format": "string",
+            "description": "省份",
+            "example": "浙江"
+          },
+          "expire_timestamp": {
+            "type": "number",
+            "format": "uint64",
+            "description": "有效时间",
+            "example": 323243
+          },
+          "cycle": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "认证周期",
+            "example": 23432
+          }
+        }
+      },
+      "ResultUpdateAuthUser": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 成功"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AuthUserInfo"
+          }
+        }
+      },
+      "NetAuthUpdateUserPassWord": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "format": "string",
+            "description": "用户名",
+            "example": "admin"
+          },
+          "old_password": {
+            "type": "string",
+            "format": "string",
+            "description": "密码",
+            "example": "123456"
+          },
+          "new_password": {
+            "type": "string",
+            "format": "string",
+            "description": "密码",
+            "example": "abcde"
+          }
+        }
+      },
+      "ResultUpdateUserPassWord": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "integer",
+            "format": "uint32",
+            "description": "0: 成功"
+          }
+        }
+      },
+      "VideoSplitData": {
+        "CameraInfo": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "拼接索引 0, 1, 2, 3, 4, 5, 6, 7, 8, 9",
+              "example": 0
+            },
+            "camera_id": {
+              "type": "integer",
+              "format": "uint64",
+              "description": "相机的ID",
+              "example": 23
+            },
+            "address": {
+              "type": "string",
+              "format": "string",
+              "descrioption": "相机的地址",
+              "example": "192.168.2.104"
+            },
+            "camera_name": {
+              "type": "string",
+              "format": "string",
+              "descrioption": "相机名称",
+              "example": "室内测试2"
+            },
+            "port": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "相机的端口",
+              "example": 9000
+            },
+            "url": {
+              "type": "integer",
+              "format": "string",
+              "descrioption": "相机的协议 rtsp, rtmp, http, udp",
+              "example": "udp://@224.1.1.3:20000"
+            },
+            "state": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "相机的状态",
+              "example": 0
+            }
+          }
+        },
+        "CameraGroup": {
+          "type": "object",
+          "properties": {
+            "camera_id": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "相机的ID",
+              "exmaple": 23
+            },
+            "index": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "相机索引id  0, 1, 2, 3, 4, 5, 6 .. 9",
+              "example": 1
+            }
+          }
+        },
+        "VideoSplitInfo": {
+          "type": "object",
+          "properties": {
+            "split_channel_name": {
+              "type": "string",
+              "format": "string",
+              "description": "拼接通道名称",
+              "example": "chensong"
+            },
+            "split_channel_id": {
+              "type": "string",
+              "format": "string",
+              "description": "拼接通道ID",
+              "example": "24020518500674"
+            },
+            "multicast_ip": {
+              "type": "string",
+              "format": "string",
+              "description": "组播地址",
+              "example": "239.1.0.16"
+            },
+            "multicast_port": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "组播端口",
+              "example": 9000
+            },
+            "split_method": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "拼接方式: 0: 左右拼接 1: 上下拼接",
+              "exmpale": 0
+            },
+            "split_type": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一",
+              "example": 2
+            },
+            "lock_1080p": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "锁定1080P  0: 不锁定 1:锁定",
+              "example": 1
+            },
+            "overlay": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "是否折叠 0: 不折叠 1: 折叠",
+              "example": 0
+            },
+            "camera_infos": {
+              "type": "array",
+              "properties": null,
+              "items": {
+                "$ref": "#/components/schemas/VideoSplitData/CameraInfo"
+              }
+            }
+          }
+        },
+        "ResultCameraLists": {
+          "type": "object",
+          "properties": {
+            "page_size": {
+              "type": "integer",
+              "format": "int64",
+              "descrioption": "每页显示多少数据",
+              "example": 10
+            },
+            "page_number": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "当前页码",
+              "example": 0
+            },
+            "total_pages": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "总页码",
+              "example": 94
+            },
+            "total_elements": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "总数据数量"
+            },
+            "camera_infos": {
+              "type": "array",
+              "properties": null,
+              "items": {
+                "$ref": "#/components/schemas/VideoSplitData/CameraInfo"
+              }
+            }
+          }
+        },
+        "ResultVideoSplitLists": {
+          "type": "object",
+          "properties": {
+            "page_size": {
+              "type": "integer",
+              "format": "int64",
+              "descrioption": "每页显示多少数据",
+              "example": 10
+            },
+            "page_number": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "当前页码",
+              "example": 0
+            },
+            "total_pages": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "总页码",
+              "example": 94
+            },
+            "total_elements": {
+              "type": "integer",
+              "format": "uint64",
+              "descrioption": "总数据数量",
+              "example": 89
+            },
+            "video_split_infos": {
+              "type": "array",
+              "properties": null,
+              "items": {
+                "$ref": "#/components/schemas/VideoSplitData/VideoSplitInfo"
+              }
+            }
+          }
+        },
+        "CmdVideoSplit": {
+          "type": "object",
+          "properties": {
+            "video_split_channle_id": {
+              "type": "string",
+              "format": "string",
+              "description": "拼接通道ID",
+              "example": "21040618254471"
+            },
+            "cmd": {
+              "type": "integer",
+              "format": "int32",
+              "description": "0: 开始视频拼接 1:停止视频拼接"
+            }
+          }
+        },
+        "ResultCmdVideoSplit": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "0: 成功",
+              "exmpale": 0
+            }
+          }
+        },
+        "AddVideoSplitChannel": {
+          "type": "object",
+          "properties": {
+            "split_channel_name": {
+              "type": "string",
+              "format": "string",
+              "description": "拼接通道名称",
+              "example": "chensong"
+            },
+            "split_channel_id": {
+              "type": "string",
+              "format": "string",
+              "description": "拼接通道ID",
+              "example": "24020518500674"
+            },
+            "multicast_ip": {
+              "type": "string",
+              "format": "string",
+              "description": "组播地址",
+              "example": "239.1.0.16"
+            },
+            "multicast_port": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "组播端口",
+              "example": 9000
+            },
+            "split_method": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "拼接方式: 0: 左右拼接 1: 上下拼接",
+              "exmpale": 0
+            },
+            "split_type": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "拼接方法 2:二拼一 3:三拼一  4:三拼一 10:十拼一",
+              "example": 2
+            },
+            "lock_1080p": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "锁定1080P  0: 不锁定 1:锁定",
+              "example": 1
+            },
+            "overlay": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "是否折叠 0: 不折叠 1: 折叠",
+              "example": 0
+            },
+            "camera_infos": {
+              "type": "array",
+              "properties": null,
+              "items": {
+                "$ref": "#/components/schemas/VideoSplitData/CameraGroup"
+              }
+            }
+          }
+        },
+        "ResultAddVideoSplitChannel": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "0: 成功",
+              "exmpale": 0
+            }
+          }
+        },
+        "DeleteVideoSplitChannel": {
+          "type": "object",
+          "properties": {
+            "splist_video_id": {
+              "type": "string",
+              "format": "string",
+              "descrioption": "视频通道id",
+              "example": "7878237823782"
+            }
+          }
+        },
+        "ResultDeleteVideoSplitChannel": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "integer",
+              "format": "uint32",
+              "descrioption": "0: 成功",
+              "example": 0
+            }
+          }
+        },
+        "AddCameraInfo": {
+          "type": "object",
+          "properties": {
+            "camera_infos": {
+              "type": "array",
+              "properties": null,
+              "items": {
+                "$ref": "#/components/schemas/VideoSplitData/CameraInfo"
+              }
+            }
+          }
+        },
+        "ResultAddCameraInfo": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "成功： 0",
+              "example": 0
+            }
+          }
+        },
+        "DeleteCameraInfo": {
+          "type": "object",
+          "properties": {
+            "camera_id": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "相机id",
+              "example": 32
+            }
+          }
+        },
+        "ResultDeleteCameraInfo": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "integer",
+              "format": "uint32",
+              "description": "成功： 0",
+              "example": 0
+            }
+          }
+        }
+      }
+    }
+  }
+}

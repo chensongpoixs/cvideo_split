@@ -25,7 +25,7 @@ purpose:		camera
 #include "cdecode.h"
 #include "cffmpeg_util.h"
 #include <cassert>
-
+#include "clog.h"
 
 namespace chen {
 
@@ -36,6 +36,51 @@ namespace chen {
 		return av_make_error_string(g_errorbuffer, AV_ERROR_MAX_STRING_SIZE, errCode);
 	}*/
 
+	static AVPixelFormat get_format(AVCodecContext* avctx, const enum AVPixelFormat* pix_fmts)
+	{
+		while (*pix_fmts != AV_PIX_FMT_NONE) {
+			if (*pix_fmts == AV_PIX_FMT_CUDA) {
+				return AV_PIX_FMT_CUDA;
+			}
+
+			pix_fmts++;
+		}
+
+		WARNING_EX_LOG( "The CUDA pixel format not offered in get_format()\n");
+
+		return AV_PIX_FMT_NONE;
+	}
+
+	static int set_hwframe_ctx(AVCodecContext* ctx, AVBufferRef* hw_device_ctx)
+	{
+		AVBufferRef* hw_frames_ref;
+		AVHWFramesContext* frames_ctx = NULL;
+		int err = 0;
+
+		if (!(hw_frames_ref = av_hwframe_ctx_alloc(hw_device_ctx))) {
+			WARNING_EX_LOG( "Failed to create VAAPI frame context.\n");
+			return -1;
+		}
+		frames_ctx = (AVHWFramesContext*)(hw_frames_ref->data);
+		frames_ctx->format = AV_PIX_FMT_CUDA;
+		frames_ctx->sw_format = AV_PIX_FMT_NV12;
+		//frames_ctx->sw_format = AV_PIX_FMT_YUV420P;
+		frames_ctx->width = ctx->width;
+		frames_ctx->height = ctx->height;
+		frames_ctx->initial_pool_size = 20;
+		if ((err = av_hwframe_ctx_init(hw_frames_ref)) < 0) {
+			fprintf(stderr, "Failed to initialize VAAPI frame context."
+				"Error code: %s\n", ffmpeg_util::make_error_string(err));
+			av_buffer_unref(&hw_frames_ref);
+			return err;
+		}
+		ctx->hw_frames_ctx = av_buffer_ref(hw_frames_ref);
+		if (!ctx->hw_frames_ctx)
+			err = AVERROR(ENOMEM);
+
+		av_buffer_unref(&hw_frames_ref);
+		return err;
+	}
 	cdecode::~cdecode()
 	{
 	}
@@ -94,14 +139,14 @@ namespace chen {
 			&m_dict); //设置参数的字典
 		if (ret != 0)
 		{
-			printf("%s\n", ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("%s\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		//2.读取文件信息
 		ret = avformat_find_stream_info(m_ic_ptr, NULL);
 		if (ret < 0)
 		{
-			printf("%s\n", ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("%s\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		//3.获取目标流索引
@@ -125,35 +170,71 @@ namespace chen {
 				stream->discard = AVDISCARD_ALL;
 			}
 		}
+		const AVCodec* codec = NULL;
 		//4.查找解码器
-		const AVCodec* codec = avcodec_find_decoder(m_video_stream_ptr->codecpar->codec_id);
+		if (AV_CODEC_ID_H264 == m_video_stream_ptr->codecpar->codec_id)
+		{
+			codec = ::avcodec_find_decoder_by_name("h264_cuvid");
+		}
+		else if (AV_CODEC_ID_HEVC == m_video_stream_ptr->codecpar->codec_id)
+		{
+			codec = ::avcodec_find_decoder_by_name("hevc_cuvid");
+		}
+		else
+		{
+			codec = ::avcodec_find_decoder(m_video_stream_ptr->codecpar->codec_id);
+		}
 		if (!codec)
 		{
-			printf("can't find codec, codec id:%d\n", m_video_stream_ptr->codecpar->codec_id);
+			WARNING_EX_LOG("can't find codec, codec id:%d ", m_video_stream_ptr->codecpar->codec_id);
 			return false;
 		}
+		//AVBufferRef* hw_device_ctx = NULL;
+		////创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
+		//std::string gpu_index = "0";
+		//ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
+
 		//5.创建解码器上下文
 		if (!(m_codec_ctx_ptr = avcodec_alloc_context3(codec)))
 		{
-			printf("avcodec_alloc_context3 failed,\n");
+			WARNING_EX_LOG("avcodec_alloc_context3 failed !!! ");
 			return false;
 		}
 
 		//6.从输入流复制编解码器参数到输出编解码器上下文
 		if ((ret = avcodec_parameters_to_context(m_codec_ctx_ptr, m_video_stream_ptr->codecpar)) < 0)
 		{
-			printf("Failed to copy %s codec parameters to decoder context\n",
+			WARNING_EX_LOG("Failed to copy %s codec parameters to decoder context ",
 				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type));
 			return false;
 		}
+		{
+			/* set hw_frames_ctx for encoder's AVCodecContext */
+			//if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, hw_device_ctx)) < 0) {
+			//	WARNING_EX_LOG("Failed to set hwframe context.\n");
+			//	//goto close;
+			//}
+			//m_codec_ctx_ptr->hw_device_ctx = av_buffer_ref(hw_device_ctx);
+			//m_codec_ctx_ptr->get_format = get_format;
+		}
+		AVDictionary* codec_opts = NULL;
+		//av_dict_set(&codec_opts, "b", "2.5M", 0);
+		av_dict_set(&codec_opts, "gpu", "0", 0);
+		av_dict_set(&codec_opts, "threads", "auto", 0);
+		av_dict_set(&codec_opts, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
+	/*	name dirtc[key = gpu][value = 1]
+			name dirtc[key = threads][value = auto]
+			name dirtc[key = flags][value = +copy_opaque]*/
 
 		//7. 打开解码器上下文 */
-		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, nullptr)) < 0)
+		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, &codec_opts)) < 0)
 		{
-			printf("Failed to open %s codec\n",
-				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type));
+			::av_dict_free(&codec_opts);
+			WARNING_EX_LOG("Failed to open %s codec (%s)",
+				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
+		::av_dict_free(&codec_opts);
 		//创建一个frame接收解码之后的帧数据
 		m_picture_ptr = av_frame_alloc();
 		m_packet_ptr = av_packet_alloc();
@@ -190,11 +271,7 @@ namespace chen {
 		 
 
 		
-		if (m_codec_ctx_ptr)
-		{
-			//::avcodec_free_context(&m_codec_ctx_ptr);
-			m_codec_ctx_ptr = NULL;
-		}
+		
 		if (m_sws_ctx_ptr)
 		{
 			::sws_freeContext(m_sws_ctx_ptr);
@@ -203,14 +280,21 @@ namespace chen {
 		if (m_ic_ptr)
 		{
 			::avformat_close_input(&m_ic_ptr);
+			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
+		}
+		if (m_codec_ctx_ptr)
+		{
+			::avcodec_close(m_codec_ctx_ptr);
+			::avcodec_free_context(&m_codec_ctx_ptr);
+			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
 		if (m_picture_ptr)
 		{
 			::av_frame_free(&m_picture_ptr);
 			m_picture_ptr = NULL;
-		}
+		} 
 		if (m_sws_frame_ptr)
 		{
 			::av_frame_free(&m_sws_frame_ptr);
@@ -310,8 +394,10 @@ namespace chen {
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
 			{
+				av_packet_unref(m_packet_ptr);
 				break;
 			}
+			av_packet_unref(m_packet_ptr);
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
 #else
 			int got_picture = 0;
@@ -497,7 +583,7 @@ namespace chen {
 	void cdecode::seek(int64_t frame_number)
 	{
 		assert(m_ic_ptr);
-		m_frame_number = min(m_frame_number, get_total_frames());
+		m_frame_number = std::min(m_frame_number, get_total_frames());
 		int delta = 16;
 
 		// if we have not grabbed a single frame before first seek, let's read the first frame
@@ -509,7 +595,8 @@ namespace chen {
 
 		for (;;)
 		{
-			int64_t _frame_number_temp =  max(m_frame_number - delta, (int64_t)0);
+
+			int64_t _frame_number_temp =  std::max(m_frame_number - delta, (int64_t)0);
 			double sec = (double)_frame_number_temp / get_fps();
 			int64_t time_stamp = m_ic_ptr->streams[m_video_stream_index]->start_time;
 			double  time_base = r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
