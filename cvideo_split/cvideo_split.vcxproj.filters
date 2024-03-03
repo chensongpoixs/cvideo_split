@@ -31,6 +31,9 @@
     <Filter Include="global_logic">
       <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="avfilter">
+      <UniqueIdentifier>{c12a5172-6cce-4dc1-b3b7-d9fc160795bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="cglobal_ffmpeg_register.cpp">
       <Filter>global_logic</Filter>
     </ClCompile>
+    <ClCompile Include="cavfilter_video.cpp">
+      <Filter>avfilter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="video_split.cu">
@@ -75,6 +81,9 @@
     </ClInclude>
     <ClInclude Include="cglobal_ffmpeg_register.h">
       <Filter>global_logic</Filter>
+    </ClInclude>
+    <ClInclude Include="cavfilter_video.h">
+      <Filter>avfilter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

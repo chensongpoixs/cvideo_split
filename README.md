@@ -93,3 +93,18 @@ ffmpeg.exe -re -stream_loop -1 -i C:\U_01.mp4 -f mpegts  "udp://239.255.255.250:
 ```
  ffplay.exe -i "udp://239.255.255.250:54546" -fflags nobuffer -nofind_stream_info
 ```
+
+
+
+
+
+
+
+
+
+
+
+```
+ffplay  -i input.mp4  -vf "movice=./input.npg,scale=64:64[wm];in[wm]overlay=30:10"
+
+```
