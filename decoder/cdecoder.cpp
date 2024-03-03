@@ -198,6 +198,7 @@ namespace chen {
     void cdecoder::_work_pthread()
     {
         int32_t ret = 0;
+		//::av_interleaved_write_frame
         AVPacket* packet_ptr = ::av_packet_alloc();
         while (!m_stoped)
         {
