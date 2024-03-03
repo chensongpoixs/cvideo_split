@@ -30,6 +30,7 @@ purpose:		camera
 #include "cnoncopytable.h"
 #include <list>
 #include "cffmpeg_util.h"
+#include<set>
 namespace chen {
 
 
@@ -42,10 +43,14 @@ namespace chen {
 	};
 	class cdecoder : public cnoncopytable
 	{
+	private:
+		typedef std::mutex												clock_type;
+		typedef std::lock_guard<clock_type>								clock_guard;
 	public:
 		explicit cdecoder() 
 		: m_stoped(false)
-		, m_session_id(-1)
+		, m_session_ids()
+		, m_session_id()
 		, m_url("")
 		, m_format_ctx_ptr(NULL)
 		, m_video_codec_ctx_ptr(NULL)
@@ -66,19 +71,29 @@ namespace chen {
 
 
 
-		bool init(uint64 session_id, const char * url);
+		bool init( uint64 session_id,  const char * url);
 
 	/*	void update(uint32 uDataTime);*/
+
+
+		void add_websocket_session(uint64 session_id);
+		void delete_websocket_session(uint64 session_id);
 
 		void destroy();
 
 
 		void all_send_packet();
+
+	public:
+		void _send_codec_id(uint64 session_id);
+		void _send_packet(const AVPacket* packet);
 	private:
 		void _work_pthread();
 	private:
 		bool			 m_stoped;
-		uint64			 m_session_id;
+		std::set< uint64>			 m_session_ids;
+		uint64						m_session_id;
+		clock_type					m_session_lock;
 		std::string		 m_url;
 		AVFormatContext* m_format_ctx_ptr;
 		AVCodecContext*	 m_video_codec_ctx_ptr;

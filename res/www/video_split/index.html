@@ -152,7 +152,7 @@ function ajaxGet(url, successCallback, errorCallback) {
             //    }
             //});
 			
-			ajaxGet("http://127.0.0.1:9700/video_split/v1/video_split_list/page=0&page_size=10", 
+			ajaxGet("http://127.0.0.1:9700/video_split/v1/video_split_list/page=0&page_size=10000", 
 			function(result)
 			{
 					var objs = JSON.parse(result);
@@ -208,7 +208,7 @@ function ajaxGet(url, successCallback, errorCallback) {
                                 }
                             });
                         }
-                        ExecSetTimeout();//定时获取所有状态
+                        Main_ExecSetTimeout();//定时获取所有状态
                     }
                 });
                     table.on('tool(table)', function (obj)
@@ -228,14 +228,14 @@ function ajaxGet(url, successCallback, errorCallback) {
                         {
                             restart_video_split(data.split_channel_id, 0);
                            // EventTile(data.ip,0);
-                            $("#"+data.id+"").html('开启'); 
+                            $("#"+data.split_channel_id+"").html('开启'); 
 
                         }
                         else if(obj.event === 'stop')//停止拼接
                         {
                             restart_video_split(data.split_channel_id, 1);
                              // EventTile(data.ip,1);
-                            $("#"+data.id+"").html('停止'); 
+                            $("#"+data.split_channel_id+"").html('停止'); 
                         } 
                         else if(obj.event === 'restart')//重启拼接
                         {
@@ -336,46 +336,85 @@ function ajaxGet(url, successCallback, errorCallback) {
         }
         //定时获取所有拼接数据状态
         var loadTiles;
-        function ExecSetTimeout()
+        function Main_ExecSetTimeout()
         {
             if(loadTiles!=null)
-              clearTimeout(loadTiles);
-              loadTiles=null;
+            {
+                clearTimeout(loadTiles);
+            }
+            loadTiles=null; 
+
             loadTiles= setTimeout(() => {
-                var send_str = '{"msg": "get_tiles_status"}';
-                $.ajax({
-                    type: "POST",
-                    dataType: "text",
-                    url: apiAddress,
-                    contentType: "application/json",
-                    data: send_str,
-                    timeout: 5000,
-                    success: function (result) {
-                        console.log('ExecSetTimeout');
+                //var send_str = '{"msg": "get_tiles_status"}';
+                // $.ajax({
+                //     type: "POST",
+                //     dataType: "text",
+                //     url: apiAddress,
+                //     contentType: "application/json",
+                //     data: send_str,
+                //     timeout: 5000,
+                //     success: function (result) {
+                //         console.log('ExecSetTimeout');
+                //         var objs = JSON.parse(result);
+                //         ForEachState(objs.states);
+                //         ExecSetTimeout();
+                //     }
+                // });
+                ajaxGet("http://127.0.0.1:9700/video_split/v1/video_split_list/page=0&page_size=10000", 
+                function(result)
+                {
                         var objs = JSON.parse(result);
-                        ForEachState(objs.states);
-                        ExecSetTimeout();
-                    }
+                      
+                        console.log(objs);
+                      LoadTable(objs.video_split_infos);
+                        // Main_ForEachState(objs.video_split_infos);
+                        // Main_ExecSetTimeout();
+                     // LoadTable(objs.video_split_infos);
+                }, function(result)
+                {
+                    console.log('get video split failed !!! = ' + result);
                 });
             }, 6000);
         }
-        function ForEachState(arr)
+        function Main_ForEachState(arr)
         {
             if(typeof(arr)!='undefined'&& arr!=null&& arr!="" )
             {
-                if(arr.length>0)
+                for (var i = 0; i < arr.length; ++i)
                 {
-                    $.each(arr,(index,item)=>{
-                        if(item.tile_state===1 && item.is_paused===0)
-                        $("#"+item.tile_id+"").html('开启');
-                         else if(item.tile_state===1 && item.is_paused===1)
-                         $("#"+item.tile_id+"").html('停止');
-                         else if(item.tile_state===0)
-                         $("#"+item.tile_id+"").html('异常');
-                         else
-                         $("#"+item.tile_id+"").html('停止');
-                    });
+                    if (arr[i].state === 1)
+                    {
+                        $("#"+arr[i].split_channel_id+"").html('开启');
+                        console.log("---> 1111");
+                    }
+                    else 
+                    {
+                        $("#"+arr[i].split_channel_id+"").html('停止');
+                    }
                 }
+                // if(arr.length>0)
+                // {
+                //     // $.each(arr,(index,item)=>{
+                //     //     if(item.state===1 /*&& item.is_paused===0*/)
+                //     //     {
+                //     //         console.log("state ===> 1");
+                //     //         $("#"+item.split_channel_id+"").html('开启');
+                //     //     }
+                //     //      // else if(/*item.state===1 && */item.is_paused===1)
+                //     //      // {
+                //     //      //    $("#"+item.split_channel_id+"").html('停止');
+                //     //      // }
+                //     //      else if(item.state===0)
+                //     //      {
+                //     //          $("#"+item.split_channel_id+"").html('停止');
+                //     //         //$("#"+item.split_channel_id+"").html('异常');
+                //     //      }
+                //     //      else
+                //     //      {
+                //     //         $("#"+item.split_channel_id+"").html('停止');
+                //     //      }
+                //     // });
+                // }
             }
         }
 

@@ -45,7 +45,7 @@ namespace chen {
     {
         destroy();
         std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
-        m_session_id = session_id;
+         m_session_id = session_id;
         m_url = url;
        
         m_stoped = false;
@@ -55,6 +55,19 @@ namespace chen {
 
 
         return true;
+    }
+    void cdecoder::add_websocket_session(uint64 session_id)
+    {
+        _send_codec_id(session_id);
+        {
+            clock_guard lock(m_session_lock); 
+            m_session_ids.insert(session_id);
+        }
+    }
+    void cdecoder::delete_websocket_session(uint64 session_id)
+    {
+        clock_guard lock(m_session_lock);
+        m_session_ids.erase(session_id);
     }
     void cdecoder::destroy()
     {
@@ -89,7 +102,8 @@ namespace chen {
             delete m_packets.front().data;
             m_packets.pop_front();
         }
-        m_session_id = -1;
+        m_session_ids.clear();
+       // m_session_id = -1;
         m_stoped = true;
         NORMAL_EX_LOG("decoder --> [url = %s] destroy OK !!!", m_url.c_str());
         //m_open = false;
@@ -118,6 +132,36 @@ namespace chen {
         //}
 
 
+    }
+    void cdecoder::_send_codec_id(uint64 session_id)
+    {
+        uint16 codec_id[8];
+        // 174 --> H265  
+        // 28  --> H264
+        if (m_video_codec_id == AV_CODEC_ID_H264)
+        {
+            codec_id[0] = 28;
+            g_websocket_wan_server.send_msg(session_id, 323, &codec_id, sizeof(codec_id));
+            NORMAL_EX_LOG("--->>>>>>H264");
+        }
+        else if (m_video_codec_id == AV_CODEC_ID_HEVC)
+        {
+            codec_id[0] = 174;
+            g_websocket_wan_server.send_msg(session_id, 323, &codec_id, sizeof(codec_id));
+        }
+    }
+    void cdecoder::_send_packet(const AVPacket* packet)
+    {
+        if (!packet)
+        {
+            return;
+        }
+        clock_guard lock(m_session_lock);
+        for (const uint64& session  : m_session_ids)
+        {
+            g_websocket_wan_server.send_msg(session, 3, packet->data, packet->size);
+        }
+        g_websocket_wan_server.send_msg(m_session_id, 3, packet->data, packet->size);
     }
     void cdecoder::_work_pthread()
     {
@@ -173,21 +217,21 @@ namespace chen {
                 {
                     m_video_stream_index = i;
                     m_video_codec_id = stream->codecpar->codec_id;
-
-                    uint16 codec_id[8];
-                    // 174 --> H265  
-                    // 28  --> H264
-                    if (m_video_codec_id == AV_CODEC_ID_H264)
-                    {
-                        codec_id[0] = 28;
-                        g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
-                        NORMAL_EX_LOG("--->>>>>>H264");
-                    }
-                    else if (m_video_codec_id == AV_CODEC_ID_HEVC)
-                    {
-                        codec_id[0] = 174;
-                        g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
-                    }
+                    _send_codec_id(m_session_id);
+                    //uint16 codec_id[8];
+                    //// 174 --> H265  
+                    //// 28  --> H264
+                    //if (m_video_codec_id == AV_CODEC_ID_H264)
+                    //{
+                    //    codec_id[0] = 28;
+                    //    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
+                    //    NORMAL_EX_LOG("--->>>>>>H264");
+                    //}
+                    //else if (m_video_codec_id == AV_CODEC_ID_HEVC)
+                    //{
+                    //    codec_id[0] = 174;
+                    //    g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
+                    //}
                 }
                 else if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
                 {
@@ -248,7 +292,7 @@ namespace chen {
                     {
                         WARNING_EX_LOG("[url = %s]alloc  pakcet failed !!!", m_url.c_str());
                     }*/
-                      g_websocket_wan_server.send_msg(m_session_id, 3, packet_ptr->data, packet_ptr->size);
+                    _send_packet(packet_ptr);
                   //  packet_ptr->data
                     ::av_packet_unref(packet_ptr);
                 }

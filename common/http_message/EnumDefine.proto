@@ -20,6 +20,7 @@ enum EAppStatusType
 enum ECameraStatusType
 {
 	ECameraNone = 0; //
+	ECameraRuning = 1;
 }
 
 

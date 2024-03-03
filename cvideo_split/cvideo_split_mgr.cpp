@@ -54,7 +54,8 @@ namespace chen {
 			{
 				//iter->second->destroy();
 				delete iter->second;
-
+				VideoSplitInfo* video_split_info_ptr = g_video_split_info_mgr.get_video_split_info(channel_name);
+				video_split_info_ptr->set_status(0);
 				return EWebSuccess;
 			}
 			WARNING_EX_LOG("delete video split [channel_name = %s] failed !!!", channel_name.c_str());
@@ -67,7 +68,7 @@ namespace chen {
 		}
 		 
 		// TODO@chensong 2023-02-20 获取拼接信息
-		const VideoSplitInfo* video_split_info_ptr =  g_video_split_info_mgr.get_video_split_info(channel_name);
+		 VideoSplitInfo* video_split_info_ptr =  g_video_split_info_mgr.get_video_split_info(channel_name);
 		if (!video_split_info_ptr)
 		{
 			return EWebNotFindVideoSplitId;
@@ -96,6 +97,7 @@ namespace chen {
 			WARNING_EX_LOG("insert video split map channel_name = (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
+		video_split_info_ptr->set_status(1);
 		return EWebSuccess;
 	}
 }

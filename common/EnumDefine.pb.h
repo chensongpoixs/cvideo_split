@@ -69,11 +69,12 @@ const EAppStatusType EAppStatusType_MAX = EAppStatusDestroy;
 const int EAppStatusType_ARRAYSIZE = EAppStatusType_MAX + 1;
 
 enum ECameraStatusType {
-  ECameraNone = 0
+  ECameraNone = 0,
+  ECameraRuning = 1
 };
 bool ECameraStatusType_IsValid(int value);
 const ECameraStatusType ECameraStatusType_MIN = ECameraNone;
-const ECameraStatusType ECameraStatusType_MAX = ECameraNone;
+const ECameraStatusType ECameraStatusType_MAX = ECameraRuning;
 const int ECameraStatusType_ARRAYSIZE = ECameraStatusType_MAX + 1;
 
 enum ESplitMethod {

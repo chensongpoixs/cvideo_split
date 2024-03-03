@@ -429,6 +429,7 @@ namespace chen {
 			reply_video_split["multicast_port"] = result.video_split_info.multicast_port();
 			reply_video_split["split_method"] = result.video_split_info.split_method();
 			reply_video_split["lock_1080p"] = result.video_split_info.lock_1080p();
+			reply_video_split["state"] = result.video_split_info.status();
 			reply_video_split["overlay"] = result.video_split_info.overlay();
 			reply_video_split["out_video_width"] = result.video_split_info.out_video_width();
 			reply_video_split["out_video_height"] = result.video_split_info.out_video_height();
@@ -466,6 +467,7 @@ namespace chen {
 			reply["video_split_infos"]["multicast_port"] = result.video_split_info.multicast_port();
 			reply["video_split_infos"]["split_method"] = result.video_split_info.split_method();
 			reply["video_split_infos"]["lock_1080p"] = result.video_split_info.lock_1080p();
+			reply["video_split_infos"]["state"] = result.video_split_info.status();
 			reply["video_split_infos"]["overlay"] = result.video_split_info.overlay();
 			reply["video_split_infos"]["split_method"] = result.video_split_info.split_method();
 			reply["video_split_infos"]["out_video_width"] = result.video_split_info.out_video_width();
@@ -507,6 +509,7 @@ namespace chen {
 			video_split_info["multicast_port"] = result.video_split_infos[i].multicast_port();
 			video_split_info["split_method"] = result.video_split_infos[i].split_method();
 			video_split_info["lock_1080p"] = result.video_split_infos[i].lock_1080p();
+			video_split_info ["state"] = result.video_split_infos[i].status();
 			video_split_info["overlay"] = result.video_split_infos[i].overlay();
 			video_split_info["split_method"] = result.video_split_infos[i].split_method();
 			video_split_info["out_video_width"] = result.video_split_infos[i].out_video_width();

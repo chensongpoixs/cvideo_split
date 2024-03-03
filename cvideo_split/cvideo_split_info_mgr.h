@@ -45,6 +45,7 @@ namespace chen {
 		cresult_video_split_osd	handler_web_modify_video_split(const VideoSplitOsd& video_osd);
 	public:
 		const  VideoSplitInfo* get_video_split_info(const std::string& channel_id/*uint32 id*/) const ;
+		   VideoSplitInfo* get_video_split_info(const std::string& channel_id/*uint32 id*/)  ;
 	public:
 		void _load_video_split_config();
 

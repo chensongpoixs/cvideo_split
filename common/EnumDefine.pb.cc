@@ -33,6 +33,7 @@ bool EAppStatusType_IsValid(int value) {
 bool ECameraStatusType_IsValid(int value) {
   switch (value) {
     case 0:
+    case 1:
       return true;
     default:
       return false;

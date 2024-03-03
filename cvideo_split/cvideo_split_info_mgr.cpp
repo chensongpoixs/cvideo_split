@@ -50,6 +50,16 @@ namespace chen {
 		return NULL;
 
 	}
+	VideoSplitInfo* cvideo_split_info_mgr::get_video_split_info(const std::string& channel_name/*uint32 id*/)
+	{
+		// TODO: 在此处插入 return 语句
+		VIDEO_SPLIT_INFO_MAP:: iterator iterator = m_video_split_info_map.find(channel_name);
+		if (iterator != m_video_split_info_map.end())
+		{
+			return &iterator->second;
+		}
+		return NULL;
+	}
 	void cvideo_split_info_mgr::_load_video_split_config()
 	{
 		std::string video_split_name = g_cfg.get_string(ECI_DataPath) + "/" + g_video_split_json_name;
