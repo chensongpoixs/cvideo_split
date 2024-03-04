@@ -65,19 +65,19 @@ namespace chen {
 
 
 
-        const AVInputFormat* input_format = NULL;
+        /*const AVInputFormat* input_format = NULL;
         AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
         if (entry != 0)
         {
             input_format = av_find_input_format(entry->value);
-        }
+        }*/
 
         // 1. 打开解封装上下文
         int ret = avformat_open_input(
             &m_format_ctx_ptr, //解封装上下文
             url,  //文件路径
-            input_format, //指定输入格式 h264,h265, 之类的， 传入NULL则自动检测
-            &m_dict); //设置参数的字典
+           NULL /*input_format*/, //指定输入格式 h264,h265, 之类的， 传入NULL则自动检测
+            NULL/*&m_dict*/); //设置参数的字典
 		if (ret != 0)
 		{
 			WARNING_EX_LOG("%s\n", ffmpeg_util::make_error_string(ret));
