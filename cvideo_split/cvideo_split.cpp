@@ -454,7 +454,7 @@ namespace chen {
 				{
 					std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
-					if (m_decodes[i]->retrieve(frame_ptr) && !m_stoped)
+					if (m_decodes[i]->retrieve(frame_ptr)    )
 					{
 						std::chrono::milliseconds buffer_src_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 							std::chrono::system_clock::now().time_since_epoch());
@@ -462,7 +462,7 @@ namespace chen {
 						std::chrono::milliseconds diff_ms = buffer_src_ms - buffer_ms;
 						//NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
 						// add buffer filter -->
-						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] && !m_stoped)
+						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] )
 						{
 							
 							//if (m_buffers_ctx_ptr[i])
@@ -511,7 +511,7 @@ namespace chen {
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
 			//NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
-			if (!m_stoped && (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr) )<0)
+			if (  (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr) )<0)
 			{
 				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
