@@ -448,40 +448,25 @@ namespace chen {
 			// add buffer filter -->
 			// decoder 
 			for (size_t i = 0; i < m_decodes.size(); ++i)
-			{
-				
-				if (m_decodes[i]) 
-				{
-					std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch());
+			{  
 					if (m_decodes[i]->retrieve(frame_ptr)    )
-					{
-						std::chrono::milliseconds buffer_src_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-							std::chrono::system_clock::now().time_since_epoch());
-
-						std::chrono::milliseconds diff_ms = buffer_src_ms - buffer_ms;
-						//NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
+					{ 
 						// add buffer filter -->
 						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] )
-						{
-							
-							//if (m_buffers_ctx_ptr[i])
-							//if (false)
+						{ 
+							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+							if (ret < 0)
 							{
-								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-								if (ret < 0)
-								{
-									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-									//return ret;
-								}
-								
-							}
+								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+								break;
+								//return ret;
+							}  
 						}
 
 					}
 					
 					::av_frame_unref(frame_ptr);
-				}
+				 
 				if (m_stoped)
 				{
 					break;
@@ -491,10 +476,7 @@ namespace chen {
 					::av_frame_unref(frame_ptr);
 				} 
 			
-				std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch());
-
-				std::chrono::milliseconds diff_ms = decoder_ms - ms;
+				 
 				//NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
 
 			}
