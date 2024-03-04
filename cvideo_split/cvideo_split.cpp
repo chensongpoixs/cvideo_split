@@ -432,7 +432,7 @@ namespace chen {
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr = NULL;
-		while (!m_stoped)
+		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			if (!m_filter_frame_ptr)
 			{
@@ -450,8 +450,7 @@ namespace chen {
 			for (size_t i = 0; i < m_decodes.size(); ++i)
 			{
 				
-				//if (m_decodes[i])
-				//if (false)
+				if (m_decodes[i]) 
 				{
 					std::chrono::milliseconds buffer_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
@@ -463,7 +462,7 @@ namespace chen {
 						std::chrono::milliseconds diff_ms = buffer_src_ms - buffer_ms;
 						//NORMAL_EX_LOG("[%u][--buffer_src_ms  = %u]", i, diff_ms.count());
 						// add buffer filter -->
-						if (m_buffers_ctx_ptr.size() >= i && !m_stoped)
+						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] && !m_stoped)
 						{
 							
 							//if (m_buffers_ctx_ptr[i])
