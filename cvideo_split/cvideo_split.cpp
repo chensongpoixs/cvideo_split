@@ -125,6 +125,8 @@ namespace chen {
 
 		if (m_filter_graph_ptr)
 		{
+			::avfilter_graph_free(&m_filter_graph_ptr);
+		//	m_filter_graph_ptr = NULL;
 			/*for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
 			{
 				if (m_buffers_ctx_ptr[i])
@@ -143,8 +145,8 @@ namespace chen {
 			m_buffers_ctx_ptr.clear();
 			m_buffers_crop_ctx_ptr.clear();
 			m_buffers_scale_ctx_ptr.clear();
-			m_hstack_ctx_ptr = NULL;
-			m_buffersink_ctx_ptr = NULL;
+			//m_hstack_ctx_ptr = NULL;
+			//m_buffersink_ctx_ptr = NULL;
 			/*::avfilter_free(m_hstack_ctx_ptr);
 			::avfilter_free(m_buffersink_ctx_ptr);
 			if (m_osd_ctx_ptr)
@@ -152,10 +154,9 @@ namespace chen {
 				::avfilter_free(m_osd_ctx_ptr);
 			}
 			*/
-			m_osd_ctx_ptr = NULL;
-			m_osd_ctx_ptr = NULL;
-			::avfilter_graph_free(&m_filter_graph_ptr);
-			m_filter_graph_ptr = NULL;
+			//m_osd_ctx_ptr = NULL;
+			//m_osd_ctx_ptr = NULL;
+			
 		}
 
 		for (size_t i = 0; i < m_decodes.size(); ++i)
