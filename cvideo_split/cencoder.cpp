@@ -86,19 +86,19 @@ namespace chen {
 		m_width = width;
 		m_height = height;
 		m_gpu_index = gpu_index;
-		m_push_format_context_ptr = avformat_alloc_context();
+		/*m_push_format_context_ptr = avformat_alloc_context();
 		if (!m_push_format_context_ptr)
 		{
 			WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
 			return false;
-		}
+		}*/
 		ret = avformat_alloc_output_context2(&m_push_format_context_ptr,  NULL, "mpegts", std::string(m_url + "?pkt_size=1316").c_str());
 		if (ret < 0)
 		{
 			WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
 			return false;
 		}
-
+		m_push_format_context_ptr->max_delay = 1;
 		m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
 		if (!m_stream_ptr)
 		{
@@ -245,7 +245,9 @@ namespace chen {
 			return false;
 		}
 		// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
-		ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", AVIO_FLAG_WRITE);
+		ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
+		::av_dict_set(&m_options_ptr, "reuse", "1", 0);
+		::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
 		const AVDictionaryEntry* e = NULL; 
 		while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
 		{
@@ -260,6 +262,8 @@ namespace chen {
 			WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
+		::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
+		::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
 		//写入头
 		ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
 		if (ret < 0) 

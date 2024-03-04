@@ -124,7 +124,9 @@ namespace chen {
 #else
 		m_rotation_auto = false;
 #endif
-
+		//花屏问题
+		::av_dict_set(&m_dict, "buffer_size", "10485760", 0);
+		::av_dict_set(&m_dict, "reuse", "1", 0);
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
 		if (entry != 0)
