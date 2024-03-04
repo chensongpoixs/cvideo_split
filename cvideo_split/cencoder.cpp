@@ -141,6 +141,7 @@ namespace chen {
 		m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
 		m_codec_ctx_ptr->width = m_width;
 		m_codec_ctx_ptr->height = m_height;
+		
 		AVRational rate;
 		rate.num = 1;
 		rate.den = 25;
@@ -168,9 +169,11 @@ namespace chen {
 		//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
 		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 		//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
-		//av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+		 av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
 		// profile 
-		//::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+
+		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "1024", 0);
 		//由于CBR的比特率是固定的，它在不同的设备上播放时的兼容性更好。
 		//VBR由于其压缩比率的不确定性，可能在某些设备上出现兼容性问题
 		//::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
@@ -246,6 +249,7 @@ namespace chen {
 		}
 		// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
 		ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
+		ret = av_dict_set(&m_options_ptr, "buffer_size", "1024", 0 /*AVIO_FLAG_WRITE*/);
 		::av_dict_set(&m_options_ptr, "reuse", "1", 0);
 		::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
 		const AVDictionaryEntry* e = NULL; 
