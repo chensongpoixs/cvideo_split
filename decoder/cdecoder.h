@@ -30,6 +30,7 @@ purpose:		camera
 #include "cnoncopytable.h"
 #include <list>
 #include "cffmpeg_util.h"
+#include <thread>
 namespace chen {
 
 

@@ -68,7 +68,7 @@ LINK_DIRECTORIES(
 									${FFMPEG_INCLUDE_DIR}/libpostproc
 									${FFMPEG_INCLUDE_DIR}/libswscale
 									${FFMPEG_INCLUDE_DIR}/libswresample
-        ${PROJECT_SOURCE_DIR}/linux/RenderServer
+        ${PROJECT_SOURCE_DIR}/linux/lib
         ${EXTRA_INC_DIR}/boost/lib
         ${EXTRA_INC_DIR}/thrift/lib
         ${EXTRA_INC_DIR}/protobuf/lib
