@@ -48,7 +48,8 @@ namespace chen {
 		ECI_WebSocketWanIp,
 		ECI_WebSocketWanPort,
 		ECI_MediaRate,
-	 
+		ECI_MediaOpenTimeOut,
+		ECI_MediaReadTimeOut,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

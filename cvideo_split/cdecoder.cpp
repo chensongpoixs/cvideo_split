@@ -24,7 +24,7 @@ purpose:		camera
 #include "cdecoder.h"
 #include "clog.h"
 #include "cwebsocket_wan_server.h"
-
+#include "ccfg.h"
 namespace chen {
 
 
@@ -166,8 +166,8 @@ namespace chen {
     void cdecoder::_work_pthread()
     {
         {
-            m_open_timeout = LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
-            m_read_timeout = LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
+            m_open_timeout = g_cfg.get_uint32(ECI_MediaOpenTimeOut)/*LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS*/;
+            m_read_timeout = g_cfg.get_uint32(ECI_MediaReadTimeOut) /*LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS*/;
 
             /* interrupt callback */
             m_interrupt_metadata.timeout_after_ms = m_open_timeout;
