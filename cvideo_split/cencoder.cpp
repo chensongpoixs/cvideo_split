@@ -103,8 +103,8 @@ namespace chen {
 				return false;
 			}
 			m_push_format_context_ptr->max_delay = 1;
-			::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
-			::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
+			/*::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
+			::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);*/
 			m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
 			if (!m_stream_ptr)
 			{
@@ -146,7 +146,7 @@ namespace chen {
 			//4000 * 1024;//
 			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
 			m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
-			m_codec_ctx_ptr->bit_rate_tolerance = 400000;
+			//m_codec_ctx_ptr->bit_rate_tolerance = 400000;
 			m_codec_ctx_ptr->width = m_width;
 			m_codec_ctx_ptr->height = m_height;
 
