@@ -41,6 +41,41 @@ namespace chen {
 
 	std::vector<uint32> g_gpu_index;
 
+
+	static std::vector<uint32> get_gpu_count()
+	{
+		std::vector<uint32> gpu_indexs;
+		boost::process::ipstream p2;
+		std::string outstr;
+
+		bool ret = false;
+
+
+		std::thread reader([&p2, &gpu_indexs] {
+			std::string line;
+			while (std::getline(p2, line))
+			{
+				gpu_indexs.push_back(1);
+
+			}
+			});
+
+		boost::process::child c(
+			"nvidia-smi  --list-gpus",
+			(boost::process::std_out & boost::process::std_err) > p2  //redirect both to one file
+			//boost::process::std_in <  //read input from file
+		);
+
+
+		//c.wait();
+		if (reader.joinable())
+		{
+			reader.join();
+		}
+		c.terminate();
+		c.exit_code();
+		return gpu_indexs;
+	}
 	bool cvideo_split_server::init(const char* log_path, const char* config_file)
 	{
 		printf("Log init ...\n");
@@ -59,7 +94,7 @@ namespace chen {
 		
 		
 
-		g_gpu_index = csystem_info::get_gpu_index_info();
+		g_gpu_index = get_gpu_count();
 		
 		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
 		// check data path

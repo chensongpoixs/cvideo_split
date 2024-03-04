@@ -42,40 +42,16 @@ namespace chen {
 				while (std::getline(p2, line) )
 				{
 					gpu_indexs.push_back(1);
-					//std::cout << "Received: '" << line << "'" << std::endl;
-					/*std::vector<std::string > pp = parse_nvida(line);
-					if (pp.size() == 2 && !ret)
-					{
-						if (pp[0] == "ProductName")
-						{
-							nvida_name = std::string(pp[1].begin(), pp[1].end() - 1);
-						}
-						if (pp[0] == "Total")
-						{
-							nvida_memory_total = std::string(pp[1].begin(), pp[1].end() - 1);
-						}
-						if (pp[0] == "Used")
-						{
-							nvida_memory_use = std::string(pp[1].begin(), pp[1].end() - 1);
-							ret = true;
-						}
-					}*/
-				}
-				// cmd << line;
-				// outstr += line;
+					 
+				} 
 				});
 
-			boost::process::child c(
-				//"nvidia-smi -i 0 -q -d UTILIZATION",
-				/*"nvidia-smi -i 0 -q"*/
+			boost::process::child c( 
 				"nvidia-smi  --list-gpus",
 				(boost::process::std_out & boost::process::std_err) > p2  //redirect both to one file
 				//boost::process::std_in <  //read input from file
 			);
-			/*while (!ret)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(60));
-			}*/
+			 
 			
 			//c.wait();
 			if (reader.joinable())
