@@ -99,6 +99,8 @@ namespace chen {
 			return false;
 		}
 		m_push_format_context_ptr->max_delay = 1;
+		::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
+		::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
 		m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
 		if (!m_stream_ptr)
 		{
@@ -173,7 +175,8 @@ namespace chen {
 		// profile 
 		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
 
-		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "1024", 0);
+		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "102400", 0);
+		
 		//由于CBR的比特率是固定的，它在不同的设备上播放时的兼容性更好。
 		//VBR由于其压缩比率的不确定性，可能在某些设备上出现兼容性问题
 		//::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
@@ -249,8 +252,9 @@ namespace chen {
 		}
 		// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
 		ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
-		ret = av_dict_set(&m_options_ptr, "buffer_size", "1024", 0 /*AVIO_FLAG_WRITE*/);
+		ret = av_dict_set(&m_options_ptr, "buffer_size", "10240", 0 /*AVIO_FLAG_WRITE*/);
 		::av_dict_set(&m_options_ptr, "reuse", "1", 0);
+		
 		::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
 		const AVDictionaryEntry* e = NULL; 
 		while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
@@ -266,8 +270,7 @@ namespace chen {
 			WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			return false;
 		}
-		::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
-		::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
+		
 		//写入头
 		ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
 		if (ret < 0) 
