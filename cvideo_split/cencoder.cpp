@@ -107,13 +107,14 @@ namespace chen {
 			WARNING_EX_LOG("[%s] alloc stream failed !!!\n", m_url.c_str());
 			return false;
 		}
+		//m_stream_ptr->codecpar->nb_coded_side_data
 		//::avcodec_register_all();
 		if (m_push_format_context_ptr->oformat->flags & AVFMT_GLOBALHEADER)
 		{
 			m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}
 		m_codec_id = AV_CODEC_ID_H264;
-		 
+		
 		//AVBufferRef* m_hw_device_ctx = NULL;
 		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
 		//std::string gpu_index = "0";
@@ -141,6 +142,7 @@ namespace chen {
 		//4000 * 1024;//
 		uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
 		m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
+		m_codec_ctx_ptr->bit_rate_tolerance = 4000000;
 		m_codec_ctx_ptr->width = m_width;
 		m_codec_ctx_ptr->height = m_height;
 		
@@ -149,8 +151,8 @@ namespace chen {
 		rate.den = 25;
 		m_codec_ctx_ptr->time_base = {1, 25};//rate;
 		m_codec_ctx_ptr->framerate = {25, 1};
-		m_codec_ctx_ptr->gop_size = 12;
-		m_codec_ctx_ptr->max_b_frames = 1;
+		m_codec_ctx_ptr->gop_size = 300;
+		m_codec_ctx_ptr->max_b_frames = 0;
 		m_codec_ctx_ptr->pix_fmt =  AV_PIX_FMT_CUDA;
 	//	if (false)
 		{
@@ -177,63 +179,7 @@ namespace chen {
 
 		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "102400", 0);
 		
-		//由于CBR的比特率是固定的，它在不同的设备上播放时的兼容性更好。
-		//VBR由于其压缩比率的不确定性，可能在某些设备上出现兼容性问题
-		//::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
-		//av_dict_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
-		//open the encoder
-		//AVDictionary* options = NULL;
-		//if (!av_dict_get(options, "threads", NULL, 0))
-		//	av_dict_set(&options, "threads", "auto", 0);
-
-		//if (m_codec_ptr->capabilities & AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE) {
-		//	ret = av_dict_set(&options, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
-		//	if (ret < 0)
-		//		return ret;
-		//}
-
-		//av_dict_set(&options, "flags", "+frame_duration", AV_DICT_MULTIKEY);
-
-		//const AVCodecHWConfig* config;
-		////HWDevice* dev = NULL;
-		//int i;
-		//AVBufferRef* device_ref = NULL;
-		//for (i = 0;; i++) {
-		//	config = avcodec_get_hw_config(m_codec_ptr, i);
-		//	if (!config)
-		//	{
-		//		break;
-		//	}
-
-		//	/*if (frames_ref &&
-		//		config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_FRAMES_CTX &&
-		//		(config->pix_fmt == AV_PIX_FMT_NONE ||
-		//			config->pix_fmt == ost->enc_ctx->pix_fmt)) {
-		//		av_log(ost->enc_ctx, AV_LOG_VERBOSE, "Using input "
-		//			"frames context (format %s) with %s encoder.\n",
-		//			av_get_pix_fmt_name(ost->enc_ctx->pix_fmt),
-		//			ost->enc_ctx->codec->name);
-		//		ost->enc_ctx->hw_frames_ctx = av_buffer_ref(frames_ref);
-		//		if (!ost->enc_ctx->hw_frames_ctx)
-		//			return AVERROR(ENOMEM);
-		//		return 0;
-		//	}*/
-
-		//	/*if (!dev &&
-		//		config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)
-		//	{
-		//		dev = hw_device_get_by_type(config->device_type);
-		//	}*/
-		//	//if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX)
-		//	//{
-		//	//	int32_t err = av_hwdevice_ctx_create(&device_ref, AV_HWDEVICE_TYPE_CUDA,
-		//	//		NULL, NULL/*options*/, 0);
-		//	//	//dev = hw_device_get_by_type(config->device_type);
-		//	//	m_codec_ctx_ptr->hw_device_ctx = av_buffer_ref(device_ref);
-		//	//	break;
-		//	//}
-		//	
-		//}
+		 
 		//AVDictionary* options= NULL;
 		//av_dict_set(&options, "gpu", "1", 0);
 		ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL );
