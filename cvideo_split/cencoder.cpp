@@ -284,25 +284,11 @@ namespace chen {
 		m_url.clear();
 
 		
-		 
-		if (m_push_format_context_ptr)
-		{
-			if (m_push_format_context_ptr->pb)
-			{
-				//::avio_flush(m_push_format_context_ptr->pb);
-				//::avio_close(m_push_format_context_ptr->pb);
-				//::avio_context_free(&m_push_format_context_ptr->pb);
-				//m_push_format_context_ptr->pb = NULL;
-			}
-
-			::avformat_close_input(&m_push_format_context_ptr);
-			::avformat_free_context(m_push_format_context_ptr);
-			m_push_format_context_ptr = NULL;
-		}
+		::av_buffer_unref(&m_hw_device_ctx_ptr);
 		if (m_codec_ctx_ptr)
 		{
 			::avcodec_close(m_codec_ctx_ptr);
-			::avcodec_free_context(&m_codec_ctx_ptr);
+			//::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
@@ -326,7 +312,22 @@ namespace chen {
 			m_pkt_ptr = NULL;
 		}
 		 
-		::av_buffer_unref(&m_hw_device_ctx_ptr);
+		
+
+		if (m_push_format_context_ptr)
+		{
+			if (m_push_format_context_ptr->pb)
+			{
+				//::avio_flush(m_push_format_context_ptr->pb);
+				//::avio_close(m_push_format_context_ptr->pb);
+				//::avio_context_free(&m_push_format_context_ptr->pb);
+				//m_push_format_context_ptr->pb = NULL;
+			}
+
+			//::avformat_close_input(&m_push_format_context_ptr);
+			//::avformat_free_context(m_push_format_context_ptr);
+			m_push_format_context_ptr = NULL;
+		}
 		m_hw_device_ctx_ptr = NULL;
 		m_codec_id = AV_CODEC_ID_NONE;
 		m_stoped = true;

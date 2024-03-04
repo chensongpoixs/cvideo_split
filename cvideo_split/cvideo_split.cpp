@@ -123,6 +123,25 @@ namespace chen {
 
 		// filter 
 
+		
+
+		for (size_t i = 0; i < m_decodes.size(); ++i)
+		{
+			if (m_decodes[i])
+			{
+				m_decodes[i]->destroy();
+				delete m_decodes[i];
+			}
+		}
+		m_camera_infos.clear();
+		m_decodes.clear();
+		if (m_encoder_ptr)
+		{
+			m_encoder_ptr->stop();
+			m_encoder_ptr->destroy();
+			delete m_encoder_ptr;
+			m_encoder_ptr = NULL;
+		}
 		if (m_filter_graph_ptr)
 		{
 			for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
@@ -151,24 +170,6 @@ namespace chen {
 			}
 			::avfilter_graph_free(&m_filter_graph_ptr);
 			m_filter_graph_ptr = NULL;
-		}
-
-		for (size_t i = 0; i < m_decodes.size(); ++i)
-		{
-			if (m_decodes[i])
-			{
-				m_decodes[i]->destroy();
-				delete m_decodes[i];
-			}
-		}
-		m_camera_infos.clear();
-		m_decodes.clear();
-		if (m_encoder_ptr)
-		{
-			m_encoder_ptr->stop();
-			m_encoder_ptr->destroy();
-			delete m_encoder_ptr;
-			m_encoder_ptr = NULL;
 		}
 	}
 	bool cvideo_splist::_init_decodes(uint32 gpu_index)
