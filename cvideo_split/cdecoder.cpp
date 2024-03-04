@@ -84,11 +84,7 @@ namespace chen {
 
 
          
-        if (m_format_ctx_ptr)
-        {
-            ::avformat_close_input(&m_format_ctx_ptr);
-            m_format_ctx_ptr = NULL;
-        }
+        
        
         
         if (m_dict)
@@ -101,6 +97,13 @@ namespace chen {
         {
             delete m_packets.front().data;
             m_packets.pop_front();
+        }
+        if (m_format_ctx_ptr)
+        {
+            //崩溃问题 下面是释放上下文的步骤顺序
+            ::avformat_close_input(&m_format_ctx_ptr);
+            ::avformat_free_context(m_format_ctx_ptr); 
+            m_format_ctx_ptr = NULL;
         }
         m_session_ids.clear();
        // m_session_id = -1;

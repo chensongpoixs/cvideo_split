@@ -284,12 +284,7 @@ namespace chen {
 			::sws_freeContext(m_sws_ctx_ptr);
 			m_sws_ctx_ptr = NULL;
 		}
-		if (m_ic_ptr)
-		{
-			::avformat_close_input(&m_ic_ptr);
-			::avformat_free_context(m_ic_ptr);
-			m_ic_ptr = NULL;
-		}
+		
 		if (m_codec_ctx_ptr)
 		{
 			::avcodec_close(m_codec_ctx_ptr);
@@ -316,6 +311,12 @@ namespace chen {
 		{
 			av_packet_free(&m_packet_ptr);
 			m_packet_ptr = NULL;
+		}
+		if (m_ic_ptr)
+		{
+			::avformat_close_input(&m_ic_ptr);
+			::avformat_free_context(m_ic_ptr);
+			m_ic_ptr = NULL;
 		}
 		m_open = false;
 		m_pixfmt = AV_PIX_FMT_NONE;
