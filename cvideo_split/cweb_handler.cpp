@@ -487,7 +487,10 @@ namespace chen {
 		}
 	}
 
-
+	bool comp(const VideoSplitInfo & v1, const VideoSplitInfo& v2)
+	{
+		return v1.id() > v1.id();
+	}
 	void cweb_http_api_mgr::_handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
 	{
 		CWEB_GUARD_REPLY(response);
@@ -497,6 +500,9 @@ namespace chen {
 		reply["page_number"] = result.page_info.page_number();
 		reply["total_pages"] = result.page_info.total_pages();
 		reply["total_elements"] = result.page_info.total_elements();
+
+
+		std::sort(result.video_split_infos.begin(), result.video_split_infos.end(), comp);
 
 
 		for (size_t i = 0; i < result.video_split_infos.size(); ++i)
