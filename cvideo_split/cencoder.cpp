@@ -146,7 +146,7 @@ namespace chen {
 			//4000 * 1024;//
 			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
 			m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
-			m_codec_ctx_ptr->bit_rate_tolerance = 4000000;
+			m_codec_ctx_ptr->bit_rate_tolerance = 400000;
 			m_codec_ctx_ptr->width = m_width;
 			m_codec_ctx_ptr->height = m_height;
 
@@ -155,7 +155,7 @@ namespace chen {
 			rate.den = 25;
 			m_codec_ctx_ptr->time_base = { 1, 25 };//rate;
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 300;
+			m_codec_ctx_ptr->gop_size = 250;
 			m_codec_ctx_ptr->max_b_frames = 0;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
