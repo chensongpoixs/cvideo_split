@@ -176,6 +176,11 @@ namespace chen {
 			delete m_encoder_ptr;
 			m_encoder_ptr = NULL;
 		}
+		if (m_filter_frame_ptr)
+		{
+			::av_frame_free(&m_filter_frame_ptr);
+			m_filter_frame_ptr = NULL;
+		}
 		
 	}
 	bool cvideo_splist::_init_decodes(uint32 gpu_index)
@@ -423,17 +428,17 @@ namespace chen {
 	void cvideo_splist::_pthread_work()
 	{
 
-		AVFrame* filter_frame_ptr = NULL;
+		
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr = NULL;
 		while (!m_stoped)
 		{
-			if (!filter_frame_ptr)
+			if (!m_filter_frame_ptr)
 			{
-				filter_frame_ptr = ::av_frame_alloc();
+				m_filter_frame_ptr = ::av_frame_alloc();
 			}
-			if (!filter_frame_ptr)
+			if (!m_filter_frame_ptr)
 			{
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
@@ -507,13 +512,13 @@ namespace chen {
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
 			//NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
-			if (!m_stoped && (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
+			if (!m_stoped && (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr) )<0)
 			{
 				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
 					//NORMAL_EX_LOG("");
 					// 需要继续处理啦
-					::av_frame_unref(filter_frame_ptr);
+					::av_frame_unref(m_filter_frame_ptr);
 					continue;
 				}
 				//filter error 
@@ -530,22 +535,22 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped)
 			{
-				m_encoder_ptr->push_frame(filter_frame_ptr);
+				m_encoder_ptr->push_frame(m_filter_frame_ptr);
 			}
-			::av_frame_unref(filter_frame_ptr);
+			::av_frame_unref(m_filter_frame_ptr);
 			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch());
 			  diff_ms = encoder_ms - decoder_ms  ;
 			//NORMAL_EX_LOG("[encoder_ms = %u]", diff_ms.count());
 		}
 		//NORMAL_EX_LOG("");
-		::av_frame_free(&filter_frame_ptr);
+		
 		if (frame_ptr)
 		{
 			::av_frame_unref(frame_ptr);
 			//::av_frame_free(&frame_ptr);
 			frame_ptr = NULL;
 		}
-		filter_frame_ptr = NULL;
+		 
 	}
 }

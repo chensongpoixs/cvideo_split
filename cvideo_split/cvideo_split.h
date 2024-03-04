@@ -90,6 +90,7 @@ namespace chen {
 			, m_buffersink_ctx_ptr(NULL)
 			, m_decoder_frame_ptr(NULL)
 			, m_encoder_frame_ptr(NULL)
+			, m_filter_frame_ptr(NULL)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -182,6 +183,7 @@ namespace chen {
 
 
 		std::thread			m_thread;
+		AVFrame*			m_filter_frame_ptr;
 
 	};
 
