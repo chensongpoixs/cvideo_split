@@ -58,6 +58,7 @@ namespace chen {
 		set_string(ECI_DataPath, "data_path", "../../data");
 		set_string(ECI_WebSocketWanIp, "websocket_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebSocketWanPort, "websocket_wan_port", 9600);
+		set_uint32(ECI_MediaRate, "media_rate", 10000);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

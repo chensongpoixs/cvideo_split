@@ -26,6 +26,7 @@ purpose:		camera
 #include "cffmpeg_util.h"
 #include "crect_mem_copy.h"
 #include "clog.h"
+#include "ccfg.h"
 namespace chen {
 
 
@@ -136,7 +137,8 @@ namespace chen {
 		//avctx->sample_aspect_ratio = (AVRational){ 1, 1 };
 		//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
 		//4000 * 1024;//
-		 m_codec_ctx_ptr->bit_rate = m_width * m_height * 25 * 1;
+		uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
+		m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
 		m_codec_ctx_ptr->width = m_width;
 		m_codec_ctx_ptr->height = m_height;
 		AVRational rate;

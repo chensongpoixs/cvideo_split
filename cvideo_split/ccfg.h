@@ -47,6 +47,7 @@ namespace chen {
 		ECI_DataPath,
 		ECI_WebSocketWanIp,
 		ECI_WebSocketWanPort,
+		ECI_MediaRate,
 	 
 		ECI_Max,
 	};
