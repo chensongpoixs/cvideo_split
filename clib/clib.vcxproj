@@ -158,6 +158,7 @@
     <ClCompile Include="cnet_type.cpp" />
     <ClCompile Include="crandom.cpp" />
     <ClCompile Include="crc4.cpp" />
+    <ClCompile Include="csystem_info.cpp" />
     <ClCompile Include="ctime_api.cpp" />
     <ClCompile Include="cutil.cpp" />
   </ItemGroup>
@@ -180,6 +181,7 @@
     <ClInclude Include="crandom.h" />
     <ClInclude Include="crc4.h" />
     <ClInclude Include="csingleton.h" />
+    <ClInclude Include="csystem_info.h" />
     <ClInclude Include="ctime_api.h" />
     <ClInclude Include="ctime_const.h" />
     <ClInclude Include="ctime_elapse.h" />

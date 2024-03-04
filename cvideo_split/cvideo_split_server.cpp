@@ -33,10 +33,13 @@
 #include "cwebsocket_wan_server.h"
 #include "clib_util.h"
 #include "cclient_msg_dispatch.h"
+#include "csystem_info.h"
 namespace chen {
 
 
 	cvideo_split_server g_video_split_server;
+
+	std::vector<uint32> g_gpu_index;
 
 	bool cvideo_split_server::init(const char* log_path, const char* config_file)
 	{
@@ -53,9 +56,16 @@ namespace chen {
 		LOG::set_level(static_cast<ELogLevelType>(g_cfg.get_uint32(ECI_LogLevel)));
 		ctime_base_api::set_time_zone(g_cfg.get_int32(ECI_TimeZone));
 		ctime_base_api::set_time_adjust(g_cfg.get_int32(ECI_TimeAdjust));
-		 
+		
+		
+
+		g_gpu_index = csystem_info::get_gpu_index_info();
+		
+		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
 		// check data path
 		
+
+
 
 		// load camera data 
 		SYSTEM_LOG("Load camera_list data ...");

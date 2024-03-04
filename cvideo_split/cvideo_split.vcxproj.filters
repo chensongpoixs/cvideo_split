@@ -1,182 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="cuda">
-      <UniqueIdentifier>{9cd68f70-acea-4f77-8344-aa483579b814}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="decode">
-      <UniqueIdentifier>{3a19c572-6e98-4947-9842-e13fd4c2fb12}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="rect_mem">
-      <UniqueIdentifier>{0a9cb632-d45e-4b7b-af42-533123281590}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="encoder">
-      <UniqueIdentifier>{6a2cfb56-da2d-40e1-9fa3-2b06680c13e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="util">
-      <UniqueIdentifier>{22929a86-4c8a-4760-832c-0751dd272b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="avtilter">
-      <UniqueIdentifier>{715477ec-174f-46df-be40-0415edb5b577}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="video_split">
-      <UniqueIdentifier>{f7d93dc4-9c27-4406-9eb8-c2fb83f3fabf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="server">
-      <UniqueIdentifier>{ca15a5e9-1c9c-4cc0-a5b8-6db5ed9e387b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="execl">
-      <UniqueIdentifier>{e29c7ac8-5e5d-4227-bb07-10c55d2231e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="web">
-      <UniqueIdentifier>{1702eb6c-6543-4d6a-a82e-f625e553f81b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="cfg">
-      <UniqueIdentifier>{28a359e5-f492-476e-9f97-d5df5d346225}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="logic">
-      <UniqueIdentifier>{6e3e1eb2-406f-4551-9910-e1e3cd053bc4}</UniqueIdentifier>
-    </Filter> 
-    <Filter Include="avfilter">
-      <UniqueIdentifier>{c12a5172-6cce-4dc1-b3b7-d9fc160795bc}</UniqueIdentifier> 
-    <Filter Include="dispatch">
-      <UniqueIdentifier>{0cde7bf6-e541-4077-a1ac-aa120ffb03cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="handler">
-      <UniqueIdentifier>{b3bfed65-52db-427e-a1a9-d06610b7cdcb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="player">
-      <UniqueIdentifier>{dadd64bd-0866-4b38-8845-0b0bff4ff04d}</UniqueIdentifier> 
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="cdecode.cpp">
-      <Filter>decode</Filter>
-    </ClCompile>
-    <ClCompile Include="crect_mem_copy.cpp">
-      <Filter>rect_mem</Filter>
-    </ClCompile>
-    <ClCompile Include="cencoder.cpp">
-      <Filter>encoder</Filter>
-    </ClCompile>
-    <ClCompile Include="cvideo_split.cpp">
-      <Filter>video_split</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ccamera_decoder_mgr.cpp" />
+    <ClCompile Include="ccamera_info_mgr.cpp" />
+    <ClCompile Include="ccfg.cpp" />
+    <ClCompile Include="cclient_msg_dispatch.cpp" />
+    <ClCompile Include="cdecode.cpp" />
+    <ClCompile Include="cdecoder.cpp" />
+    <ClCompile Include="cencoder.cpp" />
+    <ClCompile Include="crect_mem_copy.cpp" />
+    <ClCompile Include="cvideo_split.cpp" />
+    <ClCompile Include="cvideo_split_info_mgr.cpp" />
+    <ClCompile Include="cvideo_split_mgr.cpp" />
+    <ClCompile Include="cvideo_split_server.cpp" />
+    <ClCompile Include="cwebsocket_wan_server.cpp" />
+    <ClCompile Include="cwebsocket_wan_session.cpp" />
+    <ClCompile Include="cwebsocket_wan_session_handler.cpp" />
+    <ClCompile Include="cweb_guard_reply.cpp" />
+    <ClCompile Include="cweb_handler.cpp" />
+    <ClCompile Include="cweb_http_api_mgr.cpp" />
+    <ClCompile Include="cweb_http_api_proxy.cpp" />
     <ClCompile Include="encoder.c" />
-    <ClCompile Include="cweb_handler.cpp">
-      <Filter>web</Filter>
-    </ClCompile>
-    <ClCompile Include="cweb_http_api_mgr.cpp">
-      <Filter>web</Filter>
-    </ClCompile>
-    <ClCompile Include="cweb_http_api_proxy.cpp">
-      <Filter>web</Filter>
-    </ClCompile>
-    <ClCompile Include="ccfg.cpp">
-      <Filter>cfg</Filter>
-    </ClCompile>
-    <ClCompile Include="ccamera_info_mgr.cpp">
-      <Filter>logic</Filter>
-    </ClCompile>
-    <ClCompile Include="cvideo_split_server.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="cweb_guard_reply.cpp">
-      <Filter>web</Filter>
-    </ClCompile>
-    <ClCompile Include="cvideo_split_info_mgr.cpp">
-      <Filter>logic</Filter>
-    </ClCompile>
-    <ClCompile Include="cvideo_split_mgr.cpp">
-      <Filter>video_split</Filter>
-    </ClCompile>
-    <ClCompile Include="cclient_msg_dispatch.cpp">
-      <Filter>dispatch</Filter>
-    </ClCompile>
-    <ClCompile Include="cwebsocket_wan_server.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="cwebsocket_wan_session.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="cwebsocket_wan_session_handler.cpp">
-      <Filter>handler</Filter>
-    </ClCompile>
-    <ClCompile Include="cdecoder.cpp">
-      <Filter>decode</Filter>
-    </ClCompile>
-    <ClCompile Include="ccamera_decoder_mgr.cpp">
-      <Filter>player</Filter>
-    </ClCompile>
-    <ClCompile Include="cavfilter_video.cpp">
-      <Filter>avfilter</Filter>
-    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
-   
   <ItemGroup>
-    <ClInclude Include="cdecode.h">
-      <Filter>decode</Filter>
-    </ClInclude>
-    <ClInclude Include="crect_mem_copy.h">
-      <Filter>rect_mem</Filter>
-    </ClInclude>
-    <ClInclude Include="cencoder.h">
-      <Filter>encoder</Filter>
-    </ClInclude>
-    <ClInclude Include="cvideo_split.h">
-      <Filter>video_split</Filter>
-    </ClInclude>
-    <ClInclude Include="cweb_http_api_interface.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="cweb_http_api_mgr.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="cweb_http_api_proxy.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="cweb_http_struct.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="ccfg.h">
-      <Filter>cfg</Filter>
-    </ClInclude>
-    <ClInclude Include="chttp_code.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="ccamera_info_mgr.h">
-      <Filter>logic</Filter>
-    </ClInclude>
-    <ClInclude Include="cvideo_split_server.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="cweb_guard_reply.h">
-      <Filter>web</Filter>
-    </ClInclude>
-    <ClInclude Include="cvideo_split_info_mgr.h">
-      <Filter>logic</Filter>
-    </ClInclude>
-    <ClInclude Include="cvideo_split_mgr.h">
-      <Filter>video_split</Filter>
-    </ClInclude>
-    <ClInclude Include="cclient_msg_dispatch.h">
-      <Filter>dispatch</Filter>
-    </ClInclude>
-    <ClInclude Include="cwebsocket_wan_server.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="cwebsocket_wan_session.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="cdecoder.h">
-      <Filter>decode</Filter>
-    </ClInclude>
-    <ClInclude Include="ccamera_decoder_mgr.h">
-      <Filter>player</Filter>
-    </ClInclude>
-    <ClInclude Include="cavfilter_video.h">
-      <Filter>avfilter</Filter>
-    </ClInclude>
+    <ClInclude Include="ccamera_decoder_mgr.h" />
+    <ClInclude Include="ccamera_info_mgr.h" />
+    <ClInclude Include="ccfg.h" />
+    <ClInclude Include="cclient_msg_dispatch.h" />
+    <ClInclude Include="cdecode.h" />
+    <ClInclude Include="cdecoder.h" />
+    <ClInclude Include="cencoder.h" />
+    <ClInclude Include="chttp_code.h" />
+    <ClInclude Include="crect_mem_copy.h" />
+    <ClInclude Include="cvideo_split.h" />
+    <ClInclude Include="cvideo_split_info_mgr.h" />
+    <ClInclude Include="cvideo_split_mgr.h" />
+    <ClInclude Include="cvideo_split_server.h" />
+    <ClInclude Include="cwebsocket_wan_server.h" />
+    <ClInclude Include="cwebsocket_wan_session.h" />
+    <ClInclude Include="cweb_guard_reply.h" />
+    <ClInclude Include="cweb_http_api_interface.h" />
+    <ClInclude Include="cweb_http_api_mgr.h" />
+    <ClInclude Include="cweb_http_api_proxy.h" />
+    <ClInclude Include="cweb_http_struct.h" />
   </ItemGroup>
 </Project>

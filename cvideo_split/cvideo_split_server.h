@@ -52,6 +52,7 @@ namespace chen {
 	private:
 
 	};
+	extern std::vector<uint32> g_gpu_index;;
 	extern cvideo_split_server g_video_split_server;
 	
 }

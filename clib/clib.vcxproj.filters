@@ -16,6 +16,7 @@
     <ClCompile Include="crc4.cpp" />
     <ClCompile Include="ctime_api.cpp" />
     <ClCompile Include="cutil.cpp" />
+    <ClCompile Include="csystem_info.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="casync_log.h" />
@@ -40,5 +41,6 @@
     <ClInclude Include="ctime_elapse.h" />
     <ClInclude Include="cutil.h" />
     <ClInclude Include="clog_color.h" />
+    <ClInclude Include="csystem_info.h" />
   </ItemGroup>
 </Project>

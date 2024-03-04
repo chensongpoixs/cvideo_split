@@ -33,6 +33,7 @@ purpose:		camera
 #include <thread>
 #include "cffmpeg_util.h"
 #include <list>
+#include "cnet_type.h"
 namespace chen {
 
 	class cencoder
@@ -45,6 +46,7 @@ namespace chen {
 			: m_url("")
 			, m_width(0)
 			, m_height(0)
+			, m_gpu_index(0)
 			, m_push_format_context_ptr(NULL)
 			, m_codec_id(AV_CODEC_ID_NONE)
 			, m_codec_ctx_ptr(NULL)
@@ -61,7 +63,7 @@ namespace chen {
 		{}
 		virtual ~cencoder(); 
 	public:
-		bool init( const char * url, uint32_t width, uint32_t height);
+		bool init(uint32 gpu_index, const char * url, uint32_t width, uint32_t height);
 
 		void destroy();
 
@@ -83,6 +85,7 @@ namespace chen {
 		std::string			m_url;
 		uint32_t			m_width;
 		uint32_t			m_height;
+		uint32				m_gpu_index;
 		AVFormatContext*	m_push_format_context_ptr;
 		enum AVCodecID		m_codec_id;
 		AVCodecContext*		m_codec_ctx_ptr;

@@ -66,7 +66,7 @@ namespace chen {
 	cencoder::~cencoder()
 	{
 	}
-	 bool cencoder::init(  const char* url,  uint32_t width, uint32_t height)
+	 bool cencoder::init(uint32 gpu_index,   const char* url,  uint32_t width, uint32_t height)
 	{
 		 std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		int ret = 0;
@@ -85,7 +85,7 @@ namespace chen {
 		m_url = url;
 		m_width = width;
 		m_height = height;
-		
+		m_gpu_index = gpu_index;
 		m_push_format_context_ptr = avformat_alloc_context();
 		if (!m_push_format_context_ptr)
 		{
@@ -114,8 +114,8 @@ namespace chen {
 		 
 		//AVBufferRef* m_hw_device_ctx = NULL;
 		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		std::string gpu_index = "0";
-		ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
+		//std::string gpu_index = "0";
+		ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
 		 
 		//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
 		m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");

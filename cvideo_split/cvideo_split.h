@@ -95,7 +95,7 @@ namespace chen {
 
 
 	public:
-		bool init(const VideoSplitInfo * video_split_info);
+		bool init(uint32 gpu_index, const VideoSplitInfo * video_split_info);
 		void update(uint32 uDateTime);
 		void destroy();
 
@@ -103,7 +103,7 @@ namespace chen {
 
 	private:
 
-		bool _init_decodes();
+		bool _init_decodes(uint32 gpu_index);
 
 		bool _init_filter();
 

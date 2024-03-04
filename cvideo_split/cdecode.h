@@ -27,6 +27,7 @@ purpose:		camera
 #define _C_DECODE_H_
  
 #include "cffmpeg_util.h"
+#include "cnet_type.h"
 namespace chen {
 
 
@@ -37,6 +38,7 @@ namespace chen {
 			: m_open(false)
 			, m_width(0)
 			, m_height(0)
+			, m_gpu_index(0)
 			, m_dict(NULL)
 			, m_video_stream_index(-1)
 			, m_video_stream_ptr(NULL)
@@ -65,7 +67,7 @@ namespace chen {
 		* @param fmt 输出像素格式
 		* @return 成功返回true 失败返回false
 		*/
-		bool init(const char * url);
+		bool init(uint32 gpu_index, const char * url);
 		void destroy();
 
 
@@ -121,6 +123,7 @@ namespace chen {
 		bool   m_open;
 		int	   m_width;
 		int	   m_height;
+		uint32				m_gpu_index;
 		AVDictionary*		m_dict;
 		// 视频流索引
 		int32_t	   m_video_stream_index;

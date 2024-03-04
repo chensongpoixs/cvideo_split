@@ -10,6 +10,7 @@ purpose:	camera mgr
 #include "cvideo_split_mgr.h"
 #include "chttp_code.h"
 #include "cvideo_split_info_mgr.h"
+#include "cvideo_split_server.h"
 namespace chen {
 	cvideo_split_mgr		g_video_split_mgr;
 	bool cvideo_split_mgr::init()
@@ -80,7 +81,14 @@ namespace chen {
 			WARNING_EX_LOG("alloc video split channel_name =   (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
-		if (!video_split_ptr->init(video_split_info_ptr))
+		
+		uint32 gpu_index = 0;   
+		if (g_gpu_index.size() > 1)
+		{
+			gpu_index = m_video_split_map.size() % g_gpu_index.size();
+		}
+
+		if (!video_split_ptr->init(gpu_index, video_split_info_ptr))
 		{
 			video_split_ptr->destroy();
 			delete video_split_ptr;

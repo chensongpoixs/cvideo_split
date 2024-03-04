@@ -25,7 +25,7 @@ purpose:		camera
 #include "clog.h"
 
 namespace chen {
-	bool cvideo_splist::init(const VideoSplitInfo* video_split_info)
+	bool cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
 	{
 		if (!video_split_info)
 		{
@@ -81,7 +81,7 @@ namespace chen {
 			m_camera_infos.push_back(camera_info);
 			//camera_info.url = video_split_info->camera_group(i).();
 		}
-		if (!_init_decodes())
+		if (!_init_decodes(gpu_index))
 		{
 			return false;
 		}
@@ -97,7 +97,7 @@ namespace chen {
 		}
 		
 		std::string encoder_url = std::string("udp://@" + m_multicast_ip + ":" + std::to_string(m_multicast_port));
-		if (!m_encoder_ptr->init(encoder_url.c_str(), m_out_video_width, m_out_video_height))
+		if (!m_encoder_ptr->init(gpu_index, encoder_url.c_str(), m_out_video_width, m_out_video_height))
 		{
 			WARNING_EX_LOG("video split name = [%s] encoder init (%s)failed !!!", m_video_split_name.c_str(), encoder_url.c_str());
 			return false;
@@ -171,12 +171,12 @@ namespace chen {
 			m_encoder_ptr = NULL;
 		}
 	}
-	bool cvideo_splist::_init_decodes()
+	bool cvideo_splist::_init_decodes(uint32 gpu_index)
 	{
 		for (int32 i = 0; i < m_camera_infos.size(); ++i)
 		{
 			cdecode* decoder_ptr = new cdecode();
-			if (!decoder_ptr->init(m_camera_infos[i].url.c_str()))
+			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str()))
 			{
 				decoder_ptr->destroy();
 				delete decoder_ptr;

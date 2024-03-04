@@ -56,7 +56,7 @@ namespace chen {
 	{
 		chen::cdecode decode;
 		 
-		if (!decode.init(input_h264))
+		if (!decode.init(0, input_h264))
 		{
 			printf("[decodec init = = %s]failed !!!\n", input_h264);
 			return ;

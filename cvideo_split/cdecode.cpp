@@ -84,10 +84,11 @@ namespace chen {
 	cdecode::~cdecode()
 	{
 	}
-	bool cdecode::init(const char* url)
+	bool cdecode::init(uint32 gpu_index, const char* url)
 	{
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		close();
+		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
 
@@ -219,7 +220,7 @@ namespace chen {
 		}
 		AVDictionary* codec_opts = NULL;
 		//av_dict_set(&codec_opts, "b", "2.5M", 0);
-		av_dict_set(&codec_opts, "gpu", "0", 0);
+		av_dict_set(&codec_opts, "gpu", std::to_string(m_gpu_index).c_str(), 0);
 		av_dict_set(&codec_opts, "threads", "auto", 0);
 		av_dict_set(&codec_opts, "flags", "+copy_opaque", AV_DICT_MULTIKEY);
 	/*	name dirtc[key = gpu][value = 1]
