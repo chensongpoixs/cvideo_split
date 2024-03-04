@@ -324,8 +324,8 @@ namespace chen {
 				//m_push_format_context_ptr->pb = NULL;
 			}
 
-			//::avformat_close_input(&m_push_format_context_ptr);
-			//::avformat_free_context(m_push_format_context_ptr);
+			::avformat_close_input(&m_push_format_context_ptr);
+			::avformat_free_context(m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
 		}
 		m_hw_device_ctx_ptr = NULL;
