@@ -123,7 +123,40 @@ namespace chen {
 
 		// filter 
 
-		
+		if (m_filter_graph_ptr)
+		{
+			/*for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
+			{
+				if (m_buffers_ctx_ptr[i])
+				{
+					::avfilter_free(m_buffers_ctx_ptr[i]);
+				}
+				if (m_buffers_crop_ctx_ptr[i])
+				{
+					::avfilter_free(m_buffers_crop_ctx_ptr[i]);
+				}
+				if (m_buffers_scale_ctx_ptr[i])
+				{
+					::avfilter_free(m_buffers_scale_ctx_ptr[i]);
+				}
+			}*/
+			m_buffers_ctx_ptr.clear();
+			m_buffers_crop_ctx_ptr.clear();
+			m_buffers_scale_ctx_ptr.clear();
+			m_hstack_ctx_ptr = NULL;
+			m_buffersink_ctx_ptr = NULL;
+			/*::avfilter_free(m_hstack_ctx_ptr);
+			::avfilter_free(m_buffersink_ctx_ptr);
+			if (m_osd_ctx_ptr)
+			{
+				::avfilter_free(m_osd_ctx_ptr);
+			}
+			*/
+			m_osd_ctx_ptr = NULL;
+			m_osd_ctx_ptr = NULL;
+			::avfilter_graph_free(&m_filter_graph_ptr);
+			m_filter_graph_ptr = NULL;
+		}
 
 		for (size_t i = 0; i < m_decodes.size(); ++i)
 		{
@@ -142,35 +175,7 @@ namespace chen {
 			delete m_encoder_ptr;
 			m_encoder_ptr = NULL;
 		}
-		if (m_filter_graph_ptr)
-		{
-			for (size_t i = 0; i < m_buffers_ctx_ptr.size(); ++i)
-			{
-				if (m_buffers_ctx_ptr[i])
-				{
-					::avfilter_free(m_buffers_ctx_ptr[i]);
-				}
-				if (m_buffers_crop_ctx_ptr[i])
-				{
-					::avfilter_free(m_buffers_crop_ctx_ptr[i]);
-				}
-				if (m_buffers_scale_ctx_ptr[i])
-				{
-					::avfilter_free(m_buffers_scale_ctx_ptr[i]);
-				}
-			}
-			m_buffers_ctx_ptr.clear();
-			m_buffers_crop_ctx_ptr.clear();
-			m_buffers_scale_ctx_ptr.clear();
-			::avfilter_free(m_hstack_ctx_ptr);
-			::avfilter_free(m_buffersink_ctx_ptr);
-			if (m_osd_ctx_ptr)
-			{
-				::avfilter_free(m_osd_ctx_ptr);
-			}
-			::avfilter_graph_free(&m_filter_graph_ptr);
-			m_filter_graph_ptr = NULL;
-		}
+		
 	}
 	bool cvideo_splist::_init_decodes(uint32 gpu_index)
 	{
