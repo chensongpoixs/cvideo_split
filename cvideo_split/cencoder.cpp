@@ -155,7 +155,7 @@ namespace chen {
 			rate.den = 25;
 			m_codec_ctx_ptr->time_base = { 1, 25 };//rate;
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 250;
+			m_codec_ctx_ptr->gop_size = 60;
 			m_codec_ctx_ptr->max_b_frames = 0;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
@@ -177,7 +177,7 @@ namespace chen {
 			//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
 			av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 			//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
-			av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+			//av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
 			// profile 
 			::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
 
