@@ -102,7 +102,8 @@ namespace chen {
 				WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
 				return false;
 			}
-			m_push_format_context_ptr->max_delay = 1;
+			m_push_format_context_ptr->max_delay = 0;
+			m_push_format_context_ptr->max_interleave_delta = 0;
 			/*::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
 			::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);*/
 			m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
