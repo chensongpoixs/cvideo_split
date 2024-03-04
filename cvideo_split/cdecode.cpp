@@ -86,8 +86,11 @@ namespace chen {
 	}
 	bool cdecode::init(uint32 gpu_index, const char* url)
 	{
+		
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
-		close();
+		{
+			close();
+		}
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
@@ -262,6 +265,7 @@ namespace chen {
 	}
 	void cdecode::destroy()
 	{
+		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		close();
 	}
 	void cdecode::close()

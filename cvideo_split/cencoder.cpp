@@ -68,196 +68,201 @@ namespace chen {
 	}
 	 bool cencoder::init(uint32 gpu_index,   const char* url,  uint32_t width, uint32_t height)
 	{
-		 std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
-		int ret = 0;
-	//	if (m_stoped)
 		{
 			destroy();
 		}
-		/*m_input_file_ptr = ::fopen(file_url, "rb");
-		if (!m_input_file_ptr)
 		{
-			printf("[warr] not open file name [%s] failed !!!\n", file_url);
-			return false;
-		}*/
+			std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
+			int ret = 0;
+			//	if (m_stoped)
+			{
 
-		m_stoped = false;
-		m_url = url;
-		m_width = width;
-		m_height = height;
-		m_gpu_index = gpu_index;
-		/*m_push_format_context_ptr = avformat_alloc_context();
-		if (!m_push_format_context_ptr)
-		{
-			WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
-			return false;
-		}*/
-		ret = avformat_alloc_output_context2(&m_push_format_context_ptr,  NULL, "mpegts", std::string(m_url + "?pkt_size=1316").c_str());
-		if (ret < 0)
-		{
-			WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
-			return false;
-		}
-		m_push_format_context_ptr->max_delay = 1;
-		::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
-		::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
-		m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
-		if (!m_stream_ptr)
-		{
-			WARNING_EX_LOG("[%s] alloc stream failed !!!\n", m_url.c_str());
-			return false;
-		}
-		//m_stream_ptr->codecpar->nb_coded_side_data
-		//::avcodec_register_all();
-		if (m_push_format_context_ptr->oformat->flags & AVFMT_GLOBALHEADER)
-		{
-			m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-		}
-		m_codec_id = AV_CODEC_ID_H264;
-		
-		//AVBufferRef* m_hw_device_ctx = NULL;
-		//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		//std::string gpu_index = "0";
-		ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
-		 
-		//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
-		m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");
-		if (!m_codec_ptr)
-		{
-			WARNING_EX_LOG("Could not find [encoder = %s]   failed !!!\n", ::avcodec_get_name(m_codec_id));
-			return false;
-		}
-		m_codec_ctx_ptr = avcodec_alloc_context3(m_codec_ptr);
-		if (!m_codec_ctx_ptr)
-		{
-			WARNING_EX_LOG("Conlu not alloc video context (%s)failed !!!\n", m_url.c_str());
-			return false;
-		}
-		//avctx->width = width;
-		//avctx->height = height;
-		//avctx->time_base = (AVRational){ 1, 25 };
-		//avctx->framerate = (AVRational){ 25, 1 };
-		//avctx->sample_aspect_ratio = (AVRational){ 1, 1 };
-		//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
-		//4000 * 1024;//
-		uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
-		m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
-		m_codec_ctx_ptr->bit_rate_tolerance = 4000000;
-		m_codec_ctx_ptr->width = m_width;
-		m_codec_ctx_ptr->height = m_height;
-		
-		AVRational rate;
-		rate.num = 1;
-		rate.den = 25;
-		m_codec_ctx_ptr->time_base = {1, 25};//rate;
-		m_codec_ctx_ptr->framerate = {25, 1};
-		m_codec_ctx_ptr->gop_size = 300;
-		m_codec_ctx_ptr->max_b_frames = 0;
-		m_codec_ctx_ptr->pix_fmt =  AV_PIX_FMT_CUDA;
-	//	if (false)
-		{
-			/* set hw_frames_ctx for encoder's AVCodecContext */
-			if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, m_hw_device_ctx_ptr)) < 0) {
-				WARNING_EX_LOG( "Failed to set hwframe context.\n");
-				//goto close;
 			}
-		
+			/*m_input_file_ptr = ::fopen(file_url, "rb");
+			if (!m_input_file_ptr)
+			{
+				printf("[warr] not open file name [%s] failed !!!\n", file_url);
+				return false;
+			}*/
+
+			m_stoped = false;
+			m_url = url;
+			m_width = width;
+			m_height = height;
+			m_gpu_index = gpu_index;
+			/*m_push_format_context_ptr = avformat_alloc_context();
+			if (!m_push_format_context_ptr)
+			{
+				WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
+				return false;
+			}*/
+			ret = avformat_alloc_output_context2(&m_push_format_context_ptr, NULL, "mpegts", std::string(m_url + "?pkt_size=1316").c_str());
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
+				return false;
+			}
+			m_push_format_context_ptr->max_delay = 1;
+			::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
+			::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);
+			m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
+			if (!m_stream_ptr)
+			{
+				WARNING_EX_LOG("[%s] alloc stream failed !!!\n", m_url.c_str());
+				return false;
+			}
+			//m_stream_ptr->codecpar->nb_coded_side_data
+			//::avcodec_register_all();
+			if (m_push_format_context_ptr->oformat->flags & AVFMT_GLOBALHEADER)
+			{
+				m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+			}
+			m_codec_id = AV_CODEC_ID_H264;
+
+			//AVBufferRef* m_hw_device_ctx = NULL;
+			//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
+			//std::string gpu_index = "0";
+			ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
+
+			//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
+			m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");
+			if (!m_codec_ptr)
+			{
+				WARNING_EX_LOG("Could not find [encoder = %s]   failed !!!\n", ::avcodec_get_name(m_codec_id));
+				return false;
+			}
+			m_codec_ctx_ptr = avcodec_alloc_context3(m_codec_ptr);
+			if (!m_codec_ctx_ptr)
+			{
+				WARNING_EX_LOG("Conlu not alloc video context (%s)failed !!!\n", m_url.c_str());
+				return false;
+			}
+			//avctx->width = width;
+			//avctx->height = height;
+			//avctx->time_base = (AVRational){ 1, 25 };
+			//avctx->framerate = (AVRational){ 25, 1 };
+			//avctx->sample_aspect_ratio = (AVRational){ 1, 1 };
+			//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
+			//4000 * 1024;//
+			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
+			m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
+			m_codec_ctx_ptr->bit_rate_tolerance = 4000000;
+			m_codec_ctx_ptr->width = m_width;
+			m_codec_ctx_ptr->height = m_height;
+
+			AVRational rate;
+			rate.num = 1;
+			rate.den = 25;
+			m_codec_ctx_ptr->time_base = { 1, 25 };//rate;
+			m_codec_ctx_ptr->framerate = { 25, 1 };
+			m_codec_ctx_ptr->gop_size = 300;
+			m_codec_ctx_ptr->max_b_frames = 0;
+			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
+			//	if (false)
+			{
+				/* set hw_frames_ctx for encoder's AVCodecContext */
+				if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, m_hw_device_ctx_ptr)) < 0) {
+					WARNING_EX_LOG("Failed to set hwframe context.\n");
+					//goto close;
+				}
+
+			}
+			//m_codec_ctx_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+			m_pts = 0;
+			m_frame_count = 0;
+			m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			// 设置GPU的id
+			//av_opt_set(m_codec_ctx_ptr->priv_data, "gpu", "1", 0);
+			//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
+			av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
+			//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
+			av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+			// profile 
+			::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+
+			::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "102400", 0);
+
+
+			//AVDictionary* options= NULL;
+			//av_dict_set(&options, "gpu", "1", 0);
+			ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL);
+			if (ret < 0)
+			{
+				printf("[%s]Open encoder (%s)failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}
+
+			//av_lockmgr_register();
+			ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("[%s]Failed to copy encoder parameters to output stream #%s\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}
+			// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
+			ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
+			ret = av_dict_set(&m_options_ptr, "buffer_size", "10240", 0 /*AVIO_FLAG_WRITE*/);
+			::av_dict_set(&m_options_ptr, "reuse", "1", 0);
+
+			::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
+			const AVDictionaryEntry* e = NULL;
+			while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
+			{
+				NORMAL_EX_LOG("[key = %s][value = %s]\n", e->key, e->value);
+			}
+
+
+			//****分配推流io上下文****//
+			ret = ::avio_open2(&m_push_format_context_ptr->pb, m_url.c_str(), AVIO_FLAG_WRITE, NULL, &m_options_ptr);
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}
+
+			//写入头
+			ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("[%s]Error occurred when opening output file [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}
+			/*m_frame_ptr = ::av_frame_alloc();
+			if (!m_frame_ptr)
+			{
+				printf("[url = %s] frame alloc failed !!!\n", m_url.c_str());
+				return false;
+			}
+			m_frame_ptr->format = m_codec_ctx_ptr->pix_fmt;
+			m_frame_ptr->width = m_codec_ctx_ptr->width;
+			m_frame_ptr->height = m_codec_ctx_ptr->height;*/
+
+
+
+
+			//allocate AVFrame data 
+			//ret = ::av_image_alloc(m_frame_ptr->data, m_frame_ptr->linesize, m_codec_ctx_ptr->width, m_codec_ctx_ptr->height,
+			//	m_codec_ctx_ptr->pix_fmt, 32/*av_cpu_max_align()*/);
+
+			/*if (ret < 0)
+			{
+				printf("[url = %s]alloc image faild (%s) !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}*/
+			m_pkt_ptr = av_packet_alloc();
+			if (!m_pkt_ptr)
+			{
+				WARNING_EX_LOG("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
+				return false;
+			}
+
+			return true;
+			//AVFrame* hw_frame = NULL;
+			return _init_gpu_frame();
+
+
 		}
-		//m_codec_ctx_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-		m_pts = 0;
-		m_frame_count = 0;
-		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-		std::chrono::system_clock::now().time_since_epoch());
-		// 设置GPU的id
-		//av_opt_set(m_codec_ctx_ptr->priv_data, "gpu", "1", 0);
-		//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
-		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
-		//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
-		 av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
-		// profile 
-		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
-
-		 ::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "102400", 0);
-		
-		 
-		//AVDictionary* options= NULL;
-		//av_dict_set(&options, "gpu", "1", 0);
-		ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL );
-		if (ret < 0 ) 
-		{
-			printf( "[%s]Open encoder (%s)failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			return false;
-		}
-
-		//av_lockmgr_register();
-		ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
-		if (ret < 0) 
-		{
-			WARNING_EX_LOG(  "[%s]Failed to copy encoder parameters to output stream #%s\n", m_url.c_str(),  ffmpeg_util::make_error_string(ret));
-			return false;
-		}
-		// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
-		ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
-		ret = av_dict_set(&m_options_ptr, "buffer_size", "10240", 0 /*AVIO_FLAG_WRITE*/);
-		::av_dict_set(&m_options_ptr, "reuse", "1", 0);
-		
-		::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
-		const AVDictionaryEntry* e = NULL; 
-		while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
-		{
-			NORMAL_EX_LOG("[key = %s][value = %s]\n", e->key, e->value);
-		}
-
-
-		//****分配推流io上下文****//
-		ret = ::avio_open2(&m_push_format_context_ptr->pb, m_url.c_str(), AVIO_FLAG_WRITE, NULL, &m_options_ptr);
-		if (ret < 0) 
-		{
-			WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			return false;
-		}
-		
-		//写入头
-		ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
-		if (ret < 0) 
-		{
-			WARNING_EX_LOG("[%s]Error occurred when opening output file [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			return false;
-		}
-		/*m_frame_ptr = ::av_frame_alloc();
-		if (!m_frame_ptr)
-		{
-			printf("[url = %s] frame alloc failed !!!\n", m_url.c_str());
-			return false;
-		}
-		m_frame_ptr->format = m_codec_ctx_ptr->pix_fmt;
-		m_frame_ptr->width = m_codec_ctx_ptr->width;
-		m_frame_ptr->height = m_codec_ctx_ptr->height;*/
-		
-
-
-
-		//allocate AVFrame data 
-		//ret = ::av_image_alloc(m_frame_ptr->data, m_frame_ptr->linesize, m_codec_ctx_ptr->width, m_codec_ctx_ptr->height,
-		//	m_codec_ctx_ptr->pix_fmt, 32/*av_cpu_max_align()*/);
-
-		/*if (ret < 0)
-		{
-			printf("[url = %s]alloc image faild (%s) !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			return false;
-		}*/
-		m_pkt_ptr = av_packet_alloc();
-		if (!m_pkt_ptr)
-		{
-			WARNING_EX_LOG("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
-			return false;
-		}
-
-		return true;
-		//AVFrame* hw_frame = NULL;
-		return _init_gpu_frame();
-		
-
 
 	/*	m_yuv420p_ptr = static_cast<unsigned char *>(::malloc(sizeof(unsigned char) * (m_width * m_height * 471 * 2)));
 		
@@ -270,6 +275,7 @@ namespace chen {
 
 	void cencoder::destroy()
 	{
+		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		if (!m_stoped)
 		{
 			WARNING_EX_LOG("[url = %s] stop = false\n", m_url.c_str());
