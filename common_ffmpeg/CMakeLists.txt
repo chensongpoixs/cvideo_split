@@ -2,6 +2,10 @@ project(common_ffmpeg)
 cmake_minimum_required(VERSION 2.8)
 MESSAGE(STATUS "#########################")
 
+
+
+	
+
 file(GLOB ALL_CXX_SRCS
         ./*.cpp  ./*.cc
         ./*.h

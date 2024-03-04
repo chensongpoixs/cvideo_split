@@ -10,13 +10,6 @@ MESSAGE(STATUS "#########################")
 #SET(FFMPEG_INCLUDE_DIR /home)
 #set(CMAKE_CXX_FLAGS         "-std=c++11  -g  -Wall ")  #注意调试的话,此行代码一定要添加!-fno-rtti
   
-#INCLUDE_DIRECTORIES(
- #       /usr/local/include
-  #      /usr/include 
-   #     /usr/local/cuda/include
-        
-        
-#)
 
 
 #LINK_DIRECTORIES(

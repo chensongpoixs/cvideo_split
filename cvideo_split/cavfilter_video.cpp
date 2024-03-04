@@ -24,7 +24,7 @@ purpose:		camera
 
 
 #include "cavfilter_video.h"
-
+/*
 namespace chen {
 
  
@@ -825,4 +825,4 @@ namespace chen {
 
 
 
-}
+}*/

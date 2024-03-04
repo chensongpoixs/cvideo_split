@@ -422,7 +422,7 @@ namespace chen {
 		if (result.result == EWebSuccess)
 		{
 			
-			reply_video_split["id"] = result.video_split_info.id();
+			reply_video_split["id"] = static_cast<uint32>(result.video_split_info.id());
 			reply_video_split["split_channel_name"] = result.video_split_info.split_channel_name();
 			reply_video_split["split_channel_id"] = result.video_split_info.split_channel_id();
 			reply_video_split["multicast_ip"] = result.video_split_info.multicast_ip();
@@ -460,7 +460,7 @@ namespace chen {
 		if (result.result == EWebSuccess)
 		{
 			Json::Value  video_split_info;
-			reply["video_split_infos"]["id"] = result.video_split_info.id();
+			reply["video_split_infos"]["id"] = static_cast<uint32>(result.video_split_info.id());
 			reply["video_split_infos"]["split_channel_name"] = result.video_split_info.split_channel_name();
 			reply["video_split_infos"]["split_channel_id"] = result.video_split_info.split_channel_id();
 			reply["video_split_infos"]["multicast_ip"] = result.video_split_info.multicast_ip();
@@ -502,7 +502,7 @@ namespace chen {
 		for (size_t i = 0; i < result.video_split_infos.size(); ++i)
 		{
 			Json::Value  video_split_info;
-			video_split_info["id"] = result.video_split_infos[i].id();
+			video_split_info["id"] = static_cast<uint32>(result.video_split_infos[i].id());
 			video_split_info["split_channel_name"] = result.video_split_infos[i].split_channel_name();
 			video_split_info["split_channel_id"] = result.video_split_infos[i].split_channel_id();
 			video_split_info["multicast_ip"] = result.video_split_infos[i].multicast_ip();

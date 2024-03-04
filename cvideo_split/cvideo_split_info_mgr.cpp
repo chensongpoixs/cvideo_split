@@ -517,7 +517,7 @@ namespace chen {
 			iter != m_video_split_info_map.end(); ++iter)
 		{
 			Json::Value video_split_info;
-			video_split_info["id"] = iter->second.id();
+			video_split_info["id"] = static_cast<uint32>(iter->second.id());
 			video_split_info["split_channel_name"] = iter->second.split_channel_name();
 			video_split_info["split_channel_id"] = iter->second.split_channel_id();
 			video_split_info["multicast_ip"] = iter->second.multicast_ip();

@@ -25,7 +25,7 @@ purpose:		camera
 
 #ifndef _C_AVFILTER_VIDEO_H_
 #define _C_AVFILTER_VIDEO_H_
-
+/*
 #include "cffmpeg_util.h"
 namespace chen {
 
@@ -119,5 +119,5 @@ namespace chen {
 
 
 }
-
+*/
 #endif // _C_AVFILTER_VIDEO_H_

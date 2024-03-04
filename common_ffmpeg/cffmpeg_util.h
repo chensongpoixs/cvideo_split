@@ -29,14 +29,14 @@ purpose:		camera
 #include <cstdint>
 //#include <GL/eglew.h>
 #include <vector>
-#include <ctime>
+//#include <ctime>
 #include <string>
 #include <mutex>
 extern "C"
 {
 #include <libavutil/frame.h>
 #include <libavutil/avutil.h>
-#include <libavutil/avutil.h>
+//#include <libavutil/avutil.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>

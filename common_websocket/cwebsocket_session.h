@@ -25,6 +25,7 @@ purpose:		websocket_session
 #define _C_WEBSOCKET_SESSION_H
 
 #include "cnet_define.h"
+#include <list>
 #include <mutex>
 //#include "cwebsocket_server_mgr.h"
 namespace chen {

@@ -1,6 +1,8 @@
 /cvideo_split/cvideo_split.vcxproj.user
 /.vs
 /cvideo_split/x64
+/build
+/linux
 /vsout
 /udp.pcapng
 /新建文本文档.txt
