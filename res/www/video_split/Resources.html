@@ -58,7 +58,7 @@
         var address = reg.exec(window.location.href)[0];
         var apiAddress = "http://"+address+":6036/json";//"http://30.17.58.3:6036/json";
         var coreApiAddress="http://"+address+":8087/"; //"http://30.17.58.3:8087/";
-        var api_data_address = 'http://127.0.0.1:9700/';// video_split/v1/camera_list/page=0&page_size=10';
+        var video_splist_address = 'http://127.0.0.1:9700/';// video_split/v1/camera_list/page=0&page_size=10';
         var api_execl_address = 'http://127.0.0.1:8808/';
         var playsStyle="/root/out.mp4";
 
@@ -119,7 +119,7 @@
         {
             console.log('InitData');
             // var message = '{"msg":"get_camera_info"}';
-            var cameras_url = api_data_address + 'video_split/v1/camera_list/page=0&page_size=1000';
+            var cameras_url = video_splist_address + 'video_split/v1/camera_list/page=0&page_size=1000';
             ajaxGet(cameras_url, function(result){
                 console.log('camera_list = ' + result);
                 var obj = JSON.parse(result);
@@ -149,7 +149,7 @@
             $.ajax({
                 type: "POST",
                 dataType: "text",
-                url: api_data_address + 'video_split/v1/add_camera_info',
+                url: video_splist_address + 'video_split/v1/add_camera_info',
                 contentType: "application/json",
                 data: send_str,
                 timeout: 5000,
@@ -294,7 +294,7 @@
 function Deletecamera(data)
 {
     // http://127.0.0.1:9700/video_split/v1/delete_camera/camera_id=99
-    var delete_camera_url = api_data_address + 'video_split/v1/delete_camera/camera_id=' + data.camera_id;
+    var delete_camera_url = video_splist_address + 'video_split/v1/delete_camera/camera_id=' + data.camera_id;
     var send_str='{"msg":"del_camera_info","camera_id":["'+data.camera_id+'"]}';
 
     ajaxGet(delete_camera_url, function(result){
@@ -433,7 +433,7 @@ function ExecSetCamerasTimeout()
         //         ExecSetCamerasTimeout();
         //     }
         // });
-         var cameras_url = api_data_address + 'video_split/v1/camera_list/page=0&page_size=1000';
+         var cameras_url = video_splist_address + 'video_split/v1/camera_list/page=0&page_size=1000';
             ajaxGet(cameras_url, function(result){
                // console.log('camera_list = ' + result);
                 var obj = JSON.parse(result);
