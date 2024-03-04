@@ -507,7 +507,7 @@ namespace chen {
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
 			//NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
-			if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
+			if (!m_stoped && (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, filter_frame_ptr) )<0)
 			{
 				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
