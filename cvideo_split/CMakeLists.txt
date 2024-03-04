@@ -4,43 +4,19 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE(STATUS "#########################")
 
 # RTC
-SET(RTC_INC_DIR /home/chensong/Work/ccloud_game_rtc)
+
 # /client/rtc
 
-set(CMAKE_CXX_FLAGS         "-std=c++11  -g  ")  #注意调试的话,此行代码一定要添加!-fno-rtti
-add_definitions(-D WEBRTC_POSIX) # -fPIC
-add_definitions(-D WEBRTC_LINUX)
-#
-
-
-#set(CMAKE_CXX_FLAGS         "-std=c++11 -g    -fno-rtti  ")  #注意调试的话,此行代码一定要添加!
-#add_definitions(-D WEBRTC_POSIX) # -fPIC
-#add_definitions(-D WEBRTC_LINUX)
-
-
-SET(WEBRTC_DIR /home/chensong/dep/webrtc)
-
-INCLUDE_DIRECTORIES(
-        /usr/local/include
-        /usr/include 
-        /usr/local/cuda/include
-        ${WEBRTC_DIR}/include
-        ${WEBRTC_DIR}/include/third_party/libyuv/include
-        ${WEBRTC_DIR}/include/third_party/abseil-cpp
-        ${WEBRTC_DIR}/include/third_party/jsoncpp/source/include
-        ${WEBRTC_DIR}/include/third_party/jsoncpp/generated
-        #${WEBRTC_DIR}/include/third_party/googletest/src/googletest/include
-        ${WEBRTC_DIR}/gen
-      #  ${RTC_INC_DIR}/client/rtc
-        ../ccloud_game_rtc/client/rtc
-        ../ccloud_game_rtc/client/sdp
-        ../ccloud_game_rtc/client
-       # ../ccloud_game_rtc/client/glad/include
-        ../Robot
-        ../ccloud_game_rtc/client/nvcodec 
-		../ccloud_game_rtc/client/vaapi
+#SET(FFMPEG_INCLUDE_DIR /home)
+#set(CMAKE_CXX_FLAGS         "-std=c++11  -g  -Wall ")  #注意调试的话,此行代码一定要添加!-fno-rtti
+  
+#INCLUDE_DIRECTORIES(
+ #       /usr/local/include
+  #      /usr/include 
+   #     /usr/local/cuda/include
         
-)
+        
+#)
 
 
 #LINK_DIRECTORIES(
@@ -53,47 +29,36 @@ INCLUDE_DIRECTORIES(
 
 #INCLUDE_DIRECTORIES(
 #        ${RTC_INC_DIR}/client/rtc)
-LINK_DIRECTORIES(
-        #../ccloud_game_rtc/client
-
-        ${RTC_INC_DIR}/linux/lib
-        ${WEBRTC_DIR}/lib/
-        /usr/local/cuda/lib64/stubs
-)
+#LINK_DIRECTORIES(
+#        #../ccloud_game_rtc/client
+#
+#        ${RTC_INC_DIR}/linux/lib
+#        ${WEBRTC_DIR}/lib/
+#        /usr/local/cuda/lib64/stubs
+#)
 
 file(GLOB ALL_CXX_SRCS
-        ../clib/*.cpp
-        ../clib/*.h
-        ../common/*.cpp
-        ../common/*.h
-        ../common/cclient_msg/*.cc
-        ../common/cclient_msg/*.h
-        ./*.cpp  ./*.cc
-        ../ccloud_game_rtc/client/*.cc
-        ../ccloud_game_rtc/client/*.h
-        # ../ccloud_game_rtc/client/rtc/cgl_egl_common.c
-        ../ccloud_game_rtc/client/*.cpp
-        ../ccloud_game_rtc/client/*.hpp
-        ../ccloud_game_rtc/client/rtc/*.cpp
-        ../ccloud_game_rtc/client/rtc/*.h
-        ../ccloud_game_rtc/client/rtc/*.cc
-        
-        ../ccloud_game_rtc/client/rtc/*.hpp
-        ../ccloud_game_rtc/client/sdp/*.cpp
-        ../ccloud_game_rtc/client/sdp/*.h
-        ../ccloud_game_rtc/client/sdp/*.cc
-        ../ccloud_game_rtc/client/sdp/*.hpp
-       # ../ccloud_game_rtc/client/glad/*.c
-        ../ccloud_game_rtc/client/nvcodec/*.cpp 
+         ./*.h
+		 ./*.cpp 
+		 ./*.hpp 
+		 ./*.cc 
         )
 
 #add_library(${PROJECT_NAME}  SHARED   ${ALL_CXX_SRCS}   ) #SHARED  STATIC
 add_executable(${PROJECT_NAME} ${ALL_CXX_SRCS})
-#add_dependencies(${PROJECT_NAME} common)
-#add_dependencies(${PROJECT_NAME} clib)
+add_dependencies(${PROJECT_NAME} common)
+add_dependencies(${PROJECT_NAME} clib)
+add_dependencies(${PROJECT_NAME} common_ffmpeg)
+add_dependencies(${PROJECT_NAME} common_web)
+add_dependencies(${PROJECT_NAME} common_websocket)
 
 set(ALL_LIB  	pthread
  
+		libcommon.a 
+		libcommon_web.a 
+		libcommon_ffmpeg.a 
+		libcommon_websocket.a 
+		libclib.a 
         pthread
         libavcodec.a
 		libavdevice.a   
@@ -108,6 +73,46 @@ set(ALL_LIB  	pthread
 		libavcodec.a
 		libdl.so
 		#libdl.a
+		 libboost_atomic.a
+		libboost_chrono.a
+		libboost_container.a
+		libboost_context.a
+		libboost_coroutine.a
+		libboost_date_time.a
+		libboost_exception.a
+		libboost_fiber.a
+		libboost_filesystem.a
+		libboost_graph.a
+		libboost_iostreams.a
+		libboost_locale.a
+		libboost_log.a
+		libboost_log_setup.a
+		libboost_math_c99.a
+		libboost_math_c99f.a
+		libboost_math_c99l.a
+		libboost_math_tr1.a
+		libboost_math_tr1f.a
+		libboost_math_tr1l.a
+		libboost_prg_exec_monitor.a
+		libboost_program_options.a
+		libboost_random.a
+		libboost_regex.a
+		libboost_serialization.a
+		libboost_signals.a
+		libboost_stacktrace_addr2line.a
+		libboost_stacktrace_backtrace.a
+		libboost_stacktrace_basic.a
+		libboost_stacktrace_noop.a
+		libboost_system.a
+		libboost_test_exec_monitor.a
+		libboost_thread.a
+		libboost_timer.a
+		libboost_type_erasure.a
+		libboost_unit_test_framework.a
+		libboost_wave.a
+		libboost_wserialization.a
+		libjsoncpp.a
+		libprotobuf.a
         )
 
 

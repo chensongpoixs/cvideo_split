@@ -4,8 +4,9 @@ MESSAGE(STATUS "#########################")
 SET(CMAKE_BUILD_TYPE Release)
 ADD_DEFINITIONS(-std=c++11   -fpermissive )
 
-SET(EXTRA_INC_DIR /home/pc/Work/ffmpeg)
-
+SET(EXTRA_INC_DIR /home/chensong/Work/dep)
+SET(FFMPEG_INCLUDE_DIR /home/pc/Work/ffmpeg)
+#SET(EXTRA_INCLUDE_DIR /home/chensong/Work/dep)
 
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -22,11 +23,21 @@ INCLUDE_DIRECTORIES(
         ${PROJECT_SOURCE_DIR}/common/cmsg
         ${PROJECT_SOURCE_DIR}/common/cclient_msg
         ${PROJECT_SOURCE_DIR}/cloud_thrift
-		${EXTRA_INC_DIR}/libavcodec/  
-		${EXTRA_INC_DIR}/libavdevice/ 
-		${EXTRA_INC_DIR}/libavfilter/ 
-		${EXTRA_INC_DIR}/libavformat/ 
-		${EXTRA_INC_DIR}/libavutil/
+		#${EXTRA_INC_DIR}/libavcodec/  
+		#${EXTRA_INC_DIR}/libavdevice/ 
+		#${EXTRA_INC_DIR}/libavfilter/ 
+		#${EXTRA_INC_DIR}/libavformat/ 
+		#${EXTRA_INC_DIR}/libavutil/
+		
+		${EXTRA_INC_DIR}/boost/include 
+		${EXTRA_INC_DIR}/protobuf/include 
+		${EXTRA_INC_DIR}/jsoncpp/include 
+		
+        ${FFMPEG_INCLUDE_DIR}/libavcodec/
+                ${FFMPEG_INCLUDE_DIR}/libavdevice/
+                ${FFMPEG_INCLUDE_DIR}/libavfilter/
+                ${FFMPEG_INCLUDE_DIR}/libavformat/
+                ${FFMPEG_INCLUDE_DIR}/libavutil/
         #${PROJECT_SOURCE_DIR}/Robot
 )
 
@@ -56,9 +67,9 @@ LINK_DIRECTORIES(
 )
 
 #add_subdirectory(ccloud_game_rtc/client)
-#add_subdirectory(clib)
-#add_subdirectory(common)
-#add_subdirectory(cloud_thrift)
-add_subdirectory(cvideo_split)
-#add_subdirectory(Robot)
-#add_subdirectory(thrift_test/thrift_test/thrift_test)
+add_subdirectory(clib)
+add_subdirectory(common) 
+add_subdirectory(common_web) 
+add_subdirectory(common_ffmpeg) 
+add_subdirectory(common_websocket) 
+add_subdirectory(cvideo_split) 
