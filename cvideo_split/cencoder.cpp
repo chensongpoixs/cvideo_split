@@ -436,8 +436,8 @@ namespace chen {
 		
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
-		ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
-		//ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+		ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		if (ret < 0)
 		{
 			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));

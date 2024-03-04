@@ -416,12 +416,7 @@ namespace chen {
 	void cvideo_splist::_pthread_work()
 	{
 
-		AVFrame* filter_frame_ptr = ::av_frame_alloc();
-		if (!filter_frame_ptr)
-		{
-			// 
-			WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
-		}
+		AVFrame* filter_frame_ptr = NULL;
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr = NULL;
