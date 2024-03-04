@@ -3,7 +3,7 @@
 
 # avfilter drawtext 模块编译  --enable-libfreetype   --enable-libfontconfig  --enable-libfribidi --enable-libharfbuzz  
 # --enable-static   --enable-gpl   --enable-cross-compile
-
+# harfbuzz-6.0.0
 # 第三方依赖
 #c@pc-ProLiant-DL560-Gen10:~/Work/ffmpeg$ cd ../lib/
 #pc@pc-ProLiant-DL560-Gen10:~/Work/lib$ ls
