@@ -64,6 +64,14 @@ set(ALL_LIB  	pthread
 		libswscale.a
 		libavfilter.a
 		libavcodec.a
+		#
+		libfreetype.a
+		libharfbuzz.a
+
+		#libharfbuzz-subset.a
+		libxml2.a
+		libfontconfig.a
+		libfribidi.a
 		libdl.so
 		#libdl.a
 		 libboost_atomic.a

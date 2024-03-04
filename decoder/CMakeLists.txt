@@ -65,6 +65,15 @@ set(ALL_LIB  	pthread
 		libavfilter.a
 		libavcodec.a
 		libdl.so
+libfreetype.a
+                libharfbuzz.a
+
+		                #libharfbuzz-subset.a
+				                libxml2.a
+						                libfontconfig.a
+								                libfribidi.a
+
+
 		#libdl.a
 		 libboost_atomic.a
 		libboost_chrono.a
