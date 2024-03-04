@@ -489,7 +489,7 @@ namespace chen {
 
 	bool comp(const VideoSplitInfo & v1, const VideoSplitInfo& v2)
 	{
-		return v1.id() > v2.id();
+		return v1.id() < v2.id();
 	}
 	void cweb_http_api_mgr::_handler_video_split_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
 	{
