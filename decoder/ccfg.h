@@ -49,8 +49,8 @@ namespace chen {
 		ECI_WebHttpWanIp,
 		ECI_WebHttpWanPort,
 		ECI_WebPathPrefix,
- 
-
+		 ECI_MediaOpenTimeOut,  
+		 ECI_MediaReadTimeOut,  
 		ECI_Max,
 	};
 	class ccfg : public cconfig

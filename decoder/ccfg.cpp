@@ -58,7 +58,8 @@ namespace chen {
 		set_string(ECI_WebHttpWanIp, "web_http_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebHttpWanPort, "web_http_wan_port", 9700);
 		set_string(ECI_WebPathPrefix, "web_path_prefix", "v1/");
-
+		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 30000);
+		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 30000);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

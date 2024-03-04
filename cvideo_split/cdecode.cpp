@@ -93,7 +93,7 @@ namespace chen {
 
 #if USE_AV_INTERRUPT_CALLBACK
  
-		m_open_timeout = LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
+		m_open_timeout =  LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
 		m_read_timeout = LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
  
 		/* interrupt callback */
