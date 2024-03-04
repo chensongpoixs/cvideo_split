@@ -120,6 +120,8 @@ ffmpeg.exe -re -stream_loop -1 -i C:\U_01.mp4 -f mpegts  "udp://239.255.255.250:
 
 
 
+<<<<<<< HEAD
+=======
 # Linux上编译
 
 
@@ -136,14 +138,22 @@ ffmpeg-6.1版本
 ```
 ./ffmpeg --list-filters
 ```
+>>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 
 
 
 
+<<<<<<< HEAD
+=======
 ## 2、测试ffmpeg功能命令
+>>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 
 
 
 ```
+<<<<<<< HEAD
+ffplay  -i input.mp4  -vf "movice=./input.npg,scale=64:64[wm];in[wm]overlay=30:10"
+=======
+>>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 
 ```

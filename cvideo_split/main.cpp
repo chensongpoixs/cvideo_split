@@ -270,11 +270,36 @@ void test_json()
 	std::string str = swriter.write(value);
 	printf("[camera_list = %s]\n", str.c_str());
 }
+<<<<<<< HEAD
+#include "cglobal_ffmpeg_register.h"
+//#include <opencv2/opencv.hpp>
+#include "cavfilter_video.h"
+
+void test_avfilter_demo()
+{
+	chen::CVideoMerge cVideoMerge;
+	const char *pFileA = "D:/Tools/input.h264";
+	const char *pFileB = "D:/Tools/input.h264";
+
+	const char *pFileOut = "chensong.mp4";
+	cVideoMerge.StartMerge(pFileA, pFileB, pFileOut);
+	cVideoMerge.WaitFinish();
+	 
+}
+ 
 
 std::string core_name(const std::string& path)
-{
+{ 
+	test_avfilter_demo();
+	return 0;
+	printf("Hello video mark!\n");
+	int ret = 0;
+	FILE* infile = NULL;
+	const char* infileName = "chensong.yuv";
+	fopen_s(&infile, infileName, "rb");
+	if (!infile) 
 	uint32_t index = 0;
-	for (uint32_t i = 0; i < path.length(); ++i)
+	for (uint32_t i = 0; i < path.length(); ++i) 
 	{
 		if (path.at(i) == '/' || path.at(i) == '\\')
 		{
@@ -297,8 +322,7 @@ int  main(int argc, char** argv)
 	if (argc > 2)
 	{
 		log_path = argv[2];
-	}
-
+	}  
 	bool init = chen::g_video_split_server.init(log_path, config_filename);
 
 	if (init)
@@ -349,10 +373,13 @@ int  main(int argc, char** argv)
 		}
 	}
 	return 0;
+//>>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 	//****初始化,分配内存,声明参数****//
 	
 	//avformat_network_init();
 	//avcodec_register_all();
+//<<<<<<< HEAD
+//=======
 
 
 	chen::g_global_ffmpeg_register.init();
@@ -586,6 +613,7 @@ int  main(int argc, char** argv)
 			std::cout << "[" << __FILE__ << "|" << __LINE__ << "]" << "avfilter_link  failed! :" << buf << std::endl;
 			return false;
 		}
+//>>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 
 		ret = avfilter_link(g_hstack_ctx, 0, g_buffersink_ctx, 0);
 		if (0 > ret)

@@ -142,9 +142,10 @@ namespace chen {
 		AVRational rate;
 		rate.num = 1;
 		rate.den = 25;
-		m_codec_ctx_ptr->time_base = rate;
-		m_codec_ctx_ptr->gop_size = 300;
-		m_codec_ctx_ptr->max_b_frames = 4;
+		m_codec_ctx_ptr->time_base = {1, 25};//rate;
+		m_codec_ctx_ptr->framerate = {25, 1};
+		m_codec_ctx_ptr->gop_size = 12;
+		m_codec_ctx_ptr->max_b_frames = 1;
 		m_codec_ctx_ptr->pix_fmt =  AV_PIX_FMT_CUDA;
 	//	if (false)
 		{
@@ -162,15 +163,15 @@ namespace chen {
 		std::chrono::system_clock::now().time_since_epoch());
 		// 设置GPU的id
 		//av_opt_set(m_codec_ctx_ptr->priv_data, "gpu", "1", 0);
-		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
-		
+		//av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "medium", 0);
+		av_opt_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 		//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
-		av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
+		//av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
 		// profile 
-		::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+		//::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
 		//由于CBR的比特率是固定的，它在不同的设备上播放时的兼容性更好。
 		//VBR由于其压缩比率的不确定性，可能在某些设备上出现兼容性问题
-		::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
+		//::av_opt_set(m_codec_ctx_ptr->priv_data, "rc", "cbr", 0);
 		//av_dict_set(m_codec_ctx_ptr->priv_data, "preset", "slow", 0);
 		//open the encoder
 		//AVDictionary* options = NULL;
@@ -400,65 +401,17 @@ namespace chen {
 		int32_t ret = 0;
 
 		m_pkt_ptr->data = NULL;
-		m_pkt_ptr->size = 0;
-		m_pts += (100000 / 120);
+		m_pkt_ptr->size = 0; 
 		std::chrono::microseconds current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::system_clock::now().time_since_epoch()) - m_mic;
-		//frame_ptr->pts = (current_mic.count() / 10) + AV_TIME_BASE;
-		++m_frame_count;
-		if (m_frame_count == 65535)
-		{
-			m_frame_count = 0;
-		}
-		//if (m_codec_ctx_ptr->hw_device_ctx)
-		//{
-		//	// copy data to HW frame
-		//	AVFrame* hw_frame = av_frame_alloc();
-		//	if (!hw_frame) {
-		//		//CV_LOG_ERROR(NULL, "Error allocating AVFrame (av_frame_alloc)");
-		//		return  ;
-		//	}
-		//	if (av_hwframe_get_buffer(m_codec_ctx_ptr->hw_frames_ctx, hw_frame, 0) < 0) {
-		//		//CV_LOG_ERROR(NULL, "Error obtaining HW frame (av_hwframe_get_buffer)");
-		//		av_frame_free(&hw_frame);
-		//		return  ;
-		//	}
-		//	if (av_hwframe_transfer_data(hw_frame, frame_ptr, 0) < 0) {
-		//		//CV_LOG_ERROR(NULL, "Error copying data from CPU to GPU (av_hwframe_transfer_data)");
-		//		av_frame_free(&hw_frame);
-		//		return  ;
-		//	}
-		//	hw_frame->pts = 1;
-		//	ret = ::avcodec_send_frame(m_codec_ctx_ptr, hw_frame);
-		//	if (ret < 0)
-		//	{
-		//		//::av_frame_unref(frame_ptr);
-		//		printf("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-		//		return;
-		//	}
-		//	av_frame_free(&hw_frame);
-		//}
-		//else
-		{
-			/*AVFrame* hw_frame = NULL;
-			if (!(hw_frame = av_frame_alloc())) {
-				ret = AVERROR(ENOMEM);
-				return;
-			}
-			if ((ret = av_hwframe_get_buffer(m_codec_ctx_ptr->hw_frames_ctx, hw_frame, 0)) < 0) {
-				fprintf(stderr, "Error code: %s.\n", ffmpeg_util::make_error_string(ret));
-				return;
-			}
-			if (!hw_frame->hw_frames_ctx) {
-				ret = AVERROR(ENOMEM);
-				return;
-			}*/
+		 
+		
+		{ 
 			if (!m_hw_frame_ptr)
 			{
 				if (!_init_gpu_frame())
 				{
-					// init gpu frame failed !!!
-					// init gpu frame failed !!!
+					// init gpu frame failed !!! 
 					return;
 				}
 			}
@@ -484,60 +437,51 @@ namespace chen {
 		//::av_frame_unref(frame_ptr);
 		//::av_frame_free(&frame_ptr);
 		//frame_ptr = NULL;
-		ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
-		if (ret < 0)
-		{
-			av_packet_unref(m_pkt_ptr);
-			WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			return;
-
-		}
-
-		current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-			std::chrono::system_clock::now().time_since_epoch()) - m_mic;
-		m_pkt_ptr->pts = frame_ptr->pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 		
-		m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		//if (ret < 0)
+		//{
+		//	av_packet_unref(m_pkt_ptr);
+		//	WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+		//	return;
+		//
+		//}
 
-		m_pkt_ptr->stream_index = 0;
-		//printf(" [frame = %lu][%lu]  [pts = %lu][%lu ms]\n", m_frame_count, ::time(NULL), m_pkt_ptr->dts, current_mic.count());
-
-		//1706158630000000 >= 1706158630000000
-
-		//printf("pts:%d , dts:%d , duration*AV_TIME_BASE:%d\n", encodePacket.pts, encodePacket.dts, (int)(duration * AV_TIME_BASE));
-
-		//av_packet_rescale_ts(m_pkt_ptr, pInStream->time_base, pOutStream->time_base);
-
-		//m_pkt_ptr->pos = -1;
-		//printf("[frame = %u][dts = %u]\n", frame_count, m_pkt_ptr->dts);
-		// 4. 将编码后的packet写入输出媒体文件
-		/*static FILE* out_file_ptr = ::fopen("chensong.h264", "wb+");
-		if (out_file_ptr)
+		//current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
+		//	std::chrono::system_clock::now().time_since_epoch()) - m_mic;
+		//m_pkt_ptr->pts = frame_ptr->pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+		
+		//m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		ret = 0;
+		while (ret >= 0)
 		{
-			::fwrite(m_pkt_ptr->data, 1, m_pkt_ptr->size, out_file_ptr);
-			fflush(out_file_ptr);
-		}*/
-		ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+			ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
+			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOR)
+			{
+				av_packet_unref(m_pkt_ptr);
+				WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return;
+			}
+			else if (ret < 0)
+			{
+				av_packet_unref(m_pkt_ptr);
+				WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				
+				return ;
+			}				
+			break;
+		}
+		
+		 
+		::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
+		m_pkt_ptr->stream_index = 0;
+		ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+		//ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		if (ret < 0)
 		{
 			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 		}
 		::av_packet_unref(m_pkt_ptr);
-
-		::avio_flush(m_push_format_context_ptr->pb);
-		m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-			std::chrono::system_clock::now().time_since_epoch());
-		//AVFrame* temp = NULL;
-		//::av_frame_move_ref(temp, frame_ptr);
-		//if (!temp)
-		//{// warr
-		//	return;
-		//}
-		//clock_guard lock(m_frame_lock);
-		//m_frame_list.push_back(temp);
-		/*memcpy(m_frame_ptr->data[0], frame_ptr->data[0], frame_ptr->width * frame_ptr->height);
-		memcpy(m_frame_ptr->data[1], frame_ptr->data[1], frame_ptr->width * frame_ptr->height/4);
-		memcpy(m_frame_ptr->data[2], frame_ptr->data[2], frame_ptr->width * frame_ptr->height/4);*/
+ 
 
 	}
 
