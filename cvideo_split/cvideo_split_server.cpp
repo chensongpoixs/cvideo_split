@@ -87,7 +87,7 @@ namespace chen {
 		SYSTEM_LOG("Web Server API startup ...");
 		g_web_http_api_mgr.startup();
 		SYSTEM_LOG("Web Server API startup OK ...");
-		SYSTEM_LOG("dispatch init ...");
+		/*SYSTEM_LOG("dispatch init ...");
 
 		if (!g_client_msg_dispatch.init())
 		{
@@ -104,7 +104,7 @@ namespace chen {
 		if (!g_websocket_wan_server.startup())
 		{
 			return false;
-		}
+		}*/
 		SYSTEM_LOG("VideoSplit  server init ok");
 
 		return true;
@@ -121,7 +121,7 @@ namespace chen {
 		while (!m_stoped)
 		{
 			uDelta += time_elapse.get_elapse();
-			g_websocket_wan_server.update(uDelta);
+			//g_websocket_wan_server.update(uDelta);
 			g_http_queue_mgr.update(); 
 			g_camera_info_mgr.update(uDelta);
 			g_video_split_info_mgr.update(uDelta);
@@ -142,9 +142,9 @@ namespace chen {
 
 	void cvideo_split_server::Destroy()
 	{
-		g_websocket_wan_server.shutdown();
+		/*g_websocket_wan_server.shutdown();
 		g_websocket_wan_server.destroy();
-		SYSTEM_LOG("g_wan_server Destroy OK!!!");
+		SYSTEM_LOG("g_wan_server Destroy OK!!!");*/
 		g_web_http_api_mgr.destroy();
 		SYSTEM_LOG("Web Server Destroy OK !!!");
 		g_video_split_mgr.destroy();

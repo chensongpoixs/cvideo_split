@@ -46,9 +46,6 @@
     <Filter Include="dispatch">
       <UniqueIdentifier>{2d445ab3-2121-4497-8b1c-d208636b2cf0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="msg">
-      <UniqueIdentifier>{f84a1d86-c866-42b2-8ae3-2968e736e937}</UniqueIdentifier>
-    </Filter>
     <Filter Include="cfg">
       <UniqueIdentifier>{d2097c61-7cea-4043-a59b-66529ecf4d31}</UniqueIdentifier>
     </Filter>
@@ -71,9 +68,6 @@
     </ClInclude>
     <ClInclude Include="cclient_msg_dispatch.h">
       <Filter>dispatch</Filter>
-    </ClInclude>
-    <ClInclude Include="cmsg_base_id.h">
-      <Filter>msg</Filter>
     </ClInclude>
     <ClInclude Include="ccfg.h">
       <Filter>cfg</Filter>

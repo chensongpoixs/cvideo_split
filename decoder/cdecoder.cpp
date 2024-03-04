@@ -228,7 +228,7 @@ namespace chen {
             {
                 if (packet_ptr->stream_index == m_video_stream_index)
                 {
-                    NORMAL_EX_LOG("send video size = [%u]", packet_ptr->size );
+                  //  NORMAL_EX_LOG("send video size = [%u]", packet_ptr->size );
                     /*cpacket packet;
                      packet.data = new unsigned char[packet_ptr->size];
                     if (packet.data)
@@ -254,7 +254,7 @@ namespace chen {
                     ::av_packet_unref(packet_ptr);
                 }
             }
-            NORMAL_EX_LOG("read_frame_packet ret = [%u]", ret);
+           // NORMAL_EX_LOG("read_frame_packet ret = [%u]", ret);
         }
         WARNING_EX_LOG("[url = %s][m_stoped = %u]", m_url.c_str(), m_stoped);
     }
