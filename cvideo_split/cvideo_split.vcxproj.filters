@@ -113,11 +113,7 @@
       <Filter>avfilter</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="video_split.cu">
-      <Filter>cuda</Filter>
-    </CudaCompile>
-  </ItemGroup>
+   
   <ItemGroup>
     <ClInclude Include="cdecode.h">
       <Filter>decode</Filter>

@@ -210,7 +210,5 @@
     <ClInclude Include="cweb_http_struct.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.8.targets" />
-  </ImportGroup>
+   
 </Project>

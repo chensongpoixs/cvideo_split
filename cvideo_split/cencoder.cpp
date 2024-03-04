@@ -402,10 +402,7 @@ namespace chen {
 
 		m_pkt_ptr->data = NULL;
 		m_pkt_ptr->size = 0; 
-		std::chrono::microseconds current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-			std::chrono::system_clock::now().time_since_epoch()) - m_mic;
 		 
-		
 		{ 
 			if (!m_hw_frame_ptr)
 			{
@@ -448,14 +445,11 @@ namespace chen {
 
 		//current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 		//	std::chrono::system_clock::now().time_since_epoch()) - m_mic;
-		//m_pkt_ptr->pts = frame_ptr->pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
-		
-		//m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 		ret = 0;
 		while (ret >= 0)
 		{
 			ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
-			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOR)
+			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 			{
 				av_packet_unref(m_pkt_ptr);
 				WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
@@ -464,15 +458,18 @@ namespace chen {
 			else if (ret < 0)
 			{
 				av_packet_unref(m_pkt_ptr);
-				WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[warr][url = %s][ret --> ]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				
 				return ;
 			}				
 			break;
 		}
 		
-		 
-		::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
+		m_pkt_ptr->pts = frame_ptr->pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+
+		m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		
+		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		//ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
