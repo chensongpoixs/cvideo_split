@@ -50,7 +50,7 @@ namespace chen {
 			, m_picture_pts(AV_NOPTS_VALUE)
 			, m_frame()
 			, m_sws_frame_ptr(NULL)
-			, m_sws_ctx_ptr(NULL) 
+			, m_sws_ctx_ptr(NULL)
 			, m_frame_number(-1)
 			, m_first_frame_number(-1)
 			, m_rotation_auto(false)
@@ -59,6 +59,8 @@ namespace chen {
 			, m_open_timeout(LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS)
 			, m_read_timeout(LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS)
 			, m_interrupt_metadata()
+			, m_dts(0)
+			, m_pts(0)
 			{}
 		virtual ~cdecode();
 	public:
@@ -117,6 +119,10 @@ namespace chen {
 		int64_t dts_to_frame_number(int64_t dts);
 		double  dts_to_sec(int64_t dts) const;
 		void    get_rotation_angle();
+		uint64  get_dts()const { return m_dts; };
+		uint64  get_pts() const {
+			return m_pts;;
+		}
 	private:
 		//cdecode(const cdecode&);
 	public:
@@ -157,7 +163,8 @@ namespace chen {
 		int32_t			m_open_timeout;
 		int32_t			m_read_timeout;
 		AVInterruptCallbackMetadata m_interrupt_metadata;
-		
+		uint64			m_dts;
+		uint32			m_pts;
 	};
 
 }

@@ -357,7 +357,7 @@ namespace chen {
 		m_stoped = true;
 	}
 
-	void cencoder::push_frame(  AVFrame* frame_ptr)
+	void cencoder::push_frame(  AVFrame* frame_ptr, uint64 dts  , uint64 pts  )
 	{
 		//return;
 		if (m_stoped)
@@ -367,8 +367,8 @@ namespace chen {
 		}
 		int32_t ret = 0;
 
-		m_pkt_ptr->data = NULL;
-		m_pkt_ptr->size = 0; 
+		//m_pkt_ptr->data = NULL;
+		//m_pkt_ptr->size = 0; 
 		 
 		{ 
 			if (!m_hw_frame_ptr)
@@ -432,10 +432,10 @@ namespace chen {
 			break;
 		}
 		
-		m_pkt_ptr->pts = frame_ptr->pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+		 m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
-		m_pkt_ptr->dts = frame_ptr->pkt_dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
-		
+		 m_pkt_ptr->dts = dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		NORMAL_EX_LOG("pts = %u, dts = %u", m_pkt_ptr->pts, m_pkt_ptr->dts);
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);

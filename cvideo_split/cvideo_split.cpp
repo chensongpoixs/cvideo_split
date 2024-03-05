@@ -433,6 +433,8 @@ namespace chen {
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr = NULL;
+		uint64 dts = 0;
+		uint64 pts = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			if (!m_filter_frame_ptr)
@@ -448,10 +450,13 @@ namespace chen {
 				std::chrono::system_clock::now().time_since_epoch());
 			// add buffer filter -->
 			// decoder 
+			
 			for (size_t i = 0; i < m_decodes.size(); ++i)
 			{  
 					if (m_decodes[i]->retrieve(frame_ptr)    )
 					{ 
+						pts = m_decodes[i]->get_pts();
+						dts = m_decodes[i]->get_dts();
 						// add buffer filter -->
 						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] )
 						{ 
@@ -517,7 +522,7 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped)
 			{
-				m_encoder_ptr->push_frame(m_filter_frame_ptr);
+				m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
 			::av_frame_unref(m_filter_frame_ptr);
 			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(

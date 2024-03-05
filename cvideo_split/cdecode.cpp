@@ -398,7 +398,8 @@ namespace chen {
 				}
 				continue;
 			}
-
+			m_pts = m_packet_ptr->pts;
+			m_dts = m_packet_ptr->dts;
 			// Decode video frame
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
@@ -406,6 +407,7 @@ namespace chen {
 				av_packet_unref(m_packet_ptr);
 				break;
 			}
+
 			av_packet_unref(m_packet_ptr);
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
 #else
