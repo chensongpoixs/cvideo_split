@@ -58,8 +58,8 @@
         var address = reg.exec(window.location.href)[0];
         var apiAddress = "http://"+address+":6036/json";//"http://30.17.58.3:6036/json";
         var coreApiAddress="http://"+address+":8087/"; //"http://30.17.58.3:8087/";
-        var video_splist_address = 'http://127.0.0.1:9700/';// video_split/v1/camera_list/page=0&page_size=10';
-        var api_execl_address = 'http://127.0.0.1:8808/';
+        var video_splist_address = 'http://192.168.2.91:9700/';// video_split/v1/camera_list/page=0&page_size=10';
+        var api_execl_address = 'http://192.168.2.91:8808/';
         var playsStyle="/root/out.mp4";
 
         function ajaxGet(url, successCallback, errorCallback) 
@@ -355,8 +355,10 @@ function ValidateCameraIsUse(cameras,camera_id)
 function Play(data) 
 {
     console.log('Paly = ' + JSON.stringify(data));
+	//
+    stopVideo();
 	playVideo(data);
-	layer.open({
+    layer.open({
 		type: 1,
 		btn: ['播放', '暂停'],
 		title: '播放视频',
@@ -370,10 +372,45 @@ function Play(data)
 		},
 		btn2: function () {
 			stopVideo();
-		}
+		},
+        success: function(layero)
+        {
+            console.log('success');
+        },
+        cancel: function()
+        {
+            console.log('cancel');
+            stopVideo();
+        },
+        end: function()
+        {
+            console.log('end');
+        }
+
+
 	});
 }
 
+// 定义鼠标点击的处理函数
+function handleClick(event) 
+{
+    if ( document.player)
+    {
+         document.player.fullscreen();
+    }
+    // 计算鼠标相对于Canvas左边界的位置
+    // var x = event.clientX - canvas.offsetLeft;
+    // var y = event.clientY - canvas.offsetTop;
+    
+    // // 判断鼠标点击的位置是否在指定区域内（这里使用了一个简单的正方形作为示例）
+    // if (x >= 50 && x <= 150 && y >= 50 && y <= 150) {
+    //     console.log("点击到了指定区域！");
+        
+    //     // 如果需要进行其他操作，可以在此处编写代码
+    // } else {
+    //     console.log("未点击到指定区域。");
+    // }
+}
 
 function playVideo(data) 
 {
@@ -393,20 +430,64 @@ function playVideo(data)
         //var url = " tstream://t100";
         var url = data.url;
         document.player.play(domain, url, canvas);
+        // 将点击事件与Canvas关联起来
+        canvas.addEventListener('dblclick', handleClick);
     }
     else 
     {
         console.log("is playering");
+		// document.player.stop();
+        // document.player = null;
+		// document.player = new Player();
+        // const canvasId = "playCanvas_camera";
+        // var canvas = document.getElementById(canvasId);
+        // if (!canvas) 
+        // {
+		// 	console.log('->>>>>>>>>>>camera  palyer canvas ');
+        //     return false;
+        // }
+        // //var url = " tstream://" + data.camera_id;
+        // //var url = " tstream://t100";
+        // var url = data.url;
+        // document.player.play(domain, url, canvas);
     }
     return true;
 }
 
-function stopVideo() 
+
+function stop_camera_video()
 {
-    self.player.stop();
+    if (document.player) 
+    {
+        document.player.stop();
+        document.player = null;
+    }
+}
+
+function stopVideo() 
+{ 
+    //self.player.stop();
+    if (document.player) 
+    {
+        document.player.stop();
+        document.player = null;
+    }
+    // var canvas = document.getElementById('playCanvas_camera');
+    // if (canvas) 
+    // {
+         // var width  = canvas.width;
+         // var height = canvas.height;
+         // console.log('width = ' + width + ', height = ' + height);
+         //var cxt = canvas.getContext("2d");
+         // cxt.clearRect(0, 0, width, height);
+    // }
     var button = document.getElementById("btnPlayVideo");
-    button.value = "Play";
-    button.src = "img/play.png";
+    if (button)
+    {
+         button.value = "Play";
+        button.src = "img/play.png";
+    }
+   
 }
     var loadCameras;
     //定时获取所有拼接数据状态
@@ -441,7 +522,7 @@ function ExecSetCamerasTimeout()
                 ExecSetCamerasTimeout();
                 //LoadTable(obj.camera_infos);
             }, function(result){});
-    }, 10000);
+    }, 100000);
 }
 function ForEachState(arr)
 {

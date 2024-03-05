@@ -134,6 +134,12 @@ namespace chen {
 				index = i;
 			}
 		}
-		return index;
+		if (count < g_cfg.get_uint32(ECI_UseGpuMaxCount))
+		{
+
+			//TODO@chensong 2024-03-05 有可能显卡内存不够了ffmpeg中会崩溃
+			return index;
+		}
+		return 0;
 	}
 }

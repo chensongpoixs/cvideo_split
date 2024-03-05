@@ -169,13 +169,21 @@ function cutImg2()
     // $("#down2").val(100);
     // $("#right2").val(100);
     if($("#up2").val()=="")
-  $("#up2").val(0);
-if($("#left2").val()=="")
-$("#left2").val(0);
-if($("#down2").val()=="")
-$("#down2").val(100);
-if($("#right2").val()=="")
-$("#right2").val(100);
+    {
+        $("#up2").val(0);
+    }
+    if($("#left2").val()=="")
+    {
+        $("#left2").val(0);
+    }
+    if($("#down2").val()=="")
+    {
+        $("#down2").val(100);
+    }
+    if($("#right2").val()=="")
+    {
+        $("#right2").val(100);
+    }
     ID("cropImageWidth2").value = parseInt(ID("zxxCropBox2").style.width);
     ID("cropImageHeight2").value = parseInt(ID("zxxCropBox2").style.height);
 

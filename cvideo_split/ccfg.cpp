@@ -61,6 +61,7 @@ namespace chen {
 		set_uint32(ECI_MediaRate, "media_rate", 10000);
 		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 30000);
 		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 30000);
+		set_uint32(ECI_UseGpuMaxCount, "use_gpu_max_count", 8);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

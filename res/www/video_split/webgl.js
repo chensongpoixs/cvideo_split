@@ -120,13 +120,21 @@ WebGLPlayer.prototype.renderFrame = function (videoFrame, width, height, uOffset
 
 WebGLPlayer.prototype.fullscreen = function () {
 	  var canvas = this.canvas;
-    if (canvas.RequestFullScreen) {
+    if (canvas.RequestFullScreen) 
+    {
+        console.log('RequestFullScreen');
         canvas.RequestFullScreen();
-    } else if (canvas.webkitRequestFullScreen) {
+    } else if (canvas.webkitRequestFullScreen) 
+    {
+         console.log('webkitRequestFullScreen');
         canvas.webkitRequestFullScreen();
-    } else if (canvas.mozRequestFullScreen) {
+    } else if (canvas.mozRequestFullScreen) 
+    {
+        console.log('mozRequestFullScreen');
         canvas.mozRequestFullScreen();
-    } else if (canvas.msRequestFullscreen) {
+    } else if (canvas.msRequestFullscreen) 
+    {
+        console.log('msRequestFullscreen');
         canvas.msRequestFullscreen();
     } else {
         alert("This browser doesn't supporter fullscreen");

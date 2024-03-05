@@ -232,7 +232,7 @@ namespace chen {
 	/*	name dirtc[key = gpu][value = 1]
 			name dirtc[key = threads][value = auto]
 			name dirtc[key = flags][value = +copy_opaque]*/
-
+		NORMAL_EX_LOG("use gpu index = %u", m_gpu_index);
 		//7. 打开解码器上下文 */
 		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, &codec_opts)) < 0)
 		{

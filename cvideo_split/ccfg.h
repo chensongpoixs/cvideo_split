@@ -50,6 +50,7 @@ namespace chen {
 		ECI_MediaRate,
 		ECI_MediaOpenTimeOut,
 		ECI_MediaReadTimeOut,
+		ECI_UseGpuMaxCount, //多显卡是 会不是0索引会崩溃  需要设置最大限制
 		ECI_Max,
 	};
 	class ccfg : public cconfig

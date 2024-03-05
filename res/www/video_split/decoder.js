@@ -67,12 +67,13 @@ Decoder.prototype.CreateVideoDec = function (url, domain) {
 
     var dec = this;
     if (this.ws == null) {
-        var wsurl = "ws://192.168.0.191:9600";
+        //var wsurl = "ws://192.168.0.191:9600";
+		var wsurl = "ws://192.168.2.91:9600";
         this.ws = new WebSocket(wsurl);
         this.ws.binaryType = 'arraybuffer';
 
         this.ws.onopen = function (evt) {
-            console.log("Ws connected.");
+            console.log("Ws connected. =  " + wsurl);
             // {"msg_id":202,"url":"udp://@224.1.1.3:20000"}
 			let play_data  = JSON.stringify({
                                                msg_id: 202,
