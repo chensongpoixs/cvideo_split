@@ -25,6 +25,7 @@ purpose:		camera
 #include "cdecode.h"
 #include "cffmpeg_util.h"
 #include <cassert>
+#include "ccfg.h"
 #include "clog.h"
 
 namespace chen {
@@ -97,8 +98,8 @@ namespace chen {
 
 #if USE_AV_INTERRUPT_CALLBACK
  
-		m_open_timeout =  LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
-		m_read_timeout = LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
+		m_open_timeout = g_cfg.get_uint32(ECI_MediaOpenTimeOut); //LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
+		m_read_timeout = g_cfg.get_uint32(ECI_MediaReadTimeOut);//LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS;
  
 		/* interrupt callback */
 		m_interrupt_metadata.timeout_after_ms = m_open_timeout;
@@ -236,8 +237,8 @@ namespace chen {
 		if ((ret = avcodec_open2(m_codec_ctx_ptr, codec, &codec_opts)) < 0)
 		{
 			::av_dict_free(&codec_opts);
-			WARNING_EX_LOG("Failed to open %s codec (%s)",
-				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type), ffmpeg_util::make_error_string(ret));
+			WARNING_EX_LOG("Failed to open %s [gpu = %u] codec (%s)",
+				av_get_media_type_string(m_video_stream_ptr->codecpar->codec_type), m_gpu_index, ffmpeg_util::make_error_string(ret));
 			return false;
 		}
 		::av_dict_free(&codec_opts);
