@@ -458,7 +458,7 @@ namespace chen {
 							if (ret < 0)
 							{
 								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-								break;
+								//break;
 								//return ret;
 							}  
 						}
