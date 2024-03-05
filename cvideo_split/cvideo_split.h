@@ -91,6 +91,7 @@ namespace chen {
 			, m_decoder_frame_ptr(NULL)
 			, m_encoder_frame_ptr(NULL)
 			, m_filter_frame_ptr(NULL)
+			, m_gpu_index(0)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -101,7 +102,8 @@ namespace chen {
 		void destroy();
 
 
-
+	public:
+		uint32 get_use_gpu_index() const { return m_gpu_index; }
 	private:
 
 		bool _init_decodes(uint32 gpu_index);
@@ -184,7 +186,7 @@ namespace chen {
 
 		std::thread			m_thread;
 		AVFrame*			m_filter_frame_ptr;
-
+		uint32				m_gpu_index;
 	};
 
 

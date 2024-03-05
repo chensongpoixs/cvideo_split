@@ -25,7 +25,8 @@ namespace chen {
 		typedef    std::unordered_map<std::string, cvideo_splist*>		VIDEO_SPLIST_MAP;
 	public:
 		explicit cvideo_split_mgr()
-			: m_video_split_map(){}
+			: m_video_split_map()
+			, m_gpu_use(){}
 		virtual ~cvideo_split_mgr()
 		{}
 
@@ -35,11 +36,14 @@ namespace chen {
 		void destroy();
 	public:
 		uint32 handler_web_cmd_video_split(const std::string & channel_name/*uint32 id*/, uint32 cmd);
+		
 	public:
 
-
+	private:
+		uint32 use_gpu_index() const ;
 	private:
 		VIDEO_SPLIST_MAP					m_video_split_map;
+		std::vector<uint32>				    m_gpu_use;
 	};
 	extern cvideo_split_mgr		g_video_split_mgr;
 }

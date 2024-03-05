@@ -15,6 +15,10 @@ namespace chen {
 	cvideo_split_mgr		g_video_split_mgr;
 	bool cvideo_split_mgr::init()
 	{
+		for (uint32 i = 0; i < g_gpu_index.size(); ++i)
+		{
+			m_gpu_use.push_back(0);
+		}
 		return true;
 	}
 	void cvideo_split_mgr::udpate(uint32 uDateTime)
@@ -49,10 +53,19 @@ namespace chen {
 			{ 
 				return EWebVideoSplitNotStart;
 			}
+			uint32 use_gpu_index = iter->second->get_use_gpu_index();
 			iter->second->destroy();
 			size_t size = m_video_split_map.erase(channel_name);
 			if (size > 0)
 			{
+				if (use_gpu_index < m_gpu_use.size())
+				{
+					--m_gpu_use[use_gpu_index];
+				}
+				else
+				{
+					WARNING_EX_LOG("[gpu size = %u][use gpu index = %u]", m_gpu_use.size(), use_gpu_index);
+				}
 				//iter->second->destroy();
 				delete iter->second;
 				VideoSplitInfo* video_split_info_ptr = g_video_split_info_mgr.get_video_split_info(channel_name);
@@ -82,11 +95,8 @@ namespace chen {
 			return EWebWait;
 		}
 		
-		uint32 gpu_index = 0;   
-		if (g_gpu_index.size() > 1)
-		{
-			gpu_index = m_video_split_map.size() % g_gpu_index.size();
-		}
+		uint32 gpu_index = use_gpu_index();   
+		 
 
 		if (!video_split_ptr->init(gpu_index, video_split_info_ptr))
 		{
@@ -105,7 +115,25 @@ namespace chen {
 			WARNING_EX_LOG("insert video split map channel_name = (%s) failed !!!", channel_name.c_str());
 			return EWebWait;
 		}
+		if (m_gpu_use.size() > gpu_index)
+		{
+			++m_gpu_use[gpu_index];
+		}
 		video_split_info_ptr->set_status(1);
 		return EWebSuccess;
+	}
+	uint32 cvideo_split_mgr::use_gpu_index() const
+	{
+		uint32 count = 1000000000000;
+		uint32 index = 0;
+		for (uint32 i = 0; i < m_gpu_use.size(); ++i)
+		{
+			if (count > m_gpu_use[i])
+			{
+				count = m_gpu_use[i];
+				index = i;
+			}
+		}
+		return index;
 	}
 }

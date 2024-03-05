@@ -31,6 +31,7 @@ namespace chen {
 		{
 			return false;
 		}
+		m_gpu_index = gpu_index;
 		m_stoped = false;
 		m_video_split_name = video_split_info->split_channel_name();
 		m_video_split_channel = video_split_info->split_channel_id();
