@@ -180,9 +180,9 @@ namespace chen {
 			//设置零延迟(本地摄像头视频流保存如果不设置则播放的时候会越来越模糊)
 			//av_opt_set(m_codec_ctx_ptr->priv_data, "tune", "zerolatency", 0);
 			// profile 
-			::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
+			//::av_opt_set(m_codec_ctx_ptr->priv_data, "profile", "baseline", 0);
 
-			::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "102400", 0);
+			::av_opt_set(m_codec_ctx_ptr->priv_data, "buffer_size", "1024", 0);
 
 
 			//AVDictionary* options= NULL;
@@ -203,7 +203,7 @@ namespace chen {
 			}
 			// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
 			ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
-			ret = av_dict_set(&m_options_ptr, "buffer_size", "10240", 0 /*AVIO_FLAG_WRITE*/);
+			ret = av_dict_set(&m_options_ptr, "buffer_size", "1024", 0 /*AVIO_FLAG_WRITE*/);
 			::av_dict_set(&m_options_ptr, "reuse", "1", 0);
 
 			::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
@@ -435,7 +435,7 @@ namespace chen {
 		 m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
 		 m_pkt_ptr->dts = dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
-		NORMAL_EX_LOG("pts = %u, dts = %u", m_pkt_ptr->pts, m_pkt_ptr->dts);
+		//NORMAL_EX_LOG("pts = %u, dts = %u", m_pkt_ptr->pts, m_pkt_ptr->dts);
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
