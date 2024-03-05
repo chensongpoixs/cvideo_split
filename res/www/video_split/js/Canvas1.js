@@ -37,6 +37,26 @@ $(function () {
 
 // var img = new Image();
 
+// 定义鼠标点击的处理函数
+    function handleClick(event) 
+    {
+        if ( document.player)
+        {
+             document.player.fullscreen();
+        }
+        // 计算鼠标相对于Canvas左边界的位置
+        // var x = event.clientX - canvas.offsetLeft;
+        // var y = event.clientY - canvas.offsetTop;
+        
+        // // 判断鼠标点击的位置是否在指定区域内（这里使用了一个简单的正方形作为示例）
+        // if (x >= 50 && x <= 150 && y >= 50 && y <= 150) {
+        //     console.log("点击到了指定区域！");
+            
+        //     // 如果需要进行其他操作，可以在此处编写代码
+        // } else {
+        //     console.log("未点击到指定区域。");
+        // }
+    }
 function ExecuteCanvas1( url ) 
 {
 	console.log('ExecuteCanvas1 --->>');
@@ -83,7 +103,8 @@ function ExecuteCanvas1( url )
 	camera_play1.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas);
     originWidth = bgwidth; //camera_play1.width();
     originHeigh = bgheight; //camera_play1.height();
-
+// 将点击事件与Canvas关联起来
+     
     console.log('width = ' + originWidth + ', originHeigh = ' + originHeigh);
 	cutImg();
 	

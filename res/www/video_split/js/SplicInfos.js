@@ -699,6 +699,8 @@ function playVideo()
      {
         document.player = new Player();
     }
+    canvas.width = 1920;
+    canvas.height = 1080;
     //var playAdd = "tstream://"+id;
     // var playAdd = "tstream://" + $("#TID").val();
     // document.player.play(domain, playAdd, canvas);

@@ -711,6 +711,12 @@ function LoadTileVideo(data)
          {
             return false;
         }
+        // console.log('mod width = ' + canvas.width + ', height = ' + canvas.height);
+        canvas.width = 1920;
+        canvas.height = 1080;
+        // canvas.style.border = "1px solid #d3d3d3";
+        // canvas.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
+        // canvas.style.zIndex = 'auto';
         if (!document.player) 
         {
             document.player = new Player();
