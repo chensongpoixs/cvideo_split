@@ -56,7 +56,13 @@ public class UserController {
 
         List<CameraInfo> cameraInfos = new ArrayList<>();
         List<ArrayList<String>> list = null;
-        list = ExeclUtils.readMultipartFileXlsx(file );
+        try {
+            list = ExeclUtils.readExcel(file );
+        } catch (IOException e) {
+            //throw new RuntimeException(e);
+//            log.warn(e.printStackTrace());
+            return new ExcelTableInfo(0, cameraInfos);
+        }
         for (int i = 1; i < list.size(); i++) {
             //第一行全部数据
             List list1=list.get(i);

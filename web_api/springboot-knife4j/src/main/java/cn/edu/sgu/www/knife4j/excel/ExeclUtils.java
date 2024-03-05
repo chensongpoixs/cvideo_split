@@ -29,7 +29,7 @@ public class ExeclUtils
      * @return
      * @throws IOException
      */
-    public static List<ArrayList<String>> readExcel(File file) throws IOException {
+    public static List<ArrayList<String>> readExcel(MultipartFile file) throws IOException {
         if(file==null)
         {
             return null;
@@ -37,9 +37,9 @@ public class ExeclUtils
             String postfix = ExcelTool.getPostfix(file.getName());
             if(!ExcelTool.EMPTY.equals(postfix)){
                 if(ExcelTool.OFFICE_EXCEL_2003_POSTFIX.equals(postfix)){
-                    return readXls(file);
+                    return readXls(file.getInputStream());
                 }else if(ExcelTool.OFFICE_EXCEL_2010_POSTFIX.equals(postfix)){
-                    return readXlsx(file);
+                    return readXlsx(file.getInputStream());
                 }else{
                     return null;
                 }
@@ -56,14 +56,14 @@ public class ExeclUtils
      * @throws IOException
      */
     @SuppressWarnings("deprecation")
-    public static List<ArrayList<String>> readXlsx(File file){
+    public static List<ArrayList<String>> readXlsx(InputStream input){
         List<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
         // IO流读取文件
-        InputStream input = null;
+//        InputStream input = null;
         XSSFWorkbook wb = null;
         ArrayList<String> rowList = null;
         try {
-            input = new FileInputStream(file);
+//            input = new FileInputStream(file);
             // 创建文档
             wb = new XSSFWorkbook(input);
             //读取sheet(页)
@@ -96,11 +96,11 @@ public class ExeclUtils
         } catch (IOException e) {
             e.printStackTrace();
         } finally{
-            try {
-                input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                input.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
         return null;
 
@@ -111,14 +111,14 @@ public class ExeclUtils
      * @return
      * @throws IOException
      */
-    public static List<ArrayList<String>> readXls(File file){
+    public static List<ArrayList<String>> readXls(InputStream input){
         List<ArrayList<String>> list = new ArrayList<ArrayList<String>>();
         // IO流读取文件
-        InputStream input = null;
+//        InputStream input = null;
         HSSFWorkbook wb = null;
         ArrayList<String> rowList = null;
         try {
-            input = new FileInputStream(file);
+//            input = new FileInputStream(file);
             // 创建文档
             wb = new HSSFWorkbook(input);
             //读取sheet(页)
@@ -151,11 +151,11 @@ public class ExeclUtils
         } catch (IOException e) {
             e.printStackTrace();
         } finally{
-            try {
-                input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+////                input.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
         return null;
     }
@@ -171,6 +171,16 @@ public class ExeclUtils
         ArrayList<String> rowList = null;
         try {
 //            input = new FileInputStream(file);
+//            String postfix = ExcelTool.getPostfix(file.getName());
+//            if(!ExcelTool.EMPTY.equals(postfix)){
+//                if(ExcelTool.OFFICE_EXCEL_2003_POSTFIX.equals(postfix)){
+//                    return readXls(file);
+//                }else if(ExcelTool.OFFICE_EXCEL_2010_POSTFIX.equals(postfix)){
+//                    return readXlsx(file);
+//                }else{
+//                    return null;
+//                }
+//            }
             // 创建文档
             wb = new XSSFWorkbook(file.getInputStream());
             //读取sheet(页)
