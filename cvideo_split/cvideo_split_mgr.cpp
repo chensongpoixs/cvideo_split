@@ -124,7 +124,7 @@ namespace chen {
 	}
 	uint32 cvideo_split_mgr::use_gpu_index() const
 	{
-		uint32 count = 1000000000000;
+		uint32 count = 3567587328;
 		uint32 index = 0;
 		for (uint32 i = 0; i < m_gpu_use.size(); ++i)
 		{
