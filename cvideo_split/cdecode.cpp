@@ -294,7 +294,7 @@ namespace chen {
 			//}
 			//::avcodec_flush_buffers(m_codec_ctx_ptr);
 			::avcodec_close(m_codec_ctx_ptr);
-			 ::avcodec_free_context(&m_codec_ctx_ptr);
+			// ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
