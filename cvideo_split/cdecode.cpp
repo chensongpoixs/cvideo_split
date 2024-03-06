@@ -131,7 +131,7 @@ namespace chen {
 		//花屏问题
 		// cat /proc/sys/net/core/rmem_max 对应缓存大小  212992*2 = 425984   ==> 425984
 		// echo 10240000 > /proc/sys/net/core/rmem_max
-		::av_dict_set(&m_dict, "buffer_size", "102400", 0);
+		::av_dict_set(&m_dict, "buffer_size", "10240000", 0);
 		::av_dict_set(&m_dict, "reuse", "1", 0);
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
