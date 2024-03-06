@@ -129,7 +129,9 @@ namespace chen {
 		m_rotation_auto = false;
 #endif
 		//花屏问题
-		::av_dict_set(&m_dict, "buffer_size", "10240000", 0);
+		// cat /proc/sys/net/core/rmem_max 对应缓存大小  212992*2 = 425984   ==> 425984
+		// echo 10240000 > /proc/sys/net/core/rmem_max
+		::av_dict_set(&m_dict, "buffer_size", "102400", 0);
 		::av_dict_set(&m_dict, "reuse", "1", 0);
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
@@ -288,13 +290,13 @@ namespace chen {
 		
 		if (m_codec_ctx_ptr)
 		{
-			/* if (m_codec_ctx_ptr->hw_device_ctx)
+			  if (m_codec_ctx_ptr->hw_device_ctx)
 			{
 				av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
 			}
-			::avcodec_flush_buffers(m_codec_ctx_ptr); */
+			::avcodec_flush_buffers(m_codec_ctx_ptr);  
 			::avcodec_close(m_codec_ctx_ptr);
-			 // ::avcodec_free_context(&m_codec_ctx_ptr);
+			   ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
@@ -320,8 +322,8 @@ namespace chen {
 		}
 		if (m_ic_ptr)
 		{
-			 /*::avformat_flush(m_ic_ptr);
-			  ::avformat_close_input(&m_ic_ptr);*/
+			  ::avformat_flush(m_ic_ptr);
+			  ::avformat_close_input(&m_ic_ptr); 
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
