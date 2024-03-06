@@ -262,7 +262,7 @@ namespace chen {
 		//fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='chensong'
 		if (m_osd.text.size() > 0)
 		{
-			std::string osd_args = "fontfile="+ g_cfg.get_string(ECI_DataPath) +"/WenQuanYiMicroHei.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
+			std::string osd_args = "fontfile=WenQuanYiMicroHei.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
 				+ ":x=" + std::to_string(m_osd.x ) + ":y=" + std::to_string(m_osd.y  ) + ":text='" + m_osd.text + "'";
 			ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"),
 				"drawtext", osd_args.c_str(), NULL, m_filter_graph_ptr);
