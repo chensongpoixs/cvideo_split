@@ -23,6 +23,7 @@ purpose:		camera
 ************************************************************************************************/
 #include "cvideo_split.h"
 #include "clog.h"
+#include "ccfg.h"
 
 namespace chen {
 	bool cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
@@ -225,7 +226,20 @@ namespace chen {
 
 		/////   hstatck 
 		std::string hstack_str = "inputs=" + std::to_string(m_camera_infos.size());
-		ret = avfilter_graph_create_filter(&m_hstack_ctx_ptr, ::avfilter_get_by_name("hstack"), "hstack", hstack_str.c_str(), NULL, m_filter_graph_ptr);
+		std::string video_split_method = "hstack";
+		if (m_overlay)
+		{
+			video_split_method = "overlay";
+		}
+		else
+		{
+			if (m_split_method)
+			{
+				video_split_method = "vstack";
+			}
+			//多路视频拼接 xstack是
+		}
+		ret = avfilter_graph_create_filter(&m_hstack_ctx_ptr, ::avfilter_get_by_name(video_split_method.c_str()), video_split_method.c_str(), hstack_str.c_str(), NULL, m_filter_graph_ptr);
 		if (0 > ret)
 		{
 			//char buf[1024] = { 0 };
@@ -248,7 +262,7 @@ namespace chen {
 		//fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='chensong'
 		if (m_osd.text.size() > 0)
 		{
-			std::string osd_args = "fontfile=WenQuanYiMicroHei.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
+			std::string osd_args = "fontfile="+ g_cfg.get_string(ECI_DataPath) +"/WenQuanYiMicroHei.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
 				+ ":x=" + std::to_string(m_osd.x ) + ":y=" + std::to_string(m_osd.y  ) + ":text='" + m_osd.text + "'";
 			ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"),
 				"drawtext", osd_args.c_str(), NULL, m_filter_graph_ptr);
