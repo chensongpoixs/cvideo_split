@@ -288,13 +288,13 @@ namespace chen {
 		
 		if (m_codec_ctx_ptr)
 		{
-			/*if (m_codec_ctx_ptr->hw_device_ctx)
+			 if (m_codec_ctx_ptr->hw_device_ctx)
 			{
 				av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
 			}
-			::avcodec_flush_buffers(m_codec_ctx_ptr);*/
+			::avcodec_flush_buffers(m_codec_ctx_ptr); 
 			::avcodec_close(m_codec_ctx_ptr);
-			// ::avcodec_free_context(&m_codec_ctx_ptr);
+			  ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
 		//sws_ctx = nullptr;
@@ -320,8 +320,8 @@ namespace chen {
 		}
 		if (m_ic_ptr)
 		{
-			//::avformat_flush(m_ic_ptr);
-			 //::avformat_close_input(&m_ic_ptr);
+			 ::avformat_flush(m_ic_ptr);
+			  ::avformat_close_input(&m_ic_ptr);
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
