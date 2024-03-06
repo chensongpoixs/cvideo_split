@@ -438,13 +438,13 @@ namespace chen {
 		}
 		if (dts > pts)
 		{
-			m_pkt_ptr->pts = pts;
-			m_pkt_ptr->dts = pts;
+			m_pkt_ptr->pts = dts;
+			m_pkt_ptr->dts = dts;
 		}
 		else 
 		{
-			m_pkt_ptr->dts = dts;
-			m_pkt_ptr->pts = dts;
+			m_pkt_ptr->dts = pts;
+			m_pkt_ptr->pts = pts;
 		}
 		// m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
