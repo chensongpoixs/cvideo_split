@@ -149,7 +149,9 @@ namespace chen {
          
         if (m_format_ctx_ptr)
         {
+            ::avformat_flush(m_format_ctx_ptr);
             ::avformat_close_input(&m_format_ctx_ptr);
+            ::avformat_free_context(m_format_ctx_ptr);
             m_format_ctx_ptr = NULL;
         }
        
