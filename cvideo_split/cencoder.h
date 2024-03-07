@@ -57,7 +57,7 @@ namespace chen {
 			, m_pkt_ptr(NULL)
 			, m_frame_list()
 			, m_stoped(false)
-			, m_frame_count(0)
+			, m_frame_count(1)
 			, m_pts(0)
 			, m_hw_frame_ptr(NULL)
 		{}

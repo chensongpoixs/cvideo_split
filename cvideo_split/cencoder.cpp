@@ -374,7 +374,7 @@ namespace chen {
 
 		//m_pkt_ptr->data = NULL;
 		//m_pkt_ptr->size = 0; 
-		 
+		++m_frame_count;
 		{ 
 			if (!m_hw_frame_ptr)
 			{
@@ -384,6 +384,10 @@ namespace chen {
 					return;
 				}
 			}
+			if (frame_ptr)
+			{
+				frame_ptr->pts = m_frame_count;
+			}
 			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
 				 
@@ -391,7 +395,10 @@ namespace chen {
 					"Error code: %s. ", ffmpeg_util::make_error_string(ret));
 				return;
 			}
-
+			if (m_hw_frame_ptr)
+			{
+				m_hw_frame_ptr->pts = m_frame_count;
+			}
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
@@ -447,9 +454,9 @@ namespace chen {
 			m_pkt_ptr->pts = pts;
 		}*/
 		 
-		   m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+		 //  m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
-		  m_pkt_ptr->dts = dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		//  m_pkt_ptr->dts = dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 		//NORMAL_EX_LOG("pts = %u, dts = %u", m_pkt_ptr->pts, m_pkt_ptr->dts);
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
