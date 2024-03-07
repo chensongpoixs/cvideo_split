@@ -155,10 +155,13 @@ namespace chen {
 			AVRational rate;
 			rate.num = 1;
 			rate.den = 25;
-			m_codec_ctx_ptr->time_base = { 1, 25 };//rate;
+			//m_codec_ctx_ptr->time_base = { 1, 25 };//rate;
+			//m_codec_ctx_ptr->framerate = { 25, 1 };
+			/* frames per second */
+			m_codec_ctx_ptr->time_base = rate;// (AVRational) { 1, 25 };
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 60;
-			m_codec_ctx_ptr->max_b_frames = 0;
+			m_codec_ctx_ptr->gop_size = 20;
+			m_codec_ctx_ptr->max_b_frames = 1;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
 			{
