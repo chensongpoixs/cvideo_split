@@ -469,8 +469,8 @@ namespace chen {
 			{  
 					if (m_decodes[i]->retrieve(frame_ptr)    )
 					{ 
-						pts = m_decodes[i]->get_pts();
-						dts = m_decodes[i]->get_dts();
+						pts = m_decodes[0]->get_pts();
+						dts = m_decodes[0]->get_dts();
 						// add buffer filter -->
 						if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i] )
 						{ 

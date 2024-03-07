@@ -27,6 +27,7 @@ purpose:		camera
 #include "crect_mem_copy.h"
 #include "clog.h"
 #include "ccfg.h"
+#include <chrono>
 namespace chen {
 
 
@@ -169,7 +170,7 @@ namespace chen {
 
 			}
 			//m_codec_ctx_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-			m_pts = 0;
+			m_pts = AV_TIME_BASE;
 			m_frame_count = 0;
 			m_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 				std::chrono::system_clock::now().time_since_epoch());
@@ -454,9 +455,21 @@ namespace chen {
 			m_pkt_ptr->pts = pts;
 		}*/
 		 
-		 //  m_pkt_ptr->pts = pts;// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
-		//  m_pkt_ptr->dts = dts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+		 //pts (1312130528) < dts (5607097824)
+		 //dts (5607097824)
+		if (dts > m_pts)
+		{
+			m_pts = dts;
+
+		}
+		else
+		{
+			m_pts += 4000;
+		}
+		m_pkt_ptr->pts = m_pts; // std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();// (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+
+		   m_pkt_ptr->dts = m_pts;// m_pkt_ptr->pts; // (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 		//NORMAL_EX_LOG("pts = %u, dts = %u", m_pkt_ptr->pts, m_pkt_ptr->dts);
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
