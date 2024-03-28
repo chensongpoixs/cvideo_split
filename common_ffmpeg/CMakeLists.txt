@@ -4,7 +4,7 @@ MESSAGE(STATUS "#########################")
 
 
 
-	
+ADD_DEFINITIONS(-std=c++11   -fpermissive )	
 
 file(GLOB ALL_CXX_SRCS
         ./*.cpp  ./*.cc

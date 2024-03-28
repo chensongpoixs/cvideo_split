@@ -14,6 +14,7 @@
  * without express or implied warranty.
  */
 
+#if 0
 #include "ares_setup.h"
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #ifdef HAVE_NETINET_IN_H
@@ -825,3 +826,4 @@ static void append_addr_list(struct ares_addr_node **head,
   else
     *head = node;
 }
+#endif 

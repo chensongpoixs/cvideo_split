@@ -2,6 +2,7 @@
 project(cvideo_split)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE(STATUS "#########################")
+ADD_DEFINITIONS(-std=c++11   -fpermissive )
 
 # RTC
 

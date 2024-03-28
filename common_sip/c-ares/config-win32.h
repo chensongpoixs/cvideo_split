@@ -22,6 +22,7 @@
 /*                          HEADER FILES                            */
 /* ---------------------------------------------------------------- */
 
+#ifdef _MSC_VER
 /* Define if you have the <assert.h> header file. */
 #define HAVE_ASSERT_H 1
 
@@ -374,4 +375,5 @@
 #  define ENOSPC    ERROR_INVALID_PARAMETER
 #endif
 
+#endif 
 #endif /* HEADER_CARES_CONFIG_WIN32_H */

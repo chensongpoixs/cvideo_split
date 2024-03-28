@@ -79,6 +79,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#include "ares_config.h"
 
 #ifdef __hpux
 #  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)
@@ -334,10 +335,10 @@ struct timeval {
  */
 
 #ifndef TRUE
-#define TRUE true
+#define TRUE (1)
 #endif
 #ifndef FALSE
-#define FALSE false
+#define FALSE  (0)
 #endif
 
 

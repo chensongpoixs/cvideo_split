@@ -15,6 +15,7 @@
 #include "ares_setup.h"
 #include "ares.h"
 #include "ares_private.h"
+#include <time.h>
 
 #if defined(WIN32) && !defined(MSDOS)
 
