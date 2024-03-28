@@ -17,12 +17,12 @@ fontsize=100大小
 x=0:y=0坐标
 text='%{localtime\:%Y-%M-%d %H.%m.%S}'具体的值
  
- -buffer_size 1024000 -i udp://@224.1.1.3:20000  -i udp://@224.1.1.3:20000 -i udp://@224.1.1.3:20000  -filter_complex "[0:v]crop=1900:1060:10:10,scale=1920:1080[v0];[1:v]crop=1900:1060:10:10,scale=1920:1080[v1][2:v]crop=1900:1060:10:10,scale=1920:1080[v2];[v0][v1][v2]hstack=3
+ -buffer_size 1024000 -i udp://@224.1.1.3:20000  -i udp://@224.1.1.3:20000 -i udp://@224.1.1.3:20000  -filter_complex "[0:v]crop=1900:1060:10:10,scale=1920:1080[v0];[1:v]crop=1900:1060:10:10,scale=1920:1080[v1][2:v]crop=1900:1060:10:10,scale=1920:1080[v2];[v0][v1][v2]overlay=3
 
 drawtext=fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'
 
 ```
-ffmpeg -buffer_size 1024000 -i udp://@224.1.1.3:20000  -i udp://@224.1.1.3:20000 -i udp://@224.1.1.3:20000 -filter_complex "[0:v]crop=1900:1060:10:10,scale=1920:1080[v0];[1:v]crop=1900:1060:10:10,scale=1920:1080[v1];[2:v]crop=1900:1060:10:10,scale=1920:1080[v2];[v0][v1][2]hstack=3,drawtext=fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'[out]" -map [out]  -pkt_size 1316 -c:v h264_nvenc -gpu 1 -f mpegts  udp://@239.255.255.250:54543
+ffmpeg -buffer_size 1024000 -i udp://@224.1.1.3:20000  -i udp://@224.1.1.3:20000 -i udp://@224.1.1.3:20000 -filter_complex "[0:v]crop=1900:1060:10:10,scale=1920:1080[v0];[1:v]crop=1900:1060:10:10,scale=1920:1080[v1];[2:v]crop=1900:1060:10:10,scale=1920:1080[v2];[v0][v1][2]overlay=3,drawtext=fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='大家好啊 ！！！'[out]" -map [out]  -pkt_size 1316 -c:v h264_nvenc -gpu 1 -f mpegts  udp://@239.255.255.250:54543
 
 ```
 

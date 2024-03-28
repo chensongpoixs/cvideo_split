@@ -27,3 +27,6 @@
 /web_api/springboot-knife4j/target
 /web_api/springboot-knife4j/.idea
 /decoder/log/20240226143414_decoder_server.log
+/common_sip/common_sip.vcxproj.user
+/common_sip/ccommon_xml.cpp
+/common_sip/ccommon_xml.h

@@ -27,7 +27,15 @@ INCLUDE_DIRECTORIES(
         ${PROJECT_SOURCE_DIR}/common/http_message
         ${PROJECT_SOURCE_DIR}/common/cmsg
         ${PROJECT_SOURCE_DIR}/common/cclient_msg
+		${PROJECT_SOURCE_DIR}/common_sip
+		${PROJECT_SOURCE_DIR}/common_sip/c-ares
+		${PROJECT_SOURCE_DIR}/common_sip/eXosip2
+		${PROJECT_SOURCE_DIR}/common_sip/osip2
+		${PROJECT_SOURCE_DIR}/common_sip/osipparser2
+		${PROJECT_SOURCE_DIR}/common_sip/osipparser2/headers
+		
         ${PROJECT_SOURCE_DIR}/cloud_thrift
+		
 		#${EXTRA_INC_DIR}/libavcodec/  
 		#${EXTRA_INC_DIR}/libavdevice/ 
 		#${EXTRA_INC_DIR}/libavfilter/ 
