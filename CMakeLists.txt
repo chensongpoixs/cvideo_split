@@ -3,9 +3,22 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE(STATUS "#########################")
 SET(CMAKE_BUILD_TYPE Release)
 ADD_DEFINITIONS(-std=c++11   -fpermissive )
+ADD_DEFINITIONS(-DHAVE_NETDB_H 
+		-DHAVE_NETINET_IN_H
+		-DHAVE_SYS_IOCTL_H
+		-D__POCC__
+		-DHAVE_LIMITS_H
+		-DHAVE_FCNTL_H
+		-DHAVE_FCNTL_O_NONBLOCK
+		-DHAVE_STRUCT_TIMEVAL=0
+		-DHAVE_PTHREAD
+		-DHAVE_SEMAPHORE_H
+		#-DHAVE_SETSOCKOPT_SO_NONBLOCK
+		)
 
 SET(EXTRA_INC_DIR /home/pc/Work/dep)
 SET(FFMPEG_INCLUDE_DIR /home/pc/Work/ffmpeg)
+
 #SET(EXTRA_INCLUDE_DIR /home/chensong/Work/dep)
 
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
@@ -84,6 +97,7 @@ LINK_DIRECTORIES(
 )
 
 #add_subdirectory(ccloud_game_rtc/client)
+add_subdirectory(common_sip) 
 add_subdirectory(clib)
 add_subdirectory(common) 
 add_subdirectory(common_web) 
