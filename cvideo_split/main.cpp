@@ -22,6 +22,7 @@
 #include "VideoSplit.pb.h"
 #include "cvideo_split_server.h"
 #include <json/json.h>
+#include "ccommon_xml.h"
 //void test_protobuf_json()
 //{
 //	// ... 你的protobuf消息定义 ...
@@ -313,8 +314,10 @@ void RegisterSignal()
 }
 int  main(int argc, char** argv) 
 {
+	 /* char file_name[] = "D:/Work/cartificial_intelligence/source/libxml2/example/gjobs.xml";
+	chen::test_mxl_main(file_name);
 
-	 
+	return 0;*/
 	RegisterSignal();
 	const char* config_filename = "server.cfg";
 	const char* log_path = "./log";

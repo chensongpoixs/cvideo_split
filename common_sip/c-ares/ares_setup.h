@@ -28,7 +28,7 @@
  * configuration file for platforms which lack config tool.
  */
 
-#ifdef HAVE_CONFIG_H
+#ifdef __GNUC__
 #include "ares_config.h"
 #else
 
@@ -141,7 +141,7 @@
  * Work-arounds for systems without configure support
  */
 
-#ifndef HAVE_CONFIG_H
+#ifndef __GNUC__
 
 #if !defined(HAVE_SYS_TIME_H) && !defined(_MSC_VER) && !defined(__WATCOMC__)
 #define HAVE_SYS_TIME_H

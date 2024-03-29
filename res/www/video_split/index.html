@@ -230,14 +230,14 @@ function ajaxGet(url, successCallback, errorCallback) {
                         {
                             restart_video_split(data.split_channel_id, 0);
                            // EventTile(data.ip,0);
-                            $("#"+data.split_channel_id+"").html('开启'); 
+                            $("#"+data.state+"").html('开启'); 
 
                         }
                         else if(obj.event === 'stop')//停止拼接
                         {
                             restart_video_split(data.split_channel_id, 1);
                              // EventTile(data.ip,1);
-                            $("#"+data.split_channel_id+"").html('停止'); 
+                            $("#"+data.state+"").html('停止'); 
                         } 
                         else if(obj.event === 'restart')//重启拼接
                         {
