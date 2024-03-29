@@ -49,6 +49,8 @@ add_dependencies(${PROJECT_NAME} common_sip_client_device)
 set(ALL_LIB  	pthread
 	#	libcommon_sip_client_device.a
 	#	libcommon_sip.a  
+	#libc.so
+		libresolv.so
 		libclib.a 
 		libcommon.a  
 		libcommon_sip_client_device.a
