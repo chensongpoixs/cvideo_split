@@ -22,7 +22,7 @@
 #include "VideoSplit.pb.h"
 #include "cvideo_split_server.h"
 #include <json/json.h>
-#include "ccommon_xml.h"
+//#include "ccommon_xml.h"
 //void test_protobuf_json()
 //{
 //	// ... 你的protobuf消息定义 ...

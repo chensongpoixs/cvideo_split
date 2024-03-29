@@ -11,12 +11,20 @@
 /* #include <syslog.h> */
 #include <winsock2.h>
 #include <Windows.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/udp.h>
+
 #endif
 #include <string>
 #include <sstream>
 #include <thread>
 #include <tuple> 
 #include "clog.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 
 namespace chen {

@@ -54,6 +54,7 @@ INCLUDE_DIRECTORIES(
 		${PROJECT_SOURCE_DIR}/common_sip/osip2
 		${PROJECT_SOURCE_DIR}/common_sip/osipparser2
 		${PROJECT_SOURCE_DIR}/common_sip/osipparser2/headers
+		${PROJECT_SOURCE_DIR}/common_sip_client_device
 		
         ${PROJECT_SOURCE_DIR}/cloud_thrift
 		
@@ -97,7 +98,7 @@ LINK_DIRECTORIES(
 									${FFMPEG_INCLUDE_DIR}/libpostproc
 									${FFMPEG_INCLUDE_DIR}/libswscale
 									${FFMPEG_INCLUDE_DIR}/libswresample
-        ${PROJECT_SOURCE_DIR}/linux/lib
+        ${PROJECT_SOURCE_DIR}/linux
         ${EXTRA_INC_DIR}/boost/lib
         ${EXTRA_INC_DIR}/thrift/lib
         ${EXTRA_INC_DIR}/protobuf/lib
@@ -105,11 +106,14 @@ LINK_DIRECTORIES(
 )
 
 #add_subdirectory(ccloud_game_rtc/client)
-add_subdirectory(common_sip) 
 add_subdirectory(clib)
 add_subdirectory(common) 
 add_subdirectory(common_web) 
 add_subdirectory(common_ffmpeg) 
 add_subdirectory(common_websocket) 
+add_subdirectory(common_sip) 
+add_subdirectory(common_sip_client_device)
 add_subdirectory(cvideo_split) 
 add_subdirectory(decoder) 
+add_subdirectory(sip_robot) 
+

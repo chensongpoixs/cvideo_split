@@ -5,6 +5,7 @@
 /linux
 /vsout
 /bin
+/bin/robot.cfg
 /udp.pcapng
 /新建文本文档.txt
 /bin/x64/Debug
