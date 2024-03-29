@@ -132,7 +132,7 @@ namespace chen {
 		FILE* myout = stdout;
 
 
-		h264bitstream = fopen(url, "rb+");
+		h264bitstream = ::fopen(url, "rb+");
 		if (h264bitstream == NULL) {
 			WARNING_EX_LOG("Open file error");
 			exit(1);
@@ -185,7 +185,7 @@ namespace chen {
 			case NALU_PRIORITY_HIGH:        sprintf(idc_str, "HIGH");       break;
 			case NALU_PRIORITY_HIGHTEST:    sprintf(idc_str, "HIGHTEST");   break;
 			}
-			//fprintf(myout, "%5d| %8d| %7s| %6s| %8d|\n", nal_num, data_offset, idc_str, type_str, n->len);
+			NORMAL_EX_LOG( "%5d| %8d| %7s| %6s| %8d|", nal_num, data_offset, idc_str, type_str, n->len);
 
 			if (out_nalu != NULL && n->nal_unit_type != NALU_TYPE_SEI) {
 				out_nalu(n->buf, data_lenth, static_cast<NaluType>(n->nal_unit_type));
