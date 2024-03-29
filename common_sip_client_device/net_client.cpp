@@ -71,7 +71,7 @@ namespace chen {
 
         auto bind_status = ::bind(sockfd, (struct sockaddr *)&bind_address, sizeof(bind_address));
         if (bind_status) {
-            WARNING_EX_LOG("socket bind failed: {}", bind_status);
+            WARNING_EX_LOG("socket bind failed: {%u}", bind_status);
             return bind_status;
         }
 
@@ -82,7 +82,7 @@ namespace chen {
 
         auto connect_status = ::connect(sockfd, (struct sockaddr *)&server_address, sizeof(server_address));
         if ( connect_status < 0) {
-           WARNING_EX_LOG("socket connect failed: {}", connect_status);
+           WARNING_EX_LOG("socket connect failed: {%u}", connect_status);
             return connect_status;
         }
 

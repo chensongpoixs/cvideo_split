@@ -46,7 +46,7 @@ void Device::push_rtp_stream() {
 
     int status = this->bind();
     if (status != 0) {
-       printf("device bind socket address failed: {}", status);
+       printf("device bind socket address failed: {%u}", status);
         return ;
     }
 
@@ -198,7 +198,7 @@ void Device::start() {
 
     // local ip & port
     eXosip_guess_localip(sip_context, AF_INET, (char*)(local_ip.c_str()), local_ip.length());
-    NORMAL_EX_LOG("local ip is {}", local_ip);
+    NORMAL_EX_LOG("local ip is {%s}", local_ip.c_str());
 
     from_uri << "sip:" << channel_sip_id << "@" << local_ip << ":" << local_port;
     contact << "sip:" << device_sip_id << "@" << local_ip << ":" << local_port;
@@ -207,9 +207,9 @@ void Device::start() {
     from_sip = from_uri.str();
     to_sip = proxy_uri.str();
 
-    NORMAL_EX_LOG("from uri is {}", from_sip);
-    NORMAL_EX_LOG("contact is {}", contact.str());
-    NORMAL_EX_LOG("proxy_uri is {}", to_sip);
+    NORMAL_EX_LOG("from uri is {%s}", from_sip.c_str());
+    NORMAL_EX_LOG("contact is {%s}", contact.str().c_str());
+    NORMAL_EX_LOG("proxy_uri is {%s}", to_sip.c_str());
 
     // clear auth
     eXosip_clear_authentication_info(sip_context);
@@ -281,7 +281,7 @@ void Device::process_request() {
                 osip_body_t * body = nullptr;
                 osip_message_get_body(evt->request, 0, &body);
                 if (body != nullptr) {
-                    NORMAL_EX_LOG("new message request: \n{}", body->body);
+                    NORMAL_EX_LOG("new message request: \n{%s}", body->body);
                 }
 
                 this->send_response_ok(evt);
@@ -289,7 +289,7 @@ void Device::process_request() {
                 auto cmd_sn = this->get_cmd(body->body);
                 std::string cmd = std::get<0>(cmd_sn);
                 std::string sn = std::get<1>(cmd_sn);
-                NORMAL_EX_LOG("got new cmd: {}", cmd);
+                NORMAL_EX_LOG("got new cmd: {%s}", cmd.c_str());
                 if ("Catalog" == cmd) {
                     this->process_catalog_query(sn);
                 } else if ("DeviceStatus" == cmd) {
@@ -299,7 +299,7 @@ void Device::process_request() {
                 } else if ("DeviceControl" == cmd) {
                     this->process_devicecontrol_query(sn);
                 } else {
-                    WARNING_EX_LOG("unhandled cmd: {}", cmd);
+                    WARNING_EX_LOG("unhandled cmd: {%s}", cmd.c_str());
                 }
             } else if (MSG_IS_BYE(evt->request)) {
                 WARNING_EX_LOG("got BYE message");
@@ -333,11 +333,11 @@ void Device::process_request() {
 
             rtp_port = atoi(video_sdp->m_port);
 
-            NORMAL_EX_LOG("rtp server: {}:{}", rtp_ip, rtp_port);
+            NORMAL_EX_LOG("rtp server: {%s}:{%u}", rtp_ip.c_str(), rtp_port);
 
             rtp_protocol = video_sdp->m_proto;
 
-            NORMAL_EX_LOG("rtp protocol: {}", rtp_protocol);
+            NORMAL_EX_LOG("rtp protocol: {%s}", rtp_protocol.c_str());
 
             osip_body_t *sdp_body = NULL;
 			osip_message_get_body(evt->request, 0, &sdp_body);
@@ -351,7 +351,7 @@ void Device::process_request() {
             auto y_sdp = body.substr(y_sdp_first_index);
             auto y_sdp_last_index = y_sdp.find("\r\n");
             ssrc = y_sdp.substr(2, y_sdp_last_index-1);
-            NORMAL_EX_LOG("ssrc: {}", ssrc);
+            NORMAL_EX_LOG("ssrc: {%u}", ssrc.c_str());
 
             std::stringstream ss;
             ss << "v=0\r\n";
@@ -385,7 +385,7 @@ void Device::process_request() {
 
             eXosip_call_send_answer(sip_context, evt->tid, 200, message);
 
-            NORMAL_EX_LOG("reply call invite: \n{}", sdp_output_str);
+            NORMAL_EX_LOG("reply call invite: \n{%s}", sdp_output_str.c_str());
             break;
         }
         case eXosip_event_type::EXOSIP_CALL_ACK: {
@@ -409,7 +409,7 @@ void Device::process_request() {
         }
         
         default: {
-            WARNING_EX_LOG("unhandled sip evt type: {}", evt->type);
+            WARNING_EX_LOG("unhandled sip evt type: {%u}", evt->type);
             break;
         }
         }
@@ -469,7 +469,7 @@ void Device::process_devicestatus_query(std::string sn) {
     ss << "<Record>OFF</Record>\r\n";
     ss << "</Response>\r\n";
 
-    NORMAL_EX_LOG("devicestatus response: \n{}", ss.str());
+    NORMAL_EX_LOG("devicestatus response: \n{%s}", ss.str().c_str());
     auto request = create_msg();
     if (request != NULL) {
         osip_message_set_content_type(request, "Application/MANSCDP+xml");
@@ -538,7 +538,7 @@ osip_message_t * Device::create_msg() {
     osip_message_t * request = nullptr;
     auto status = eXosip_message_build_request(sip_context, &request, "MESSAGE", to_sip.c_str(), from_sip.c_str(), nullptr);
     if (OSIP_SUCCESS != status) {
-        WARNING_EX_LOG("build request failed: {}", status);
+        WARNING_EX_LOG("build request failed: {%u}", status);
     }
 
     return request;
@@ -579,7 +579,7 @@ std::tuple<std::string, std::string> Device::get_cmd(const char * body) {
 
     std::string root_name = root_node.name();
     if ("Query" != root_name) {
-        WARNING_EX_LOG("invalid query xml with root: {}", root_name);
+        WARNING_EX_LOG("invalid query xml with root: {%s}", root_name.c_str());
         return std::make_tuple("", "");
     }
 
