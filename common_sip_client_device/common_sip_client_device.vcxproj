@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5f34b031-f7ad-4498-b5d5-cba4c0e83ada}</ProjectGuid>
-    <RootNamespace>clib</RootNamespace>
+    <ProjectGuid>{db595026-1815-4175-ad1d-e7fe024467e9}</ProjectGuid>
+    <RootNamespace>commonsipclientdevice</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -80,13 +80,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\boost_1_66_0\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\clib;..\common_sip;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\boost_1_66_0\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\clib;..\common_sip;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,7 +120,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLLCARES_STATICLIB;_USRDLL;_DEBUG;_MT;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -145,49 +145,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="casync_log.cpp" />
-    <ClCompile Include="ccmd_param.cpp" />
-    <ClCompile Include="cconfig.cpp" />
-    <ClCompile Include="ccopy_path.cpp" />
-    <ClCompile Include="ccrypto.cpp" />
-    <ClCompile Include="cdigit2str.cpp" />
-    <ClCompile Include="cinjector_util.cpp" />
-    <ClCompile Include="clog.cpp" />
-    <ClCompile Include="clog_color.cpp" />
-    <ClCompile Include="cmem_pool.cpp" />
-    <ClCompile Include="cnet_type.cpp" />
-    <ClCompile Include="crandom.cpp" />
-    <ClCompile Include="crc4.cpp" />
-    <ClCompile Include="csystem_info.cpp" />
-    <ClCompile Include="ctime_api.cpp" />
-    <ClCompile Include="cutil.cpp" />
-    <ClCompile Include="pugixml.cpp" />
+    <ClCompile Include="device.cpp" />
+    <ClCompile Include="gb28181_header_maker.cpp" />
+    <ClCompile Include="h264_parser.cpp" />
+    <ClCompile Include="load_h264.cpp" />
+    <ClCompile Include="net_client.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="casync_log.h" />
-    <ClInclude Include="ccmd_param.h" />
-    <ClInclude Include="cconfig.h" />
-    <ClInclude Include="ccopy_path.h" />
-    <ClInclude Include="ccrypto.h" />
-    <ClInclude Include="cdigit2str.h" />
-    <ClInclude Include="cinjector_util.h" />
-    <ClInclude Include="clib_util.h" />
-    <ClInclude Include="clog.h" />
-    <ClInclude Include="clog_color.h" />
-    <ClInclude Include="clog_define.h" />
-    <ClInclude Include="cmem_pool.h" />
-    <ClInclude Include="cnet_define.h" />
-    <ClInclude Include="cnet_type.h" />
-    <ClInclude Include="cnoncopytable.h" />
-    <ClInclude Include="crandom.h" />
-    <ClInclude Include="crc4.h" />
-    <ClInclude Include="csingleton.h" />
-    <ClInclude Include="csystem_info.h" />
-    <ClInclude Include="ctime_api.h" />
-    <ClInclude Include="ctime_const.h" />
-    <ClInclude Include="ctime_elapse.h" />
-    <ClInclude Include="cutil.h" />
-    <ClInclude Include="pugixml.hpp" />
+    <ClInclude Include="bits.h" />
+    <ClInclude Include="device.h" />
+    <ClInclude Include="gb28181_header_maker.h" />
+    <ClInclude Include="h264_parser.h" />
+    <ClInclude Include="load_h264.h" />
+    <ClInclude Include="nalu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

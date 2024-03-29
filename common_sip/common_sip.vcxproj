@@ -40,7 +40,6 @@
     <ClInclude Include="c-ares\ares_version.h" />
     <ClInclude Include="c-ares\ares_writev.h" />
     <ClInclude Include="c-ares\bitncmp.h" />
-    <ClInclude Include="c-ares\config-dos.h" />
     <ClInclude Include="c-ares\config-win32.h" />
     <ClInclude Include="c-ares\nameser.h" />
     <ClInclude Include="c-ares\setup_once.h" />
@@ -312,13 +311,13 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include\libxml2;$(C_INCLUDE)\boost_1_66_0\include;..\clib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include\libxml2;..\clib;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include\libxml2;$(C_INCLUDE)\boost_1_66_0\include;..\clib;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include\libxml2;..\clib;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -352,7 +351,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLLCARES_STATICLIB;_USRDLL;_DEBUG;_MT;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLLCARES_STATICLIB;_USRDLL;_DEBUG;_MT;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./;./c-ares;</AdditionalIncludeDirectories>
     </ClCompile>
@@ -367,7 +366,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;_WINSOCK_DEPRECATED_NO_WARNINGS;CARES_STATICLIB;HAVE_CARES_H;SRV_RECORD;_CRT_SECURE_NO_DEPRECATE;ENABLE_TRACE;WIN32;EXOSIP_EXPORTS;_WINDOWS;_USRDLL;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./;./c-ares;./c-ares</AdditionalIncludeDirectories>
     </ClCompile>

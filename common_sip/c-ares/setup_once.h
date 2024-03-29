@@ -79,7 +79,7 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#include "ares_config.h"
+//#include "ares_config.h"
 
 #ifdef __hpux
 #  if !defined(_XOPEN_SOURCE_EXTENDED) || defined(_KERNEL)

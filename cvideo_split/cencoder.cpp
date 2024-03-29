@@ -328,10 +328,10 @@ namespace chen {
 		{
 			if (m_push_format_context_ptr->pb)
 			{
-				//::avio_flush(m_push_format_context_ptr->pb);
-				//::avio_close(m_push_format_context_ptr->pb);
-				//::avio_context_free(&m_push_format_context_ptr->pb);
-				//m_push_format_context_ptr->pb = NULL;
+				::avio_flush(m_push_format_context_ptr->pb);
+				::avio_close(m_push_format_context_ptr->pb);
+				::avio_context_free(&m_push_format_context_ptr->pb);
+				m_push_format_context_ptr->pb = NULL;
 			}
 			  ::avformat_flush(m_push_format_context_ptr);
 			 ::avformat_close_input(&m_push_format_context_ptr); 

@@ -17,6 +17,7 @@
     <ClCompile Include="ctime_api.cpp" />
     <ClCompile Include="cutil.cpp" />
     <ClCompile Include="csystem_info.cpp" />
+    <ClCompile Include="pugixml.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="casync_log.h" />
@@ -42,5 +43,6 @@
     <ClInclude Include="cutil.h" />
     <ClInclude Include="clog_color.h" />
     <ClInclude Include="csystem_info.h" />
+    <ClInclude Include="pugixml.hpp" />
   </ItemGroup>
 </Project>

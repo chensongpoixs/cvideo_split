@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="device">
+      <UniqueIdentifier>{5f8f720a-4017-477a-83d4-3514441a5b6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="h264">
+      <UniqueIdentifier>{01782c5b-2787-4d6b-9fa1-045f24a14736}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rtp_header_maker">
+      <UniqueIdentifier>{72055902-bd37-4860-9195-de9709b812ab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="device.cpp">
+      <Filter>device</Filter>
+    </ClCompile>
+    <ClCompile Include="load_h264.cpp">
+      <Filter>h264</Filter>
+    </ClCompile>
+    <ClCompile Include="gb28181_header_maker.cpp">
+      <Filter>rtp_header_maker</Filter>
+    </ClCompile>
+    <ClCompile Include="h264_parser.cpp">
+      <Filter>h264</Filter>
+    </ClCompile>
+    <ClCompile Include="net_client.cpp">
+      <Filter>device</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="device.h">
+      <Filter>device</Filter>
+    </ClInclude>
+    <ClInclude Include="load_h264.h">
+      <Filter>h264</Filter>
+    </ClInclude>
+    <ClInclude Include="gb28181_header_maker.h">
+      <Filter>rtp_header_maker</Filter>
+    </ClInclude>
+    <ClInclude Include="bits.h">
+      <Filter>rtp_header_maker</Filter>
+    </ClInclude>
+    <ClInclude Include="nalu.h">
+      <Filter>rtp_header_maker</Filter>
+    </ClInclude>
+    <ClInclude Include="h264_parser.h">
+      <Filter>h264</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

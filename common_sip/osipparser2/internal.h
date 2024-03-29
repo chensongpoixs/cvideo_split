@@ -45,8 +45,8 @@
 #define HAVE_TIME_H 1
 #define HAVE_STDARG_H 1
 
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
+//#define snprintf _snprintf
+//#define vsnprintf _vsnprintf
 #elif defined(WIN32)
 
 #define HAVE_CTYPE_H 1

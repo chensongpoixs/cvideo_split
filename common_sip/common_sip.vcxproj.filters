@@ -267,9 +267,6 @@
     <ClInclude Include="c-ares\bitncmp.h">
       <Filter>c-ares</Filter>
     </ClInclude>
-    <ClInclude Include="c-ares\config-dos.h">
-      <Filter>c-ares</Filter>
-    </ClInclude>
     <ClInclude Include="c-ares\config-win32.h">
       <Filter>c-ares</Filter>
     </ClInclude>

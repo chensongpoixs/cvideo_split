@@ -66,8 +66,10 @@
 #define HAVE_STRING_H 1
 #define HAVE_TIME_H 1
 #define HAVE_STDARG_H 1
-
-#define snprintf _snprintf
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#  define snprintf _snprintf
+#endif
+//#define snprintf _snprintf
 
 #undef HAVE_INET_NTOP
 

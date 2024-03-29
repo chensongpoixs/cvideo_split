@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="csip_robot.cpp">
+      <Filter>Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="ccfg.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Robot">
+      <UniqueIdentifier>{4398d2af-b71e-4408-9b87-67e6a9e37080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Robot\NewFilter1">
+      <UniqueIdentifier>{216c2f30-4c76-4a9f-b30a-97857e01d537}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{33ccf3d1-14b8-44b1-a726-0dc99ac2a0e2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="csip_robot.h">
+      <Filter>Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="ccfg.h">
+      <Filter>config</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
