@@ -2,7 +2,7 @@ project(Server)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE(STATUS "#########################")
 SET(CMAKE_BUILD_TYPE Release)
-#ADD_DEFINITIONS(-std=c++11   -fpermissive )
+ ADD_DEFINITIONS(-g -Wall)
 #ADD_DEFINITIONS(-std=c++11   -fpermissive )
 ADD_DEFINITIONS(-DHAVE_NETDB_H 
 		-DHAVE_NETINET_IN_H
