@@ -173,14 +173,18 @@ void Device::push_rtp_stream() {
 
 void Device::start() {
     printf("sip init begin.");
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     sip_context = eXosip_malloc();
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     if (OSIP_SUCCESS != eXosip_init(sip_context)) {
         //spdlog::error("sip init failed.");
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
         ERROR_EX_LOG("sip init failed.");
         return;
     }
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     if (OSIP_SUCCESS != eXosip_listen_addr(sip_context, IPPROTO_UDP, nullptr, local_port, AF_INET, 0)) {
         WARNING_EX_LOG("sip port bind failed.");
@@ -188,6 +192,7 @@ void Device::start() {
         sip_context = nullptr;
         return;
     }
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     // run
     is_running = true;
@@ -210,9 +215,11 @@ void Device::start() {
     NORMAL_EX_LOG("from uri is {%s}", from_sip.c_str());
     NORMAL_EX_LOG("contact is {%s}", contact.str().c_str());
     NORMAL_EX_LOG("proxy_uri is {%s}", to_sip.c_str());
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     // clear auth
     eXosip_clear_authentication_info(sip_context);
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     osip_message_t * register_message = nullptr;
     int register_id = eXosip_register_build_initial_register(sip_context, from_sip.c_str(), 
@@ -222,18 +229,24 @@ void Device::start() {
         ERROR_EX_LOG("eXosip_register_build_initial_register failed");
         return;
     }
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     eXosip_lock(sip_context);
 	eXosip_register_send_register(sip_context, register_id, register_message);
 	eXosip_unlock(sip_context);
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 
     std::thread heartbeat_task_thread(&Device::heartbeat_task, this);
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
     heartbeat_task_thread.detach();
 
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
     this->process_request();
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 }
 
 void Device::process_request() {
+    printf("[%s][%d]\n", __FUNCTION__, __LINE__);
     while (is_running) {
         auto evt = std::shared_ptr<eXosip_event_t>(
             eXosip_event_wait(sip_context, 0, 100),

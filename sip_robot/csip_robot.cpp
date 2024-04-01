@@ -82,10 +82,10 @@ namespace chen {
 			, g_cfg.get_uint32(ECI_DevicePort)
 			,  g_cfg.get_string(ECI_DeviceManuFacture).c_str()
 			, g_cfg.get_string(ECI_FilePath).c_str()
-
 			);
 		if (device_ptr)
 		{
+		printf("[%s][%d]\n", __FUNCTION__, __LINE__);
 			device_ptr->start();
 		}
 		return true;

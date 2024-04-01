@@ -28,7 +28,7 @@
  * configuration file for platforms which lack config tool.
  */
 
-#ifdef __GNUC__
+#ifdef HAVE_CONFIG_H
 #include "ares_config.h"
 #else
 
