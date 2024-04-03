@@ -95,7 +95,9 @@ namespace chen {
 		{}
 		virtual ~cvideo_splist(){}
 
-
+	private:
+		typedef std::mutex							clock_type;
+		typedef std::lock_guard<clock_type>			clock_guard;
 	public:
 		bool init(uint32 gpu_index, const VideoSplitInfo * video_split_info);
 		void update(uint32 uDateTime);
@@ -182,11 +184,13 @@ namespace chen {
 		AVFrame* m_decoder_frame_ptr;
 		// endoer Frame
 		AVFrame* m_encoder_frame_ptr;
-
+		
 
 		std::thread			m_thread;
 		AVFrame*			m_filter_frame_ptr;
 		uint32				m_gpu_index;
+
+		static				clock_type   m_avfilter_lock;
 	};
 
 

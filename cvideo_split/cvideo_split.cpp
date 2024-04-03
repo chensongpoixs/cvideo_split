@@ -443,7 +443,8 @@ namespace chen {
 	void cvideo_splist::_pthread_work()
 	{
 
-		
+		//SetThreadDescription(GetCurrentThread(), (PCWSTR)m_video_split_name.c_str());
+		//pthread_setname_np(pthread_self(), m_video_split_name.c_str());
 		//NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr = NULL;
@@ -513,18 +514,22 @@ namespace chen {
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
 			//NORMAL_EX_LOG("[decoder_ms = %u]", diff_ms.count());
 			// get buffersink filer frame --> 
-			if (  (ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr) )<0)
 			{
-				if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+				// TODO@chensong 20240403 OSD字体库thread 是不安全的啦 ！！！
+				clock_guard lock(m_avfilter_lock);
+				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
 				{
-					//NORMAL_EX_LOG("");
-					// 需要继续处理啦
-					::av_frame_unref(m_filter_frame_ptr);
-					continue;
+					if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+					{
+						//NORMAL_EX_LOG("");
+						// 需要继续处理啦
+						::av_frame_unref(m_filter_frame_ptr);
+						continue;
+					}
+					//filter error 
+					WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
+					break;
 				}
-				//filter error 
-				WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
-				break;
 			}
 			if (ret < 0)
 			{
