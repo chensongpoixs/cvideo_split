@@ -190,7 +190,7 @@ namespace chen {
 		AVFrame*			m_filter_frame_ptr;
 		uint32				m_gpu_index;
 
-		static				clock_type   m_avfilter_lock;
+		
 	};
 
 

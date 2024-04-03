@@ -30,9 +30,9 @@
 #include "ctime_elapse.h"
 #include "cvideo_split_info_mgr.h"
 #include "cvideo_split_mgr.h"
-#include "cwebsocket_wan_server.h"
+//#include "cwebsocket_wan_server.h"
 #include "clib_util.h"
-#include "cclient_msg_dispatch.h"
+//#include "cclient_msg_dispatch.h"
 #include "csystem_info.h"
 namespace chen {
 
@@ -199,8 +199,8 @@ namespace chen {
 		SYSTEM_LOG("camera_list info mgr destroy OK !!!");
 		g_video_split_info_mgr.destroy();
 		SYSTEM_LOG("video_split_info mgr destroy OK !!!");
-		g_client_msg_dispatch.destroy();
-		SYSTEM_LOG("msg dispath destroy OK !!!");
+	/*	g_client_msg_dispatch.destroy();
+		SYSTEM_LOG("msg dispath destroy OK !!!");*/
 
 		g_cfg.destroy();
 		LOG::destroy();

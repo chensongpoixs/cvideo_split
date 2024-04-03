@@ -26,6 +26,7 @@ purpose:		camera
 #include "ccfg.h"
 
 namespace chen {
+	static				std::mutex   g_avfilter_lock;
 	bool cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
 	{
 		if (!video_split_info)
@@ -516,7 +517,7 @@ namespace chen {
 			// get buffersink filer frame --> 
 			{
 				// TODO@chensong 20240403 OSD字体库thread 是不安全的啦 ！！！
-				clock_guard lock(m_avfilter_lock);
+				clock_guard lock(g_avfilter_lock);
 				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
 				{
 					if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)

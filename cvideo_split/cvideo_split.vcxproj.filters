@@ -1,35 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="ccamera_decoder_mgr.cpp" />
     <ClCompile Include="ccamera_info_mgr.cpp" />
     <ClCompile Include="ccfg.cpp" />
-    <ClCompile Include="cclient_msg_dispatch.cpp" />
     <ClCompile Include="cdecode.cpp" />
-    <ClCompile Include="cdecoder.cpp" />
     <ClCompile Include="cencoder.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
     <ClCompile Include="cvideo_split.cpp" />
     <ClCompile Include="cvideo_split_info_mgr.cpp" />
     <ClCompile Include="cvideo_split_mgr.cpp" />
     <ClCompile Include="cvideo_split_server.cpp" />
-    <ClCompile Include="cwebsocket_wan_server.cpp" />
-    <ClCompile Include="cwebsocket_wan_session.cpp" />
-    <ClCompile Include="cwebsocket_wan_session_handler.cpp" />
     <ClCompile Include="cweb_guard_reply.cpp" />
     <ClCompile Include="cweb_handler.cpp" />
     <ClCompile Include="cweb_http_api_mgr.cpp" />
     <ClCompile Include="cweb_http_api_proxy.cpp" />
     <ClCompile Include="encoder.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="cnvidia_info.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ccamera_decoder_mgr.h" />
     <ClInclude Include="ccamera_info_mgr.h" />
     <ClInclude Include="ccfg.h" />
-    <ClInclude Include="cclient_msg_dispatch.h" />
     <ClInclude Include="cdecode.h" />
-    <ClInclude Include="cdecoder.h" />
     <ClInclude Include="cencoder.h" />
     <ClInclude Include="chttp_code.h" />
     <ClInclude Include="crect_mem_copy.h" />
@@ -37,12 +29,11 @@
     <ClInclude Include="cvideo_split_info_mgr.h" />
     <ClInclude Include="cvideo_split_mgr.h" />
     <ClInclude Include="cvideo_split_server.h" />
-    <ClInclude Include="cwebsocket_wan_server.h" />
-    <ClInclude Include="cwebsocket_wan_session.h" />
     <ClInclude Include="cweb_guard_reply.h" />
     <ClInclude Include="cweb_http_api_interface.h" />
     <ClInclude Include="cweb_http_api_mgr.h" />
     <ClInclude Include="cweb_http_api_proxy.h" />
     <ClInclude Include="cweb_http_struct.h" />
+    <ClInclude Include="cnvidia_info.h" />
   </ItemGroup>
 </Project>
