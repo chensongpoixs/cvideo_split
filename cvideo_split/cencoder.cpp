@@ -300,7 +300,7 @@ namespace chen {
 		{
 			  if (m_codec_ctx_ptr->hw_device_ctx)
 			{
-				//::av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
+				::av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
 			}
 			 ::avcodec_flush_buffers(m_codec_ctx_ptr);  
 			 ::avcodec_close(m_codec_ctx_ptr);
