@@ -125,6 +125,11 @@ namespace chen {
 			//创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
 			//std::string gpu_index = "0";
 			ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("av_hwdevice_ctx_create failed !!! [url = %s]{error = %s}   failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				return false;
+			}
 
 			//m_codec_ptr = ::avcodec_find_encoder(m_codec_id);
 			m_codec_ptr = ::avcodec_find_encoder_by_name("h264_nvenc");
@@ -168,6 +173,7 @@ namespace chen {
 				/* set hw_frames_ctx for encoder's AVCodecContext */
 				if ((ret = set_hwframe_ctx(m_codec_ctx_ptr, m_hw_device_ctx_ptr)) < 0) {
 					WARNING_EX_LOG("Failed to set hwframe context.\n");
+					return false;
 					//goto close;
 				}
 
@@ -296,8 +302,8 @@ namespace chen {
 			{
 				//::av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
 			}
-			//::avcodec_flush_buffers(m_codec_ctx_ptr);  
-			//::avcodec_close(m_codec_ctx_ptr);
+			 ::avcodec_flush_buffers(m_codec_ctx_ptr);  
+			 ::avcodec_close(m_codec_ctx_ptr);
 			  ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}
@@ -335,7 +341,7 @@ namespace chen {
 			//}
 			//  ::avformat_flush(m_push_format_context_ptr);
 			 ::avformat_close_input(&m_push_format_context_ptr); 
-			//::avformat_free_context(m_push_format_context_ptr);
+			::avformat_free_context(m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
 		}
 		m_hw_device_ctx_ptr = NULL;
