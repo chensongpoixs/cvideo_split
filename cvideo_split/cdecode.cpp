@@ -323,7 +323,8 @@ namespace chen {
 		if (m_ic_ptr)
 		{
 			 // ::avformat_flush(m_ic_ptr);
-			  ::avformat_close_input(&m_ic_ptr); 
+			 // TODO@chensong 20240303  底层网络没有关闭会
+			//  ::avformat_close_input(&m_ic_ptr); 
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
