@@ -10,6 +10,7 @@ self.Module = {
 
 self.importScripts("./common.js");
 self.importScripts("./libffmpeg.js");
+self.importScripts("./js/config.js");
 
 function Decoder() {
     this.coreLogLevel = 1;
@@ -68,12 +69,12 @@ Decoder.prototype.CreateVideoDec = function (url, domain) {
     var dec = this;
     if (this.ws == null) {
         //var wsurl = "ws://192.168.0.191:9600";
-		var wsurl = "ws://192.168.2.91:9600";
-        this.ws = new WebSocket(wsurl);
+		// var wsurl = "ws://192.168.2.91:9600";
+        this.ws = new WebSocket(decoder_url_address);
         this.ws.binaryType = 'arraybuffer';
 
         this.ws.onopen = function (evt) {
-            console.log("Ws connected. =  " + wsurl);
+            console.log("Ws connected. =  " + decoder_url_address);
             // {"msg_id":202,"url":"udp://@224.1.1.3:20000"}
 			let play_data  = JSON.stringify({
                                                msg_id: 202,

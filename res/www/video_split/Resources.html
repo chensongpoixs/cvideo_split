@@ -19,10 +19,14 @@
     </style>
 </head>
 <body>
+    <script type="js/resources.js" ></script>
     <div class="layui-row">
         <div class="layui-col-xs12">
             <div class="layui-form">
-                <div class="layui-form-item">
+                <div class="layui-form-item"> 
+                    <div style="float:left;margin-left:64px; padding:8px 2px 0px;">
+                        <button id="onAddCamera" class="layui-btn layui-btn-normal" onclick="AddCamera();">添加</button>
+                    </div> 
                     <div style="float:left;margin-left:64px; padding:8px 2px 0px;">
                         <button id="onexcel" class="layui-btn layui-btn-normal">批量导入</button>
                     </div>
@@ -53,13 +57,14 @@
     <script src="webgl.js"></script>
     <script src="player.js"></script>
     <script src="js/lodash.min.js"></script>
+    <script src="js/config.js"></script>
     <script>
         var reg = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
         var address = reg.exec(window.location.href)[0];
         var apiAddress = "http://"+address+":6036/json";//"http://30.17.58.3:6036/json";
         var coreApiAddress="http://"+address+":8087/"; //"http://30.17.58.3:8087/";
-        var video_splist_address = 'http://192.168.2.91:9700/';// video_split/v1/camera_list/page=0&page_size=10';
-        var api_execl_address = 'http://192.168.2.91:8808/';
+        var video_splist_address = video_split_address + '/';////'http://192.168.2.91:9700/';// video_split/v1/camera_list/page=0&page_size=10';
+        // var api_execl_address = 'http://192.168.2.91:8808/';
         var playsStyle="/root/out.mp4";
 
         function ajaxGet(url, successCallback, errorCallback) 
@@ -550,6 +555,25 @@ function ForEachState(arr)
         }
     }
 }
+
+
+//添加摄像机信息
+function AddCamera()
+{
+    console.log('AddCamera---> function ');
+    layer.open({
+        type: 2,
+        title: '添加摄像机信息',
+        shadeClose: true,
+        shade: 0.8,
+        area: ['1445px', '717px'],
+        content: ['/CameraInfo.html', 'no'],
+        end: function () {
+            location.reload();
+        }
+    }); 
+}
+
     </script>
 </body>
 </html>

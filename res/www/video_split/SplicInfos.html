@@ -867,6 +867,7 @@
     <script src="common.js"></script>
     <script src="webgl.js"></script>
     <script src="player.js"></script>
+    <script src="js/config.js"></script>
     <script>
         //var iscrop = false;
         var reg = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
@@ -883,7 +884,7 @@
         var image9 = '../images/bg.png'; var image10 = '../images/bg.png'; var image11 = '../images/bg.png'; var image12 = '../images/bg.png';
         var port = 9000;
         var cameras = [];//只记录当前通道下的所有相机
-		var video_split_address = 'http://192.168.2.91:9700';
+		// var video_split_address = 'http://192.168.2.91:9700';
         var camera_url = video_split_address + '/video_split/v1/camera_list/page=0&page_size=10000';
         var video_split_url = video_split_address +'/video_split/v1/get_video_split/split_channel_id=';
         var all_video_split_url = video_split_address +"/video_split/v1/video_split_list/page=0&page_size=1000";

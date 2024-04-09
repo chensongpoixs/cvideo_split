@@ -46,9 +46,13 @@
         layui.use('element', function () {
             var $ = layui.jquery
                 , element = layui.element;
-            element.on('tab(test)', function(data){
-                    if (data.index == 1) {
+            element.on('tab(test)', function(data)
+            {
+                console.log('element -->  !!!' + JSON.stringify(data));
+                    if (data.index == 1) 
+                    {
                         window.frames["index"].contentWindow.CloseWindowForm();
+                       // sendAjax();
                    }
                 });
         });
@@ -62,10 +66,14 @@
             else
                 ifm2.height =ifm1.height = 884;
         }
-        window.onresize = function () {
+        window.onresize = function () 
+        {
+             console.log('onresize !!!');
             changeFrameHeight();
         }
-        window.onload = function () {
+        window.onload = function () 
+        {
+            console.log('onload !!!');
             changeFrameHeight();
         }
     </script>
