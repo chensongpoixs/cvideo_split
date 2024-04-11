@@ -309,6 +309,9 @@ struct timespec
 
 #define LIBAVFORMAT_INTERRUPT_READ_DEFAULT_TIMEOUT_MS (3000)
 
+
+#define _TEST_DECOCDE_DELAY_ (0)
+
 #ifdef _WIN32
 // http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
 
