@@ -165,7 +165,7 @@ namespace chen {
 			/* frames per second */
 			m_codec_ctx_ptr->time_base = rate;// (AVRational) { 1, 25 };
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 20;
+			m_codec_ctx_ptr->gop_size = 30;
 			m_codec_ctx_ptr->max_b_frames = 1;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
@@ -232,7 +232,7 @@ namespace chen {
 				return false;
 			}
 
-			//写入头
+			//写入头url_write
 			ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
 			if (ret < 0)
 			{
@@ -294,15 +294,17 @@ namespace chen {
 		}
 		m_url.clear();
 
-		
+		 // avformat_write_tailer(m_push_format_context_ptr, NULL);
 		
 		if (m_codec_ctx_ptr)
 		{
 			  if (m_codec_ctx_ptr->hw_device_ctx)
 			{
 				::av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
+				//::av_frame_free(m_codec_ctx_ptr->hw_device_ctx);
+				//m_codec_ctx_ptr->hw_device_ctx = NULL;
 			}
-			 //::avcodec_flush_buffers(m_codec_ctx_ptr);  
+			  ::avcodec_flush_buffers(m_codec_ctx_ptr);  
 			 ::avcodec_close(m_codec_ctx_ptr);
 			  ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
@@ -327,7 +329,12 @@ namespace chen {
 			::av_packet_free(&m_pkt_ptr);
 			m_pkt_ptr = NULL;
 		}
-		 
+		// TODO@chensong 2024-04-11  释放问题
+		if (m_hw_device_ctx_ptr)
+		{
+			av_buffer_unref(&m_hw_device_ctx_ptr);
+			m_hw_device_ctx_ptr = NULL;
+		}
 		
 
 		if (m_push_format_context_ptr)
@@ -339,7 +346,7 @@ namespace chen {
 			//	::avio_context_free(&m_push_format_context_ptr->pb);
 			//	m_push_format_context_ptr->pb = NULL;
 			//}
-			//  ::avformat_flush(m_push_format_context_ptr);
+			   ::avformat_flush(m_push_format_context_ptr);
 			 ::avformat_close_input(&m_push_format_context_ptr); 
 			::avformat_free_context(m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
@@ -377,9 +384,10 @@ namespace chen {
 		//return;
 		if (m_stoped)
 		{
-			//::av_frame_unref(frame_ptr);
+			::av_frame_unref(frame_ptr);
 			return;
 		}
+		 
 		int32_t ret = 0;
 
 		//m_pkt_ptr->data = NULL;
@@ -483,7 +491,7 @@ namespace chen {
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
-		ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+		 ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		if (ret < 0)
 		{
 			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
