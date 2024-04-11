@@ -105,9 +105,9 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = m_open_timeout;
 		get_monotonic_time(&m_interrupt_metadata.value);
 
-		m_ic_ptr = avformat_alloc_context();
+	/*	m_ic_ptr = avformat_alloc_context();
 		m_ic_ptr->interrupt_callback.callback = &ffmpeg_util:: ffmpeg_interrupt_callback;
-		m_ic_ptr->interrupt_callback.opaque = &m_interrupt_metadata;
+		m_ic_ptr->interrupt_callback.opaque = &m_interrupt_metadata;*/
 #endif
 		//char* options = getenv("OPENCV_FFMPEG_CAPTURE_OPTIONS");
 #if LIBAVUTIL_BUILD >= (LIBAVUTIL_VERSION_MICRO >= 100 ? CALC_FFMPEG_VERSION(52, 17, 100) : CALC_FFMPEG_VERSION(52, 7, 0))
@@ -294,7 +294,7 @@ namespace chen {
 			{
 				av_buffer_unref(&m_codec_ctx_ptr->hw_device_ctx);
 			}
-			//::avcodec_flush_buffers(m_codec_ctx_ptr);  
+			::avcodec_flush_buffers(m_codec_ctx_ptr);  
 			::avcodec_close(m_codec_ctx_ptr);
 			::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
@@ -322,9 +322,9 @@ namespace chen {
 		}
 		if (m_ic_ptr)
 		{
-			 // ::avformat_flush(m_ic_ptr);
+			  ::avformat_flush(m_ic_ptr);
 			 // TODO@chensong 20240303  底层网络没有关闭会
-			//  ::avformat_close_input(&m_ic_ptr); 
+			  ::avformat_close_input(&m_ic_ptr); 
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
@@ -469,6 +469,7 @@ namespace chen {
 		int* height, int* cn*/ )
 	{
 		//AVFrame* srcFrame = nullptr;
+		av_frame_unref(m_picture_ptr);
 		bool ret = grab_frame( );
 		if (ret )
 		{
