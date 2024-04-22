@@ -33,3 +33,6 @@
 /common_sip/ccommon_xml.h
 /common_sip_client_device/common_sip_client_device.vcxproj.user
 /sip_robot/sip_robot.vcxproj.user
+/cvideo_split/chensong.ts
+/cvideo_split/chensong_ffmpeg.ts
+/cvideo_split/chensong_test.h264

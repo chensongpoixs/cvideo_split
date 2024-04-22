@@ -28,6 +28,7 @@ purpose:		camera
  
 #include "cffmpeg_util.h"
 #include "cnet_type.h"
+#include <list>
 namespace chen {
 
 
@@ -61,6 +62,9 @@ namespace chen {
 			, m_interrupt_metadata()
 			, m_dts(0)
 			, m_pts(0)
+			, m_index(0)
+			, m_stoped(false)
+			, m_frame_list()
 			{}
 		virtual ~cdecode();
 	public:
@@ -69,7 +73,7 @@ namespace chen {
 		* @param fmt 输出像素格式
 		* @return 成功返回true 失败返回false
 		*/
-		bool init(uint32 gpu_index, const char * url);
+		bool init(uint32 gpu_index, const char * url, uint32 index);
 		void destroy();
 
 
@@ -92,6 +96,8 @@ namespace chen {
 					   /*unsigned char** data, int* step, int* width,
 			int* height, int* cn */);
 
+
+		bool get_frame(AVFrame*& frame);
 
 		/**
 		* seek到目标位置相近的关键帧
@@ -125,6 +131,11 @@ namespace chen {
 		}
 	private:
 		//cdecode(const cdecode&);
+
+
+
+	private:
+		void _pthread_decoder();
 	public:
 		bool   m_open;
 		int	   m_width;
@@ -165,6 +176,11 @@ namespace chen {
 		AVInterruptCallbackMetadata m_interrupt_metadata;
 		uint64			m_dts;
 		uint32			m_pts;
+		uint32			m_index;
+		std::thread		m_thread;
+		bool			m_stoped;
+		 std::mutex  m_frame_lock;
+		std::list<AVFrame*> m_frame_list;
 	};
 
 }

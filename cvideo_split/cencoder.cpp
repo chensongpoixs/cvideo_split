@@ -27,6 +27,7 @@ purpose:		camera
 #include "crect_mem_copy.h"
 #include "clog.h"
 #include "ccfg.h"
+#include "cwebsocket_wan_server.h"
 #include <chrono>
 namespace chen {
 
@@ -88,6 +89,7 @@ namespace chen {
 
 			m_stoped = false;
 			m_url = url;
+			m_url = "chensong_ffmpeg.ts";
 			m_width = width;
 			m_height = height;
 			m_gpu_index = gpu_index;
@@ -231,7 +233,8 @@ namespace chen {
 				WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				return false;
 			}
-
+			m_empgets_ptr = new cmpegts_encoder();
+			m_empgets_ptr->init();
 			//写入头url_write
 			ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
 			if (ret < 0)
@@ -351,6 +354,13 @@ namespace chen {
 			::avformat_free_context(m_push_format_context_ptr);
 			m_push_format_context_ptr = NULL;
 		}
+		if (m_empgets_ptr)
+		{
+			m_empgets_ptr->destroy();
+			delete m_empgets_ptr;
+			m_empgets_ptr = NULL;
+		 }
+
 		m_hw_device_ctx_ptr = NULL;
 		m_codec_id = AV_CODEC_ID_NONE;
 		m_stoped = true;
@@ -491,6 +501,15 @@ namespace chen {
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+		g_websocket_wan_server.send_packet(m_pkt_ptr->data, m_pkt_ptr->size);
+		 
+		 m_empgets_ptr->push_packet(m_pkt_ptr->flags & AV_PKT_FLAG_KEY, m_pkt_ptr->data, m_pkt_ptr->size, pts, dts);
+		static FILE* out_file_ptr = ::fopen("./chensong_test.h264", "wb+");
+		if (out_file_ptr)
+		{
+			fwrite(m_pkt_ptr->data, 1, m_pkt_ptr->size, out_file_ptr);
+			fflush(out_file_ptr);
+		}
 		 ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 		if (ret < 0)
 		{

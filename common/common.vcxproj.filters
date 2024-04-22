@@ -19,6 +19,12 @@
     <Filter Include="msg_base">
       <UniqueIdentifier>{9fc8e03b-5bd2-4773-a55a-a6da884c6a09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mpegts">
+      <UniqueIdentifier>{0b8067af-6e2d-4f0b-88e6-ff32d41299f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="h264_stream">
+      <UniqueIdentifier>{47eaf935-1583-48ac-af85-1b0079b2c4e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EnumDefine.pb.cc">
@@ -32,6 +38,12 @@
     </ClCompile>
     <ClCompile Include="VideoSplitDefine.pb.cc">
       <Filter>http_message</Filter>
+    </ClCompile>
+    <ClCompile Include="cmpegts_encoder.cpp">
+      <Filter>mpegts</Filter>
+    </ClCompile>
+    <ClCompile Include="ch264_stream.cpp">
+      <Filter>h264_stream</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -49,6 +61,18 @@
     </ClInclude>
     <ClInclude Include="cmsg_base_id.h">
       <Filter>msg_base</Filter>
+    </ClInclude>
+    <ClInclude Include="cmpegts_encoder.h">
+      <Filter>mpegts</Filter>
+    </ClInclude>
+    <ClInclude Include="cmpegts_define.h">
+      <Filter>mpegts</Filter>
+    </ClInclude>
+    <ClInclude Include="ch264_stream.h">
+      <Filter>h264_stream</Filter>
+    </ClInclude>
+    <ClInclude Include="ch264_define.h">
+      <Filter>h264_stream</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

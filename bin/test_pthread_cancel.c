@@ -14,7 +14,7 @@ static void * thread_func(void *ignored_argument)
    /* Disable cancellation for a while, so that we don't
 	  immediately react to a cancellation request */
 
-   s = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+   s = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
    if (s != 0)
    {
 	   handle_error_en(s, "pthread_setcancelstate");
@@ -23,8 +23,8 @@ static void * thread_func(void *ignored_argument)
    printf("thread_func(): started; cancellation disabled\n");
    sleep(5);
    printf("thread_func(): about to enable cancellation\n");
-
-   s = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+//PTHREAD_CANCEL_DISABLE
+   s = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
    if (s != 0)
    {
 	   handle_error_en(s, "pthread_setcancelstate");

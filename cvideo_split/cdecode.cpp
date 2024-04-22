@@ -85,7 +85,7 @@ namespace chen {
 	cdecode::~cdecode()
 	{
 	}
-	bool cdecode::init(uint32 gpu_index, const char* url)
+	bool cdecode::init(uint32 gpu_index, const char* url, uint32 index)
 	{
 		
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
@@ -95,7 +95,7 @@ namespace chen {
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
-
+		m_index = index;
 #if USE_AV_INTERRUPT_CALLBACK
  
 		m_open_timeout = g_cfg.get_uint32(ECI_MediaOpenTimeOut); //LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
@@ -263,6 +263,9 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		get_rotation_angle();
+		m_stoped = false;
+		m_thread = std::thread(&cdecode::_pthread_decoder, this);
+
 		return true;
 		//return false;
 	}
@@ -279,8 +282,11 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		 
-
-		
+		m_stoped = true;
+		if (m_thread.joinable())
+		{
+			m_thread.join();
+		}
 		
 		if (m_sws_ctx_ptr)
 		{
@@ -348,7 +354,8 @@ namespace chen {
 		{
 			return false;
 		}
-
+		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
 		const int max_number_of_attempts = 1 << 9;
 		int32_t ret = 0;
 		int32_t count_errs = 0;
@@ -364,7 +371,17 @@ namespace chen {
 		// check if we can receive frame from previously decoded packet
 		valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
 #endif
-		 
+#if _DECODER_ONE_
+
+		//if (m_index == 1)
+		{
+			std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+
+			std::chrono::milliseconds diff_ms = decoder_ms - ms;
+			NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+		}
+#endif // 
 		while (!valid)
 		{
 
@@ -374,8 +391,8 @@ namespace chen {
 #if USE_AV_INTERRUPT_CALLBACK
 			if (m_interrupt_metadata.timeout)
 			{
-				valid = false;
-				break;
+				//valid = false;
+				//break;
 			}
 #endif 
 			//读取一帧压缩数据
@@ -385,6 +402,17 @@ namespace chen {
 				av_packet_unref(pkt);
 				continue;
 			}*/
+#if _DECODER_ONE_
+
+			//if (m_index == 1)
+			{
+				std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+
+				std::chrono::milliseconds diff_ms = decoder_ms - ms;
+				NORMAL_EX_LOG("av_read_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			}
+#endif // 
 			if (ret == AVERROR(EAGAIN))
 			{
 				continue;
@@ -394,7 +422,8 @@ namespace chen {
 				// flush cached frames from video decoder
 				m_packet_ptr->data = NULL;
 				m_packet_ptr->size = 0;
-				m_packet_ptr->stream_index = m_video_stream_index;
+				//m_packet_ptr->stream_index = m_video_stream_index;
+				continue;
 			}
 
 			if (m_packet_ptr->stream_index != m_video_stream_index)
@@ -413,42 +442,79 @@ namespace chen {
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
 			{
-				av_packet_unref(m_packet_ptr);
-				break;
-			}
+#if _DECODER_ONE_
 
+			//	if (m_index == 1)
+				{
+					std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch());
+
+					std::chrono::milliseconds diff_ms = decoder_ms - ms;
+					NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]failed !!!", m_index, diff_ms.count());
+				}
+#endif //
+				av_packet_unref(m_packet_ptr);
+				continue;
+			}
+#if _DECODER_ONE_
+
+			//if (m_index == 1)
+			{
+				std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+
+				std::chrono::milliseconds diff_ms = decoder_ms - ms;
+				NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			}
+#endif // 
 			av_packet_unref(m_packet_ptr);
-			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
+			while (1)
+			{
+				ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
+#if _DECODER_ONE_
+
+				//if (m_index == 1)
+				{
+					std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch());
+
+					std::chrono::milliseconds diff_ms = decoder_ms - ms;
+					NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+				}
+#endif // 
 #else
 			int got_picture = 0;
 			avcodec_decode_video2(context, picture, &got_picture, &packet);
 			ret = got_picture ? 0 : -1;
 #endif
 
-			if (ret >= 0)
-			{
-				//picture_pts = picture->best_effort_timestamp;
-				if (m_picture_pts == AV_NOPTS_VALUE)
+				if (ret >= 0)
 				{
-					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE 
-						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
-						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
-				}
+					//picture_pts = picture->best_effort_timestamp;
+					if (m_picture_pts == AV_NOPTS_VALUE)
+					{
+						m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
+							&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
+							? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
+					}
 
-				valid = true;
-			}
-			else if (ret == AVERROR(EAGAIN)) 
-			{
-				continue;
-			}
-			else
-			{
-				count_errs++;
-				if (count_errs > max_number_of_attempts)
+					valid = true;
+					break;
+				}
+				else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 				{
 					break;
 				}
+				else
+				{
+					count_errs++;
+					if (count_errs > max_number_of_attempts)
+					{
+						break;
+					}
+				}
 			}
+			
 
 		}  
 
@@ -579,6 +645,22 @@ namespace chen {
 		}
 		 
 		return ret;
+	}
+	bool cdecode::get_frame(AVFrame*& frame)
+	{
+		std::lock_guard<std::mutex> lock(m_frame_lock);
+		if (m_frame_list.empty())
+		{
+			return false;
+		}
+		frame = m_frame_list.front();
+		m_frame_list.pop_front();
+		//while (m_frame_list.size()>0)
+		//{
+		//	//::av_frame_free(&m_frame_list.front());
+		//	m_frame_list.pop_front();
+		//}
+		return true;
 	}
 	bool cdecode::seek(double sec)
 	{
@@ -762,5 +844,22 @@ namespace chen {
 		if (rotate_tag != NULL)
 			rotation_angle = atoi(rotate_tag->value);
 #endif
+	}
+	void cdecode::_pthread_decoder()
+	{
+		while (!m_stoped)
+		{
+			AVFrame* frame = NULL;
+			if (!retrieve(frame))
+			{
+				continue;
+			}
+			AVFrame* new_frame = av_frame_clone(frame);
+			av_frame_unref(frame);
+			{
+				std::lock_guard<std::mutex> lock(m_frame_lock); 
+				m_frame_list.push_back(new_frame);
+			}
+		}
 	}
 }

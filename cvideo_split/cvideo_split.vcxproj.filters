@@ -17,6 +17,18 @@
     <ClCompile Include="encoder.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cnvidia_info.cpp" />
+    <ClCompile Include="cwebsocket_wan_server.cpp">
+      <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session.cpp">
+      <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="cwebsocket_wan_session_handler.cpp">
+      <Filter>websocket</Filter>
+    </ClCompile>
+    <ClCompile Include="cclient_msg_dispatch.cpp">
+      <Filter>websocket</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ccamera_info_mgr.h" />
@@ -35,5 +47,19 @@
     <ClInclude Include="cweb_http_api_proxy.h" />
     <ClInclude Include="cweb_http_struct.h" />
     <ClInclude Include="cnvidia_info.h" />
+    <ClInclude Include="cwebsocket_wan_server.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="cwebsocket_wan_session.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+    <ClInclude Include="cclient_msg_dispatch.h">
+      <Filter>websocket</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="websocket">
+      <UniqueIdentifier>{981437bd-e29f-4623-abea-ef5d732c8205}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

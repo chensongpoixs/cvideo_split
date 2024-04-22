@@ -34,6 +34,7 @@ purpose:		camera
 #include "cffmpeg_util.h"
 #include <list>
 #include "cnet_type.h"
+#include "cmpegts_encoder.h"
 namespace chen {
 
 	class cencoder
@@ -60,6 +61,7 @@ namespace chen {
 			, m_frame_count(1)
 			, m_pts(0)
 			, m_hw_frame_ptr(NULL)
+			, m_empgets_ptr(NULL)
 		{}
 		virtual ~cencoder(); 
 	public:
@@ -105,6 +107,10 @@ namespace chen {
 			//std::chrono::system_clock::now().time_since_epoch());
 		/*unsigned char* m_yuv420p_ptr;
 		FILE* m_input_file_ptr;*/
+
+		cmpegts_encoder* m_empgets_ptr;
+
+
 	};
 }
 

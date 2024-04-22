@@ -312,6 +312,8 @@ struct timespec
 
 #define _TEST_DECOCDE_DELAY_ (0)
 
+#define _DECODER_ONE_ (1)
+
 #ifdef _WIN32
 // http://stackoverflow.com/questions/5404277/porting-clock-gettime-to-windows
 

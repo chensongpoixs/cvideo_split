@@ -192,7 +192,7 @@ namespace chen {
 		for (int32 i = 0; i < m_camera_infos.size(); ++i)
 		{
 			cdecode* decoder_ptr = new cdecode();
-			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str()))
+			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str(), i))
 			{
 				decoder_ptr->destroy();
 				delete decoder_ptr;
@@ -452,6 +452,7 @@ namespace chen {
 		AVFrame* frame_ptr[11] = {0};
 		uint64 dts = 0;
 		uint64 pts = 0;
+		uint32  d_ms = 1000 / 25;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			if (!m_filter_frame_ptr)
@@ -480,7 +481,7 @@ namespace chen {
 					NORMAL_EX_LOG("===22>>>>> 11111111111111111 [decocker i = %u][decoder_ms = %u]", i, diff_ms.count());
 				}
 #endif // _TEST_DECOCDE_DELAY_
-					if (m_decodes[i]->retrieve(frame_ptr[i])    )
+					if (m_decodes[i]->get_frame(frame_ptr[i])    )
 					{ 
 #if  _TEST_DECOCDE_DELAY_
 						if (i == 1)
@@ -573,12 +574,21 @@ namespace chen {
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
 			::av_frame_unref(m_filter_frame_ptr);
+
+			{
+				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
 #if  _TEST_DECOCDE_DELAY_
-			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			  diff_ms = encoder_ms - ms;
-			 NORMAL_EX_LOG("-----====>[encoder_ms = %u]", diff_ms.count());
+				NORMAL_EX_LOG("-----====>[encoder_ms = %u]", diff_ms.count());
 #endif // #if  _TEST_DECOCDE_DELAY_
+				if (diff_ms.count() < d_ms)
+				{
+					//std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+				}
+
+			}
+
 		}
 		//NORMAL_EX_LOG("");
 		for (int32 i = 0; i < 11; ++i)

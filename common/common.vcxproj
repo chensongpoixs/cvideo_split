@@ -80,14 +80,14 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)/protobuf/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include;../clib/;$(C_INCLUDE)/protobuf/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(C_INCLUDE)/protobuf/x64/debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)/protobuf/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include;../clib/;$(C_INCLUDE)/protobuf/include;$(IncludePath)</IncludePath>
     <LibraryPath>$(C_INCLUDE)/protobuf/x64/release;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -147,12 +147,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ch264_stream.cpp" />
+    <ClCompile Include="cmpegts_encoder.cpp" />
     <ClCompile Include="EnumDefine.pb.cc" />
     <ClCompile Include="ErrorCode.pb.cc" />
     <ClCompile Include="VideoSplit.pb.cc" />
     <ClCompile Include="VideoSplitDefine.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ch264_define.h" />
+    <ClInclude Include="ch264_stream.h" />
+    <ClInclude Include="cmpegts_define.h" />
+    <ClInclude Include="cmpegts_encoder.h" />
     <ClInclude Include="cmsg_base_id.h" />
     <ClInclude Include="EnumDefine.pb.h" />
     <ClInclude Include="ErrorCode.pb.h" />
