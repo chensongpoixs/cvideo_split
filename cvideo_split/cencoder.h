@@ -44,7 +44,8 @@ namespace chen {
 		typedef  std::lock_guard<clock_type>  clock_guard;
 	public:
 		explicit cencoder()
-			: m_url("")
+			: m_ip("")
+			, m_port(0)
 			, m_width(0)
 			, m_height(0)
 			, m_gpu_index(0)
@@ -65,7 +66,7 @@ namespace chen {
 		{}
 		virtual ~cencoder(); 
 	public:
-		bool init(uint32 gpu_index, const char * url, uint32_t width, uint32_t height);
+		bool init(uint32 gpu_index, const char * ip, uint32 port,  uint32_t width, uint32_t height);
 
 		void destroy();
 
@@ -84,7 +85,8 @@ namespace chen {
 
 		bool _init_gpu_frame();
 	private:
-		std::string			m_url;
+		std::string			m_ip;
+		uint32				m_port;
 		uint32_t			m_width;
 		uint32_t			m_height;
 		uint32				m_gpu_index;

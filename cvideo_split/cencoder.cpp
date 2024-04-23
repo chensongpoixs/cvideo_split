@@ -68,7 +68,7 @@ namespace chen {
 	cencoder::~cencoder()
 	{
 	}
-	 bool cencoder::init(uint32 gpu_index,   const char* url,  uint32_t width, uint32_t height)
+	 bool cencoder::init(uint32 gpu_index,   const char* ip, uint32 port,  uint32_t width, uint32_t height)
 	{
 		{
 			destroy();
@@ -88,39 +88,51 @@ namespace chen {
 			}*/
 
 			m_stoped = false;
-			m_url = url;
-			m_url = "chensong_ffmpeg.ts";
+			m_ip = ip;
+			m_port = port;
+			//m_url = url;
+			//m_url = "chensong_ffmpeg.ts";
 			m_width = width;
 			m_height = height;
 			m_gpu_index = gpu_index;
-			/*m_push_format_context_ptr = avformat_alloc_context();
-			if (!m_push_format_context_ptr)
+			std::string encoder_url = std::string("udp://@" + m_ip + ":" + std::to_string(m_port));
+			if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
 			{
-				WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
-				return false;
-			}*/
-			ret = avformat_alloc_output_context2(&m_push_format_context_ptr, NULL, "mpegts", std::string(m_url + "?pkt_size=1316").c_str());
-			if (ret < 0)
-			{
-				WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
-				return false;
+				
+				ret = avformat_alloc_output_context2(&m_push_format_context_ptr, NULL, "mpegts", std::string(encoder_url + "?pkt_size=1316").c_str());
+				if (ret < 0)
+				{
+					WARNING_EX_LOG("avformat alloc output context2  failed !!! [ret = %s]\n", ffmpeg_util::make_error_string(ret));
+					return false;
+				}
+				m_push_format_context_ptr->max_delay = 0;
+				m_push_format_context_ptr->max_interleave_delta = 0;
+				/*::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
+				::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);*/
+				m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
+				if (!m_stream_ptr)
+				{
+					WARNING_EX_LOG("[%s:%u] alloc stream failed !!!\n", m_ip.c_str(), m_port);
+					return false;
+				}
+				//m_stream_ptr->codecpar->nb_coded_side_data
+				//::avcodec_register_all();
+				if (m_push_format_context_ptr->oformat->flags & AVFMT_GLOBALHEADER)
+				{
+					m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+				}
 			}
-			m_push_format_context_ptr->max_delay = 0;
-			m_push_format_context_ptr->max_interleave_delta = 0;
-			/*::av_opt_set(m_push_format_context_ptr->priv_data, "MpegTSWrite", "1", 0);
-			::av_opt_set(m_push_format_context_ptr->priv_data, "pes_payload_size", "300", 0);*/
-			m_stream_ptr = avformat_new_stream(m_push_format_context_ptr, NULL); //分配流空间
-			if (!m_stream_ptr)
+			else
 			{
-				WARNING_EX_LOG("[%s] alloc stream failed !!!\n", m_url.c_str());
-				return false;
+				m_push_format_context_ptr = avformat_alloc_context();
+				if (!m_push_format_context_ptr)
+				{
+					WARNING_EX_LOG("alloc  avformat context  failed !!! \n");
+					return false;
+				}
 			}
-			//m_stream_ptr->codecpar->nb_coded_side_data
-			//::avcodec_register_all();
-			if (m_push_format_context_ptr->oformat->flags & AVFMT_GLOBALHEADER)
-			{
-				m_push_format_context_ptr->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-			}
+			
+			
 			m_codec_id = AV_CODEC_ID_H264;
 
 			//AVBufferRef* m_hw_device_ctx = NULL;
@@ -129,7 +141,7 @@ namespace chen {
 			ret = av_hwdevice_ctx_create(&m_hw_device_ctx_ptr, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
 			if (ret < 0)
 			{
-				WARNING_EX_LOG("av_hwdevice_ctx_create failed !!! [url = %s]{error = %s}   failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("av_hwdevice_ctx_create failed !!! [%s:%u]{error = %s}   failed !!!\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return false;
 			}
 
@@ -143,7 +155,7 @@ namespace chen {
 			m_codec_ctx_ptr = avcodec_alloc_context3(m_codec_ptr);
 			if (!m_codec_ctx_ptr)
 			{
-				WARNING_EX_LOG("Conlu not alloc video context (%s)failed !!!\n", m_url.c_str());
+				WARNING_EX_LOG("Conlu not alloc video context (%s:%u)failed !!!\n", m_ip.c_str(), m_port);
 				return false;
 			}
 			//avctx->width = width;
@@ -153,7 +165,7 @@ namespace chen {
 			//avctx->sample_aspect_ratio = (AVRational){ 1, 1 };
 			//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
 			//4000 * 1024;//
-			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);
+			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);//m_width * m_height * 25   / 100000;//
 			m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
 			//m_codec_ctx_ptr->bit_rate_tolerance = 400000;
 			m_codec_ctx_ptr->width = m_width;
@@ -202,23 +214,25 @@ namespace chen {
 			ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL);
 			if (ret < 0)
 			{
-				printf("[%s]Open encoder (%s)failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				printf("[%s]Open encoder (%s:%u)failed !!!\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return false;
 			}
-
-			//av_lockmgr_register();
-			ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
-			if (ret < 0)
+			if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
 			{
-				WARNING_EX_LOG("[%s]Failed to copy encoder parameters to output stream #%s\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				return false;
+				//av_lockmgr_register();
+				ret = avcodec_parameters_from_context(m_push_format_context_ptr->streams[0]->codecpar, m_codec_ctx_ptr);
+				if (ret < 0)
+				{
+					WARNING_EX_LOG("[%s:%u]Failed to copy encoder parameters to output stream #%s\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
+					return false;
+				}
+				// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
+				ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
+				ret = av_dict_set(&m_options_ptr, "buffer_size", "1024", 0 /*AVIO_FLAG_WRITE*/);
+				::av_dict_set(&m_options_ptr, "reuse", "1", 0);
+				::av_dump_format(m_push_format_context_ptr, 0, std::string(encoder_url + "?pkt_size=1316").c_str(), 1);
 			}
-			// 设置 mpeg ts page size 包一定要是 1316  在vlc中才能解析
-			ret = av_dict_set(&m_options_ptr, "pkt_size", "1316", 0 /*AVIO_FLAG_WRITE*/);
-			ret = av_dict_set(&m_options_ptr, "buffer_size", "1024", 0 /*AVIO_FLAG_WRITE*/);
-			::av_dict_set(&m_options_ptr, "reuse", "1", 0);
-
-			::av_dump_format(m_push_format_context_ptr, 0, std::string(m_url + "?pkt_size=1316").c_str(), 1);
+			
 			const AVDictionaryEntry* e = NULL;
 			while (e = av_dict_get(m_options_ptr, "", e, AV_DICT_IGNORE_SUFFIX))
 			{
@@ -226,22 +240,30 @@ namespace chen {
 			}
 
 
-			//****分配推流io上下文****//
-			ret = ::avio_open2(&m_push_format_context_ptr->pb, m_url.c_str(), AVIO_FLAG_WRITE, NULL, &m_options_ptr);
-			if (ret < 0)
+			if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
 			{
-				WARNING_EX_LOG("Could not open output file '%s' [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				return false;
+				//****分配推流io上下文****//
+				ret = ::avio_open2(&m_push_format_context_ptr->pb, encoder_url.c_str(), AVIO_FLAG_WRITE, NULL, &m_options_ptr);
+				if (ret < 0)
+				{
+					WARNING_EX_LOG("Could not open output file '%s' [%s]\n", encoder_url.c_str(), ffmpeg_util::make_error_string(ret));
+					return false;
+				}
+				//写入头url_write
+				ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
+				if (ret < 0)
+				{
+					WARNING_EX_LOG("[%s]Error occurred when opening output file [%s]\n", encoder_url.c_str(), ffmpeg_util::make_error_string(ret));
+					return false;
+				}
 			}
-			m_empgets_ptr = new cmpegts_encoder();
-			m_empgets_ptr->init();
-			//写入头url_write
-			ret = avformat_write_header(m_push_format_context_ptr, NULL); //写入头
-			if (ret < 0)
+			else
 			{
-				WARNING_EX_LOG("[%s]Error occurred when opening output file [%s]\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				return false;
+				m_empgets_ptr = new cmpegts_encoder();
+				m_empgets_ptr->init(m_ip.c_str(), m_port);
 			}
+			
+			
 			/*m_frame_ptr = ::av_frame_alloc();
 			if (!m_frame_ptr)
 			{
@@ -267,7 +289,7 @@ namespace chen {
 			m_pkt_ptr = av_packet_alloc();
 			if (!m_pkt_ptr)
 			{
-				WARNING_EX_LOG("[url = %s]  alloc pakcet failed !!!\n", m_url.c_str());
+				WARNING_EX_LOG("[  %s:%u]  alloc pakcet failed !!!\n", m_ip.c_str(), m_port);
 				return false;
 			}
 
@@ -292,11 +314,11 @@ namespace chen {
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		if (!m_stoped)
 		{
-			WARNING_EX_LOG("[url = %s] stop = false\n", m_url.c_str());
+			WARNING_EX_LOG("[%s:%u] stop = false\n", m_ip.c_str(), m_port);
 		//	return;
 		}
-		m_url.clear();
-
+		m_ip.clear();
+		m_port = 0;
 		 // avformat_write_tailer(m_push_format_context_ptr, NULL);
 		
 		if (m_codec_ctx_ptr)
@@ -431,7 +453,7 @@ namespace chen {
 			if (ret < 0)
 			{
 				//::av_frame_unref(frame_ptr);
-				WARNING_EX_LOG("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[warr][  %s:%u] codec send frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return;
 			}
 		//	av_frame_free(&hw_frame);
@@ -452,22 +474,22 @@ namespace chen {
 
 		//current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 		//	std::chrono::system_clock::now().time_since_epoch()) - m_mic;
-		ret = 0;
-		while (ret >= 0)
+		ret = -1;
+		while (ret < 0)
 		{
 			ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
 			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 			{
 				av_packet_unref(m_pkt_ptr);
-				WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[warr][  %s:%u]codec  receive packet  (%s) failed !!! ", m_ip.c_str(),  m_port,ffmpeg_util::make_error_string(ret));
 				return;
 			}
 			else if (ret < 0)
 			{
 				av_packet_unref(m_pkt_ptr);
-				WARNING_EX_LOG("[warr][url = %s][ret --> ]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[warr][  %s:%u][ret --> ]codec  receive packet  (%s) failed !!! ", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				
-				return ;
+				continue;
 			}				
 			break;
 		}
@@ -501,20 +523,31 @@ namespace chen {
 		//::av_packet_rescale_ts(m_pkt_ptr, frame_ptr->time_base,  m_stream_ptr->time_base);
 		m_pkt_ptr->stream_index = 0;
 		//ret = ::av_write_frame(m_push_format_context_ptr, m_pkt_ptr);
-		g_websocket_wan_server.send_packet(m_pkt_ptr->data, m_pkt_ptr->size);
+		if (g_cfg.get_uint32(ECI_OpenWebSocket))
+		{
+			g_websocket_wan_server.send_packet(m_pkt_ptr->data, m_pkt_ptr->size);
+
+		}
+		if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
+		{
+			ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
+			if (ret < 0)
+			{
+				WARNING_EX_LOG("[error][ %s:%u] interleaved write frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
+			}
+		 }
+		else if (m_empgets_ptr)
+		{
+			m_empgets_ptr->push_packet(m_pkt_ptr->flags& AV_PKT_FLAG_KEY, m_pkt_ptr->data, m_pkt_ptr->size, pts, dts);
+		}
 		 
-		 m_empgets_ptr->push_packet(m_pkt_ptr->flags & AV_PKT_FLAG_KEY, m_pkt_ptr->data, m_pkt_ptr->size, pts, dts);
-		static FILE* out_file_ptr = ::fopen("./chensong_test.h264", "wb+");
+		/*static FILE* out_file_ptr = ::fopen("./chensong_test.h264", "wb+");
 		if (out_file_ptr)
 		{
 			fwrite(m_pkt_ptr->data, 1, m_pkt_ptr->size, out_file_ptr);
 			fflush(out_file_ptr);
-		}
-		 ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
-		if (ret < 0)
-		{
-			WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-		}
+		}*/
+		
 		::av_packet_unref(m_pkt_ptr);
  
 
@@ -684,7 +717,7 @@ namespace chen {
 				ret = ::avcodec_send_frame(m_codec_ctx_ptr, frame_ptr);
 				if (ret < 0)
 				{
-					WARNING_EX_LOG("[warr][url = %s] codec send frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[warr][  %s:%u] codec send frame (%s) failed !!!", m_ip.c_str(), m_port,ffmpeg_util::make_error_string(ret));
 					continue;
 				}
 				::av_frame_free(&frame_ptr);
@@ -692,7 +725,7 @@ namespace chen {
 				ret = ::avcodec_receive_packet(m_codec_ctx_ptr, m_pkt_ptr);
 				if (ret < 0)
 				{
-					WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!!\n", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[warr][  %s:%u]codec  receive packet  (%s) failed !!!\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 					continue;
 
 				}
@@ -718,7 +751,7 @@ namespace chen {
 				ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 				if (ret < 0)
 				{
-					WARNING_EX_LOG("[error][url = %s] interleaved write frame (%s) failed !!!", m_url.c_str(), ffmpeg_util::make_error_string(ret));
+					WARNING_EX_LOG("[error][ %s:%u] interleaved write frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				}
 			}
 			if (frame_num <= 0)

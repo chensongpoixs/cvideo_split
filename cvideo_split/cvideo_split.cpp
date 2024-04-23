@@ -100,7 +100,7 @@ namespace chen {
 		}
 		
 		std::string encoder_url = std::string("udp://@" + m_multicast_ip + ":" + std::to_string(m_multicast_port));
-		if (!m_encoder_ptr->init(gpu_index, encoder_url.c_str(), m_out_video_width, m_out_video_height))
+		if (!m_encoder_ptr->init(gpu_index, m_multicast_ip.c_str(), m_multicast_port, m_out_video_width, m_out_video_height))
 		{
 			WARNING_EX_LOG("video split name = [%s] encoder init (%s)failed !!!", m_video_split_name.c_str(), encoder_url.c_str());
 			return false;

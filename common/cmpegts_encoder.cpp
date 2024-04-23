@@ -60,8 +60,10 @@ namespace chen {
 	cmpegts_encoder::~cmpegts_encoder()
 	{
 	}
-	bool cmpegts_encoder::init()
+	bool cmpegts_encoder::init(const char* ip, uint32 port)
 	{
+        m_ip = ip;
+        m_port = port;
 		m_m2ts_mode = 0; 
 
 		m_m2ts_video_pid = M2TS_VIDEO_PID;
@@ -107,12 +109,12 @@ namespace chen {
 		m_nit.opaque = this;
 
 
-        m_socket_fd = socket(PF_INET, SOCK_DGRAM, 0);
+        m_socket_fd = ::socket(PF_INET, SOCK_DGRAM, 0);
         //struct sockaddr_in servaddr;
         memset(&m_servaddr, 0, sizeof(m_servaddr));
         m_servaddr.sin_family = AF_INET;
-        m_servaddr.sin_port = htons(9033);
-        m_servaddr.sin_addr.s_addr = inet_addr("239.1.0.14");
+        m_servaddr.sin_port = htons(m_port);
+        m_servaddr.sin_addr.s_addr = inet_addr(m_ip.c_str());
         m_send_buffer = (uint8*)malloc(sizeof(uint8) * 1024 * 3);
         m_send_len = 0;
 		/// <summary>
@@ -127,6 +129,26 @@ namespace chen {
 	}
 	void cmpegts_encoder::destroy()
 	{
+        if (m_send_buffer)
+        {
+            ::free(m_send_buffer);
+            m_send_buffer = NULL;
+        }
+        if (m_socket_fd)
+        {
+#ifdef _MSC_VER
+            ::closesocket(m_socket_fd);
+            m_socket_fd = NULL;
+#elif defined(__GNUC__) 
+            ::close(m_socket_fd);
+            m_socket_fd = NULL;
+#else
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+            return false;
+#endif
+            
+        }
 	}
 	void cmpegts_encoder::push_packet(bool I_frame, uint8* _data, uint32 size, int64 pts, int64 dts)
 	{
@@ -658,20 +680,20 @@ namespace chen {
         m_send_len += payload_size;
         if (m_send_len > 1315)
         {
-            static FILE* out_ts_file_ptr = ::fopen("./chensong.ts", "wb+");
+           // static FILE* out_ts_file_ptr = ::fopen("./chensong.ts", "wb+");
             int32 send_cur = 0;
             while (m_send_len - send_cur > 0)
             {
                 /* ret = sendto(s->udp_fd, buf, size, 0,
                      (struct sockaddr*)&s->dest_addr,
                      s->dest_addr_len);*/
-                int32 write_ret = ::fwrite((const char*)m_send_buffer + send_cur, 1, m_send_len - send_cur, out_ts_file_ptr);
+               /* int32 write_ret = ::fwrite((const char*)m_send_buffer + send_cur, 1, m_send_len - send_cur, out_ts_file_ptr);
                 fflush(out_ts_file_ptr);
                 if (m_send_len - send_cur != write_ret)
                 {
                     WARNING_EX_LOG("write file failed (%u)(%u)!!!", m_send_len - send_cur, write_ret);
-                }
-                int ret = sendto(m_socket_fd, (const char*)m_send_buffer + send_cur, m_send_len - send_cur, 0, (struct sockaddr*)&m_servaddr, sizeof(m_servaddr));
+                }*/
+                int ret = ::sendto(m_socket_fd, (const char*)m_send_buffer + send_cur, m_send_len - send_cur, 0, (struct sockaddr*)&m_servaddr, sizeof(m_servaddr));
                 if (ret < 0)
                 {
                     break;

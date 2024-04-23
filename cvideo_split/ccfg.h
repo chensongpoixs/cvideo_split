@@ -45,12 +45,15 @@ namespace chen {
 		ECI_WebPathPrefix,
  
 		ECI_DataPath,
+		ECI_OpenWebSocket,
 		ECI_WebSocketWanIp,
 		ECI_WebSocketWanPort,
+		
 		ECI_MediaRate,
 		ECI_MediaOpenTimeOut,
 		ECI_MediaReadTimeOut,
 		ECI_UseGpuMaxCount, //多显卡是 会不是0索引会崩溃  需要设置最大限制
+		ECI_OpenFfmpegMpegts,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

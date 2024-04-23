@@ -138,17 +138,24 @@ namespace chen {
 			return false;
 		}
 		SYSTEM_LOG("client_msg dispatch init OK !!!");
-
-		SYSTEM_LOG("websocket wan server  init ...");
-		if (!g_websocket_wan_server.init())
+		if (g_cfg.get_uint32(ECI_OpenWebSocket))
 		{
-			return false;
+			SYSTEM_LOG("websocket wan server  init ...");
+			if (!g_websocket_wan_server.init())
+			{
+				return false;
+			}
+			SYSTEM_LOG("websocket wan server  startup ...");
+			if (!g_websocket_wan_server.startup())
+			{
+				return false;
+			}
 		}
-		SYSTEM_LOG("websocket wan server  startup ...");
-		if (!g_websocket_wan_server.startup())
+		else
 		{
-			return false;
+			SYSTEM_LOG("not open websocket !!!");
 		}
+		
 		SYSTEM_LOG("VideoSplit  server init ok");
 
 		return true;
@@ -165,7 +172,11 @@ namespace chen {
 		while (!m_stoped)
 		{
 			uDelta += time_elapse.get_elapse();
-			g_websocket_wan_server.update(uDelta);
+			if (g_cfg.get_uint32(ECI_OpenWebSocket))
+			{
+				g_websocket_wan_server.update(uDelta);
+			}
+			
 			g_http_queue_mgr.update(); 
 			g_camera_info_mgr.update(uDelta);
 			g_video_split_info_mgr.update(uDelta);

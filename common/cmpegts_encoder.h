@@ -25,8 +25,19 @@
 #ifndef _C_MPEGTS_ENCODER_H_
 #define _C_MPEGTS_ENCODER_H_
 #include "cnet_type.h"
+#ifdef _MSC_VER
+ 
 #include <WinSock2.h>
+#elif defined(__GNUC__) 
+ 
+#else
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+return false;
+#endif
+
 #include "cmpegts_define.h"
+#include <string>
 namespace chen {
 
 	class cmpegts_encoder
@@ -34,7 +45,9 @@ namespace chen {
 	public:
 
 		explicit cmpegts_encoder()
-			: m_m2ts_mode(false)
+			: m_ip("")
+			, m_port(0)
+			, m_m2ts_mode(false)
 			, m_pmt_start_pid(m_m2ts_mode == true ? (M2TS_PMT_PID): (0))
 			, m_m2ts_video_pid(M2TS_VIDEO_PID)
 			, m_m2ts_audio_pid(M2TS_AUDIO_START_PID)
@@ -53,7 +66,7 @@ namespace chen {
 		virtual ~cmpegts_encoder();
 
 	public:
-		bool init();
+		bool init(const char * ip, uint32 port);
 		void update(uint32 DataTime);
 		void destroy();
 	public:
@@ -138,6 +151,8 @@ namespace chen {
 		bool _mpegts_write_sdt();
 
 	private:
+		std::string		m_ip;
+		uint32			m_port;
 		bool			m_m2ts_mode;
 		int32			m_pmt_start_pid;
 		int32			m_m2ts_video_pid;
