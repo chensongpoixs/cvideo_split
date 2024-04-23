@@ -12,6 +12,7 @@ purpose:	camera mgr
 #include "clog.h"
 #include "chttp_code.h"
 #include <json/json.h>
+#include "cdecode.h"
 namespace chen {
 
 
@@ -23,10 +24,50 @@ namespace chen {
 	bool ccamera_info_mgr::init()
 	{
 		_load_camera_config();
+		m_check_camera_timestamp = ::time(NULL) + g_cfg.get_uint32(ECI_CheckCameraStatus);
+		update(0);
+		m_stoped = false;
+		m_check_camera_status_thread = std::thread(&ccamera_info_mgr::_pthread_check_camera_status, this);
+		//m_check_camera_timestamp = ::time(NULL);
 		return true;
 	}
 	void ccamera_info_mgr::update(uint32 uDateTime)
 	{
+		 
+		if (::time(NULL) <  (g_cfg.get_uint32(ECI_CheckCameraStatus) + m_check_camera_timestamp))
+		{
+			{
+				clock_guard lock(m_checking_camera_lock);
+				if (m_checking_camera_info_status_list.empty())
+				{
+					for (std::pair<const uint32, CameraInfo>& pi : m_camera_info_map)
+					{
+						m_checking_camera_info_status_list.push_back(pi.second);
+					}
+				}
+				
+			}
+
+
+			m_check_camera_timestamp = ::time(NULL);
+		}
+		{
+
+			clock_guard  lock(m_checkend_camera_lock);
+			for (size_t i = 0; i < m_checkend_camera_info_status_list.size(); ++i)
+			{ 
+				CAMERA_INFO_MAP::iterator iter =  m_camera_info_map.find(m_checkend_camera_info_status_list[i].camera_id());
+				if (iter != m_camera_info_map.end())
+				{
+					iter->second.set_state(m_checkend_camera_info_status_list[i].state());
+				}
+				else
+				{
+					WARNING_EX_LOG("not find [camera id = %u][%s:%u]", m_checkend_camera_info_status_list[i].camera_id(), m_checkend_camera_info_status_list[i].ip().c_str(), m_checkend_camera_info_status_list[i].port());
+				}
+			}
+			m_checkend_camera_info_status_list.clear();
+		}
 		if (m_data_type != EDataNone)
 		{
 			_write_all_camera_config();
@@ -35,12 +76,20 @@ namespace chen {
 	}
 	void ccamera_info_mgr::destroy()
 	{
+		m_stoped = true;
+		if (m_check_camera_status_thread.joinable())
+		{
+			m_check_camera_status_thread.join();
+		}
 		if (m_data_type != EDataNone)
 		{
 			_write_all_camera_config();
 			m_data_type = EDataNone;
 		}
 		m_camera_info_map.clear();
+
+		m_checkend_camera_info_status_list.clear();
+		m_checking_camera_info_status_list.clear();
 	}
 	cresult_add_camera_info ccamera_info_mgr::handler_add_camera_infos(const AddCameraInfos& msg)
 	{
@@ -317,5 +366,60 @@ namespace chen {
 			//if ()
 		}
 
+	}
+	void ccamera_info_mgr::_pthread_check_camera_status()
+	{
+		CameraInfo camera_info;
+		bool  camera = false;
+		uint32  second = 0;
+		while (!m_stoped)
+		{
+			{
+				clock_guard lock(m_checking_camera_lock);
+				if (m_checking_camera_info_status_list.size() > 0)
+				{
+					camera = true;
+					camera_info = m_checking_camera_info_status_list.front();
+					m_checking_camera_info_status_list.pop_front();
+				}
+			}
+			if (camera)
+			{
+				cdecode decode;
+				std::string url = "udp://@" + camera_info.address() + ":" + std::to_string(camera_info.port());
+				bool open = decode.init(0, url.c_str(), 10);
+				decode.destroy();
+				if (!open)
+				{
+					WARNING_EX_LOG("not open camera [%s ]", url.c_str());
+				}
+				camera_info.set_state(open == true ? ECameraRuning : ECameraNone);
+				{
+					clock_guard lock(m_checkend_camera_lock);
+					m_checkend_camera_info_status_list.push_back(camera_info);
+				}
+				camera = false;
+			}
+			{
+				clock_guard lock(m_checkend_camera_lock);
+				if (m_checking_camera_info_status_list.empty())
+				{
+					second  = 20;
+				  }
+				else
+				{
+					second  = 0;
+				}
+			}
+			if (second > 0)
+			{
+				std::this_thread::sleep_for(std::chrono::seconds(second));
+			}
+
+
+
+
+
+		}
 	}
 }

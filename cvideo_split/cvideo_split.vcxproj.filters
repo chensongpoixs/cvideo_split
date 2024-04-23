@@ -29,6 +29,7 @@
     <ClCompile Include="cclient_msg_dispatch.cpp">
       <Filter>websocket</Filter>
     </ClCompile>
+    <ClCompile Include="ccamera_status_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ccamera_info_mgr.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="cclient_msg_dispatch.h">
       <Filter>websocket</Filter>
     </ClInclude>
+    <ClInclude Include="ccamera_status_mgr.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="websocket">

@@ -79,7 +79,7 @@ namespace chen {
 			}
 			else
 			{
-				camera_info.url = (camera_info_ptr->url());
+				camera_info.url = "udp://@" + camera_info_ptr->address() + ":" + std::to_string(camera_info_ptr->port());
 			}
 			m_camera_infos.push_back(camera_info);
 			//camera_info.url = video_split_info->camera_group(i).();
@@ -191,7 +191,7 @@ namespace chen {
 	{
 		for (int32 i = 0; i < m_camera_infos.size(); ++i)
 		{
-			cdecode* decoder_ptr = new cdecode();
+			cdecode* decoder_ptr = new cdecode(); 
 			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str(), i))
 			{
 				decoder_ptr->destroy();

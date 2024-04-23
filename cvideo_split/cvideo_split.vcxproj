@@ -142,7 +142,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WIN32;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;NDEBUG;_WIN32_WINNT=0x0602;_INTSAFE_H_INCLUDED_;_WINSOCK_DEPRECATED_NO_WARNINGS;_WINDOWS;MS_LITTLE_ENDIAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ccamera_info_mgr.cpp" />
+    <ClCompile Include="ccamera_status_mgr.cpp" />
     <ClCompile Include="ccfg.cpp" />
     <ClCompile Include="cclient_msg_dispatch.cpp" />
     <ClCompile Include="cdecode.cpp" />
@@ -189,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ccamera_info_mgr.h" />
+    <ClInclude Include="ccamera_status_mgr.h" />
     <ClInclude Include="ccfg.h" />
     <ClInclude Include="cclient_msg_dispatch.h" />
     <ClInclude Include="cdecode.h" />
