@@ -270,8 +270,65 @@
                     {
                         Play(data);
                     }
+                    else if (obj.event === 'modify')
+                    {
+                        ModifyPj(obj);
+                    }
                 });
             });
+        }
+
+
+        function ModifyPj(data1)
+        {
+            console.log('ModifyPj = ' + JSON.stringify(data1));
+     
+            stopVideo();
+            layer.open({
+                type: 2,
+                title: '修改摄像机信息',
+                shadeClose: true,
+                shade: 0.8,
+                area: ['645px', '717px'],
+                btnAlign: 'c', //按钮居中
+                content: ['/ModifyCameraInfo.html?id=' + data1.data.camera_id +'&camera_name=' + data1.data.camera_name + '&ip='+data1.data.ip + '&address=' + data1.data.address + '&port='+ data1.data.port, 'no'],
+                end: function ()
+                {
+                    location.reload();
+                }
+            }); 
+            // playVideo(data);
+            // layer.open({
+            //     type: 1,
+            //     btn: ['播放', '暂停'],
+            //     title: '播放视频',
+            //     skin: 'layui-layer-rim', //加上边框
+            //     area: ['531px', '361px'], //宽高
+            //     content: $("#Unaudited"),
+            //     btnAlign: 'c', //按钮居中
+            //     btn1: function (index, layero)
+            //     {
+            //         playVideo(data);
+            //     },
+            //     btn2: function () {
+            //         stopVideo();
+            //     },
+            //     success: function(layero)
+            //     {
+            //         console.log('success');
+            //     },
+            //     cancel: function()
+            //     {
+            //         console.log('cancel');
+            //         stopVideo();
+            //     },
+            //     end: function()
+            //     {
+            //         console.log('end');
+            //     }
+
+
+            // });
         }
 
         //删除行
@@ -566,7 +623,8 @@ function AddCamera()
         title: '添加摄像机信息',
         shadeClose: true,
         shade: 0.8,
-        area: ['1445px', '717px'],
+        area: ['645px', '717px'],
+        btnAlign: 'c', //按钮居中
         content: ['/CameraInfo.html', 'no'],
         end: function () {
             location.reload();

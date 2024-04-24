@@ -11,7 +11,9 @@ const decoder_url_address = 'ws://192.168.2.91:9600';
            
             let camera_infos_ = [];
              
-            camera_infos_.push({"ip": data.ip,
+            camera_infos_.push({
+            						"camera_id": data.camera_id,
+            						"ip": data.ip,
                                     "camera_name": data.camera_name,
                                     "address": data.address, 
                                     "port": parseInt(data.port),
