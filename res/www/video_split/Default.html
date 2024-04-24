@@ -51,8 +51,14 @@
                 console.log('element -->  !!!' + JSON.stringify(data));
                     if (data.index == 1) 
                     {
-                        window.frames["index"].contentWindow.CloseWindowForm();
+                        window.frames["index"].contentWindow.location.reload(true);
+                          // window.frames["Resources"].contentWindow.CloseWindowForm();
                        // sendAjax();
+                   }
+                   else //reload
+                   {
+                        window.frames["Resources"].contentWindow.location.reload(true);
+                          // window.frames["index"].contentWindow.CloseWindowForm();
                    }
                 });
         });
@@ -62,9 +68,13 @@
             var ifm2 = document.getElementById("index");
             var height = document.documentElement.clientHeight;
             if (height < 800)
+            {
                 ifm2.height= ifm1.height = document.documentElement.clientHeight - 80;
+            }
             else
+            {
                 ifm2.height =ifm1.height = 884;
+            }
         }
         window.onresize = function () 
         {

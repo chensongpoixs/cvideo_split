@@ -91,7 +91,7 @@
 
             var uploadFile = upload.render({ //允许上传的文件后缀
                 elem: '#onexcel',
-                url: api_execl_address + 'user/parse_table',//coreApiAddress+'api/values/ee',
+                url: api_execl_address + '/user/parse_table',//coreApiAddress+'api/values/ee',
                 //drag: false,
                 accept: 'file',
                 size: 4096000,
@@ -538,7 +538,7 @@ function ForEachState(arr)
         if(arr.length>0)
         {
             $.each(arr,(index,item)=>{
-                console.log('ForEachState = ' + JSON.stringify(arr));
+                // console.log('ForEachState = ' + JSON.stringify(arr));
                 if(item.state===1)
                 {
 					$("#"+item.camera_id+"").html('正常')
