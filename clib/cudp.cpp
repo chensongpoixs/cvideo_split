@@ -231,7 +231,10 @@ namespace chen {
 					//perror("recvfrom failed");
 					continue;
 				}
-
+				if (std::string(inet_ntoa(clientAddr.sin_addr)) != std::string(ip))
+				{
+					WARNING_EX_LOG("recv [address = %s][ip = %s]", inet_ntoa(clientAddr.sin_addr), ip);
+				}
 
 				if (num_bytes_received > 0)
 				{
