@@ -215,7 +215,7 @@ namespace chen {
 			 
 #endif 
  
-		//	std::cout << "Listening for multicast messages on " << GROUP << ":" << PORT << std::endl;
+		 	 
 			sockaddr_in clientAddr;
 			int clientAddrSize = sizeof(clientAddr);
 			int32 count = 0;
@@ -235,6 +235,7 @@ namespace chen {
 				if (num_bytes_received > 0)
 				{
 					 closesocket(sockfd);
+					 
 					return true;
 				}
 				// 显示接收到的数据

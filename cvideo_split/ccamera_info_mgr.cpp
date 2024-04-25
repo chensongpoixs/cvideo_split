@@ -444,7 +444,7 @@ namespace chen {
 					m_checking_camera_info_status_list.pop_front();
 				}
 			}
-			if (camera)
+			if (camera && !m_stoped)
 			{
 				/*cdecode decode;
 				std::string url = "udp://@" + camera_info.address() + ":" + std::to_string(camera_info.port());
@@ -460,12 +460,13 @@ namespace chen {
 					m_checkend_camera_info_status_list.push_back(camera_info);
 				}
 				camera = false;*/
-
-				bool open = udp_util::test_udp_connect(camera_info.ip().c_str(), camera_info.address().c_str(), camera_info.port());
+				//SYSTEM_LOG("start [%s:%u]", camera_info.address().c_str(), camera_info.port());
+				bool open =   udp_util::test_udp_connect(camera_info.ip().c_str(), camera_info.address().c_str(), camera_info.port());
 				if (!open)
 				{
 					WARNING_EX_LOG("not open camera[address = %s] [%s:%u ]", camera_info.ip().c_str(),  camera_info.address().c_str(), camera_info.port());
 				}
+				//SYSTEM_LOG("end [%s:%u]", camera_info.address().c_str(), camera_info.port());
 				camera_info.set_state(open == true ? ECameraRuning : ECameraNone);
 				{
 					clock_guard lock(m_checkend_camera_lock);
@@ -474,20 +475,22 @@ namespace chen {
 				camera = false;
 
 			}
+			if (!m_stoped)
 			{
 				clock_guard lock(m_checkend_camera_lock);
 				if (m_checking_camera_info_status_list.empty())
 				{
-					second  = 20;
+					second  = 100;
 				  }
 				else
 				{
 					second  = 0;
 				}
 			}
-			if (second > 0)
+			if (second > 0 && !m_stoped)
 			{
-				std::this_thread::sleep_for(std::chrono::seconds(second));
+				std::this_thread::sleep_for(std::chrono::milliseconds(second));
+				second = 0;
 			}
 
 

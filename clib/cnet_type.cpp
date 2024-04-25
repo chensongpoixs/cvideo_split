@@ -45,7 +45,7 @@ namespace chen
 		}
 #if defined(_MSC_VER)
 
-		closesocket(socket);
+		::closesocket(socket);
 
 #elif defined(__GNUC__)
 
