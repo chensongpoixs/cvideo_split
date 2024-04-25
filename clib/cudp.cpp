@@ -205,7 +205,7 @@ namespace chen {
 			}
 #ifdef _MSC_VER
 			u_long param = 1;
-			::ioctlsocket(sockfd, FIONBIO, &param);
+			 ::ioctlsocket(sockfd, FIONBIO, &param);
 #elif defined(__GNUC__) 
 			 fcntl(sockfd, F_SETFL, fcntl(sockfd, F_GETFL) | O_NONBLOCK);
 #else 
@@ -219,11 +219,12 @@ namespace chen {
 			sockaddr_in clientAddr;
 			int clientAddrSize = sizeof(clientAddr);
 			int32 count = 0;
-			while (count++ < 5)
+			
+			while (  count++ < 50 )
 			{
-				//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				//
 				// 接收数据
-				
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				int32 num_bytes_received = recvfrom(sockfd, buffer, 1024, 0, (sockaddr*)&clientAddr, &clientAddrSize);
 				if (num_bytes_received < 0) 
 				{
