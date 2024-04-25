@@ -259,8 +259,8 @@ namespace chen {
  
 #define GROUP "224.1.1.3"  // 组播地址
 #define BUF_SIZE 1024
-			WSADATA wsaData;
-			WSAStartup(MAKEWORD(2, 2), &wsaData);
+		//	WSADATA wsaData;
+		//	WSAStartup(MAKEWORD(2, 2), &wsaData);
 			 
 			int sockfd;
 			struct sockaddr_in addr;
@@ -297,8 +297,8 @@ namespace chen {
 				return  ;
 			}
 #define HAVE_WINSOCK2_H 0
-			u_long param = 1;
-			  ::ioctlsocket(sockfd, FIONBIO, &param);
+		//	u_long param = 1;
+		//	  ::ioctlsocket(sockfd, FIONBIO, &param);
 #if HAVE_WINSOCK2_H
 			u_long param = enable;
 			return ioctlsocket(socket, FIONBIO, &param);

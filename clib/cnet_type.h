@@ -47,6 +47,8 @@ purpose:		net_types
 #define ENOTCONN        WSAENOTCONN
 #endif
 #elif defined(__GNUC__)
+  #include <unistd.h>
+       #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>

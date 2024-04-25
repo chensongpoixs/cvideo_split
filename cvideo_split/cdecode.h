@@ -29,6 +29,7 @@ purpose:		camera
 #include "cffmpeg_util.h"
 #include "cnet_type.h"
 #include <list>
+#include <thread>
 namespace chen {
 
 

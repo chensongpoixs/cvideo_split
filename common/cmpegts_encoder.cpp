@@ -28,8 +28,10 @@
 #include "ch264_define.h"
 #include "cnet_type.h"
 #include "cnet_type.h"
+#include <cstring>
 
-#include <WinSock2.h>
+
+//#include <WinSock2.h>
 
 extern "C"
 {
@@ -606,7 +608,13 @@ namespace chen {
 
     static av_always_inline av_const uint32_t static_av_bswap32(uint32_t x)
     {
-        return _byteswap_ulong(x);
+#ifdef _MSC_VER
+	        return _byteswap_ulong(x);
+#else
+		    return (x & 0x000000FF) << 24 | (x & 0x0000FF00) <<  8 |
+			               (x & 0x00FF0000) >>  8 | (x & 0xFF000000) >> 24;
+#endif
+     //   return _byteswap_ulong(x);
     }
     bool cmpegts_encoder::_mpegts_write_section(uint8* buf, int32 len)
     {
