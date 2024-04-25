@@ -13,6 +13,7 @@ purpose:	camera mgr
 #include "chttp_code.h"
 #include <json/json.h>
 #include "cdecode.h"
+#include "cudp.h"
 namespace chen {
 
 
@@ -112,13 +113,73 @@ namespace chen {
 					continue;
 				}
 
-					m_camera_index++;
+				m_camera_index++;
+				{
+						clock_guard lock(m_checking_camera_lock);
+						m_checking_camera_info_status_list.push_back(*camera_info_ptr);
+				}
 				//camera_info_ptr->set_camera_id();
 			}
 			m_data_type = EDataLoad;
 		}
 		return result;
 	}
+
+
+	cresult_add_camera_info ccamera_info_mgr::handler_modify_camera_infos(const AddCameraInfos& msg)
+	{
+		cresult_add_camera_info result;
+		if (msg.camera_infos_size() > 0)
+		{
+			for (size_t i = 0; i < msg.camera_infos_size(); ++i)
+			{
+				CameraInfo* camera_info_ptr = result.camera_infos.add_camera_infos();
+				if (!camera_info_ptr)
+				{
+					WARNING_EX_LOG("protobut alloc failed !!! ");
+					continue;
+				}
+				*camera_info_ptr = msg.camera_infos(i);
+
+				CAMERA_INFO_MAP::iterator iter =  m_camera_info_map.find(camera_info_ptr->camera_id());
+				if (iter != m_camera_info_map.end())
+				{
+					iter->second.set_address(camera_info_ptr->address());
+					iter->second.set_ip(camera_info_ptr->ip());
+					iter->second.set_camera_name(camera_info_ptr->camera_name());
+					iter->second.set_port(camera_info_ptr->port());
+					{
+						clock_guard lock(m_checking_camera_lock);
+						m_checking_camera_info_status_list.push_back(*camera_info_ptr);
+					}
+				}
+				else
+				{
+					result.result = EWebModifyNotFindCameraId;
+					WARNING_EX_LOG("not modify failed !!! (cmaera_id = %u)", camera_info_ptr->camera_id());
+				}
+				/*camera_info_ptr->set_camera_id(m_camera_index);
+				if (!m_camera_info_map.insert(std::make_pair(m_camera_index, *camera_info_ptr)).second)
+				{
+					WARNING_EX_LOG("web insert camera [index = %u] failed !!!", m_camera_index);
+					continue;
+				}
+
+				m_camera_index++;*/
+				
+				//camera_info_ptr->set_camera_id();
+			}
+			m_data_type = EDataLoad;
+		}
+		else
+		{
+		//	result.result = 3;
+			WARNING_EX_LOG("not find modify camera info data failed !!!");
+		}
+		return result;
+	}
+
+
 	cresult_camera_list ccamera_info_mgr::handler_camera_list(uint32 page, uint32 page_size)
 	{
 		cresult_camera_list result;
@@ -385,7 +446,7 @@ namespace chen {
 			}
 			if (camera)
 			{
-				cdecode decode;
+				/*cdecode decode;
 				std::string url = "udp://@" + camera_info.address() + ":" + std::to_string(camera_info.port());
 				bool open = decode.init(0, url.c_str(), 10);
 				decode.destroy();
@@ -398,7 +459,20 @@ namespace chen {
 					clock_guard lock(m_checkend_camera_lock);
 					m_checkend_camera_info_status_list.push_back(camera_info);
 				}
+				camera = false;*/
+
+				bool open = udp_util::test_udp_connect(camera_info.ip().c_str(), camera_info.address().c_str(), camera_info.port());
+				if (!open)
+				{
+					WARNING_EX_LOG("not open camera[address = %s] [%s:%u ]", camera_info.ip().c_str(),  camera_info.address().c_str(), camera_info.port());
+				}
+				camera_info.set_state(open == true ? ECameraRuning : ECameraNone);
+				{
+					clock_guard lock(m_checkend_camera_lock);
+					m_checkend_camera_info_status_list.push_back(camera_info);
+				}
 				camera = false;
+
 			}
 			{
 				clock_guard lock(m_checkend_camera_lock);

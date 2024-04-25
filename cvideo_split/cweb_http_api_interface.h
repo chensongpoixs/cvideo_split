@@ -26,6 +26,7 @@ namespace chen {
 
 		//virtual	  uint32_t update_auth_info(uint64_t auth_id) = 0;
 		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos& msg) = 0;
+		virtual   cresult_add_camera_info modify_camera_infos(const AddCameraInfos& msg) = 0;
 		virtual   cresult_camera_list camera_list(uint32 page, uint32 page_size) = 0;
 		virtual	  uint32			  delete_camera(uint32 camera_id) = 0;
 

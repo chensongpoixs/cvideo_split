@@ -172,7 +172,7 @@ namespace chen {
 		do {
 			p = avpriv_find_start_code(p, buf_end, &state);
 			//av_log(s, AV_LOG_TRACE, "nal %"PRId32"\n", state & 0x1f);
-			NORMAL_EX_LOG("[nal = %u]", state & 0X1F);
+			//NORMAL_EX_LOG("[nal = %u]", state & 0X1F);
 			if ((state & 0x1f) == H264_NAL_SPS)
 			{
 				extradd = 0;
@@ -698,7 +698,7 @@ namespace chen {
                 {
                     break;
                 }
-                NORMAL_EX_LOG("[udp send data len = %u]", ret);
+               // NORMAL_EX_LOG("[udp send data len = %u]", ret);
                 send_cur += ret;
             }
             m_send_len = 0;

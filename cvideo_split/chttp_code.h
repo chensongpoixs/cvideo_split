@@ -42,6 +42,7 @@ namespace chen {
 		EWebVideoSplitNotStart, //视频拼接没有
 		EWebVideoSplitStarting, //视频拼接已经存在或者开始了
 		EWebFindVideoSplitId, //通道id已经存在了
+		EWebModifyNotFindCameraId, //没有该摄像头id信息
 		
 	};
 }

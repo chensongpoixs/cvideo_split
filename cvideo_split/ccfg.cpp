@@ -60,11 +60,11 @@ namespace chen {
 		set_string(ECI_WebSocketWanIp, "websocket_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebSocketWanPort, "websocket_wan_port", 9600);
 		set_uint32(ECI_MediaRate, "media_rate", 10000);
-		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 3000);
-		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 3000);
+		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 1000);
+		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 1000);
 		set_uint32(ECI_UseGpuMaxCount, "use_gpu_max_count", 8);
 		set_uint32(ECI_OpenFfmpegMpegts, "open_ffmpeg_mpegts", 0);
-		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 15 * 60);
+		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 15 * 60 * 60);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

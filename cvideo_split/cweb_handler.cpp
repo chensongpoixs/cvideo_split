@@ -226,6 +226,100 @@ namespace chen {
 		//_send_message(response, result.result, NULL, resultdata);
 		 
 	}
+	void cweb_http_api_mgr::_handler_modify_camera_infos(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		NORMAL_EX_LOG("");
+		CWEB_GUARD_REPLY(response);
+		std::string  content = request->content.string();
+
+		// pase json 
+		Json::Reader reader;
+		Json::Value new_data;
+
+		if (!reader.parse((const char*)content.c_str(), (const char*)content.c_str() + content.size(), new_data))
+		{
+			WARNING_EX_LOG("parse  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonError, ret.c_str());
+			web_guard_reply.set_result(EWebJsonError);
+			return;
+		}
+		if (!new_data.isMember("camera_infos") || !new_data["camera_infos"].isArray())
+		{
+			WARNING_EX_LOG("parse  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonError, ret.c_str());
+			web_guard_reply.set_result(EWebJsonError);
+			return;
+		}
+		//if (new_data.isArray())
+
+		//create_render_app_struct create_app;
+		AddCameraInfos camera_infos;
+		Json::Value json_camera_infos = new_data["camera_infos"];
+		try
+		{
+			for (Json::ArrayIndex i = 0; i < json_camera_infos.size(); ++i)
+			{
+				Json::Value data = json_camera_infos[i];
+				uint32 camera_id = 0;
+				std::string address;
+				std::string	camera_name;
+				uint32 port = 0;
+				std::string url;
+				std::string ip;
+				PARSE_VALUE(camera_id, UInt);
+				PARSE_VALUE(address, String);
+				PARSE_VALUE(ip, String);
+				PARSE_VALUE(camera_name, String);
+				PARSE_VALUE(port, UInt);
+				PARSE_VALUE(url, String);
+				CameraInfo* camera_ptr = camera_infos.add_camera_infos();
+				if (!camera_ptr)
+				{
+					WARNING_EX_LOG("web parse json alloc protobuff failed !!!");
+					continue;
+				}
+				camera_ptr->set_ip(ip);
+				camera_ptr->set_camera_id(camera_id);
+				camera_ptr->set_address(address);
+				camera_ptr->set_camera_name(camera_name);
+				camera_ptr->set_port(port);
+				camera_ptr->set_url(url);
+			}
+
+		}
+		catch (const std::exception&)
+		{
+			WARNING_EX_LOG("parse value  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonParam, ret.c_str()); 
+			web_guard_reply.set_result(EWebJsonParam);
+			return;
+		}
+		cresult_add_camera_info result = g_web_http_api_proxy.modify_camera_infos(camera_infos);
+
+		web_guard_reply.set_result(result.result);
+		if (result.result == EWebSuccess)
+		{
+			for (size_t i = 0; i < result.camera_infos.camera_infos_size(); ++i)
+			{
+				Json::Value  CameraInfo;
+				CameraInfo["index"] = result.camera_infos.camera_infos(i).index();
+				CameraInfo["camera_id"] = result.camera_infos.camera_infos(i).camera_id();
+				CameraInfo["address"] = result.camera_infos.camera_infos(i).address();
+				CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
+				CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
+				CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
+				CameraInfo["ip"] = result.camera_infos.camera_infos(i).ip();
+				reply["camera_infos"].append(CameraInfo);
+			}
+		}
+
+		//_send_message(response, resultdata);
+		//_send_message(response, result.result, NULL, resultdata);
+
+	}
 
 	void cweb_http_api_mgr::_handler_camera_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
 	{

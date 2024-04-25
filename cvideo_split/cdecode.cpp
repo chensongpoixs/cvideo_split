@@ -379,7 +379,7 @@ namespace chen {
 				std::chrono::system_clock::now().time_since_epoch());
 
 			std::chrono::milliseconds diff_ms = decoder_ms - ms;
-			NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			//NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
 		}
 #endif // 
 		while (!valid)
@@ -410,7 +410,7 @@ namespace chen {
 					std::chrono::system_clock::now().time_since_epoch());
 
 				std::chrono::milliseconds diff_ms = decoder_ms - ms;
-				NORMAL_EX_LOG("av_read_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			//	NORMAL_EX_LOG("av_read_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
 			}
 #endif // 
 			if (ret == AVERROR(EAGAIN))
@@ -450,7 +450,7 @@ namespace chen {
 						std::chrono::system_clock::now().time_since_epoch());
 
 					std::chrono::milliseconds diff_ms = decoder_ms - ms;
-					NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]failed !!!", m_index, diff_ms.count());
+			//		NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]failed !!!", m_index, diff_ms.count());
 				}
 #endif //
 				av_packet_unref(m_packet_ptr);
@@ -464,7 +464,7 @@ namespace chen {
 					std::chrono::system_clock::now().time_since_epoch());
 
 				std::chrono::milliseconds diff_ms = decoder_ms - ms;
-				NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			//	NORMAL_EX_LOG("avcodec_send_packet [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
 			}
 #endif // 
 			av_packet_unref(m_packet_ptr);
@@ -479,7 +479,7 @@ namespace chen {
 						std::chrono::system_clock::now().time_since_epoch());
 
 					std::chrono::milliseconds diff_ms = decoder_ms - ms;
-					NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
+			//		NORMAL_EX_LOG("avcodec_receive_frame [decocker i = %u][decoder_ms = %u]", m_index, diff_ms.count());
 				}
 #endif // 
 #else

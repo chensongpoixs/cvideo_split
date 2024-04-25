@@ -25,6 +25,7 @@ namespace chen {
 	BEGIN_PROXY_MAP(cweb_http_api)
 
 		PROXY_WORKER_METHOD1(cresult_add_camera_info, add_camera_infos, const AddCameraInfos&)
+		PROXY_WORKER_METHOD1(cresult_add_camera_info, modify_camera_infos, const AddCameraInfos&)
 		PROXY_WORKER_METHOD2(cresult_camera_list, camera_list, uint32, uint32)
 		PROXY_WORKER_METHOD1(uint32, delete_camera, uint32)
 

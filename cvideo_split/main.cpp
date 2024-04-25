@@ -22,6 +22,7 @@
 #include "VideoSplit.pb.h"
 #include "cvideo_split_server.h"
 #include <json/json.h>
+#include "cudp.h"
 //#include "ccommon_xml.h"
 //void test_protobuf_json()
 //{
@@ -312,8 +313,14 @@ void RegisterSignal()
 	signal(SIGTERM, Stop);
 
 }
+void test_udp()
+{
+	chen::udp_util::test_udp_client();
+}
 int  main(int argc, char** argv) 
 {
+	/*test_udp();
+	return 0;*/
 	 /* char file_name[] = "D:/Work/cartificial_intelligence/source/libxml2/example/gjobs.xml";
 	chen::test_mxl_main(file_name);
 

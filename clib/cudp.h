@@ -1,9 +1,9 @@
 ﻿/***********************************************************************************************
-created: 		2019-03-01
+created: 		2019-05-12
 
 author:			chensong
 
-purpose:		net_types
+purpose:		cmem_pool
 
 
 输赢不重要，答案对你们有什么意义才重要。
@@ -22,72 +22,31 @@ purpose:		net_types
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
 ************************************************************************************************/
-#ifndef _C_NET_TYPE_H_
-#define _C_NET_TYPE_H_
+
+#ifndef _C_UDP_H_
+#define _C_UDP_H_
+#include <mutex>
+#include "cnet_type.h"
+namespace chen {
 
 
-#if defined(_MSC_VER)
+	namespace udp_util
+	{
+		struct addrinfo* ip_resolve_host(const char* hostname, int32 port, int32 type, int32 family, int32 flags);
 
-#include <winsock2.h>
-#include <ws2tcpip.h>
+		int32 udp_set_url(struct sockaddr_storage* addr, const char* hostname, int32 port);
 
-#ifndef EPROTONOSUPPORT
-#define EPROTONOSUPPORT WSAEPROTONOSUPPORT
-#endif
-#ifndef ETIMEDOUT
-#define ETIMEDOUT       WSAETIMEDOUT
-#endif
-#ifndef ECONNREFUSED
-#define ECONNREFUSED    WSAECONNREFUSED
-#endif
-#ifndef EINPROGRESS
-#define EINPROGRESS     WSAEINPROGRESS
-#endif
-#ifndef ENOTCONN
-#define ENOTCONN        WSAENOTCONN
-#endif
-#elif defined(__GNUC__)
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#else
-#pragma error "unknow platform!!!"
+		int32 udp_socket_create(struct sockaddr_storage* addr, socklen_t* addr_len, const char* localaddr);
 
-#endif
-namespace chen
-{
-	typedef signed char		int8;
-	typedef unsigned char	uint8;
-
-	typedef signed short	int16;
-	typedef unsigned short	uint16;
-
-	typedef signed int		int32;
-	typedef unsigned int	uint32;
-
-#if defined(_MSC_VER)
-
-	typedef signed long long	int64;
-	typedef unsigned long long	uint64;
-
-#elif defined(__GNUC__)
-
-	typedef signed long		int64;
-	typedef unsigned long	uint64;
-
-#else
-#pragma error "unknow platform!!!"
-
-#endif
+		int32 create_socket(int32 domain, int32 type, int32 protocol);
 
 
-	void  closesocket(int32 socket);
+
+		bool test_udp_connect(const char * ip, const char * udp_ip, uint32 port);
+
+
+		void test_udp_client();
+	}
 }
 
-
-
-#endif // !_C_NET_TYPE_H_
+#endif // _C_UDP_H_

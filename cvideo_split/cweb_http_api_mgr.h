@@ -62,6 +62,7 @@ namespace chen {
 	public:
 		//virtual	  uint32_t update_auth_info(uint64_t auth_id);
 		virtual   cresult_add_camera_info add_camera_infos(const AddCameraInfos & msg);
+		virtual   cresult_add_camera_info modify_camera_infos(const AddCameraInfos& msg);
 		virtual   cresult_camera_list camera_list(uint32 page, uint32 page_size);
 		virtual	  uint32			  delete_camera(uint32 camera_id);
 		 
@@ -80,6 +81,8 @@ namespace chen {
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 
 		void _handler_add_camera_infos(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		void _handler_modify_camera_infos(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+
 		void _handler_camera_list(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_delete_camera(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		

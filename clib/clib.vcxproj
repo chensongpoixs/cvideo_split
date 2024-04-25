@@ -160,6 +160,7 @@
     <ClCompile Include="crc4.cpp" />
     <ClCompile Include="csystem_info.cpp" />
     <ClCompile Include="ctime_api.cpp" />
+    <ClCompile Include="cudp.cpp" />
     <ClCompile Include="cutil.cpp" />
     <ClCompile Include="pugixml.cpp" />
   </ItemGroup>
@@ -186,6 +187,7 @@
     <ClInclude Include="ctime_api.h" />
     <ClInclude Include="ctime_const.h" />
     <ClInclude Include="ctime_elapse.h" />
+    <ClInclude Include="cudp.h" />
     <ClInclude Include="cutil.h" />
     <ClInclude Include="pugixml.hpp" />
   </ItemGroup>

@@ -37,4 +37,23 @@ namespace chen
 		static_assert(sizeof(int64) == 8, "sizeof(int64) != 8");
 		static_assert(sizeof(uint64) == 8, "sizeof(uint64) != 8");
 	}
+	void closesocket(int32 socket)
+	{
+		if (socket < 0)
+		{
+			return;
+		}
+#if defined(_MSC_VER)
+
+		closesocket(socket);
+
+#elif defined(__GNUC__)
+
+		close(socket);
+
+#else
+#pragma error "unknow platform!!!"
+
+#endif
+	}
 }  // chen
