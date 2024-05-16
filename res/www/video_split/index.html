@@ -177,7 +177,7 @@ function ajaxGet(url, successCallback, errorCallback) {
                     elem: '#datatable'
                     , cols: [[ //标题栏
                         {
-                            field: 'id', title: '序号', width: '4%', align: 'center', templet: '#id'
+                            field: 'numbers ', title: '序号', width: '4%', align: 'center', templet: '<span>{{d.LAY_TABLE_INDEX+1}}</span>'
                         }
                         , { field: 'split_channel_name', title: '通道名称', width: '30%' }
                         , { field: 'split_channel_id', title: 'ID', width: '15%' }
@@ -243,7 +243,7 @@ function ajaxGet(url, successCallback, errorCallback) {
                         else if(obj.event === 'restart')//重启拼接
                         {
                             restart_video_split(data.split_channel_id, 1);
-                            restart_video_split(data.split_channel_id, 1);
+                            restart_video_split(data.split_channel_id, 0);
                             // var send_str = '{"msg": "restart_tile","video_souce_info": [';
                             // send_str+=videoMsg(data);
                             // sendAjax(send_str,"restart");
@@ -272,8 +272,8 @@ function ajaxGet(url, successCallback, errorCallback) {
         function ModifyPJ(obj) 
 		{
 			console.log(obj);
-            EventTile(obj.split_channel_id,0);
-                            $("#"+obj.split_channel_id+"").html('开启'); 
+            //EventTile(obj.split_channel_id,0);
+              //              $("#"+obj.split_channel_id+"").html('开启'); 
                            
             layer.open({
                 type: 2,
@@ -414,7 +414,13 @@ function ajaxGet(url, successCallback, errorCallback) {
         var   http_url = cmd_split_video_url + 'split_channel_id=' + split_channel_id + '&cmd=';
 
         ajaxGet(http_url + code, function(result){
-            
+            console.log('=================>' + http_url + JSON.stringify(result));
+            var objs = JSON.parse(result);
+                    console.log(objs);
+            if (objs.result == 0)
+            {
+                sendAjax();
+            }
         }, function(result){});
          
     }

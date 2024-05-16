@@ -19,15 +19,21 @@ function Decoder() {
     this.videoCallback = null;
     this.audioCallback = null;
     this.requestCallback = null;
-    this.ws == null
+    this.ws = null
     this.hDec = 0;
+    this.recvData = true;
 }
 
+Decoder.prototype.RecvStatus = function(recvData)
+{
+
+    this.recvData = recvData;
+}
 
 ///////////////////////////////////////// lkpadd
 Decoder.prototype.onWsMsg = function (evt) 
 {
-	console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
+	// console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
     if (evt.data.byteLength == 16 && this.hDec == 0) {
         var param = new Int16Array(evt.data);
         //var codecId=174;//265
@@ -51,7 +57,7 @@ Decoder.prototype.CreateVideoDec = function (url, domain) {
 
     var dec = this;
     if (this.ws == null) {
-        var wsurl = "ws://192.168.0.191:9600";
+        var wsurl = "ws://127.0.0.1:9600";
         this.ws = new WebSocket(wsurl);
         this.ws.binaryType = 'arraybuffer';
 
@@ -152,7 +158,7 @@ Decoder.prototype.onWasmLoaded = function () {
             w: width,
             h: height
         };
-		console.log('t = '+ kVideoFrame + ' s = ' + timestamp + ', w = ' + width + ', height = ' + height);
+		//console.log('t = '+ kVideoFrame + ' s = ' + timestamp + ', w = ' + width + ', height = ' + height);
         this.postMessage(objData, [objData.d.buffer]);
     }, 'viid');
 
@@ -183,9 +189,17 @@ self.onmessage = function (evt) {
         console.log("[ER] Decoder not initialized!");
         return;
     }
+    // if (!this.recvData)
+    // {
+    //     console.log("recvData = " + this.recvData);
+    //     return ;
+    // }
 
     var req = evt.data;
-    if (!self.decoder.wasmLoaded) {
+    if (!self.decoder.wasmLoaded) 
+    {
+        // console.log('req --> ');
+        // return  ;
         self.decoder.cacheReq(req);
         console.log("Temp cache req " + req.t + ".");
         return;

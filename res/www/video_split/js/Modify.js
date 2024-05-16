@@ -49,8 +49,9 @@ layui.use(['form', 'element'], function () {
 		//camera_paly();
         //BtnOkClick();
           console.log('------funciton -------- names = '+names.length +'-------------------->');
-        restart_video_split(1);
-        restart_video_split(0);
+        //restart_video_split(1);
+          playVideo();
+        //restart_video_split(0);
     });
 	
 	function ajaxGet(url, successCallback, errorCallback) 
@@ -249,7 +250,7 @@ function LoadTileVideo(data)
             if (data[j].camera_id === tileArray[i].camera_id)
             {
 
-                //console.log('data[j]. = ' + JSON.stringify(data[j]) + ", tileArray[j]" + JSON.stringify( tileArray[i]));
+                console.log('data[j]. = ' + JSON.stringify(data[j]) + ", tileArray[j]" + JSON.stringify( tileArray[i]));
                 var videoName = "videoName" +(parseInt(tileArray[i].index) +1);
                 let cur_select = document.getElementById(videoName);//.selectedIndex = 2;
                // document.getElementById(videoName).selectedIndex = parseInt(j);
@@ -388,20 +389,25 @@ function LoadTileVideo(data)
         }
         $("#imgDiv" + num).html('');
          $("#container"+num).attr("data-state",true);
-        if (num == 1) 
+        if (num === 1) 
         { 
             image1 =  img; 
             console.log('cameras.length() = '+ cameras.length +',cameras[num] = '+cameras[camera_index]);
              
             ExecuteCanvas1(cameras[camera_index].url); 
         }
-        else if (num == 2)
+        else if (num === 2)
         {
             image2 =  img; 
             ExecuteCanvas2(cameras[camera_index].url); 
             
         }
-        else if (num == 3) { image3 =  img; ExecuteCanvas3(); }
+        else if (num === 3)
+        { 
+            image3 =  img; 
+            console.log('cameras.length() = '+ cameras.length + ', camera_index= ' + camera_index + ', num = ' +num +',cameras[num] = '+cameras[camera_index]);
+            ExecuteCanvas3(cameras[camera_index].url); 
+        }
         else if (num == 4) { image4 =  img; ExecuteCanvas4(); }
         else if (num == 5) { image5 =  img; ExecuteCanvas5(); }
         else if (num == 6) { image6 =  img; ExecuteCanvas6(); }

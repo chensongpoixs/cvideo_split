@@ -492,7 +492,8 @@ function playVideo(data)
         canvas.height = 1080;
         //var url = " tstream://" + data.camera_id;
         //var url = " tstream://t100";
-        var url = data.url;
+        //var url = data.url;
+        var url = 'udp://@' + data.address + ':' + data.port;//data.url;
         document.player.play(domain, url, canvas);
         // 将点击事件与Canvas关联起来
         canvas.addEventListener('dblclick', handleClick);

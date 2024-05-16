@@ -9,8 +9,6 @@ var scaleX3 = 1;// 图片宽度缩放比例（当前实际/原始）
 var scaleY3 = 1;  // 图片高度缩放比例（当前实际/原始）
 var bgwidth3 = 417;
 var bgheight3 = 220;
-
-var img3 = new Image();
 //拖拽与拉伸方法
 //拖拽拉伸所需参数
 let params3 = {
@@ -32,11 +30,13 @@ imgDiv3.style.marginBottom = '20px';
 
 /**********************************************************************/
 $(function () {
-    ExecuteCanvas3();
+    ExecuteCanvas3( );
 })
 
+  //  var img2 = new Image();
 
-function ExecuteCanvas3() {
+function ExecuteCanvas3(url) 
+{
     // 创建canvas，用于显示被裁剪图片
     var myCanvas3 = document.createElement('canvas');
     myCanvas3.setAttribute('id', 'myCanvas3');
@@ -48,29 +48,29 @@ function ExecuteCanvas3() {
     myCanvas3.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
     myCanvas3.style.zIndex = 'auto';
 
-    var ctx3 = myCanvas3.getContext('2d');
-
-    // 被裁剪图片
-
-    img3.src = image3;
-    img3.setAttribute('id', 'img');
-    img3.width = bgwidth3;
-    img3.height = bgheight3;
-    img3.onload = function () {
-        console.log('onload()执行...');
-        ctx3.drawImage(img3, 0, 0, bgwidth3, bgheight3);
-        originWidth3 = img3.naturalWidth;
-        originHeight3 = img3.naturalHeight;
-        console.log('图片原始宽度=', originWidth3);
-        console.log('图片原始高度=', originHeight3);
-
-        cutImg3();
-    };
-    /**********************************************************************/
-
+    
     imgDiv3.appendChild(myCanvas3);
-}
+    // console.log('图片原始宽度=', originWidth2);
+    // console.log('图片原始高度=', originHeight2);
+    if ( camera_play3 != null)
+    {
+         camera_play3.stop();
+        // camera_play2 = null;
+    }
 
+    camera_play3 = new Player();
+    camera_play3.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas3);
+    originWidth3 = bgwidth3; //camera_play1.width();
+    originHeigh3 = bgheight3; //camera_play1.height();
+
+    console.log('3  width3 = ' + originWidth3 + ', originHeigh3 = ' + originHeigh3) ;
+    cutImg3();
+};
+/**********************************************************************/
+
+// imgDiv2.appendChild(myCanvas2);
+
+// }
 // 获取指定元素DOM
 const ID3 = function (id) {
     return document.getElementById(id);
@@ -83,17 +83,23 @@ let getCss3 = function (o, key) {
 
 
 // 裁剪得到的图片
-let clipImg3 = new Image();
-clipImg3.src = '';
-clipImg3.style.height = '100px';
-clipImg3.style.width = '100px';
-clipImg3.alt = '裁剪获得图片...';
+// let clipImg2 = new Image();
+// clipImg2.src = '';
+// clipImg2.style.height = '100px';
+// clipImg2.style.width = '100px';
+// clipImg2.alt = '裁剪获得图片...';
 
-function cutImg3() {
+//$(function () {
+//    cutImg();
+//});
+
+
+function cutImg3() 
+{
     var clickFlag = false;
     // 获取canvas中图片实际大小
-    var iCurWidth = img3.width;
-    var iCurHeight = img3.height;
+    var iCurWidth = originWidth3; /// img2.width;
+    var iCurHeight = originHeigh3; //img2.height;
     console.log('图片当前实际宽度=', iCurWidth);
     console.log('图片当前实际高度=', iCurHeight);
 
@@ -102,12 +108,12 @@ function cutImg3() {
     oRelDiv3.style.position = "absolute";
     oRelDiv3.style.width = iCurWidth + "px";
     oRelDiv3.style.height = iCurHeight + "px";
-    oRelDiv3.style.top ="377px" //myCanvas3.offsetTop + 'px';
+    oRelDiv3.style.top ="92px"; //myCanvas2.offsetTop + 'px';
     console.log('oRelDiv.style.top = ', oRelDiv3.style.top);
     oRelDiv3.id = "cropContainer3";
 
     var iOrigWidth = originWidth3;
-    var iOrigHeight = originHeight3;
+    var iOrigHeight = originHeigh3;
     scaleX3 = iCurWidth / iOrigWidth; // 图片宽度缩放比例（当前实际/原始）
     scaleY3 = iCurHeight / iOrigHeight;  // 图片高度缩放比例（当前实际/原始）
     console.log('图片横向（宽度）缩放比=', scaleX3);
@@ -118,23 +124,22 @@ function cutImg3() {
 
     //初始化坐标与剪裁高宽
     //var cropW = 100; //截图框默认宽度
-    //var cropH = 100; //截图框默认高度
+   // var cropH = 100; //截图框默认高度
     /*console.log('myCanvas.offsetLeft=', myCanvas.offsetLeft);
     console.log('myCanvas.offsetTop=', myCanvas.offsetTop);*/
     //var posX = 0; //myCanvas.width / 2 - cropW / 2;  // 截图框左上角x坐标
     //var posY = 0; //myCanvas.height / 2 - cropH / 2;    // 截图框左上角y坐标
     /*console.log('posX=',posX);
     console.log('posY=',posY);*/
-   if($("#up3").val()=="") {$("#up3").val(0);}
-   if($("#left3").val()=="") {$("#left3").val(0);}
-   if($("#right3").val()=="") {$("#right3").val(100);}
-   if($("#down3").val()=="") {$("#down3").val(100);}
-
+    // if($("#up2").val()=="") {$("#up2").val(0);}
+    // if($("#left2").val()=="") {$("#left2").val(0);}
+    // if($("#right2").val()=="") {$("#right2").val(100);}
+    // if($("#down2").val()=="") {$("#down2").val(100);}
     var cropW=parseInt($("#right3").val())-parseInt($("#left3").val());
     var cropH=parseInt($("#down3").val())-parseInt($("#up3").val());
     var posY = parseInt($("#up3").val());
     var posX = parseInt($("#left3").val());
- 
+
     oRelDiv3.innerHTML = '<div id="zxxCropBox3" style="height:' + cropH + 'px; width:' + cropW + 'px; position:absolute; left:' +
         posX + 'px; top:' + posY + 'px; border:1px solid black;">' +
         '<div id="zxxDragBg3" style="height:100%; background:white; opacity:0.3; filter:alpha(opacity=30); cursor:move"></div>' +
@@ -147,18 +152,24 @@ function cutImg3() {
         '<div id="dragRightCenter3" style="position:absolute; width:4px; height:4px; border:1px solid #000; background:white; overflow:hidden; right:-3px; top:50%; margin-top:-3px; cursor:e-resize;"></div> ' +
         '<div id="dragLeftCenter3" style="position:absolute; width:4px; height:4px; border:1px solid #000; background:white; overflow:hidden; left:-3px; top:50%; margin-top:-3px; cursor:w-resize;"></div>' +
         '</div>';
-    // $("#up3").val(0);
-    // $("#left3").val(0);
-    // $("#down3").val(100);
-    // $("#right3").val(100);
+  
+    
     if($("#up3").val()=="")
-    $("#up3").val(0);
-  if($("#left3").val()=="")
-  $("#left3").val(0);
-  if($("#down3").val()=="")
-  $("#down3").val(100);
-  if($("#right3").val()=="")
-  $("#right3").val(100);
+    {
+        $("#up3").val(100);
+    }
+    if($("#left3").val()=="")
+    {
+        $("#left3").val(100);
+    }
+    if($("#down3").val()=="")
+    {
+        $("#down3").val(100);
+    }
+    if($("#right3").val()=="")
+    {
+        $("#right3").val(100);
+    }
     ID("cropImageWidth3").value = parseInt(ID("zxxCropBox3").style.width);
     ID("cropImageHeight3").value = parseInt(ID("zxxCropBox3").style.height);
 
@@ -176,7 +187,9 @@ function cutImg3() {
             params3.top = getCss3(target, "top");
         }
         //target是移动对象
-        point.onmousedown = function (event) {
+        point.onmousedown = function (event) 
+        {
+            console.log('---->>>> dsflkjd down');
             params3.kind = kind;
             params3.flag = true;
             clickFlag = true;
@@ -193,7 +206,9 @@ function cutImg3() {
                 return false;
             };
 
-            document.onmousemove = function (event) {
+            document.onmousemove = function (event) 
+            {
+                console.log('mouse move --> 2');
                 let e = event ? event : window.event;
                 clickFlag = false;
                 if (params3.flag) {
@@ -217,8 +232,8 @@ function cutImg3() {
                         if (parseInt(params3.width) + disX + parseInt(params3.left) < bgwidth3)
                            target.style.width = parseInt(params3.width) + disX + "px";
                     } else if (params3.kind === "s") { //下拉伸
-                        if (parseInt(params3.height) + disY + parseInt(params3.top) < bgheight3)
-                            target.style.height = parseInt(params3.height) + disY + "px";
+                        if (parseInt(params3.height) + disY + parseInt(params3.top) < bgheight3) 
+                           target.style.height = parseInt(params3.height) + disY + "px";
                     } else if (params3.kind === "nw") { //左上拉伸
                         if (parseInt(params3.left) + disX > 0 && parseInt(params3.top) + disY > 0) {
                             target.style.left = parseInt(params3.left) + disX + "px";
@@ -258,7 +273,7 @@ function cutImg3() {
                 document.onmouseup = function () {
                     document.onmousemove = null;
                     document.onmouseup = null;
-                    params3.flag = false;
+                    params2.flag = false;
                     if (getCss3(target, "left") !== "auto") {
                         params3.left = getCss3(target, "left");
                     }
@@ -294,7 +309,7 @@ function cutImg3() {
                     //ID("cropImageHeight").value = parseInt(ID("zxxCropBox").style.height);
                     var right = posX + parseInt(ID("zxxCropBox3").style.width);
                     if (right < 0) right = 0;
-                    var down = posY + parseInt(ID("zxxCropBox3").style.height);
+                    var down =  posY + parseInt(ID("zxxCropBox3").style.height);
                     if (down < 0) down = 0;
                     ID("left3").value = posX;
                     ID("up3").value = posY;
@@ -321,12 +336,16 @@ function cutImg3() {
 
 
     //图片不能被选中，目的在于使拖拽顺滑
-    ID3("myCanvas3").onselectstart = function () {
+    ID3("myCanvas3").onselectstart = function () 
+    {
+        console.log('onselectstart --> ');
         return false;
     };
-    img3.onselectstart = function () {
-        return false;
-    };
+    // img2.onselectstart = function () 
+    // {
+    //     console.log('onselectstart --->>>');
+    //     return false;
+    // };
 }
 
 //确认裁剪
@@ -336,7 +355,7 @@ function RequeryCrop3() {
     var w = document.getElementById("cropImageWidth3").value;
     var h = document.getElementById("cropImageHeight3").value;
     console.log('cropImage(img,', x, ',', y, ',', parseInt(w), ',', parseInt(h), ')');
-   // cropImage3(img3, x / scaleX3, y / scaleY3, parseInt(w) / scaleX3, parseInt(h) / scaleY3);
+   // cropImage2(img2, x / scaleX2, y / scaleY2, parseInt(w) / scaleX2, parseInt(h) / scaleY2);
 }
 
 

@@ -3,7 +3,8 @@ function Player() {
     this.frameBuffer = [];
     this.webglPlayer = null;
     this.playing = false;
-    this.initDecodeWorker();    
+    this.initDecodeWorker();   
+    this.RenderCamera = true; 
 }
 
 
@@ -11,7 +12,13 @@ function Player() {
 Player.prototype.initDecodeWorker = function () {
     this.decodeWorker = new Worker("decoder.js");
     var player = this;
-    this.decodeWorker.onmessage = function (evt) {
+    this.decodeWorker.onmessage = function (evt) 
+    {
+        if (!player.RenderCamera)
+        {
+            console.log('player.RenderCamera = ' + player.RenderCamera);
+            return;
+        }
         var objData = evt.data;
         switch (objData.t) {
             case kVideoFrame:
@@ -66,7 +73,7 @@ Player.prototype.play = function (domain, url, canvas) {
 
         this.canvas = canvas;
         this.displayLoop();
-
+        this.RenderCamera = true;
         //var playCanvasContext = playCanvas.getContext("2d"); //If get 2d, webgl will be disabled.
         this.webglPlayer = new WebGLPlayer(this.canvas, {
             preserveDrawingBuffer: false
@@ -90,9 +97,13 @@ Player.prototype.play = function (domain, url, canvas) {
             decWork.postMessage(VisiableEvent);
             if (visible) {
                 console.log("visible");
+                this.RenderCamera = true;
+               // decWork.recvData(true);
 
             } else {
+                this.RenderCamera = false;
                 console.log("not visible");
+               // decWork.recvData(false);
             }
 
         });

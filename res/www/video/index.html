@@ -67,13 +67,28 @@
             }
 
             document.player.play(domain,url, canvas);
+            console.log(' >>>>>>>>>>>>>>>>>>>>');
+            //注册上下文丢失和上下文恢复事件
+canvas.addEventListener('webglcontextlost', contextLost, false)
+canvas.addEventListener('webglcontextrestored', function (ev) {
+  console.log('webglcontextrestored>>>>>>>>>>>>>>>>>>>>');
+}, false)
+
+
+ 
             return true;
         }
 
         function stopVideo() {
             document.player.stop();
         }
-
+//上下文丢失事件触发处理
+function contextLost(ev) 
+{
+    console.log('webglcontextlost>>>>>>>>>>>>>>>>>>>>');
+ // cancelAnimationFrame(g_requestID) //停止动画
+ // ev.preventDefault() //阻止浏览器的默认行为
+}
 
         //发送消息示例
         function onsend() {
