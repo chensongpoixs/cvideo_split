@@ -325,6 +325,7 @@ int  main(int argc, char** argv)
 	chen::test_mxl_main(file_name);
 
 	return 0;*/
+	//av_log_set_level(AV_LOG_DEBUG);
 	RegisterSignal();
 	const char* config_filename = "server.cfg";
 	const char* log_path = "./log";

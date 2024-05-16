@@ -584,7 +584,7 @@ namespace chen {
 #endif // #if  _TEST_DECOCDE_DELAY_
 				if (diff_ms.count() < d_ms)
 				{
-					//std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
 
 			}

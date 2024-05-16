@@ -154,6 +154,7 @@ namespace chen {
 	}
 	void cmpegts_encoder::push_packet(bool I_frame, uint8* _data, uint32 size, int64 pts, int64 dts)
 	{
+       // return;
 		int32 ret = check_h264_startcode(_data, size);
 		if (ret < 0)
 		{
