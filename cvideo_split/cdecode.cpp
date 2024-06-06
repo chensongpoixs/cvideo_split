@@ -264,7 +264,7 @@ namespace chen {
 #endif
 		get_rotation_angle();
 		m_stoped = false;
-		m_thread = std::thread(&cdecode::_pthread_decoder, this);
+		//m_thread = std::thread(&cdecode::_pthread_decoder, this);
 
 		return true;
 		//return false;

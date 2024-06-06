@@ -159,7 +159,7 @@ function ajaxGet(url, successCallback, errorCallback) {
 			function(result)
 			{
 					var objs = JSON.parse(result);
-					console.log(objs);
+					// console.log(objs);
                   LoadTable(objs.video_split_infos);
 			}, function(result)
 			{
@@ -191,8 +191,9 @@ function ajaxGet(url, successCallback, errorCallback) {
                     ]]
                     , data: data
                     , page: true
-                    , limits: [13, 20, 30]
-                    , limit: 13
+                    , height: 'full-200' // 最大高度减去其他容器已占有的高度差
+                    , limits: [10, 20, 30, 50, 100]
+                    , limit: 10
                     , even: true,
                     done:function(res,curr,count)
                     {
@@ -266,6 +267,9 @@ function ajaxGet(url, successCallback, errorCallback) {
                 delete_video_split_channel_id(obj.data.split_channel_id);
                 obj.del();
                 layer.close(index);
+                // 刷新表格
+                location.reload();
+                                  //layer.reload('datatable');
             });
         }
         //修改拼接信息

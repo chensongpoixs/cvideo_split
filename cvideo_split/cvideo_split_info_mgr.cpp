@@ -14,6 +14,7 @@ namespace chen {
 
 
 	static std::unordered_set<std::string>    g_global_channel_id;
+	static std::unordered_map<uint32, std::unordered_map<std::string, std::string>>  g_global_video_channel;
 
 
 	static const char* g_video_split_json_name = "video_split_list.json";
@@ -96,9 +97,27 @@ namespace chen {
 	{
 		cresult_add_video_split result;
 		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(video_split_info.split_channel_id());
+		
+
+		
 
 		if (iter != m_video_split_info_map.end())
 		{
+			if (g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] != video_split_info.split_channel_id())
+			{
+				WARNING_EX_LOG("[global stsr = %s][ split channel = %s]", g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()].c_str(), video_split_info.split_channel_id().c_str());
+				result.result = EWebVideoChannelMulticastAddress;
+				return result;
+			}
+			else
+			{
+				// 删除信息
+				if (iter->second.multicast_ip() != video_split_info.multicast_ip() ||
+					iter->second.multicast_port() != video_split_info.multicast_port())
+				{
+					g_global_video_channel[iter->second.multicast_port()][iter->second.multicast_ip()] = "";
+				}
+			}
 			if (video_split_info.out_video())
 			{
 				video_split_info.set_out_video_width(iter->second.out_video_width());
@@ -149,12 +168,18 @@ namespace chen {
 			}
 			
 
-
+			g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] = video_split_info.split_channel_id();
 
 			*video_split_info.mutable_osd_info() = iter->second.osd_info();
 			result.video_split_info = video_split_info;
 			iter->second = video_split_info;
 			m_data_type = EDataLoad;
+			return result;
+		}
+
+		if (!g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()].empty())
+		{
+			result.result = EWebVideoChannelMulticastAddress;
 			return result;
 		}
 		if (video_split_info.out_video())
@@ -175,6 +200,7 @@ namespace chen {
 			WARNING_EX_LOG("web video split map insert  [id = %s] failed !!!", video_split_info.split_channel_id().c_str());
 			return result;
 		}
+		g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] = video_split_info.split_channel_id();
 
 		pi.first->second.set_id(m_video_split_index++);
 		result.video_split_info = pi.first->second;
@@ -245,6 +271,13 @@ namespace chen {
 		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(channel_id);
 		if (iter != m_video_split_info_map.end())
 		{
+			 
+				// TODO@chensong  20240606 删除信息
+				 
+				{
+					g_global_video_channel[iter->second.multicast_port()][iter->second.multicast_ip()] = "";
+				}
+			 
 			m_video_split_info_map.erase(iter);
 			NORMAL_EX_LOG("delete [video_split_channel_id = %s]", channel_id.c_str());
 			m_data_type = EDataLoad;
@@ -268,6 +301,7 @@ namespace chen {
 		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(video_osd.split_channel_id());
 		if (iter != m_video_split_info_map.end())
 		{
+
 			//m_video_split_info_map.erase(iter);
 			NORMAL_EX_LOG("  [video_split_channel_id = %s]", video_osd.split_channel_id().c_str());
 			OsdInfo* osd_info = iter->second.mutable_osd_info();;
@@ -447,7 +481,16 @@ namespace chen {
 			video_split_info.mutable_osd_info()->set_y(osd_json["y"].asDouble());
 			video_split_info.mutable_osd_info()->set_font_size(osd_json["font_size"].asUInt());
 			video_split_info.mutable_osd_info()->set_font_text(osd_json["font_text"].asString());
+			std::unordered_map<std::string, std::string>::const_iterator const_iter =  g_global_video_channel[video_split_info.multicast_port()].find(video_split_info.multicast_ip());
+			if (const_iter != g_global_video_channel[video_split_info.multicast_port()].end() && const_iter ->second != video_split_info.split_channel_id() )
+			{
+				WARNING_EX_LOG("[videosplit split_channel_id = %s]  multicat ip = %s, port = %u failed !!!", video_split_info.split_channel_id().c_str(), video_split_info.multicast_ip().c_str(), video_split_info.multicast_port());
 
+			}
+			 else
+			{
+				g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] = video_split_info.split_channel_id();
+			}
 			if (!m_video_split_info_map.insert(std::make_pair(video_split_info.split_channel_id(), video_split_info)).second)
 			{
 				WARNING_EX_LOG("[videosplit split_channel_id = %s] insert video_split info map failed !!!", video_split_info.split_channel_id().c_str());

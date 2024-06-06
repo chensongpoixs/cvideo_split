@@ -33,19 +33,21 @@ public class ExeclUtils
         if(file==null)
         {
             return null;
-        }else{
-            String postfix = ExcelTool.getPostfix(file.getName());
-            if(!ExcelTool.EMPTY.equals(postfix)){
-                if(ExcelTool.OFFICE_EXCEL_2003_POSTFIX.equals(postfix)){
-                    return readXls(file.getInputStream());
-                }else if(ExcelTool.OFFICE_EXCEL_2010_POSTFIX.equals(postfix)){
-                    return readXlsx(file.getInputStream());
-                }else{
-                    return null;
-                }
-            }
         }
-        return null;
+//        else
+//        {
+//            String postfix = ExcelTool.getPostfix(file.getOriginalFilename());
+//            if(!ExcelTool.EMPTY.equals(postfix)){
+//                if(ExcelTool.OFFICE_EXCEL_2003_POSTFIX.equals(postfix)){
+                    return readXls(file.getInputStream());
+//                }else if(ExcelTool.OFFICE_EXCEL_2010_POSTFIX.equals(postfix)){
+//                    return readXlsx(file.getInputStream());
+//                }else{
+//                    return null;
+//                }
+//            }
+//        }
+//        return null;
     }
 
 

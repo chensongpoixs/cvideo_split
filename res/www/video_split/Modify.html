@@ -81,10 +81,10 @@
                             <div style="float:left;width:170px;">
                                 <select name="style" id="style" lay-filter="style">
                                         <option value="2">二拼一</option>
-                                        <option value="3">三拼一</option>
+                                        <!-- <option value="3">三拼一</option>
                                         <option value="4">四拼一</option>
                                         <option value="8">八拼一</option>
-                                        <option value="10">十拼一</option>
+                                        <option value="10">十拼一</option> -->
                                 </select>
                             </div>
                         </div>
@@ -154,22 +154,22 @@
                         <div class="layui-inline" style="margin-left:150px;">
                             <button id="ModifyOSD" class="layui-btn layui-btn-normal"
                                 onclick="ModifyOSDsTYLE();" >编辑OSD</button>
-                            <button id="BtnOSDOK" class="layui-btn layui-btn-normal" onclick="SendOSD();" style="margin-left: 80px;"> 确定</button>
+                            <button id="BtnOSDOK" class="layui-btn layui-btn-normal" onclick="SendOSD();" style="margin-left: 80px;"> 添加</button>
                         </div>
                     </div>
                 </div>
                 <div class="layui-col-xs6">
                         <div class="layui-tab" style="margin: 0px;">
                             <ul class="layui-tab-title">
-                                <li class="layui-this" lay-id="11">相机群组1</li>
-                                <li lay-id="22">相机群组2</li>
-                                <li lay-id="33">相机群组3</li>
+                                <li class="layui-this" lay-id="11">相机组合</li>
+                               <!--  <li lay-id="22">相机群组2</li>
+                                <li lay-id="33">相机群组3</li> -->
                             </ul>
                             <div class="layui-tab-content" style="padding: 0px;">
                                 <div class="layui-tab-item layui-show">
                                     <ul id="resouces">
                                         <li>
-                                            <div style="width:100%;line-height:50px;">
+                                            <div style="width:100%;line-height:10px;">
                                                 <span style="padding-left:10px;">摄像机1</span>
                                                 <div class="layui-input-inline">
                                                     <div style="float:left;width:110px;">
@@ -277,8 +277,10 @@
                                             </div>
                                             <input type="hidden" id="cropImageHeight2" value="180" />
                                             <input type="hidden" id="cropImageWidth2" value="180" />
-                                        </li>
-                                        <li>
+                                        </li>  
+
+
+                                        <!-- <li>
                                             <div style="width:100%;line-height:50px;">
                                                 <span style="padding-left:10px;">摄像机3</span>
                                                 <div class="layui-input-inline">
@@ -332,8 +334,8 @@
                                             </div>
                                             <input type="hidden" id="cropImageHeight3" value="180" />
                                             <input type="hidden" id="cropImageWidth3" value="180" />
-                                        </li>
-                                        <li>
+                                        </li> -->
+                                       <!--  <li>
                                             <div style="width:100%;line-height:50px;">
                                                 <span style="padding-left:10px;">摄像机4</span>
                                                 <div class="layui-input-inline">
@@ -387,7 +389,7 @@
                                             </div>
                                             <input type="hidden" id="cropImageHeight4" value="180" />
                                             <input type="hidden" id="cropImageWidth4" value="180" />
-                                        </li>
+                                        </li> -->
                                     </ul>
                                 </div>
                                 <div class="layui-tab-item">
@@ -840,7 +842,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="layui-form-item">
+                        <div class="layui-form-item" style="margin-left:325px;margin-top: 100px;">
                             <button id="BtnOk" class="layui-btn layui-btn-normal" onclick="BtnOkClick(); ">确认</button>
                             <button id="BtnCancle" class="layui-btn layui-btn-normal" style="margin-left:100px;"
                                 onclick="BtnCancel();">

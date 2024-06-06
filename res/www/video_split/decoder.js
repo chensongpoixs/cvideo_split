@@ -105,7 +105,10 @@ Decoder.prototype.DecVideo = function (streamBuff, dataSize) {
 };
 Decoder.prototype.ReleaseVideoDecode = function () {
     console.log("release decoder");
-    this.ws.close();
+     if (this.ws != null)
+	 {
+		  this.ws.close();
+	 }
     this.ws = null;
     if (this.cacheBuffer != null) {
         Module._free(this.cacheBuffer);

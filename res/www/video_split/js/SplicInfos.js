@@ -609,10 +609,18 @@ function send_video_split(msg)
                 $("#pj_width").val(objs.data.out_video_width);
                 $("#pj_height").val(objs.data.out_video_height);
                 restart_video_split(0);
-               
+               layer.msg('添加成功');
+            }
+            else if (objs.result === 618)
+            {
+                    layer.msg('拼接组播地址和端口冲突!!！');
+            }
+            else 
+            {
+                layer.msg('添加拼接视频失败('+ objs.result+') ！！！ ');
             }
                 
-        }
+        } 
     }); 
 }
 function  restart_video_split(code)

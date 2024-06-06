@@ -39,6 +39,7 @@ $(function ()
 {
        GetParams();  
          console.log('camerain.js main -->');
+         camera_player_play();
     });
 
 function GetParams()//如果是修改拼接，需要解析URL传递过来的参数
@@ -143,11 +144,11 @@ function GetParams()//如果是修改拼接，需要解析URL传递过来的参�
                     if (objs.result == 0)
                     {
                        // InitData();//再读取绑定table
-                    	alert('modify camera info  ok  ' + result);
+                    	console.log('modify camera info  ok  ' + result);
                     }
                     else 
                     {
-                    	alert("modify camera info failed !!! ==> " + result);
+                    	console.log("modify camera info failed !!! ==> " + result);
                     }
                     
                 }

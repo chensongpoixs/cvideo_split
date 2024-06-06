@@ -119,11 +119,11 @@ $(function ()
                     if (objs.result == 0)
                     {
                        // InitData();//再读取绑定table
-                    	alert('add camera info  ok  ' + result);
+                    	console.log('add camera info  ok  ' + result);
                     }
                     else 
                     {
-                    	alert("add camera info failed !!! ==> " + result);
+                    	console.log("add camera info failed !!! ==> " + result);
                     }
                     
                 }

@@ -452,7 +452,7 @@ namespace chen {
 		AVFrame* frame_ptr[11] = {0};
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 25;
+		uint32  d_ms = 1000 / 50;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			if (!m_filter_frame_ptr)
@@ -481,7 +481,7 @@ namespace chen {
 					NORMAL_EX_LOG("===22>>>>> 11111111111111111 [decocker i = %u][decoder_ms = %u]", i, diff_ms.count());
 				}
 #endif // _TEST_DECOCDE_DELAY_
-					if (m_decodes[i]->get_frame(frame_ptr[i])    )
+					if (m_decodes[i]->retrieve(frame_ptr[i])    )
 					{ 
 #if  _TEST_DECOCDE_DELAY_
 						if (i == 1)
