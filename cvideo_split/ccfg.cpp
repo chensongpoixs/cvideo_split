@@ -64,7 +64,7 @@ namespace chen {
 		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 1000);
 		set_uint32(ECI_UseGpuMaxCount, "use_gpu_max_count", 8);
 		set_uint32(ECI_OpenFfmpegMpegts, "open_ffmpeg_mpegts", 0);
-		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 5 * 60);
+		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 60 * 60 );
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

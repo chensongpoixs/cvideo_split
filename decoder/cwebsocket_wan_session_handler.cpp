@@ -30,6 +30,7 @@ purpose:	网络数据的收发
 #include <json/json.h>
 #include "cwebsocket_wan_session.h"
 #include "clog.h"
+#include "cwebsocket_wan_server.h"
 namespace chen {
 	
 	bool    cwebsocket_wan_session::handler_play_url(Json::Value& value)
@@ -57,6 +58,11 @@ namespace chen {
 			m_decoder_ptr->destroy();
 			delete m_decoder_ptr;
 			m_decoder_ptr = NULL;
+			uint32 codec_id[8];
+			codec_id[0] = 28;
+			g_websocket_wan_server.send_msg(m_session_id, 323, &codec_id, sizeof(codec_id));
+			uint32 buffer[1024];
+			g_websocket_wan_server.send_msg(m_session_id, 323, &buffer, 1024);
 			WARNING_EX_LOG("[url = %s]  decoder init  failed !!!", url.c_str());
 			return false;
 		}

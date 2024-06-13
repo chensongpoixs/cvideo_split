@@ -28,10 +28,11 @@ namespace chen {
 		m_check_camera_timestamp = 0;
 		update(0);
 		//m_check_camera_timestamp = ::time(NULL) + g_cfg.get_uint32(ECI_CheckCameraStatus);
-		return true;
+		//return true;
 		//if (false)
 		{
 			m_stoped = false;
+			m_check_camera_timestamp = 0;
 			m_check_camera_status_thread = std::thread(&ccamera_info_mgr::_pthread_check_camera_status, this);
 		}
 		//m_check_camera_timestamp = ::time(NULL);
@@ -39,7 +40,7 @@ namespace chen {
 	}
 	void ccamera_info_mgr::update(uint32 uDateTime)
 	{
-		return;
+		//return;
 		if (::time(NULL) >  (g_cfg.get_uint32(ECI_CheckCameraStatus) + m_check_camera_timestamp))
 		{
 			{
@@ -83,14 +84,12 @@ namespace chen {
 	void ccamera_info_mgr::destroy()
 	{
 		m_stoped = true;
-		if (false
-			)
-		{
+		 
 			if (m_check_camera_status_thread.joinable())
 			{
 				m_check_camera_status_thread.join();
 			}
-		}
+		 
 		if (m_data_type != EDataNone)
 		{
 			_write_all_camera_config();
