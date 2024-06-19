@@ -55,8 +55,9 @@ namespace chen {
 			}
 			uint32 use_gpu_index = iter->second->get_use_gpu_index();
 			iter->second->destroy();
+			cvideo_splist* video_split_ptr = iter->second;
 			size_t size = m_video_split_map.erase(channel_name);
-			if (size > 0)
+			if (size > 0 && video_split_ptr)
 			{
 				if (use_gpu_index < m_gpu_use.size())
 				{
@@ -67,7 +68,7 @@ namespace chen {
 					WARNING_EX_LOG("[gpu size = %u][use gpu index = %u]", m_gpu_use.size(), use_gpu_index);
 				}
 				//iter->second->destroy();
-				delete iter->second;
+				delete video_split_ptr;
 				VideoSplitInfo* video_split_info_ptr = g_video_split_info_mgr.get_video_split_info(channel_name);
 				if (!video_split_info_ptr)
 				{

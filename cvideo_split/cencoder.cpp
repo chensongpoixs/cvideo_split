@@ -214,7 +214,7 @@ namespace chen {
 			ret = avcodec_open2(m_codec_ctx_ptr, m_codec_ptr,  /*&options*/ NULL);
 			if (ret < 0)
 			{
-				printf("[%s]Open encoder (%s:%u)failed !!!\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[%s]Open encoder (%u:%s)failed !!!\n", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return false;
 			}
 			if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
@@ -292,7 +292,8 @@ namespace chen {
 				WARNING_EX_LOG("[  %s:%u]  alloc pakcet failed !!!\n", m_ip.c_str(), m_port);
 				return false;
 			}
-
+			m_use_codec = true;
+			NORMAL_EX_LOG("open encoder -->");
 			return true;
 			//AVFrame* hw_frame = NULL;
 			return _init_gpu_frame();
@@ -329,8 +330,13 @@ namespace chen {
 				//::av_frame_free(m_codec_ctx_ptr->hw_device_ctx);
 				//m_codec_ctx_ptr->hw_device_ctx = NULL;
 			}
-			  ::avcodec_flush_buffers(m_codec_ctx_ptr);  
-			 ::avcodec_close(m_codec_ctx_ptr);
+			  if (m_use_codec)
+			  {
+				  ::avcodec_flush_buffers(m_codec_ctx_ptr);
+				  ::avcodec_close(m_codec_ctx_ptr);
+				  m_use_codec = false;
+			  }
+			  
 			  ::avcodec_free_context(&m_codec_ctx_ptr);
 			m_codec_ctx_ptr = NULL;
 		}

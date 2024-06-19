@@ -63,6 +63,7 @@ namespace chen {
 			, m_pts(0)
 			, m_hw_frame_ptr(NULL)
 			, m_empgets_ptr(NULL)
+			, m_use_codec(false)
 		{}
 		virtual ~cencoder(); 
 	public:
@@ -111,6 +112,7 @@ namespace chen {
 		FILE* m_input_file_ptr;*/
 
 		cmpegts_encoder* m_empgets_ptr;
+		bool			m_use_codec;
 
 
 	};

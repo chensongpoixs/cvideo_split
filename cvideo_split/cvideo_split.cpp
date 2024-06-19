@@ -464,7 +464,7 @@ namespace chen {
 
 		//SetThreadDescription(GetCurrentThread(), (PCWSTR)m_video_split_name.c_str());
 		//pthread_setname_np(pthread_self(), m_video_split_name.c_str());
-		//NORMAL_EX_LOG("");
+		NORMAL_EX_LOG("");
 		int32_t ret = 0;
 		AVFrame* frame_ptr[11] = {0};
 		uint64 dts = 0;
