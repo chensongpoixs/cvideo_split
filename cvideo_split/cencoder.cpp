@@ -315,7 +315,7 @@ namespace chen {
 		if (!m_stoped)
 		{
 			WARNING_EX_LOG("[%s:%u] stop = false\n", m_ip.c_str(), m_port);
-		//	return;
+		 	return;
 		}
 		m_ip.clear();
 		m_port = 0;
@@ -679,10 +679,11 @@ namespace chen {
 		int32_t sleep_ms = 1000  / 30;
 		AVFrame* frame_ptr = NULL;
 		int32_t frame_num = 0;
+		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped)
 		{
-			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
+			 
 			{
 				clock_guard lock(m_frame_lock);
 				frame_num = m_frame_list.size();
@@ -754,7 +755,7 @@ namespace chen {
 					WARNING_EX_LOG("[error][ %s:%u] interleaved write frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				}
 			}
-			if (frame_num <= 0)
+			//if (frame_num <= 0)
 			{
 				std::chrono::milliseconds cur_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch());
@@ -766,6 +767,8 @@ namespace chen {
 					std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms - diff_ms.count()));
 				}
 			}
+			ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
 			//std::this_thread::sleep_for(std::chrono::microseconds(10000000/25));
 		}
 	}

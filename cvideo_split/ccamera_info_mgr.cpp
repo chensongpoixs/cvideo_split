@@ -102,6 +102,7 @@ namespace chen {
 	}
 	cresult_add_camera_info ccamera_info_mgr::handler_add_camera_infos(const AddCameraInfos& msg)
 	{
+		clock_guard lock(m_checking_camera_lock);
 		cresult_add_camera_info result;
 		if (msg.camera_infos_size() > 0)
 		{
@@ -123,7 +124,7 @@ namespace chen {
 
 				m_camera_index++;
 				{
-						clock_guard lock(m_checking_camera_lock);
+						//clock_guard lock(m_checking_camera_lock);
 						m_checking_camera_info_status_list.push_back(*camera_info_ptr);
 				}
 				//camera_info_ptr->set_camera_id();
@@ -136,6 +137,7 @@ namespace chen {
 
 	cresult_add_camera_info ccamera_info_mgr::handler_modify_camera_infos(const AddCameraInfos& msg)
 	{
+		clock_guard lock(m_checking_camera_lock);
 		cresult_add_camera_info result;
 		if (msg.camera_infos_size() > 0)
 		{
@@ -193,7 +195,7 @@ namespace chen {
 		cresult_camera_list result;
 
 		
-
+		clock_guard lock(m_checking_camera_lock);
 
 		result.page_info.set_total_pages((m_camera_info_map.size() / page_size) + ((m_camera_info_map.size() % page_size)> 0? 1: 0));
 		result.page_info.set_total_elements(m_camera_info_map.size());
@@ -236,6 +238,7 @@ namespace chen {
 
 	uint32			ccamera_info_mgr::handler_delete_camera(uint32 camera_id)
 	{
+		clock_guard lock(m_checking_camera_lock);
 		CAMERA_INFO_MAP::iterator iter =  m_camera_info_map.find(camera_id);
 		if (iter != m_camera_info_map.end())
 		{
@@ -255,17 +258,19 @@ namespace chen {
 		WARNING_EX_LOG("not find [camera_id = %u]", camera_id);
 		return EWebNotFindCameraId;
 	}
-	const CameraInfo* ccamera_info_mgr::get_camera_info(uint32 camera_id) const
+	/*const CameraInfo* ccamera_info_mgr::get_camera_info(uint32 camera_id) const
 	{
+		clock_guard lock(m_checking_camera_lock);
 		CAMERA_INFO_MAP::const_iterator const_iterator =  m_camera_info_map.find(camera_id);
 		if (const_iterator != m_camera_info_map.end())
 		{
 			return &const_iterator->second;
 		}
 		return NULL;
-	}
+	}*/
 	CameraInfo* ccamera_info_mgr::get_camera_info(uint32 camera_id)  
 	{
+		clock_guard lock(m_checking_camera_lock);
 		CAMERA_INFO_MAP::iterator iterator = m_camera_info_map.find(camera_id);
 		if (iterator != m_camera_info_map.end())
 		{

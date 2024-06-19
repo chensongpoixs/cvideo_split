@@ -9,6 +9,7 @@ purpose:	video_split mgr
 #include "cvideo_split_info_mgr.h"
 #include "clog.h"
 #include "ccfg.h"
+#include "cvideo_split_mgr.h"
 #include "chttp_code.h"
 namespace chen {
 
@@ -272,7 +273,12 @@ namespace chen {
 		VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.find(channel_id);
 		if (iter != m_video_split_info_map.end())
 		{
-			 
+			 if (iter->second.status() != 0)
+			{
+				WARNING_EX_LOG("delete failed channel_id = %s ,  open !!!", channel_id.c_str());
+				g_video_split_mgr.handler_web_cmd_video_split(channel_id ,1 );
+				//return EWebDeleteVideoChannelOpen;
+			 }
 				// TODO@chensong  20240606 删除信息
 				 
 				{

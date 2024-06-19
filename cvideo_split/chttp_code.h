@@ -44,6 +44,8 @@ namespace chen {
 		EWebFindVideoSplitId, //通道id已经存在了
 		EWebModifyNotFindCameraId, //没有该摄像头id信息
 		EWebVideoChannelMulticastAddress, //组播地址冲突
+		EWebDeleteVideoChannelOpen, //视频正在拼接中
+
 		
 	};
 }

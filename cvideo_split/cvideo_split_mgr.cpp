@@ -69,7 +69,14 @@ namespace chen {
 				//iter->second->destroy();
 				delete iter->second;
 				VideoSplitInfo* video_split_info_ptr = g_video_split_info_mgr.get_video_split_info(channel_name);
-				video_split_info_ptr->set_status(0);
+				if (!video_split_info_ptr)
+				{
+					WARNING_EX_LOG("not find channel name = %s", channel_name.c_str());
+				}
+				else
+				{
+					video_split_info_ptr->set_status(0);
+				}
 				return EWebSuccess;
 			}
 			WARNING_EX_LOG("delete video split [channel_name = %s] failed !!!", channel_name.c_str());
