@@ -335,6 +335,27 @@ namespace chen {
 		 
 		for (size_t i = 0; i < result.camera_infos.camera_infos_size(); ++i)
 		{
+			if (result.camera_infos.camera_infos(i).state() == 0)
+			{
+				continue;
+			}
+			Json::Value  CameraInfo;
+			CameraInfo["index"] = result.camera_infos.camera_infos(i).index();
+			CameraInfo["camera_id"] = result.camera_infos.camera_infos(i).camera_id();
+			CameraInfo["address"] = result.camera_infos.camera_infos(i).address();
+			CameraInfo["camera_name"] = result.camera_infos.camera_infos(i).camera_name();
+			CameraInfo["port"] = result.camera_infos.camera_infos(i).port();
+			CameraInfo["url"] = result.camera_infos.camera_infos(i).url();
+			CameraInfo["ip"] = result.camera_infos.camera_infos(i).ip();
+			CameraInfo["state"] = result.camera_infos.camera_infos(i).state();
+			reply["camera_infos"].append(CameraInfo);
+		}
+		for (size_t i = 0; i < result.camera_infos.camera_infos_size(); ++i)
+		{
+			if (result.camera_infos.camera_infos(i).state() != 0)
+			{
+				continue;
+			}
 			Json::Value  CameraInfo;
 			CameraInfo["index"] = result.camera_infos.camera_infos(i).index();
 			CameraInfo["camera_id"] = result.camera_infos.camera_infos(i).camera_id();
@@ -498,6 +519,14 @@ namespace chen {
 				video_split_info.set_out_video_width(data["out_video_width"].asUInt());
 				video_split_info.set_out_video_height(data["out_video_height"].asUInt());
 			}
+			if (!data.isMember("camera_group_size") || !data["camera_group_size"].isInt64())
+			{
+				video_split_info.set_camera_groups_size(video_split_info.camera_group_size());
+			}
+			else
+			{
+				video_split_info.set_camera_groups_size(data["camera_group_size"].asInt64());
+			}
 		}
 		catch (const std::exception&)
 		{
@@ -527,7 +556,7 @@ namespace chen {
 			reply_video_split["overlay"] = result.video_split_info.overlay();
 			reply_video_split["out_video_width"] = result.video_split_info.out_video_width();
 			reply_video_split["out_video_height"] = result.video_split_info.out_video_height();
-			
+			reply_video_split["camera_group_size"] = result.video_split_info.camera_groups_size();
 			for (size_t i = 0; i < result.video_split_info.camera_group_size(); ++i)
 			{
 				Json::Value camera_group_reply;
@@ -566,6 +595,7 @@ namespace chen {
 			reply["video_split_infos"]["split_method"] = result.video_split_info.split_method();
 			reply["video_split_infos"]["out_video_width"] = result.video_split_info.out_video_width();
 			reply["video_split_infos"]["out_video_height"] = result.video_split_info.out_video_height();
+			reply["video_split_infos"]["camera_group_size"] = result.video_split_info.camera_groups_size();
 			for (size_t j = 0; j < result.video_split_info.camera_group_size(); ++j)
 			{
 				Json::Value  CameraInfo;
@@ -622,6 +652,7 @@ namespace chen {
 			video_split_info["split_method"] = result.video_split_infos[i].split_method();
 			video_split_info["out_video_width"] = result.video_split_infos[i].out_video_width();
 			video_split_info["out_video_height"] = result.video_split_infos[i].out_video_height();
+			video_split_info["camera_group_size"] = result.video_split_infos[i].camera_groups_size();
 			for (size_t j = 0; j < result.video_split_infos[i].camera_group_size(); ++j)
 			{
 				Json::Value  CameraInfo;

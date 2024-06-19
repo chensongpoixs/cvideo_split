@@ -319,6 +319,13 @@ void test_udp()
 }
 int  main(int argc, char** argv) 
 {
+	/*std::string chen = "chen\n";
+	if (chen[chen.length() - 1] = '\n');
+	{
+		printf("chensong--->");
+	}
+	printf("chen = %u\n", chen.length());
+	return 0;*/
 	/*test_udp();
 	return 0;*/
 	 /* char file_name[] = "D:/Work/cartificial_intelligence/source/libxml2/example/gjobs.xml";

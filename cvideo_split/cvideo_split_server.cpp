@@ -34,6 +34,7 @@
 #include "clib_util.h"
 #include "cclient_msg_dispatch.h"
 #include "csystem_info.h"
+#include "crandom.h"
 
 namespace chen {
 
@@ -95,12 +96,24 @@ namespace chen {
 		
 		
 
+		if (!_check_auth_info())
+		{
+			return false;
+		}
+
 		g_gpu_index = get_gpu_count();
+
+
+
+
 		
 		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
 		// check data path
 		
-		 
+		/*NORMAL_EX_LOG("uuid = [%s]", c_rand.rand_str(32).c_str());
+		NORMAL_EX_LOG("uuid = [%s]", c_rand.rand_str(32).c_str());
+		NORMAL_EX_LOG("uuid = [%s]", c_rand.rand_str(32).c_str());*/
+	//	return false;
 		// load camera data 
 		SYSTEM_LOG("Load camera_list data ...");
 		if (!g_camera_info_mgr.init())
@@ -220,6 +233,22 @@ namespace chen {
 	void cvideo_split_server::stop()
 	{
 		m_stoped = true;
+	}
+
+	bool cvideo_split_server::_check_auth_info()
+	{
+
+		static std::set<std::string>   g_auth_info = {"93sf014wp1817n6n8439d18zp8s057uv", "i2a04651s42156x22nkc9eu9s70u20o9", "83g6102thw18100qb45o223y75584436"};
+
+
+
+		std::set<std::string>::const_iterator iter = g_auth_info.find(g_cfg.get_string(ECI_AuthPass));
+		if (iter != g_auth_info.end())
+		{
+			return true;
+		}
+		WARNING_EX_LOG("auth_pass (%s) failed  !!!", g_cfg.get_string(ECI_AuthPass).c_str());
+		return false;
 	}
 
 }

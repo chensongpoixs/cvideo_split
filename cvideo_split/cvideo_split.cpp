@@ -27,6 +27,18 @@ purpose:		camera
 
 namespace chen {
 	static				std::mutex   g_avfilter_lock;
+
+	static std::string osd_text_str(const std::string& old)
+	{
+		std::string txt = old;
+		while (txt.length() > 0 && txt[txt.length() - 1] == '\n')
+		{
+			txt = txt.substr(0, txt.length() - 1);
+		}
+		return txt;
+	}
+
+
 	bool cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
 	{
 		if (!video_split_info)
@@ -57,6 +69,7 @@ namespace chen {
 			m_osd.y = video_split_info->osd_info().y() * m_out_video_height;
 			m_osd.fontsize = video_split_info->osd_info().font_size();
 			//m_osd.x = video_split_info->osd_info().x();
+			//std::string osd_text = video_split_info->osd_info().font_text();
 			m_osd.text = video_split_info->osd_info().font_text();
 			NORMAL_EX_LOG("[osd  font_size = %u][x = %s]", m_osd.fontsize, std::to_string(m_osd.x).c_str());
 		}
@@ -264,8 +277,9 @@ namespace chen {
 		//fontfile=simkai.ttf:fontcolor=red:fontsize=100:x=0:y=0:text='chensong'
 		if (m_osd.text.size() > 0)
 		{
-			std::string osd_args = "fontfile="+g_cfg.get_string(ECI_DataPath)+"/WenQuanYiMicroHei.ttf:fontcolor=red:fontsize=" + std::to_string(m_osd.fontsize)
-				+ ":x=" + std::to_string(m_osd.x ) + ":y=" + std::to_string(m_osd.y  ) + ":text='" + m_osd.text + "'";
+			//std::string text = 
+			std::string osd_args = "fontfile="+g_cfg.get_string(ECI_DataPath)+"/WenQuanYiMicroHei.ttf:fontcolor=black:fontsize=" + std::to_string(m_osd.fontsize)
+				+ ":x=" + std::to_string(m_osd.x ) + ":y=" + std::to_string(m_osd.y  ) + ":text='" + osd_text_str(m_osd.text) + "'";
 			ret = avfilter_graph_create_filter(&m_osd_ctx_ptr, ::avfilter_get_by_name("drawtext"),
 				"drawtext", osd_args.c_str(), NULL, m_filter_graph_ptr);
 			NORMAL_EX_LOG("[osd_args = %s]", osd_args.c_str());
@@ -279,7 +293,10 @@ namespace chen {
 				return false;
 			}
 		}
-		
+		else
+		{
+			WARNING_EX_LOG("not find osd !!!");
+		}
 		// 清理字典
 		//av_dict_free(&options);
 		// sink

@@ -48,6 +48,11 @@ namespace chen {
 
 	private:
 
+
+		bool _check_auth_info();
+	private:
+
+
 		bool	m_stoped;
 	private:
 

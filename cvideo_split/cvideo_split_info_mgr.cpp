@@ -165,6 +165,7 @@ namespace chen {
 					}
 				}
 				*video_split_info.mutable_camera_group() = iter->second.camera_group();
+				iter->second.set_camera_groups_size(video_split_info.camera_group_size());
 			}
 			
 
@@ -426,6 +427,7 @@ namespace chen {
 				WARNING_EX_LOG("config  warr camera_group !!!");
 				continue;
 			}
+			
 			if (!data[i].isMember("osd_info") || !data[i]["osd_info"].isObject())
 			{
 				WARNING_EX_LOG("config  warr osd_info !!!");
@@ -453,7 +455,14 @@ namespace chen {
 			Json::Value camera_infos_json = data[i]["camera_group"];
 
 			_parse_camera_group(camera_infos_json, video_split_info);
-
+			if (!data[i].isMember("camera_group_size") || !data[i]["camera_group_size"].isInt64())
+			{
+				video_split_info.set_camera_groups_size(video_split_info.camera_group_size());
+			}
+			else
+			{
+				video_split_info.set_camera_groups_size(data[i]["camera_group_size"].asInt64());
+			}
 
 			// OSD info
 			Json::Value osd_json = data[i]["osd_info"];
@@ -571,7 +580,7 @@ namespace chen {
 			video_split_info["overlay"] = iter->second.overlay();
 			video_split_info["out_video_width"] = iter->second.out_video_width();
 			video_split_info["out_video_height"] = iter->second.out_video_height();
-			
+			video_split_info["camera_group_size"] = iter->second.camera_groups_size();
 			for (size_t i = 0; i < iter->second.camera_group_size(); ++i)
 			{
 				Json::Value Camera_group_json;

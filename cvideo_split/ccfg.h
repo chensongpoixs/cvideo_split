@@ -55,6 +55,7 @@ namespace chen {
 		ECI_UseGpuMaxCount, //多显卡是 会不是0索引会崩溃  需要设置最大限制
 		ECI_OpenFfmpegMpegts,
 		ECI_CheckCameraStatus,
+		ECI_AuthPass,
 		ECI_Max,
 	};
 	class ccfg : public cconfig
