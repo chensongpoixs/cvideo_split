@@ -225,20 +225,20 @@ namespace chen {
 				//
 				// 接收数据
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				int32 num_bytes_received = recvfrom(sockfd, buffer, 1024, 0, (sockaddr*)&clientAddr, &clientAddrSize);
+				int32 num_bytes_received = ::recvfrom(sockfd, buffer, 1024, 0, (sockaddr*)&clientAddr, &clientAddrSize);
 				if (num_bytes_received < 0) 
 				{
 					//perror("recvfrom failed");
 					continue;
 				}
-				if (std::string(inet_ntoa(clientAddr.sin_addr)) != std::string(ip))
+				if (std::string(::inet_ntoa(clientAddr.sin_addr)) != std::string(ip))
 				{
 					WARNING_EX_LOG("recv [address = %s][ip = %s]", inet_ntoa(clientAddr.sin_addr), ip);
 				}
 
 				if (num_bytes_received > 0)
 				{
-					 closesocket(sockfd);
+					 ::closesocket(sockfd);
 					 
 					return true;
 				}

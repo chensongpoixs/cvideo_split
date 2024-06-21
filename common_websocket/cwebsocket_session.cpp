@@ -65,6 +65,7 @@ namespace chen {
 		
 		if (m_session_id != session_id/* || 0 == msg_id || ENSS_Open != m_status*/)
 		{
+			WARNING_EX_LOG("[m_session_id = %u][session_id = %u]", m_session_id, session_id);
 			return false;
 		}
 		

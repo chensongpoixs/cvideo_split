@@ -120,6 +120,7 @@ $(function ()
                     {
                        // InitData();//再读取绑定table
                     	console.log('add camera info  ok  ' + result);
+                        //layer.msg('摄像头资源添加成功!');
                     }
                     else 
                     {

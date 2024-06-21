@@ -34,8 +34,9 @@ function Decoder() {
 ///////////////////////////////////////// lkpadd
 Decoder.prototype.onWsMsg = function (evt) 
 {
-	//console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
+	// console.log('onWsMsg ---->>>> evt.data.byteLength =' + evt.data.byteLength);
     if (evt.data.byteLength == 16 && this.hDec == 0) {
+        // success
         var param = new Int16Array(evt.data);
         //var codecId=174;//265
         //var codecId=28;//264
@@ -46,6 +47,11 @@ Decoder.prototype.onWsMsg = function (evt)
         if (this.hDec == 0) {
             console.log("err CreateVideoDec failed");
         }
+    }
+    else if (evt.data.byteLength === 32 && this.hDec == 0)
+    {
+        // decodef failed 
+        console.log("chenosng");
     }
     else if (this.hDec != 0) {
         var stream = new Uint8Array(evt.data);
@@ -105,6 +111,8 @@ Decoder.prototype.DecVideo = function (streamBuff, dataSize) {
 };
 Decoder.prototype.ReleaseVideoDecode = function () {
     console.log("release decoder");
+    //  var stream = new Uint8Array(16060);
+    // this.DecVideo(stream, stream.byteLength);
      if (this.ws != null)
 	 {
 		  this.ws.close();

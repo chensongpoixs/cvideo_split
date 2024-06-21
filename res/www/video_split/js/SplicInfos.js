@@ -613,7 +613,7 @@ function send_video_split(msg)
             }
             else if (objs.result === 618)
             {
-                    layer.msg('拼接组播地址和端口冲突!!！');
+                    layer.msg('拼接组播地址和端口冲突!');
             }
             else 
             {

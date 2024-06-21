@@ -481,6 +481,8 @@ namespace chen {
 		uint64 dts = 0;
 		uint64 pts = 0;
 		uint32  d_ms = 1000 / 50;
+		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			if (!m_filter_frame_ptr)
@@ -492,126 +494,44 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-			// add buffer filter -->
-			// decoder 
-			//if (m_decode_ptr1->retrieve(frame_ptr))
-			//{
-			//	pts = m_decode_ptr1->get_pts();
-			//	dts = m_decode_ptr1->get_dts();
-			//	ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[0], frame_ptr);
-			//	//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr_);
-			//	if (ret < 0)
-			//	{
-			//		WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", 0, chen::ffmpeg_util::make_error_string(ret));
-			//		//break;
-			//		//return ret;
-			//		//::av_frame_unref(frame_ptr[i]);
-			//		//break;
-			//	}
-			//	::av_frame_unref(frame_ptr);
-			//}
-			//if (m_decode_ptr2->retrieve(frame_ptr))
-			//{
-			//	pts = m_decode_ptr2->get_pts();
-			//	dts = m_decode_ptr2->get_dts();
-			//	ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[1], frame_ptr);
-			//	//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr_);
-			//	if (ret < 0)
-			//	{
-			//		WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", 1, chen::ffmpeg_util::make_error_string(ret));
-			//		//break;
-			//		// 
-			//		// 
-			//		//return ret;
-			//		//::av_frame_unref(frame_ptr[i]);
-			//		//break;
-			//	}
-			//	::av_frame_unref(frame_ptr);
-			//}
-
-			//for (int32 wwww = 0; wwww < 2; ++wwww)
-			//if (false)
+			
+			 
 			{
 				int64  pts_s = 0;
 				for (int32 i = 0 ; i < m_decodes.size(); ++i)
 				{
-#if  _TEST_DECOCDE_DELAY_
-					if (i == 1)
-					{
-						std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-							std::chrono::system_clock::now().time_since_epoch());
-
-						std::chrono::milliseconds diff_ms = decoder_ms - ms;
-						NORMAL_EX_LOG("===22>>>>> 11111111111111111 [decocker i = %u][decoder_ms = %u]", i, diff_ms.count());
-					}
-#endif // _TEST_DECOCDE_DELAY_
-					//for (int32 pppp = 0; pppp < 2; ++pppp)
+ 
 					{
 						if (m_decodes[i]->retrieve(frame_ptr))
 						{
-#if  _TEST_DECOCDE_DELAY_
-							if (i == 1)
-							{
-								std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-									std::chrono::system_clock::now().time_since_epoch());
-
-								std::chrono::milliseconds diff_ms = decoder_ms - ms;
-								NORMAL_EX_LOG("===>>>>> 11111111111111111 [decocker i = %u][decoder_ms = %u]", i, diff_ms.count());
-					}
-#endif // #if  _TEST_DECOCDE_DELAY_
+ 
 							pts = m_decodes[0]->get_pts();
 							dts = m_decodes[0]->get_dts();
 							if (i == 0)
 							{
 								pts_s = frame_ptr->pts;
-							}
-							// add buffer filter -->
-						//	if (m_buffers_ctx_ptr.size() >= i && m_buffers_ctx_ptr[i])
-							{
-								//AVFrame* frame_ptr_ = av_frame_alloc();
-								//  av_frame_copy(frame_ptr_, frame_ptr);
+							} 
+							{ 
 								frame_ptr->pts = pts_s;
-								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-								//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr_);
+								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr); 
 								if (ret < 0)
 								{
 									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-									//break;
-									//return ret;
-									//::av_frame_unref(frame_ptr[i]);
-									//break;
+									 
 								}
-								//::av_frame_free(&frame_ptr_);
+								 
 
-							}
-							//break;
-						}
-						//else
-						//{
-						//	//WARNING_EX_LOG(" la --> [%u]uri = %s", i,  m_camera_infos[i].url.c_str());
-						//	//break;
-						//}
+							} 
+						} 
 
 						::av_frame_unref(frame_ptr);
 
 						if (m_stoped)
 						{
 							break;
-						}
-						//if (frame_ptr)
-						//{
-						//	::av_frame_unref(frame_ptr);
-						//}
+						} 
 					}
-#if  _TEST_DECOCDE_DELAY_
-					std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch());
-
-					std::chrono::milliseconds diff_ms = decoder_ms - ms;
-					NORMAL_EX_LOG("[decocker i = %u][decoder_ms = %u]", i, diff_ms.count());
-#endif // #if  _TEST_DECOCDE_DELAY_
+ 
 					//NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
 
 				}
@@ -622,14 +542,8 @@ namespace chen {
 				//中退出时啦 ^_^
 				break;
 			}
-			//continue;
-#if  _TEST_DECOCDE_DELAY_
-			std::chrono::milliseconds decoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now().time_since_epoch());
-
-			std::chrono::milliseconds diff_ms = decoder_ms - ms;
-			NORMAL_EX_LOG("----------------->[decoder_ms = %u]", diff_ms.count());
-#endif // #if  _TEST_DECOCDE_DELAY_
+			 
+ 
 			// get buffersink filer frame --> 
 			{
 				// TODO@chensong 20240403 OSD字体库thread 是不安全的啦 ！！！
@@ -673,6 +587,8 @@ namespace chen {
 				{
 					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
+				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
 
 			}
 

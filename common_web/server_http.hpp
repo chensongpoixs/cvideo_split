@@ -441,12 +441,17 @@ namespace SimpleWeb {
     /// where its parameter contains the assigned port.
     void start(const std::function<void(unsigned short /*port*/)> &callback = nullptr) {
       std::unique_lock<std::mutex> lock(start_stop_mutex);
-
+      boost::system::error_code  ec;
       asio::ip::tcp::endpoint endpoint;
-      if(!config.address.empty())
-        endpoint = asio::ip::tcp::endpoint(make_address(config.address), config.port);
+      if (!config.address.empty())
+      {
+          endpoint = asio::ip::tcp::endpoint(boost::asio::ip::address::from_string(config.address) /*make_address(config.address)*/,
+              config.port);
+      }
       else
-        endpoint = asio::ip::tcp::endpoint(asio::ip::tcp::v6(), config.port);
+      {
+          endpoint = asio::ip::tcp::endpoint(asio::ip::tcp::v6(), config.port);
+      }
 
       if(!io_service) {
         io_service = std::make_shared<io_context>();
@@ -456,7 +461,11 @@ namespace SimpleWeb {
       if(!acceptor)
         acceptor = std::unique_ptr<asio::ip::tcp::acceptor>(new asio::ip::tcp::acceptor(*io_service));
       try {
-        acceptor->open(endpoint.protocol());
+        acceptor->open(endpoint.protocol(), ec);
+        if (ec)
+        {
+            std::cout << "open socket fialed " << ec.value() << std::endl;
+        }
       }
       catch(const system_error &error) {
         if(error.code() == asio::error::address_family_not_supported && config.address.empty()) {
@@ -480,7 +489,13 @@ namespace SimpleWeb {
 
       auto port = acceptor->local_endpoint().port();
 
-      acceptor->listen();
+      acceptor->listen(boost::asio::socket_base::max_connections, ec);
+      std::cout << "open socket fialed " << ec.value() << std::endl;
+      if (ec)
+      {
+          std::cout << "listen error, " << ec.value() << ", port = " << port << std::endl;;
+          //return false;
+      }
       accept();
 
       if(internal_io_service && io_service->stopped())

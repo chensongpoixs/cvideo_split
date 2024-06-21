@@ -416,6 +416,13 @@ class VideoSplitInfo final :
   ::google::protobuf::uint32 out_video() const;
   void set_out_video(::google::protobuf::uint32 value);
 
+  // optional uint32 camera_groups_size = 16;
+  bool has_camera_groups_size() const;
+  void clear_camera_groups_size();
+  static const int kCameraGroupsSizeFieldNumber = 16;
+  ::google::protobuf::uint32 camera_groups_size() const;
+  void set_camera_groups_size(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:VideoSplitInfo)
  private:
   class HasBitSetters;
@@ -437,6 +444,7 @@ class VideoSplitInfo final :
   ::google::protobuf::uint32 out_video_height_;
   ::google::protobuf::uint32 status_;
   ::google::protobuf::uint32 out_video_;
+  ::google::protobuf::uint32 camera_groups_size_;
   friend struct ::TableStruct_VideoSplit_2eproto;
 };
 // -------------------------------------------------------------------
@@ -1075,6 +1083,24 @@ inline void VideoSplitInfo::set_out_video(::google::protobuf::uint32 value) {
   _has_bits_[0] |= 0x00001000u;
   out_video_ = value;
   // @@protoc_insertion_point(field_set:VideoSplitInfo.out_video)
+}
+
+// optional uint32 camera_groups_size = 16;
+inline bool VideoSplitInfo::has_camera_groups_size() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void VideoSplitInfo::clear_camera_groups_size() {
+  camera_groups_size_ = 0u;
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline ::google::protobuf::uint32 VideoSplitInfo::camera_groups_size() const {
+  // @@protoc_insertion_point(field_get:VideoSplitInfo.camera_groups_size)
+  return camera_groups_size_;
+}
+inline void VideoSplitInfo::set_camera_groups_size(::google::protobuf::uint32 value) {
+  _has_bits_[0] |= 0x00002000u;
+  camera_groups_size_ = value;
+  // @@protoc_insertion_point(field_set:VideoSplitInfo.camera_groups_size)
 }
 
 // -------------------------------------------------------------------

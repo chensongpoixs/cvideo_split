@@ -369,6 +369,9 @@ class VideoSplitInfo::HasBitSetters {
   static void set_has_out_video(VideoSplitInfo* msg) {
     msg->_has_bits_[0] |= 0x00001000u;
   }
+  static void set_has_camera_groups_size(VideoSplitInfo* msg) {
+    msg->_has_bits_[0] |= 0x00002000u;
+  }
 };
 
 const ::OsdInfo&
@@ -397,6 +400,7 @@ const int VideoSplitInfo::kOutVideoWidthFieldNumber;
 const int VideoSplitInfo::kOutVideoHeightFieldNumber;
 const int VideoSplitInfo::kStatusFieldNumber;
 const int VideoSplitInfo::kOutVideoFieldNumber;
+const int VideoSplitInfo::kCameraGroupsSizeFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 VideoSplitInfo::VideoSplitInfo()
@@ -428,8 +432,8 @@ VideoSplitInfo::VideoSplitInfo(const VideoSplitInfo& from)
     osd_info_ = nullptr;
   }
   ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&out_video_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(out_video_));
+    static_cast<size_t>(reinterpret_cast<char*>(&camera_groups_size_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(camera_groups_size_));
   // @@protoc_insertion_point(copy_constructor:VideoSplitInfo)
 }
 
@@ -440,8 +444,8 @@ void VideoSplitInfo::SharedCtor() {
   split_channel_id_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   multicast_ip_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&osd_info_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&out_video_) -
-      reinterpret_cast<char*>(&osd_info_)) + sizeof(out_video_));
+      reinterpret_cast<char*>(&camera_groups_size_) -
+      reinterpret_cast<char*>(&osd_info_)) + sizeof(camera_groups_size_));
 }
 
 VideoSplitInfo::~VideoSplitInfo() {
@@ -493,10 +497,10 @@ void VideoSplitInfo::Clear() {
         reinterpret_cast<char*>(&lock_1080p_) -
         reinterpret_cast<char*>(&id_)) + sizeof(lock_1080p_));
   }
-  if (cached_has_bits & 0x00001f00u) {
+  if (cached_has_bits & 0x00003f00u) {
     ::memset(&overlay_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&out_video_) -
-        reinterpret_cast<char*>(&overlay_)) + sizeof(out_video_));
+        reinterpret_cast<char*>(&camera_groups_size_) -
+        reinterpret_cast<char*>(&overlay_)) + sizeof(camera_groups_size_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -657,6 +661,13 @@ const char* VideoSplitInfo::_InternalParse(const char* begin, const char* end, v
         GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
         break;
       }
+      // optional uint32 camera_groups_size = 16;
+      case 16: {
+        if (static_cast<::google::protobuf::uint8>(tag) != 128) goto handle_unusual;
+        msg->set_camera_groups_size(::google::protobuf::internal::ReadVarint(&ptr));
+        GOOGLE_PROTOBUF_PARSER_ASSERT(ptr);
+        break;
+      }
       default: {
       handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
@@ -693,7 +704,7 @@ bool VideoSplitInfo::MergePartialFromCodedStream(
       &unknown_fields_output, false);
   // @@protoc_insertion_point(parse_start:VideoSplitInfo)
   for (;;) {
-    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(16383u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
@@ -876,6 +887,19 @@ bool VideoSplitInfo::MergePartialFromCodedStream(
         break;
       }
 
+      // optional uint32 camera_groups_size = 16;
+      case 16: {
+        if (static_cast< ::google::protobuf::uint8>(tag) == (128 & 0xFF)) {
+          HasBitSetters::set_has_camera_groups_size(this);
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &camera_groups_size_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -983,6 +1007,11 @@ void VideoSplitInfo::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(15, this->out_video(), output);
   }
 
+  // optional uint32 camera_groups_size = 16;
+  if (cached_has_bits & 0x00002000u) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(16, this->camera_groups_size(), output);
+  }
+
   output->WriteRaw(_internal_metadata_.unknown_fields().data(),
                    static_cast<int>(_internal_metadata_.unknown_fields().size()));
   // @@protoc_insertion_point(serialize_end:VideoSplitInfo)
@@ -1067,7 +1096,7 @@ size_t VideoSplitInfo::ByteSizeLong() const {
     }
 
   }
-  if (cached_has_bits & 0x00001f00u) {
+  if (cached_has_bits & 0x00003f00u) {
     // optional uint32 overlay = 9;
     if (cached_has_bits & 0x00000100u) {
       total_size += 1 +
@@ -1101,6 +1130,13 @@ size_t VideoSplitInfo::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->out_video());
+    }
+
+    // optional uint32 camera_groups_size = 16;
+    if (cached_has_bits & 0x00002000u) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->camera_groups_size());
     }
 
   }
@@ -1153,7 +1189,7 @@ void VideoSplitInfo::MergeFrom(const VideoSplitInfo& from) {
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  if (cached_has_bits & 0x00001f00u) {
+  if (cached_has_bits & 0x00003f00u) {
     if (cached_has_bits & 0x00000100u) {
       overlay_ = from.overlay_;
     }
@@ -1168,6 +1204,9 @@ void VideoSplitInfo::MergeFrom(const VideoSplitInfo& from) {
     }
     if (cached_has_bits & 0x00001000u) {
       out_video_ = from.out_video_;
+    }
+    if (cached_has_bits & 0x00002000u) {
+      camera_groups_size_ = from.camera_groups_size_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
@@ -1209,6 +1248,7 @@ void VideoSplitInfo::InternalSwap(VideoSplitInfo* other) {
   swap(out_video_height_, other->out_video_height_);
   swap(status_, other->status_);
   swap(out_video_, other->out_video_);
+  swap(camera_groups_size_, other->camera_groups_size_);
 }
 
 ::std::string VideoSplitInfo::GetTypeName() const {

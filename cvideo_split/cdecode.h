@@ -38,6 +38,7 @@ namespace chen {
 	public:
 		explicit cdecode()
 			: m_open(false)
+			, m_url("")
 			, m_width(0)
 			, m_height(0)
 			, m_gpu_index(0)
@@ -139,6 +140,7 @@ namespace chen {
 		void _pthread_decoder();
 	public:
 		bool   m_open;
+		std::string m_url;
 		int	   m_width;
 		int	   m_height;
 		uint32				m_gpu_index;

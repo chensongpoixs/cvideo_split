@@ -71,7 +71,7 @@ Player.prototype.play = function (domain, url, canvas) {
         this.webglPlayer = new WebGLPlayer(this.canvas, {
             preserveDrawingBuffer: false
         });
-
+        // this.webglPlayer.clearFrame();
 
         var reqCDec = {
             t: kCreateDec,
@@ -111,6 +111,10 @@ Player.prototype.stop = function () {
             t: kCloseDecoderReq
         });
         this.playing = false;
+        // var data = new Uint8Array(1920 * 1080 * 5)
+        // this.webglPlayer.renderFrame(data, 1920, 1080, 1920 * 1080 /4, 1920 * 1080 /4);
+        // this.webglPlayer = null;
+        // this.webglPlayer.clearFrame();
     }
 
 };
@@ -121,6 +125,7 @@ Player.prototype.fullscreen = function () {
         this.webglPlayer.fullscreen();
     }
 };
+
 
 
 

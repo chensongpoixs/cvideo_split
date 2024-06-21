@@ -30,13 +30,13 @@ imgDiv2.style.marginBottom = '20px';
 
 /**********************************************************************/
 $(function () {
-    ExecuteCanvas2( );
+    ExecuteCanvas2();
 })
 
-  //  var img2 = new Image();
+//  var img2 = new Image();
 
-function ExecuteCanvas2(url) 
-{
+function ExecuteCanvas2(url) {
+    console.log('diaoyong')
     // 创建canvas，用于显示被裁剪图片
     var myCanvas2 = document.createElement('canvas');
     myCanvas2.setAttribute('id', 'myCanvas2');
@@ -48,7 +48,7 @@ function ExecuteCanvas2(url)
     myCanvas2.innerText = '您的浏览器不支持 HTML5 canvas 标签。';
     myCanvas2.style.zIndex = 'auto';
 
-   // var ctx2 = myCanvas2.getContext('2d');
+    // var ctx2 = myCanvas2.getContext('2d');
 
     // 被裁剪图片
     //     img2.src = image2;
@@ -63,19 +63,19 @@ function ExecuteCanvas2(url)
     imgDiv2.appendChild(myCanvas2);
     // console.log('图片原始宽度=', originWidth2);
     // console.log('图片原始高度=', originHeight2);
-    if ( camera_play2 != null)
-    {
-         camera_play2.stop();
+    if (camera_play2 != null) {
+        camera_play2.stop();
         // camera_play2 = null;
     }
 
     camera_play2 = new Player();
-    camera_play2.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/ , myCanvas2);
+    camera_play2.play("",/*url*/ url /*'udp://@224.1.1.3:20000'*/, myCanvas2);
     originWidth2 = bgwidth2; //camera_play1.width();
     originHeigh2 = bgheight2; //camera_play1.height();
 
-    console.log('2  width2 = ' + originWidth2 + ', originHeigh2 = ' + originHeigh2) ;
+    // console.log('2  width2 = ' + originWidth2 + ', originHeigh2 = ' + originHeigh2) ;
     cutImg2();
+
 };
 /**********************************************************************/
 
@@ -105,37 +105,36 @@ let getCss2 = function (o, key) {
 //});
 
 
-function cutImg2() 
-{
+function cutImg2() {
     var clickFlag = false;
     // 获取canvas中图片实际大小
     var iCurWidth = originWidth2; /// img2.width;
     var iCurHeight = originHeigh2; //img2.height;
-    console.log('图片当前实际宽度=', iCurWidth);
-    console.log('图片当前实际高度=', iCurHeight);
+    // console.log('图片当前实际宽度=', iCurWidth);
+    // console.log('图片当前实际高度=', iCurHeight);
 
     // 可调整截图框
     oRelDiv2.innerHTML = '';
     oRelDiv2.style.position = "absolute";
     oRelDiv2.style.width = iCurWidth + "px";
     oRelDiv2.style.height = iCurHeight + "px";
-    oRelDiv2.style.top ="92px"; //myCanvas2.offsetTop + 'px';
-    console.log('oRelDiv.style.top = ', oRelDiv2.style.top);
+    oRelDiv2.style.top = "92px"; //myCanvas2.offsetTop + 'px';
+    // console.log('oRelDiv.style.top = ', oRelDiv2.style.top);
     oRelDiv2.id = "cropContainer2";
 
     var iOrigWidth = originWidth2;
     var iOrigHeight = originHeigh2;
     scaleX2 = iCurWidth / iOrigWidth; // 图片宽度缩放比例（当前实际/原始）
     scaleY2 = iCurHeight / iOrigHeight;  // 图片高度缩放比例（当前实际/原始）
-    console.log('图片横向（宽度）缩放比=', scaleX2);
-    console.log('图片纵向（高度）缩放比=', scaleY2);
+    // console.log('图片横向（宽度）缩放比=', scaleX2);
+    // console.log('图片纵向（高度）缩放比=', scaleY2);
 
     // 将oRelDiv插入到myCanvas前
     myCanvas2.parentNode.insertBefore(oRelDiv2, myCanvas2);
 
     //初始化坐标与剪裁高宽
     //var cropW = 100; //截图框默认宽度
-   // var cropH = 100; //截图框默认高度
+    // var cropH = 100; //截图框默认高度
     /*console.log('myCanvas.offsetLeft=', myCanvas.offsetLeft);
     console.log('myCanvas.offsetTop=', myCanvas.offsetTop);*/
     //var posX = 0; //myCanvas.width / 2 - cropW / 2;  // 截图框左上角x坐标
@@ -146,11 +145,11 @@ function cutImg2()
     // if($("#left2").val()=="") {$("#left2").val(0);}
     // if($("#right2").val()=="") {$("#right2").val(100);}
     // if($("#down2").val()=="") {$("#down2").val(100);}
-    var cropW=parseInt($("#right2").val())-parseInt($("#left2").val());
-    var cropH=parseInt($("#down2").val())-parseInt($("#up2").val());
+    var cropW = parseInt($("#right2").val()) - parseInt($("#left2").val());
+    var cropH = parseInt($("#down2").val()) - parseInt($("#up2").val());
     var posY = parseInt($("#up2").val());
     var posX = parseInt($("#left2").val());
-
+    console.log('[cropW = ' + cropW + ', cropH = ' + cropH + ", [posX = " + posX + ", posY = " + posY + "]");
     oRelDiv2.innerHTML = '<div id="zxxCropBox2" style="height:' + cropH + 'px; width:' + cropW + 'px; position:absolute; left:' +
         posX + 'px; top:' + posY + 'px; border:1px solid black;">' +
         '<div id="zxxDragBg2" style="height:100%; background:white; opacity:0.3; filter:alpha(opacity=30); cursor:move"></div>' +
@@ -163,47 +162,57 @@ function cutImg2()
         '<div id="dragRightCenter2" style="position:absolute; width:4px; height:4px; border:1px solid #000; background:white; overflow:hidden; right:-3px; top:50%; margin-top:-3px; cursor:e-resize;"></div> ' +
         '<div id="dragLeftCenter2" style="position:absolute; width:4px; height:4px; border:1px solid #000; background:white; overflow:hidden; left:-3px; top:50%; margin-top:-3px; cursor:w-resize;"></div>' +
         '</div>';
-  
     // $("#up2").val(0);
     // $("#left2").val(0);
     // $("#down2").val(100);
     // $("#right2").val(100);
-    if($("#up2").val()=="")
-    {
+    if ($("#up2").val() == "") {
         $("#up2").val(0);
     }
-    if($("#left2").val()=="")
-    {
+    if ($("#left2").val() == "") {
         $("#left2").val(0);
     }
-    if($("#down2").val()=="")
-    {
+    if ($("#down2").val() == "") {
         $("#down2").val(100);
     }
-    if($("#right2").val()=="")
-    {
+
+    if ($("#right2").val() == "") {
         $("#right2").val(100);
     }
-    ID("cropImageWidth2").value = parseInt(ID("zxxCropBox2").style.width);
-    ID("cropImageHeight2").value = parseInt(ID("zxxCropBox2").style.height);
+
+    var initParams1 = setInterval(() => {
+        if (!tileArray.length) {
+            initParams()
+        } else {
+            params2.top = parseInt(tileArray[1].y * bgheight) + 'px';
+            params2.left = parseInt(tileArray[1].x * bgwidth) + 'px';
+            params2.width = parseInt(tileArray[1].w * bgwidth) + 'px';
+            params2.height = parseInt(tileArray[1].h * bgheight) + 'px';
+            console.log('初始化参数1', params)
+
+            clearInterval(initParams1)
+        }
+    }, 1000);
+    //ID("cropImageWidth2").value = parseInt(ID("zxxCropBox2").style.width);
+    //ID("cropImageHeight2").value = parseInt(ID("zxxCropBox2").style.height);
 
     var startDrag2 = function (point, target, kind) {
         //point是拉伸点，target是被拉伸的目标，其高度及位置会发生改变
         //此处的target与上面拖拽的target是同一目标，故其params.left,params.top可以共用，也必须共用
         //初始化宽高
-        params2.width = getCss2(target, "width");
-        params2.height = getCss2(target, "height");
-        //初始化坐标
-        if (getCss2(target, "left") !== "auto") {
-            params2.left = getCss2(target, "left");
-        }
-        if (getCss2(target, "top") !== "auto") {
-            params2.top = getCss2(target, "top");
-        }
+        // params2.width = getCss2(target, "width");
+        // params2.height = getCss2(target, "height");
+        // //初始化坐标
+        // if (getCss2(target, "left") !== "auto") {
+        //     params2.left = getCss2(target, "left");
+        // }
+        // if (getCss2(target, "top") !== "auto") {
+        //     params2.top = getCss2(target, "top");
+        // }
         //target是移动对象
-        point.onmousedown = function (event) 
-        {
+        point.onmousedown = function (event) {
             console.log('---->>>> dsflkjd down');
+
             params2.kind = kind;
             params2.flag = true;
             clickFlag = true;
@@ -220,17 +229,24 @@ function cutImg2()
                 return false;
             };
 
-            document.onmousemove = function (event) 
-            {
+            document.onmousemove = function (event) {
                 console.log('mouse move --> 2');
                 let e = event ? event : window.event;
                 clickFlag = false;
                 if (params2.flag) {
+                    console.log('params2.flag ' + params2.flag);
                     var nowX = e.clientX; // 鼠标移动时x坐标
                     var nowY = e.clientY;   // 鼠标移动时y坐标
                     var disX = nowX - params2.currentX;  // 鼠标x方向移动距离
                     var disY = nowY - params2.currentY;  // 鼠标y方向移动距离
+                    if (disX === 0) {
+                        disX = 1;
+                    }
+                    if (disY === 0) {
+                        disY = 1;
+                    }
                     if (params2.kind === "n") {
+                        console.log('===ppll');
                         //上拉伸
                         //高度增加或减小，位置上下移动
                         if (parseInt(params2.top) + disY > 0) {
@@ -238,17 +254,21 @@ function cutImg2()
                             target.style.height = parseInt(params2.height) - disY + "px";
                         }
                     } else if (params2.kind === "w") { //左拉伸
+                        console.log('=rrr==');
                         if (parseInt(params2.left) + disX > 0) {
                             target.style.left = parseInt(params2.left) + disX + "px";
                             target.style.width = parseInt(params2.width) - disX + "px";
                         }
                     } else if (params2.kind === "e") { //右拉伸
+                        console.log('==www=');
                         if (parseInt(params2.width) + disX + parseInt(params2.left) < bgwidth2)
-                           target.style.width = parseInt(params2.width) + disX + "px";
+                            target.style.width = parseInt(params2.width) + disX + "px";
                     } else if (params2.kind === "s") { //下拉伸
-                        if (parseInt(params2.height) + disY + parseInt(params2.top) < bgheight2) 
-                           target.style.height = parseInt(params2.height) + disY + "px";
+                        console.log('===iii');
+                        if (parseInt(params2.height) + disY + parseInt(params2.top) < bgheight2)
+                            target.style.height = parseInt(params2.height) + disY + "px";
                     } else if (params2.kind === "nw") { //左上拉伸
+                        console.log('==rr=');
                         if (parseInt(params2.left) + disX > 0 && parseInt(params2.top) + disY > 0) {
                             target.style.left = parseInt(params2.left) + disX + "px";
                             target.style.width = parseInt(params2.width) - disX + "px";
@@ -256,23 +276,27 @@ function cutImg2()
                             target.style.height = parseInt(params2.height) - disY + "px";
                         }
                     } else if (params2.kind === "ne") { //右上拉伸
+                        console.log('==ww=');
                         if (parseInt(params2.width) + disX + parseInt(params2.left) < bgwidth2 && parseInt(params2.top) + disY > 0) {
                             target.style.top = parseInt(params2.top) + disY + "px";
                             target.style.height = parseInt(params2.height) - disY + "px";
                             target.style.width = parseInt(params2.width) + disX + "px";
                         }
                     } else if (params2.kind === "sw") { //左下拉伸
+                        console.log('==eee=');
                         if (parseInt(params2.left) + disX > 0 && parseInt(params2.height) + disY + parseInt(params2.top) < bgheight2) {
                             target.style.left = parseInt(params2.left) + disX + "px";
                             target.style.width = parseInt(params2.width) - disX + "px";
                             target.style.height = parseInt(params2.height) + disY + "px";
                         }
                     } else if (params2.kind === "se") { //右下拉伸
+                        console.log('===----');
                         if (parseInt(params2.width) + disX + parseInt(params2.left) < bgwidth2 && parseInt(params2.height) + disY + parseInt(params2.top) < bgheight2) {
                             target.style.width = parseInt(params2.width) + disX + "px";
                             target.style.height = parseInt(params2.height) + disY + "px";
                         }
                     } else { //移动
+                        console.log('===');
                         if (parseInt(params2.left) + disX < 0) { target.style.left = 0 + "px"; }//最左侧为0,小于0阻止移动
                         //最右侧，417-截图框宽度为left最大距离，超过阻止移动
                         else if (parseInt(params2.left) + disX + parseInt(ID("zxxCropBox2").style.width) > bgwidth2) { target.style.left = bgwidth2 - parseInt(ID("zxxCropBox2").style.width) + "px"; }
@@ -323,7 +347,7 @@ function cutImg2()
                     //ID("cropImageHeight").value = parseInt(ID("zxxCropBox").style.height);
                     var right = posX + parseInt(ID("zxxCropBox2").style.width);
                     if (right < 0) right = 0;
-                    var down =  posY + parseInt(ID("zxxCropBox2").style.height);
+                    var down = posY + parseInt(ID("zxxCropBox2").style.height);
                     if (down < 0) down = 0;
                     ID("left2").value = posX;
                     ID("up2").value = posY;
@@ -350,8 +374,7 @@ function cutImg2()
 
 
     //图片不能被选中，目的在于使拖拽顺滑
-    ID2("myCanvas2").onselectstart = function () 
-    {
+    ID2("myCanvas2").onselectstart = function () {
         console.log('onselectstart --> ');
         return false;
     };
@@ -368,8 +391,8 @@ function RequeryCrop2() {
     var y = document.getElementById("up2").value;
     var w = document.getElementById("cropImageWidth2").value;
     var h = document.getElementById("cropImageHeight2").value;
-    console.log('cropImage(img,', x, ',', y, ',', parseInt(w), ',', parseInt(h), ')');
-   // cropImage2(img2, x / scaleX2, y / scaleY2, parseInt(w) / scaleX2, parseInt(h) / scaleY2);
+    // console.log('cropImage(img,', x, ',', y, ',', parseInt(w), ',', parseInt(h), ')');
+    // cropImage2(img2, x / scaleX2, y / scaleY2, parseInt(w) / scaleX2, parseInt(h) / scaleY2);
 }
 
 

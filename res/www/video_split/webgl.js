@@ -98,6 +98,14 @@ WebGLPlayer.prototype.initGL = function (options) {
     gl.y.bind(0, program, "YTexture");
     gl.u.bind(1, program, "UTexture");
     gl.v.bind(2, program, "VTexture");
+
+
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    // gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+
+    
+    // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 WebGLPlayer.prototype.renderFrame = function (videoFrame, width, height, uOffset, vOffset) {
@@ -115,6 +123,23 @@ WebGLPlayer.prototype.renderFrame = function (videoFrame, width, height, uOffset
     gl.u.fill(width >> 1, height >> 1, videoFrame.subarray(uOffset, uOffset + vOffset));
     gl.v.fill(width >> 1, height >> 1, videoFrame.subarray(uOffset + vOffset, videoFrame.length));
 
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+};
+
+
+
+WebGLPlayer.prototype.clearFrame = function () {
+    if (!this.gl) {
+        console.log("[ER] Render frame failed due to WebGL not supported.");
+        return;
+    }
+
+    var gl = this.gl;
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.clearColor(0.0, 0.0, 0.0, 0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 

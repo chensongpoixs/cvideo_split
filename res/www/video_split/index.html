@@ -140,7 +140,7 @@ function ajaxGet(url, successCallback, errorCallback) {
   //发送ajax，获取拼接数据
   function sendAjax() {
       var send_str='{"msg": "get_tile_info"}';
-      console.log(send_str);
+      // console.log(send_str);
             //$.ajax({
             //    type: "POST",
             //    dataType: "text",
@@ -260,7 +260,7 @@ function ajaxGet(url, successCallback, errorCallback) {
         //删除行
         function DeletePJ(obj) 
 		{
-			console.log("obj ===> " + obj);
+			// console.log("obj ===> " + obj);
             layer.confirm('确定要删除这条拼接信息？', function (index) 
             {
                 EventTile(obj.data.ip,2);
@@ -275,10 +275,10 @@ function ajaxGet(url, successCallback, errorCallback) {
         //修改拼接信息
         function ModifyPJ(obj) 
 		{
-			console.log(obj);
+			// console.log(obj);
             //EventTile(obj.split_channel_id,0);
               //              $("#"+obj.split_channel_id+"").html('开启'); 
-                           
+              console.log('拼接地址', '/Modify.html?name=' + obj.split_channel_name + '&guid=' + obj.split_channel_id + '&url=' + obj.multicast_ip + '&port=' + obj.multicast_port + '&state=' + obj.state + '&style=' + obj.camera_group.length + '&islock=' + obj.lock_1080p + '&isfold='+obj.overlay+'', 'no')
             layer.open({
                 type: 2,
                 title: '编辑拼接信息',
