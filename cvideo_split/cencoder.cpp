@@ -312,7 +312,7 @@ namespace chen {
 
 	void cencoder::destroy()
 	{
-		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
+		
 		if (!m_stoped)
 		{
 			WARNING_EX_LOG("[%s:%u] stop = false\n", m_ip.c_str(), m_port);
@@ -321,7 +321,7 @@ namespace chen {
 		m_ip.clear();
 		m_port = 0;
 		 // avformat_write_tailer(m_push_format_context_ptr, NULL);
-		
+		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		if (m_codec_ctx_ptr)
 		{
 			  if (m_codec_ctx_ptr->hw_device_ctx)

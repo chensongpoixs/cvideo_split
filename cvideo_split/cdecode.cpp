@@ -283,10 +283,10 @@ namespace chen {
 #endif
 		 
 		m_stoped = true;
-		if (m_thread.joinable())
+		/*if (m_thread.joinable())
 		{
 			m_thread.join();
-		}
+		}*/
 		
 		if (m_sws_ctx_ptr)
 		{
@@ -423,7 +423,7 @@ namespace chen {
 				m_packet_ptr->data = NULL;
 				m_packet_ptr->size = 0;
 				//m_packet_ptr->stream_index = m_video_stream_index;
-				continue;
+				break;
 			}
 
 			if (m_packet_ptr->stream_index != m_video_stream_index)

@@ -77,6 +77,10 @@ namespace chen {
 		void all_send_packet();
 	private:
 		void _work_pthread();
+
+		bool _open();
+
+
 	private:
 		bool			 m_stoped;
 		uint64			 m_session_id;

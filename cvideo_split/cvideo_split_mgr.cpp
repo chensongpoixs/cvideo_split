@@ -42,6 +42,8 @@ namespace chen {
 			}
 		}
 		m_video_split_map.clear();
+
+		
 	}
 	uint32 cvideo_split_mgr::handler_web_cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd)
 	{
@@ -53,11 +55,17 @@ namespace chen {
 			{ 
 				return EWebVideoSplitNotStart;
 			}
-			uint32 use_gpu_index = iter->second->get_use_gpu_index();
-			iter->second->destroy();
+			uint32 use_gpu_index = 1000;
 			cvideo_splist* video_split_ptr = iter->second;
+			if (video_split_ptr)
+			{
+				use_gpu_index = video_split_ptr->get_use_gpu_index();
+				video_split_ptr->destroy();
+				delete video_split_ptr;
+			}
+			
 			size_t size = m_video_split_map.erase(channel_name);
-			if (size > 0 && video_split_ptr)
+			if (size > 0 )
 			{
 				if (use_gpu_index < m_gpu_use.size())
 				{
@@ -68,7 +76,7 @@ namespace chen {
 					WARNING_EX_LOG("[gpu size = %u][use gpu index = %u]", m_gpu_use.size(), use_gpu_index);
 				}
 				//iter->second->destroy();
-				delete video_split_ptr;
+				
 				VideoSplitInfo* video_split_info_ptr = g_video_split_info_mgr.get_video_split_info(channel_name);
 				if (!video_split_info_ptr)
 				{
@@ -76,7 +84,8 @@ namespace chen {
 				}
 				else
 				{
-					video_split_info_ptr->set_status(0);
+					g_video_split_mgr.set_channel_name_status(video_split_info_ptr->id(), 0);
+					//video_split_info_ptr->set_status(0);
 				}
 				return EWebSuccess;
 			}
@@ -127,8 +136,23 @@ namespace chen {
 		{
 			++m_gpu_use[gpu_index];
 		}
+		g_video_split_mgr.set_channel_name_status(video_split_info_ptr->id(), 1);
 		video_split_info_ptr->set_status(1);
 		return EWebSuccess;
+	}
+	void cvideo_split_mgr::set_channel_name_status(uint32 id, uint32 status)
+	{
+		std::lock_guard<std::mutex> lock(m_channel_name_status_lock);
+		m_channel_name_status_map[id] = status;
+	}
+	uint32 cvideo_split_mgr::get_channel_name_status(uint32 id)
+	{
+		uint32 status = 0;
+		{
+			std::lock_guard<std::mutex> lock(m_channel_name_status_lock);
+			status = m_channel_name_status_map[id];
+		}
+		return status;
 	}
 	uint32 cvideo_split_mgr::use_gpu_index() const
 	{

@@ -63,6 +63,9 @@ namespace chen {
 		EDataType							m_data_type;
 		VIDEO_SPLIT_INFO_MAP						m_video_split_info_map;
 		uint32								m_video_split_index;
+
+
+		 
 	};
 	extern cvideo_split_info_mgr g_video_split_info_mgr;
 }

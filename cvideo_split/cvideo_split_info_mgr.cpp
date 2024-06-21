@@ -104,7 +104,8 @@ namespace chen {
 
 		if (iter != m_video_split_info_map.end())
 		{
-			if (g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] != video_split_info.split_channel_id())
+			if (g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()] 
+				!= video_split_info.split_channel_id() && g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()].size() > 2)
 			{
 				WARNING_EX_LOG("[global stsr = %s][ split channel = %s]", g_global_video_channel[video_split_info.multicast_port()][video_split_info.multicast_ip()].c_str(), video_split_info.split_channel_id().c_str());
 				result.result = EWebVideoChannelMulticastAddress;
@@ -166,7 +167,7 @@ namespace chen {
 					}
 				}
 				*video_split_info.mutable_camera_group() = iter->second.camera_group();
-				iter->second.set_camera_groups_size(video_split_info.camera_group_size());
+				iter->second.set_camera_groups_size(video_split_info.camera_groups_size());
 			}
 			
 

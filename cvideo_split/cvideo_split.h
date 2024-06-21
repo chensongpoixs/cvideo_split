@@ -92,6 +92,7 @@ namespace chen {
 			, m_encoder_frame_ptr(NULL)
 			, m_filter_frame_ptr(NULL)
 			, m_gpu_index(0)
+			, m_id(-1)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -113,8 +114,10 @@ namespace chen {
 		bool _init_filter();
 
 		void _pthread_work();
-	private:
 		
+		bool  _open();
+	private:
+		uint32					m_id;
 		std::atomic_bool		m_stoped;
 		// 视频拼接名称
 		std::string				m_video_split_name;
@@ -146,6 +149,8 @@ namespace chen {
 
 		// 解码路数
 		std::vector<cdecode*>       m_decodes;
+	/*	cdecode* m_decode_ptr1;
+		cdecode* m_decode_ptr2;*/
 		
 		//编码一路的编码器
 		cencoder*					m_encoder_ptr;

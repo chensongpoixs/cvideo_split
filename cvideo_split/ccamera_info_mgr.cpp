@@ -159,7 +159,7 @@ namespace chen {
 					iter->second.set_camera_name(camera_info_ptr->camera_name());
 					iter->second.set_port(camera_info_ptr->port());
 					{
-						clock_guard lock(m_checking_camera_lock);
+					//	clock_guard lock(m_checking_camera_lock);
 						m_checking_camera_info_status_list.push_back(*camera_info_ptr);
 					}
 				}

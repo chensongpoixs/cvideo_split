@@ -58,7 +58,7 @@ namespace chen {
 		void on_msg_receive(uint64_t session_id, const void* p, uint32 size);
 		void on_disconnect(uint64_t session_id);
 	public:
-		void send_msg(uint32 session_id, uint16 msg_id, const void* p, uint32 size);
+		bool send_msg(uint32 session_id, uint16 msg_id, const void* p, uint32 size);
 	public:
 
 		cwebsocket_wan_session* get_session(uint64 index);
