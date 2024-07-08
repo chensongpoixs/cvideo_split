@@ -39,11 +39,11 @@ namespace chen {
 	}
 
 
-	bool cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
+	EWebCode cvideo_splist::init(uint32 gpu_index, const VideoSplitInfo* video_split_info)
 	{
 		if (!video_split_info)
 		{
-			return false;
+			return EWebWait;
 		}
 		m_gpu_index = gpu_index;
 		m_stoped = false;
@@ -57,7 +57,7 @@ namespace chen {
 		if (video_split_info->camera_group_size() > 10 || video_split_info->camera_group_size() < 2)
 		{
 			WARNING_EX_LOG("camera group [size = %u]", video_split_info->camera_group_size());
-			return false;
+			return EWebVideoSplitCameraGroupNum;
 		}
 		m_split_video_channels = video_split_info->camera_group_size();
 		m_split_video_lock_1080p = video_split_info->lock_1080p();
@@ -90,6 +90,7 @@ namespace chen {
 			if (!camera_info_ptr)
 			{
 				WARNING_EX_LOG("[video_splist  id = %u]not find [camera id = %u]", video_split_info->id(), video_split_info->camera_group(i).camera_id());
+				return EWebNotFindCameraId;
 			}
 			else
 			{
@@ -104,7 +105,7 @@ namespace chen {
 		m_stoped = false;
 		m_thread = std::thread(&cvideo_splist::_pthread_work, this);
 
-		return true;
+		return EWebSuccess;
 	}
 	void cvideo_splist::update(uint32 uDateTime)
 	{
@@ -198,7 +199,6 @@ namespace chen {
 	}
 	bool cvideo_splist::_init_decodes(uint32 gpu_index)
 	{
-		//m_decodes.resize(m_camera_infos.size());
 		for (int32 i = 0; i < m_camera_infos.size(); ++i)
 		{
 			cdecode* decoder_ptr = new cdecode(); 
@@ -209,14 +209,7 @@ namespace chen {
 				WARNING_EX_LOG("[m_video_split_name = %s][%u] not open  [camera = %s]", m_video_split_name.c_str(),i, m_camera_infos[i].url.c_str());
 				return false;
 			}
-			/*if (i == 0)
-			{
-				  m_decode_ptr1 = decoder_ptr;
-			}
-			else if (i == 1)
-			{
-				m_decode_ptr2 = decoder_ptr;
-			}*/
+			
 			 m_decodes.push_back (decoder_ptr);
 		}
 		return true;
@@ -473,6 +466,7 @@ namespace chen {
 			
 			return;
 		}
+		g_video_split_mgr.set_channel_name_status(m_id, 1);
 		//SetThreadDescription(GetCurrentThread(), (PCWSTR)m_video_split_name.c_str());
 		//pthread_setname_np(pthread_self(), m_video_split_name.c_str());
 		//NORMAL_EX_LOG("");
@@ -494,46 +488,32 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-			
-			 
 			{
 				int64  pts_s = 0;
 				for (int32 i = 0 ; i < m_decodes.size(); ++i)
 				{
- 
-					{
 						if (m_decodes[i]->retrieve(frame_ptr))
 						{
- 
-							pts = m_decodes[0]->get_pts();
-							dts = m_decodes[0]->get_dts();
 							if (i == 0)
 							{
+								pts = m_decodes[0]->get_pts();
+								dts = m_decodes[0]->get_dts();
 								pts_s = frame_ptr->pts;
 							} 
-							{ 
-								frame_ptr->pts = pts_s;
-								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr); 
-								if (ret < 0)
-								{
-									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+							frame_ptr->pts = pts_s;
+							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr); 
+							if (ret < 0)
+							{
+								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
 									 
-								}
-								 
-
-							} 
-						} 
-
+							}
+						}  
 						::av_frame_unref(frame_ptr);
 
 						if (m_stoped)
 						{
 							break;
 						} 
-					}
- 
-					//NORMAL_EX_LOG("[%u][decoder_ms = %u]",i,  diff_ms.count());
-
 				}
 			}
 			//NORMAL_EX_LOG("");
@@ -580,9 +560,7 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
-#if  _TEST_DECOCDE_DELAY_
-				NORMAL_EX_LOG("-----====>[encoder_ms = %u]", diff_ms.count());
-#endif // #if  _TEST_DECOCDE_DELAY_
+ 
 				if (diff_ms.count() < d_ms)
 				{
 					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));

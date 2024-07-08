@@ -35,6 +35,7 @@ purpose:		camera
 #include <vector>
 #include <map>
 #include "cvideo_split_info_mgr.h"
+#include "chttp_code.h"
 #include <string>
 namespace chen {
 
@@ -100,7 +101,7 @@ namespace chen {
 		typedef std::mutex							clock_type;
 		typedef std::lock_guard<clock_type>			clock_guard;
 	public:
-		bool init(uint32 gpu_index, const VideoSplitInfo * video_split_info);
+		EWebCode init(uint32 gpu_index, const VideoSplitInfo * video_split_info);
 		void update(uint32 uDateTime);
 		void destroy();
 

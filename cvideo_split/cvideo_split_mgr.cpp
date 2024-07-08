@@ -105,6 +105,17 @@ namespace chen {
 			return EWebNotFindVideoSplitId;
 		}
 
+		{
+			// TODO@chensong 2024-07-08 条件判断
+			// 判断一下路数
+			if (video_split_info_ptr->camera_group_size() > 10 || video_split_info_ptr->camera_group_size() < 2)
+			{
+				WARNING_EX_LOG("[channel_name = %s]camera group [size = %u]", channel_name.c_str(), video_split_info_ptr->camera_group_size());
+				return EWebVideoSplitCameraGroupNum;
+			}
+		
+		}
+
 		cvideo_splist* video_split_ptr = new cvideo_splist();
 		if (!video_split_ptr)
 		{
@@ -114,14 +125,14 @@ namespace chen {
 		
 		uint32 gpu_index = use_gpu_index();   
 		 
-
-		if (!video_split_ptr->init(gpu_index, video_split_info_ptr))
+		EWebCode  video_splist_result = static_cast<EWebCode>( video_split_ptr->init(gpu_index, video_split_info_ptr));
+		if (video_splist_result != EWebSuccess)
 		{
 			video_split_ptr->destroy();
 			delete video_split_ptr;
 			video_split_ptr = NULL;
 			WARNING_EX_LOG("init video split  channel_name =  (%s) failed !!!", channel_name.c_str());
-			return EWebWait;
+			return video_splist_result;
 		}
 		std::pair<VIDEO_SPLIST_MAP::iterator, bool>  pi = m_video_split_map.insert(std::make_pair(channel_name, video_split_ptr));
 		if (!pi.second)
@@ -136,7 +147,8 @@ namespace chen {
 		{
 			++m_gpu_use[gpu_index];
 		}
-		g_video_split_mgr.set_channel_name_status(video_split_info_ptr->id(), 1);
+		// TODO@chensong 2024-07-08   thread sync  视频拼接的状态同步问题
+		//g_video_split_mgr.set_channel_name_status(video_split_info_ptr->id(), 1);
 		video_split_info_ptr->set_status(1);
 		return EWebSuccess;
 	}
