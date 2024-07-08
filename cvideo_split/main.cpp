@@ -957,10 +957,172 @@ void test_video_split()
 	//avformat_free_context(pInFormatContext);
 	//avformat_free_context(pOutFormatContext);
 }
+#include <stdio.h>
+#include <cuda_runtime_api.h>
+#include <cuda.h>
+void test_nvidia_info()
+{
+	cudaDeviceProp prop = {0};
+	int count;
+
+	// 获取CUDA设备数量
+	cudaGetDeviceCount(&count);
+
+	if (count == 0) {
+		fprintf(stderr, "No CUDA devices found\n");
+		return  ;
+	}
+
+	// 遍历每个CUDA设备
+	for (int i = 0; i < count; ++i) {
+		// 获取设备属性
+		cudaGetDeviceProperties(&prop, i);
+
+		// 打印设备信息，包括UUID
+		printf("Device %d:\n", i);
+		printf("  Name: %s\n", prop.name);
+		printf("  UUID: %s\n", prop.uuid);
+	}
+
+}
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef _MSC_VER
+#include <winsock2.h>
+#include <iphlpapi.h>
+#include <wlanapi.h>
+
+// Link with Iphlpapi.lib and Wlanapi.lib
+#pragma comment(lib, "IPHLPAPI.lib")
+#pragma comment(lib, "Wlanapi.lib")
+
+#elif defined(__GNUC__) 
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <errno.h>
+void printMacAddress(const char* iface_name) {
+	struct ifreq ifr;
+	int sockfd, ret;
+	unsigned char mac_addr[6];
+
+	// Open socket
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sockfd < 0) {
+		perror("socket");
+		return;
+	}
+
+	// Get MAC address
+	strncpy(ifr.ifr_name, iface_name, IFNAMSIZ - 1);
+	ifr.ifr_name[IFNAMSIZ - 1] = '\0';
+	ret = ioctl(sockfd, SIOCGIFHWADDR, &ifr);
+	if (ret < 0) {
+		perror("ioctl");
+		close(sockfd);
+		return;
+	}
+
+	// Copy MAC address
+	memcpy(mac_addr, ifr.ifr_hwaddr.sa_data, 6);
+
+	// Close socket
+	close(sockfd);
+
+	// Print MAC address
+	printf("Interface Name: %s\n", iface_name);
+	printf("MAC Address: ");
+	for (int i = 0; i < 6; i++) {
+		printf("%02X", mac_addr[i]);
+		if (i < 5) printf(":");
+	}
+	printf("\n\n");
+}
+#else 
+ 
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+ 
+#endif // 
+void test_mac_address()
+{
+#ifdef _MSC_VER
+	DWORD dwRetVal = 0;
+	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
+	PIP_ADAPTER_INFO pAdapterInfo = NULL;
+
+	pAdapterInfo = (IP_ADAPTER_INFO*)malloc(sizeof(IP_ADAPTER_INFO));
+	if (pAdapterInfo == NULL) {
+		printf("Error allocating memory needed to call GetAdaptersinfo\n");
+		return;
+	}
+
+	// Make an initial call to GetAdaptersInfo to get the necessary size into ulOutBufLen
+	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW) {
+		free(pAdapterInfo);
+		pAdapterInfo = (IP_ADAPTER_INFO*)malloc(ulOutBufLen);
+		if (pAdapterInfo == NULL) {
+			printf("Error allocating memory needed to call GetAdaptersinfo\n");
+			return;
+		}
+	}
+
+	// Now make the call to GetAdaptersInfo
+	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) == NO_ERROR) {
+		PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
+		while (pAdapter) {
+			printf("Adapter Name: %s\n", pAdapter->AdapterName);
+			printf("Description : %s\n", pAdapter->Description);
+			printf("Adapter MAC Address: ");
+			for (UINT i = 0; i < pAdapter->AddressLength; i++) {
+				if (i == (pAdapter->AddressLength - 1)) {
+					printf("%.2X\n", (int)pAdapter->Address[i]);
+				}
+				else {
+					printf("%.2X-", (int)pAdapter->Address[i]);
+				}
+			}
+			pAdapter = pAdapter->Next;
+		}
+	}
+	else {
+		printf("GetAdaptersInfo failed with error: %d\n", dwRetVal);
+	}
+
+	if (pAdapterInfo) {
+		free(pAdapterInfo);
+	}
+#elif defined(__GNUC__) 
+	struct if_nameindex* if_ni, * i;
+	if_ni = if_nameindex();
+	if (if_ni == NULL) {
+		perror("if_nameindex");
+		return  ;
+}
+
+	// Iterate through each interface
+	for (i = if_ni; i->if_name != NULL; i++) {
+		printMacAddress(i->if_name);
+	}
+
+	if_freenameindex(if_ni);
+#else 
+
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif // 
+}
 
 
 int  main(int argc, char** argv) 
 {
+	test_mac_address();
+	return 0;
+	test_nvidia_info();
+	return EXIT_SUCCESS;
 	//test_video_split();
 	//return 0;
 	/*std::string chen = "chen\n";
