@@ -1,3 +1,9 @@
 [submodule "vlc-2.2.1.32-2013"]
 	path = vlc-2.2.1.32-2013
 	url = https://github.com/sunqueen/vlc-2.2.1.32-2013.git
+[submodule "vlc-3.0.11-VS2019"]
+	path = vlc-3.0.11-VS2019
+	url = https://github.com/niozhao/vlc-3.0.11-VS2019.git
+[submodule "vlc-2.2.1.32-vs2017"]
+	path = vlc-2.2.1.32-vs2017
+	url = https://github.com/dakaikou/vlc-2.2.1.32-vs2017.git

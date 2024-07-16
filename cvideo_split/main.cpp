@@ -1119,10 +1119,10 @@ void test_mac_address()
 
 int  main(int argc, char** argv) 
 {
-	test_mac_address();
+	/*test_mac_address();
 	return 0;
 	test_nvidia_info();
-	return EXIT_SUCCESS;
+	return EXIT_SUCCESS;*/
 	//test_video_split();
 	//return 0;
 	/*std::string chen = "chen\n";

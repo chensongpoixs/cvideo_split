@@ -94,6 +94,8 @@ namespace chen {
 			, m_filter_frame_ptr(NULL)
 			, m_gpu_index(0)
 			, m_id(-1)
+			, m_decode_pthread()
+			, m_pts(0)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -117,6 +119,8 @@ namespace chen {
 		void _pthread_work();
 		
 		bool  _open();
+
+		void _pthread_decodec(uint32 decodec_id);
 	private:
 		uint32					m_id;
 		std::atomic_bool		m_stoped;
@@ -196,7 +200,9 @@ namespace chen {
 		AVFrame*			m_filter_frame_ptr;
 		uint32				m_gpu_index;
 
-		
+		std::vector<std::thread>   m_decode_pthread;
+		uint64				m_pts;
+
 	};
 
 
