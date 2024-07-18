@@ -119,7 +119,19 @@ namespace chen {
 		fail:
 			if (udp_fd >= 0)
 			{
+				//closesocket(udp_fd);
+#ifdef _MSC_VER
+// 关闭套接字
 				closesocket(udp_fd);
+#elif defined(__GNUC__) 
+			// 关闭套接字
+				close(sockfd);
+#else 
+
+			 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif 
 			}
 			if (res0)
 			{
@@ -191,7 +203,19 @@ namespace chen {
 			if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0) 
 			{
 				//perror("bind failed");
-				 closesocket(sockfd);
+				// closesocket(sockfd);
+#ifdef _MSC_VER
+// 关闭套接字
+				closesocket(sockfd);
+#elif defined(__GNUC__) 
+			// 关闭套接字
+				close(sockfd);
+#else 
+
+			 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif 
 				return false;
 			}
 
@@ -200,7 +224,19 @@ namespace chen {
 			mreq.imr_interface.s_addr = htonl(INADDR_ANY); // 接收所有的网络接口
 			if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, sizeof(mreq)) < 0) {
 				//perror("setsockopt");
-				 closesocket(sockfd);
+				// closesocket(sockfd);
+#ifdef _MSC_VER
+// 关闭套接字
+				closesocket(sockfd);
+#elif defined(__GNUC__) 
+			// 关闭套接字
+				close(sockfd);
+#else 
+
+			 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif 
 				return false;
 			}
 #ifdef _MSC_VER
@@ -238,16 +274,38 @@ namespace chen {
 
 				if (num_bytes_received > 0)
 				{
-					 ::closesocket(sockfd);
-					 
+					// ::closesocket(sockfd);
+#ifdef _MSC_VER
+					 // 关闭套接字
+					 closesocket(sockfd);
+#elif defined(__GNUC__) 
+					 // 关闭套接字
+					 close(sockfd);
+#else 
+
+					 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif 
 					return true;
 				}
 				// 显示接收到的数据
 				//std::cout << "address = " << inet_ntoa(clientAddr.sin_addr) << ", len = " << num_bytes_received << ", Received message: " << buffer << std::endl;
 			}
 
+			
+#ifdef _MSC_VER
 			// 关闭套接字
-			 closesocket(sockfd);
+			closesocket(sockfd);
+#elif defined(__GNUC__) 
+			// 关闭套接字
+			close(sockfd);
+#else 
+
+			 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
+
+#endif 
 			return false;
 		}
 		void test_udp_client()
@@ -330,9 +388,20 @@ namespace chen {
 			}
 
 			// 关闭套接字
+		//	closesocket(sockfd);
+
+#ifdef _MSC_VER
+			// 关闭套接字
 			closesocket(sockfd);
+#elif defined(__GNUC__) 
+			// 关闭套接字
+			close(sockfd);
+#else 
 
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#error unexpected c complier (msc/gcc), Need to implement this method for demangle
 
+#endif 
 		}
 	}
 }
