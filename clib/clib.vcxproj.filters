@@ -19,6 +19,7 @@
     <ClCompile Include="csystem_info.cpp" />
     <ClCompile Include="pugixml.cpp" />
     <ClCompile Include="cudp.cpp" />
+    <ClCompile Include="chardware_info.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="casync_log.h" />
@@ -46,5 +47,6 @@
     <ClInclude Include="csystem_info.h" />
     <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="cudp.h" />
+    <ClInclude Include="chardware_info.h" />
   </ItemGroup>
 </Project>

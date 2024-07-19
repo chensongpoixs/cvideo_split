@@ -35,6 +35,7 @@
 #include "cclient_msg_dispatch.h"
 #include "csystem_info.h"
 #include "crandom.h"
+#include "chardware_info.h"
 
 namespace chen {
 
@@ -42,6 +43,9 @@ namespace chen {
 	cvideo_split_server g_video_split_server;
 
 	std::vector<uint32> g_gpu_index;
+	
+
+	std::string    g_all_gpu_name;
 
 
 	static std::vector<uint32> get_gpu_count()
@@ -53,14 +57,15 @@ namespace chen {
 		bool ret = false;
 
 
-		std::thread reader([&p2, &gpu_indexs] {
+		std::thread reader([&p2, &gpu_indexs]
+		{
 			std::string line;
 			while (std::getline(p2, line))
 			{
 				gpu_indexs.push_back(1);
-
+				g_all_gpu_name += line;
 			}
-			});
+		});
 
 		boost::process::child c(
 			"nvidia-smi  --list-gpus",
@@ -95,13 +100,13 @@ namespace chen {
 		ctime_base_api::set_time_adjust(g_cfg.get_int32(ECI_TimeAdjust));
 		
 		
-
+		g_gpu_index = get_gpu_count();
 		if (!_check_auth_info())
 		{
 			return false;
 		}
 
-		g_gpu_index = get_gpu_count();
+		
 
 
 
@@ -240,6 +245,9 @@ namespace chen {
 
 		static std::set<std::string>   g_auth_info = {"93sf014wp1817n6n8439d18zp8s057uv", "i2a04651s42156x22nkc9eu9s70u20o9", "83g6102thw18100qb45o223y75584436"};
 
+
+		NORMAL_EX_LOG("gpu name = [%s]", g_all_gpu_name.c_str());
+		NORMAL_EX_LOG("wifi name = [%s]", chen::hardware_info::network_info().c_str());
 
 
 		std::set<std::string>::const_iterator iter = g_auth_info.find(g_cfg.get_string(ECI_AuthPass));

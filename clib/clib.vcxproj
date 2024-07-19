@@ -151,6 +151,7 @@
     <ClCompile Include="ccopy_path.cpp" />
     <ClCompile Include="ccrypto.cpp" />
     <ClCompile Include="cdigit2str.cpp" />
+    <ClCompile Include="chardware_info.cpp" />
     <ClCompile Include="cinjector_util.cpp" />
     <ClCompile Include="clog.cpp" />
     <ClCompile Include="clog_color.cpp" />
@@ -171,6 +172,7 @@
     <ClInclude Include="ccopy_path.h" />
     <ClInclude Include="ccrypto.h" />
     <ClInclude Include="cdigit2str.h" />
+    <ClInclude Include="chardware_info.h" />
     <ClInclude Include="cinjector_util.h" />
     <ClInclude Include="clib_util.h" />
     <ClInclude Include="clog.h" />

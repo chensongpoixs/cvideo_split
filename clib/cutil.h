@@ -39,5 +39,11 @@ namespace chen
 	}
 
 
+
+
+
+
+
+
 }
 #endif // _C_UTIL_H_
