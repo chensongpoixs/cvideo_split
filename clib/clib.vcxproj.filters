@@ -20,6 +20,7 @@
     <ClCompile Include="pugixml.cpp" />
     <ClCompile Include="cudp.cpp" />
     <ClCompile Include="chardware_info.cpp" />
+    <ClCompile Include="cbase64.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="casync_log.h" />
@@ -48,5 +49,7 @@
     <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="cudp.h" />
     <ClInclude Include="chardware_info.h" />
+    <ClInclude Include="cbase64.h" />
+    <ClInclude Include="cmd5.h" />
   </ItemGroup>
 </Project>

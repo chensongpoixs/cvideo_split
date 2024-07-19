@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{5f34b031-f7ad-4498-b5d5-cba4c0e83ada}</ProjectGuid>
-    <RootNamespace>clib</RootNamespace>
+    <ProjectGuid>{319c230f-2f09-454f-9b32-fb50b519602e}</ProjectGuid>
+    <RootNamespace>encryptiontools</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -40,13 +40,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -78,15 +78,15 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\boost_1_66_0\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\clib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\lib\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(C_INCLUDE)\boost_1_66_0\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>..\clib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,7 +120,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -134,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -145,56 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="casync_log.cpp" />
-    <ClCompile Include="cbase64.cpp" />
-    <ClCompile Include="ccmd_param.cpp" />
-    <ClCompile Include="cconfig.cpp" />
-    <ClCompile Include="ccopy_path.cpp" />
-    <ClCompile Include="ccrypto.cpp" />
-    <ClCompile Include="cdigit2str.cpp" />
-    <ClCompile Include="chardware_info.cpp" />
-    <ClCompile Include="cinjector_util.cpp" />
-    <ClCompile Include="clog.cpp" />
-    <ClCompile Include="clog_color.cpp" />
-    <ClCompile Include="cmem_pool.cpp" />
-    <ClCompile Include="cnet_type.cpp" />
-    <ClCompile Include="crandom.cpp" />
-    <ClCompile Include="crc4.cpp" />
-    <ClCompile Include="csystem_info.cpp" />
-    <ClCompile Include="ctime_api.cpp" />
-    <ClCompile Include="cudp.cpp" />
-    <ClCompile Include="cutil.cpp" />
-    <ClCompile Include="pugixml.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="casync_log.h" />
-    <ClInclude Include="cbase64.h" />
-    <ClInclude Include="ccmd_param.h" />
-    <ClInclude Include="cconfig.h" />
-    <ClInclude Include="ccopy_path.h" />
-    <ClInclude Include="ccrypto.h" />
-    <ClInclude Include="cdigit2str.h" />
-    <ClInclude Include="chardware_info.h" />
-    <ClInclude Include="cinjector_util.h" />
-    <ClInclude Include="clib_util.h" />
-    <ClInclude Include="clog.h" />
-    <ClInclude Include="clog_color.h" />
-    <ClInclude Include="clog_define.h" />
-    <ClInclude Include="cmd5.h" />
-    <ClInclude Include="cmem_pool.h" />
-    <ClInclude Include="cnet_define.h" />
-    <ClInclude Include="cnet_type.h" />
-    <ClInclude Include="cnoncopytable.h" />
-    <ClInclude Include="crandom.h" />
-    <ClInclude Include="crc4.h" />
-    <ClInclude Include="csingleton.h" />
-    <ClInclude Include="csystem_info.h" />
-    <ClInclude Include="ctime_api.h" />
-    <ClInclude Include="ctime_const.h" />
-    <ClInclude Include="ctime_elapse.h" />
-    <ClInclude Include="cudp.h" />
-    <ClInclude Include="cutil.h" />
-    <ClInclude Include="pugixml.hpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
