@@ -24,6 +24,7 @@ purpose:	×Ö·û´®´¦Àí¹¤¾ßÀà
 #include "chardware_info.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <cbase64.h>
 #include <string>
 #include "clog.h"
 namespace chen {
@@ -53,14 +54,13 @@ namespace chen {
 		{
 			struct ifreq ifr;
 			int sockfd, ret;
-			unsigned char mac_addr[6] = {0};
-			unsigned char mac_addr_hex[12] = { 0 };
+			//unsigned char mac_addr[6] = {0};
 			// Open socket
 			sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 			if (sockfd < 0) 
 			{
 				WARNING_EX_LOG("socket");
-				return;
+				return "";
 			}
 
 			// Get MAC address
@@ -71,29 +71,38 @@ namespace chen {
 			{
 				WARNING_EX_LOG("ioctl");
 				close(sockfd);
-				return;
+				return "";
 			}
 
+			std::string buffer_mac;
+
 			// Copy MAC address
-			memcpy(mac_addr, ifr.ifr_hwaddr.sa_data, 6);
+			//memcpy(mac_addr, ifr.ifr_hwaddr.sa_data, 6);
+			std::string wifi = base64_encode((std::uint8_t const*)&ifr.ifr_hwaddr.sa_data[0], 6);
+
+
+
 
 			// Close socket
 			close(sockfd);
 
 			// Print MAC address
 			NORMAL_EX_LOG("Interface Name: %s\n", iface_name);
-			NORMAL_EX_LOG("MAC Address: ");
-			for (int i = 0; i < 6; i++) 
+			NORMAL_EX_LOG("MAC Address: %s ", wifi.c_str());
+			/*for (int i = 0; i < 6; i++) 
 			{
 				NORMAL_EX_LOG("%02X", mac_addr[i]);
-				sprintf(mac_addr_hex[i * 2], "%02X", mac_addr[i]);
+				unsigned char buffer[5] = {0};
+				sprintf(buffer, "%02X", mac_addr[i]);
+				buffer_mac += buffer;
+
 				if (i < 5) 
 				{
 					NORMAL_EX_LOG(":");
 				}
-			}
+			}*/
 			NORMAL_EX_LOG("\n\n");
-			return mac_addr_hex;
+			return 	wifi;
 		}
 #else 
 
@@ -102,11 +111,11 @@ namespace chen {
 #endif // 
 		std::string  network_info()
 		{
+			std::string wifi_net;
 #ifdef _MSC_VER
 			DWORD dwRetVal = 0;
 			ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
 			PIP_ADAPTER_INFO pAdapterInfo = NULL;
-			std::string wifi_net;
 			pAdapterInfo = (IP_ADAPTER_INFO*)malloc(sizeof(IP_ADAPTER_INFO));
 			if (pAdapterInfo == NULL) 
 			{

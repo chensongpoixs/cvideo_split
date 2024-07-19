@@ -36,6 +36,7 @@
 #include "csystem_info.h"
 #include "crandom.h"
 #include "chardware_info.h"
+#include "cmd5.h"
 
 namespace chen {
 
@@ -246,15 +247,50 @@ namespace chen {
 		static std::set<std::string>   g_auth_info = {"93sf014wp1817n6n8439d18zp8s057uv", "i2a04651s42156x22nkc9eu9s70u20o9", "83g6102thw18100qb45o223y75584436"};
 
 
-		NORMAL_EX_LOG("gpu name = [%s]", g_all_gpu_name.c_str());
-		NORMAL_EX_LOG("wifi name = [%s]", chen::hardware_info::network_info().c_str());
+		//NORMAL_EX_LOG("gpu name = [%s]", g_all_gpu_name.c_str());
+		//NORMAL_EX_LOG("wifi name = [%s]", chen::hardware_info::network_info().c_str());
+		std::string all_name = g_all_gpu_name + chen::hardware_info::network_info();
+		std::string md5_name = md5::md5_hash_hex(all_name.c_str());
+		//NORMAL_EX_LOG("all_name = %s, md5 name = [%s]", all_name.c_str(), md5_name.c_str());
+		std::string re_all_name = chen::hardware_info::network_info() + g_all_gpu_name;
+		std::string re_md5_name = md5::md5_hash_hex(re_all_name.c_str());
+		//NORMAL_EX_LOG("re_all_name = %s, re_md5 name = [%s]", re_all_name.c_str(), re_md5_name.c_str());
+		std::string all_md5_cr_name = md5_name + re_md5_name;
+		NORMAL_EX_LOG("key = [%s]", all_md5_cr_name.c_str());
 
 
-		std::set<std::string>::const_iterator iter = g_auth_info.find(g_cfg.get_string(ECI_AuthPass));
+		md5_name += "chensong20240719";
+
+		re_md5_name += "chensong2024";
+
+		std::string new_md5_name =  md5::md5_hash_hex(md5_name.c_str());
+		std::string new_re_md5_name =  md5::md5_hash_hex(re_md5_name.c_str());
+
+
+
+		std::string config_name = g_cfg.get_string(ECI_AuthPass);
+		std::string   pre_config_name = config_name.substr(0, config_name.length()/ 2);
+		std::string   hot_config_name = config_name.substr((config_name.length()/2) , config_name.length()/ 2);
+
+
+
+		NORMAL_EX_LOG("0_config_name  = %s, 1_config_name = [%s]", pre_config_name.c_str(), hot_config_name.c_str());
+
+		if (pre_config_name == md5_name && re_md5_name == hot_config_name)
+		{
+			return true;
+		}
+
+		
+
+
+
+		/*std::set<std::string>::const_iterator iter = g_auth_info.find(g_cfg.get_string(ECI_AuthPass));
 		if (iter != g_auth_info.end())
 		{
 			return true;
 		}
+		*/
 		WARNING_EX_LOG("auth_pass (%s) failed  !!!", g_cfg.get_string(ECI_AuthPass).c_str());
 		return false;
 	}

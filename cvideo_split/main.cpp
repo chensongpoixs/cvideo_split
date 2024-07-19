@@ -1121,8 +1121,8 @@ void test_mac_address()
 
 int  main(int argc, char** argv) 
 {
-	 test_mac_address();
-	return 0;
+//	 test_mac_address();
+//	return 0;
 	/*
 	test_nvidia_info();
 	return EXIT_SUCCESS;*/
