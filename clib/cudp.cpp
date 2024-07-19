@@ -125,7 +125,7 @@ namespace chen {
 				closesocket(udp_fd);
 #elif defined(__GNUC__) 
 			// 关闭套接字
-				close(sockfd);
+				close(udp_fd);
 #else 
 
 			 // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ÖµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ô¼ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½

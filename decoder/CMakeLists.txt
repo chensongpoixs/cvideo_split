@@ -71,7 +71,7 @@ libfreetype.a
 		                #libharfbuzz-subset.a
 				                libxml2.a
 						                libfontconfig.a
-								                libfribidi.a
+								#								                libfribidi.a
 
 
 		#libdl.a

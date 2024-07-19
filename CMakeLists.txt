@@ -24,8 +24,8 @@ ADD_DEFINITIONS(-DHAVE_NETDB_H
 		#-DHAVE_SETSOCKOPT_SO_NONBLOCK
 		)
 
-SET(EXTRA_INC_DIR /home/pc/Work/dep)
-SET(FFMPEG_INCLUDE_DIR /home/pc/Work/ffmpeg)
+SET(EXTRA_INC_DIR /home/chensong/Work/dep)
+SET(FFMPEG_INCLUDE_DIR /home/chensong/Work/lib/FFmpeg)
 
 #SET(EXTRA_INCLUDE_DIR /home/chensong/Work/dep)
 

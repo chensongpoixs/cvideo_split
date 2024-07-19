@@ -957,6 +957,7 @@ void test_video_split()
 	//avformat_free_context(pInFormatContext);
 	//avformat_free_context(pOutFormatContext);
 }
+#if 0
 #include <stdio.h>
 #include <cuda_runtime_api.h>
 #include <cuda.h>
@@ -985,6 +986,7 @@ void test_nvidia_info()
 	}
 
 }
+#endif // 0
 
 #include <stdio.h>
 #include <stdlib.h>

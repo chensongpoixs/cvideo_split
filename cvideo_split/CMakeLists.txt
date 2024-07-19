@@ -72,7 +72,7 @@ set(ALL_LIB  	pthread
 		#libharfbuzz-subset.a
 		libxml2.a
 		libfontconfig.a
-		libfribidi.a
+		#				libfribidi.a
 		libdl.so
 		#libdl.a
 		 libboost_atomic.a
