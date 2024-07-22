@@ -482,7 +482,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 50;
+		uint32  d_ms = 1000 / 40;
 		for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -562,7 +562,7 @@ namespace chen {
 			{
 				// filter 错误啦 ^_^
 				//filter error 
-				WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
+				//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
 				continue;
 				WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
 				continue;
