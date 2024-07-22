@@ -603,7 +603,7 @@ namespace chen {
 				{
 					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
-					ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+				//	ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 
 			}
@@ -702,7 +702,7 @@ namespace chen {
 				{
 					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
-					ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					//ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 
 			}
