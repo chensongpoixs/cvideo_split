@@ -24,7 +24,7 @@ purpose:	×Ö·û´®´¦Àí¹¤¾ßÀà
 #include "chardware_info.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <cbase64.h>
+#include "cbase64.h"
 #include <string>
 #include "clog.h"
 namespace chen {

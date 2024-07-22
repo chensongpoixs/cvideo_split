@@ -274,7 +274,7 @@ namespace chen {
 
 
 
-		NORMAL_EX_LOG("0_config_name  = %s, 1_config_name = [%s]", pre_config_name.c_str(), hot_config_name.c_str());
+		//NORMAL_EX_LOG("0_config_name  = %s, 1_config_name = [%s]", pre_config_name.c_str(), hot_config_name.c_str());
 
 		if (pre_config_name == new_md5_name && new_re_md5_name == hot_config_name)
 		{
