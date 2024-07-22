@@ -599,8 +599,12 @@ namespace chen {
 				{
 					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
-				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch());
+				else
+				{
+					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch());
+					ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+				}
 
 			}
 
@@ -694,8 +698,12 @@ namespace chen {
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
-				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch());
+				else 
+				{
+					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch());
+					ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+				}
 
 			}
 		}
