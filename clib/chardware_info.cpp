@@ -87,8 +87,8 @@ namespace chen {
 			close(sockfd);
 
 			// Print MAC address
-			NORMAL_EX_LOG("Interface Name: %s\n", iface_name);
-			NORMAL_EX_LOG("MAC Address: %s ", wifi.c_str());
+			//NORMAL_EX_LOG("Interface Name: %s\n", iface_name);
+		//	NORMAL_EX_LOG("MAC Address: %s ", wifi.c_str());
 			/*for (int i = 0; i < 6; i++) 
 			{
 				NORMAL_EX_LOG("%02X", mac_addr[i]);
@@ -101,7 +101,7 @@ namespace chen {
 					NORMAL_EX_LOG(":");
 				}
 			}*/
-			NORMAL_EX_LOG("\n\n");
+			//NORMAL_EX_LOG("\n\n");
 			return 	wifi;
 		}
 #else 
@@ -140,20 +140,20 @@ namespace chen {
 			{
 				PIP_ADAPTER_INFO pAdapter = pAdapterInfo;
 				while (pAdapter) {
-					NORMAL_EX_LOG("Adapter Name: %s\n", pAdapter->AdapterName);
+					//NORMAL_EX_LOG("Adapter Name: %s\n", pAdapter->AdapterName);
 					wifi_net += pAdapter->AdapterName;
-					NORMAL_EX_LOG("Description : %s\n", pAdapter->Description);
-					NORMAL_EX_LOG("Adapter MAC Address: ");
-					for (UINT i = 0; i < pAdapter->AddressLength; i++) 
-					{
-						if (i == (pAdapter->AddressLength - 1)) 
-						{
-							NORMAL_EX_LOG("%.2X\n", (int)pAdapter->Address[i]);
-						}
-						else {
-							NORMAL_EX_LOG("%.2X-", (int)pAdapter->Address[i]);
-						}
-					}
+					//NORMAL_EX_LOG("Description : %s\n", pAdapter->Description);
+					//NORMAL_EX_LOG("Adapter MAC Address: ");
+					//for (UINT i = 0; i < pAdapter->AddressLength; i++) 
+					//{
+					//	if (i == (pAdapter->AddressLength - 1)) 
+					//	{
+					//		//NORMAL_EX_LOG("%.2X\n", (int)pAdapter->Address[i]);
+					//	}
+					//	else {
+					//		NORMAL_EX_LOG("%.2X-", (int)pAdapter->Address[i]);
+					//	}
+					//}
 					pAdapter = pAdapter->Next;
 				}
 			}
