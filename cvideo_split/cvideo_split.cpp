@@ -578,6 +578,7 @@ namespace chen {
 			::av_frame_unref(m_filter_frame_ptr);
 
 			{
+				if (false)
 				{
 					++frame_fff;
 					std::chrono::milliseconds diff_ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -658,10 +659,10 @@ namespace chen {
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
 					{
-						if (decodec_id == 0)
-						{
-							NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
-						}
+						//if (decodec_id == 0)
+						//{
+						//	//NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
+						//}
 						frame_ptr->pts = m_decodes[0]->get_pts();
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						if (ret < 0)
