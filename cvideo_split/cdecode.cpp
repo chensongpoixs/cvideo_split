@@ -94,7 +94,7 @@ namespace chen {
 		}
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		
-		m_url = url;
+		m_url = url + std::string("?overrun_nonfatal=1&fifo_size=50000000");
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
