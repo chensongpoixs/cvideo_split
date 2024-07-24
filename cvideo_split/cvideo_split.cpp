@@ -702,7 +702,7 @@ namespace chen {
 				else 
 				{
 					
-					 ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 
 			}
