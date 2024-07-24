@@ -482,7 +482,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 40;
+		uint32  d_ms = 1000 / 30;
 		for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -594,16 +594,16 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
- 
+				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
 				if (diff_ms.count() < d_ms)
 				{
 					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
 				else
 				{
-					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch());
-				//	ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					
+					ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 
 			}
@@ -654,7 +654,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / (m_decodes[decodec_id]->get_fps() +20);
+		uint32  d_ms = 1000 / (m_decodes[decodec_id]->get_fps() +5);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
@@ -693,16 +693,16 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
-
+				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
 				if (diff_ms.count() < d_ms)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
 				else 
 				{
-					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch());
-					//ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					
+					 ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 
 			}
