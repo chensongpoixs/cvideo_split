@@ -659,7 +659,9 @@ namespace chen {
 				//	}
 				//	//if (av_pix_fmt_desc_get(inlink->format))
 				//}
-				clock_guard lock(g_avfilter_lock);
+				// 
+				// 上面问题崩溃 我解决方案是修改ffmpeg源码
+				//clock_guard lock(g_avfilter_lock);
 				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
 				{
 					//if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
