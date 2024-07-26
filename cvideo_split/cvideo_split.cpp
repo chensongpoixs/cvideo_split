@@ -494,7 +494,7 @@ namespace chen {
 		uint32 frame_fff = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
- goto_init_frame:
+ //goto_init_frame:
 			if (!m_filter_frame_ptr)
 			{
 				m_filter_frame_ptr = ::av_frame_alloc();
@@ -640,25 +640,25 @@ namespace chen {
 				 496         ret = AVERROR(EINVAL);
 				*/
 				//判断scae 函数中inputs变量是否存在
-				for (  size_t inlink_i = 0; inlink_i < m_buffers_scale_ctx_ptr.size(); ++inlink_i)
-				{
+				//for (  size_t inlink_i = 0; inlink_i < m_buffers_scale_ctx_ptr.size(); ++inlink_i)
+				//{
 
-					const AVFilterLink* inlink = m_buffers_scale_ctx_ptr[inlink_i]->inputs[0];
-					if (inlink == NULL)
-					{
-						WARNING_EX_LOG("push = [%s] inlink == NULL , scale get inlink format(%u) failed !!!", std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
-						std::this_thread::sleep_for(std::chrono::milliseconds(20));
-						goto goto_init_frame;
-					}
-					const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(static_cast<AVPixelFormat>(inlink->format));
-					if (desc == NULL)
-					{
-						WARNING_EX_LOG("push = [%s] scale get inlink format(%u) failed !!!",  std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
-						std::this_thread::sleep_for(std::chrono::milliseconds(20));
-						goto goto_init_frame;
-					}
-					//if (av_pix_fmt_desc_get(inlink->format))
-				}
+				//	const AVFilterLink* inlink = m_buffers_scale_ctx_ptr[inlink_i]->inputs[0];
+				//	if (inlink == NULL)
+				//	{
+				//		WARNING_EX_LOG("push = [%s] inlink == NULL , scale get inlink format(%u) failed !!!", std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
+				//		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+				//		goto goto_init_frame;
+				//	}
+				//	const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(static_cast<AVPixelFormat>(inlink->format));
+				//	if (desc == NULL)
+				//	{
+				//		WARNING_EX_LOG("push = [%s] scale get inlink format(%u) failed !!!",  std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
+				//		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+				//		goto goto_init_frame;
+				//	}
+				//	//if (av_pix_fmt_desc_get(inlink->format))
+				//}
 				clock_guard lock(g_avfilter_lock);
 				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
 				{
