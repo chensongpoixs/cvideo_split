@@ -441,42 +441,38 @@ namespace chen {
  
 			av_packet_unref(m_packet_ptr);
 			 
+			 
+			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr); 
 			if (ret >= 0)
 			{
-				ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
-
-
-
-				if (ret >= 0)
+				//picture_pts = picture->best_effort_timestamp;
+				if (m_picture_pts == AV_NOPTS_VALUE)
 				{
-					//picture_pts = picture->best_effort_timestamp;
-					if (m_picture_pts == AV_NOPTS_VALUE)
-					{
-						m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
-							&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
-							? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
-					}
-
-					valid = true;
-					break;
+					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
+						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
+						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
 				}
-				else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+
+				valid = true;
+				break;
+			}
+			else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+			{
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				break;
+			}
+			else
+			{
+				count_errs++;
+				if (count_errs > max_number_of_attempts)
 				{
-					std::thread::id thread_id = std::this_thread::get_id();
-					std::ostringstream cmd;
-					cmd << thread_id;
-					WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 					break;
-				}
-				else
-				{
-					count_errs++;
-					if (count_errs > max_number_of_attempts)
-					{
-						break;
-					}
 				}
 			}
+			 
 		}
 		 
 
