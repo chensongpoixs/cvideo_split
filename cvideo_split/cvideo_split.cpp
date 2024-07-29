@@ -717,7 +717,7 @@ namespace chen {
 				{
 					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
-				else
+				//else
 				{
 					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
@@ -816,7 +816,7 @@ namespace chen {
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 				}
-				else 
+				//else 
 				{
 					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
