@@ -694,7 +694,7 @@ namespace chen {
 				// filter 错误啦 ^_^
 				//filter error 
 				//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				continue;
 				WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
 				continue;
