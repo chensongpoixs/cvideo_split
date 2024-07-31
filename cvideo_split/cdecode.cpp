@@ -458,6 +458,7 @@ namespace chen {
 			}
 			else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 			{
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
