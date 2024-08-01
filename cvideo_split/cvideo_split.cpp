@@ -662,21 +662,9 @@ namespace chen {
 				// 
 				// 上面问题崩溃 我解决方案是修改ffmpeg源码
 				clock_guard lock(g_avfilter_lock);
-				try
+				/*try
 				{
-					if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
-					{
-						//if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-						{
-							//NORMAL_EX_LOG("");
-							// 需要继续处理啦
-							::av_frame_unref(m_filter_frame_ptr);
-							//continue;
-						}
-						//filter error 
-						//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
-						//continue;
-					}
+					
 				}
 				catch (const std::exception&  e)
 				{
@@ -687,6 +675,19 @@ namespace chen {
 				{
 					WARNING_EX_LOG("video split [name = %s] exception [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
 					continue;
+				}*/
+				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
+				{
+					//if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+					{
+						//NORMAL_EX_LOG("");
+						// 需要继续处理啦
+						::av_frame_unref(m_filter_frame_ptr);
+						//continue;
+					}
+					//filter error 
+					//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
+					//continue;
 				}
 			}
 			if (ret < 0)
