@@ -50,6 +50,33 @@ namespace chen {
 #include <arpa/inet.h>
 #include <string.h>
 #include <errno.h>
+
+		bool net_comp(const std::string & local_net)
+		{
+			if (local_net == "lo")
+			{
+				return false;
+			}
+
+			if (local_net.size() > 6)
+			{
+				static std::string docker_net_name = "docker";
+				for (size_t i = 0; i < 6; ++i)
+				{
+					if (local_net[i] != docker_net_name[i])
+					{
+						break;
+					}
+					if (i == 5)
+					{
+						return true;
+					}
+				}
+			}
+
+			return true;
+		}
+
 		std::string printMacAddress(const char* iface_name)
 		{
 			struct ifreq ifr;
@@ -178,8 +205,10 @@ namespace chen {
 			// Iterate through each interface
 			for (i = if_ni; i->if_name != NULL; i++) 
 			{
-				
-				wifi_net += printMacAddress(i->if_name);
+				if (net_comp(i->if_name))
+				{
+					wifi_net += printMacAddress(i->if_name);
+				}
 			}
 
 			if_freenameindex(if_ni);
