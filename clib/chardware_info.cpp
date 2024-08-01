@@ -69,7 +69,7 @@ namespace chen {
 					}
 					if (i == 5)
 					{
-						return true;
+						return false;
 					}
 				}
 			}
@@ -207,7 +207,12 @@ namespace chen {
 			{
 				if (net_comp(i->if_name))
 				{
+					//WARNING_EX_LOG("%s", i->if_name);
 					wifi_net += printMacAddress(i->if_name);
+				}
+				else 
+				{
+					//WARNING_EX_LOG("====>%s", i->if_name);
 				}
 			}
 
