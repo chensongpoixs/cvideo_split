@@ -45,7 +45,7 @@ namespace chen {
 	{
 		*this << '[' << func << ':' << line << "] ";
 	}
-	bool clog::init(const std::string & path, const std::string & name, const std::string & ext, ELogNameType name_type, bool mod_append, bool show_screen)
+	bool clog::init(const std::string & path, const std::string & name, uint32 log_expired_day, const std::string & ext, ELogNameType name_type, bool mod_append, bool show_screen)
 	{
 		g_log_ptr = new casync_log();
 		if (!g_log_ptr)
@@ -53,7 +53,7 @@ namespace chen {
 			std::cout << " alloc casync_log new fail " << std::endl;
 			return false;
 		}
-		if (!g_log_ptr->init(path, name, ext, true))
+		if (!g_log_ptr->init(path, name, ext, true, log_expired_day))
 		{
 			std::cout << "log init error " << std::endl;
 			return false;

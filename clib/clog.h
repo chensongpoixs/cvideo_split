@@ -42,7 +42,7 @@ namespace chen {
 		explicit clog(ELogLevelType level, const char* func, int line);
 		~clog();
 	public:
-		static bool init(const std::string& path, const std::string& name, const std::string& ext = ".log"
+		static bool init(const std::string& path, const std::string& name, uint32 log_expired_day = 1, const std::string& ext = ".log"
 			, ELogNameType name_type = ELogName_DateTime, bool mod_append = false, bool show_screen = true);
 		static void fix_log(ELogLevelType level, const void* p, int len);
 		static void var_log(ELogLevelType level, const char* format, ...);

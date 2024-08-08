@@ -10,7 +10,8 @@
 
 //#include "type_define.h"
 #include <string>
-
+#include <vector>
+#include "cnet_type.h"
 namespace chen
 {
 	namespace cutil
@@ -36,6 +37,9 @@ namespace chen
 
 
 		std::string parent_path(const std::string& path);
+
+
+		uint32 get_path_all_filenames(const std::string & path, std::vector<std::string> & filenames);
 	}
 
 

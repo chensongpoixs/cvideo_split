@@ -57,7 +57,7 @@ namespace chen
 		explicit casync_log();
 		~casync_log();
 		bool init(const std::string& path, const std::string& name, const std::string& ext
-			, bool show_screen);
+			, bool show_screen, uint32 day = 3);
 		void destroy();
 	public:
 
@@ -74,6 +74,7 @@ namespace chen
 		clog_item*		_get_new_buf();
 		void			_handler_log_item(const clog_item* log_item_ptr);
 		void			_handler_check_log_file();
+		void			_check_expired_log_file();
 	private:
 		char *					m_log_buf;
 		bool					m_show_screen;
@@ -91,6 +92,7 @@ namespace chen
 		std::string				m_path;
 		std::string				m_name;
 		std::string				m_ext;
+		uint32					m_expired_log_day;
 	};
 }
 

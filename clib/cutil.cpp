@@ -8,7 +8,7 @@
 #include "cutil.h"
 #include <sstream>
 #include <string>
-
+#include <boost/filesystem.hpp>
 namespace chen
 {
 	namespace cutil
@@ -69,6 +69,31 @@ namespace chen
 				}
 			}
 			return result_path;
+		}
+		uint32 get_path_all_filenames(const std::string& dir, std::vector<std::string>& filenames)
+		{
+			boost::filesystem::path path(dir);
+			if (!boost::filesystem::exists(path))
+			{
+				return -1;
+			}
+
+			boost::filesystem::directory_iterator end_iter;
+			for (boost::filesystem::directory_iterator iter(path); iter != end_iter; ++iter)
+			{
+				if (boost::filesystem::is_regular_file(iter->status()))
+				{
+					filenames.push_back(iter->path().string());
+				}
+
+				if (boost::filesystem::is_directory(iter->status()))
+				{
+					//get_filenames(iter->path().string(), filenames);
+				}
+			}
+
+			return filenames.size();
+			//return uint32();
 		}
 	}
 }

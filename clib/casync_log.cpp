@@ -30,6 +30,8 @@ purpose:		async_log
 #include <cstring>
 #include <cstdio>
 #include <cstdlib>
+#include "cutil.h"
+#include <boost/filesystem.hpp>
 #ifdef _MSC_VER
 #include <io.h>
 #include <direct.h>
@@ -113,6 +115,7 @@ namespace chen {
 		, m_path("")
 		, m_name("")
 		, m_ext("")
+		, m_expired_log_day(  3)
 	{
 		m_file_name.clear();
 		m_fd.close();
@@ -122,7 +125,7 @@ namespace chen {
 	{
 
 	}
-	bool casync_log::init(const std::string & path, const std::string & name, const std::string & ext, bool show_screen)
+	bool casync_log::init(const std::string & path, const std::string & name, const std::string & ext, bool show_screen, uint32 day)
 	{
 #ifdef _MSC_VER
 		if (::_access(path.c_str(), 0) == -1)
@@ -163,6 +166,7 @@ namespace chen {
 
 		m_show_log = true;
 		m_show_screen = show_screen;
+		m_expired_log_day = day> 0 ? day : 1;
 		if (m_show_screen)
 		{
 			m_color_ptr = new clog_color();
@@ -395,6 +399,12 @@ namespace chen {
 				m_fd.close();
 			}
 
+
+			_check_expired_log_file();
+
+
+
+
 			char log_name[1024] = { 0 };
 			gen_log_file_name(log_name, m_path + "/", m_name, m_ext, ELogName_DateTime, 1);
 			//gen_log_file_name(log_name, m_path + "/", "decoder", ".log", ELogName_AutoDate, m_date_time);
@@ -406,6 +416,31 @@ namespace chen {
 			}
 
 
+		}
+	}
+
+	void casync_log::_check_expired_log_file()
+	{
+		std::vector<std::string>   filenames;
+		if (path_util::get_path_all_filenames(m_path, filenames) > 0)
+		{
+
+			std::time_t expired_date_time = m_date_time - (60 * 60 * 24 * (m_expired_log_day>0? m_expired_log_day: 1));
+			for (const std::string& fname : filenames)
+			{
+				if (boost::filesystem::is_regular_file(fname))
+				{
+					std::time_t file_time = boost::filesystem::last_write_time(fname);
+					if (file_time < expired_date_time)
+					{
+						// delete file !!!
+						if (!boost::filesystem::remove(boost::filesystem::path(fname)))
+						{
+							std::cerr << "delete file = " << fname << " !!! " << std::endl;
+						}
+					}
+				}
+			}
 		}
 	}
 
