@@ -56,6 +56,7 @@ namespace chen {
 		ECI_OpenFfmpegMpegts,
 		ECI_CheckCameraStatus,
 		ECI_AuthPass,
+		ECI_RestartVideoSplitTime,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

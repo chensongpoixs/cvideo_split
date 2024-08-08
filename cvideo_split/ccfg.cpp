@@ -66,6 +66,7 @@ namespace chen {
 		set_uint32(ECI_OpenFfmpegMpegts, "open_ffmpeg_mpegts", 1);
 		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 60 * 60 );
 		set_string(ECI_AuthPass, "auth_pass", "chensong");
+		set_uint32(ECI_RestartVideoSplitTime, "restart_video_split_time", 60);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

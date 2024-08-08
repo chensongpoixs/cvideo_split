@@ -27,7 +27,9 @@ namespace chen {
 		explicit cvideo_split_mgr()
 			: m_video_split_map()
 			, m_gpu_use()
-			, m_channel_name_status_map(){}
+			, m_channel_name_status_map()
+			, m_video_split_list()
+			, m_video_split_restart(){}
 		virtual ~cvideo_split_mgr()
 		{}
 
@@ -45,7 +47,7 @@ namespace chen {
 		void   set_channel_name_status(uint32 id, uint32 status);
 		uint32 get_channel_name_status(uint32 id) ;
 	public:
-
+		void   push_stop_video(const std::string & channel_name);
 	private:
 		uint32 use_gpu_index() const ;
 	private:
@@ -53,6 +55,12 @@ namespace chen {
 		std::vector<uint32>				    m_gpu_use;
 		std::mutex								 m_channel_name_status_lock;
 		std::unordered_map<uint32, uint32>  m_channel_name_status_map;
+
+		std::mutex				m_video_split_lock;
+		std::vector<std::string> m_video_split_list;
+
+		std::map<std::string, uint64>  m_video_split_restart;
+
 	};
 	extern cvideo_split_mgr		g_video_split_mgr;
 }

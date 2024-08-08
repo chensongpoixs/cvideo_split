@@ -26,6 +26,7 @@ purpose:		camera
 #include "cffmpeg_util.h"
 #include <cassert>
 #include "ccfg.h"
+#include "cvideo_split.h"
 #include "clog.h"
 #include <sstream>
 
@@ -86,7 +87,7 @@ namespace chen {
 	cdecode::~cdecode()
 	{
 	}
-	bool cdecode::init(uint32 gpu_index, const char* url, uint32 index)
+	bool cdecode::init(uint32 gpu_index, const char* url, uint32 index, cvideo_splist* ptr)
 	{
 		
 		{
@@ -261,7 +262,7 @@ namespace chen {
 		m_frame.data = NULL;
 		//检测是否支持当前视频的像素格式
 		m_pixfmt = (AVPixelFormat)m_video_stream_ptr->codecpar->format;
-		 
+		m_video_split_ptr = ptr;
 #if USE_AV_INTERRUPT_CALLBACK
 		// deactivate interrupt callback
 		m_interrupt_metadata.timeout_after_ms = 0;
@@ -403,6 +404,17 @@ namespace chen {
 			{
 				continue;
 			}*/
+			if (ret == AVERROR_EOF)
+			{
+				av_packet_unref(m_packet_ptr);
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				_stop_callback();
+				WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+				//m_packet_ptr->stream_index = m_video_stream_index;
+				break;
+			}
 			if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
 			{
 				// flush cached frames from video decoder
@@ -456,7 +468,17 @@ namespace chen {
 				valid = true;
 				break;
 			}
-			else if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+			else if (  ret == AVERROR_EOF)
+			{
+				_stop_callback();
+				//::avcodec_flush_buffers(m_codec_ctx_ptr);
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				break;
+			}
+			else if (ret == AVERROR(EAGAIN) )
 			{
 				//::avcodec_flush_buffers(m_codec_ctx_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
@@ -803,6 +825,15 @@ namespace chen {
 		if (rotate_tag != NULL)
 			rotation_angle = atoi(rotate_tag->value);
 #endif
+	}
+	void cdecode::_stop_callback()
+	{
+		if (!m_video_split_ptr)
+		{
+			WARNING_EX_LOG("video split ptr == NULL !!!!");
+			return;
+		}
+		m_video_split_ptr->callback_decoder_failed();
 	}
 	void cdecode::_pthread_decoder()
 	{

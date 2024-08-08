@@ -205,12 +205,16 @@ namespace chen {
 		}
 		
 	}
+	void cvideo_splist::callback_decoder_failed()
+	{
+		g_video_split_mgr.push_stop_video(m_video_split_channel);
+	}
 	bool cvideo_splist::_init_decodes(uint32 gpu_index)
 	{
 		for (int32 i = 0; i < m_camera_infos.size(); ++i)
 		{
 			cdecode* decoder_ptr = new cdecode(); 
-			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str(), i))
+			if (!decoder_ptr->init(gpu_index, m_camera_infos[i].url.c_str(), i, this))
 			{
 				decoder_ptr->destroy();
 				delete decoder_ptr;

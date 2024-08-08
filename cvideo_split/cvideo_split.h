@@ -48,6 +48,7 @@ namespace chen {
 		std::string text;
 		cosd (): x(0), y(0), fontsize(0), fontcolor(""), text(""){}
 	};
+	
 	struct ccamera_info
 	{
 		uint32 index;
@@ -96,6 +97,10 @@ namespace chen {
 			, m_id(-1)
 			, m_decode_pthread()
 			, m_pts(0)
+			, m_frame_timestamp()
+			, m_frame_add()
+			, m_frame_max(0)
+			, m_frame_min(0)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -110,6 +115,9 @@ namespace chen {
 
 	public:
 		uint32 get_use_gpu_index() const { return m_gpu_index; }
+
+	public:
+		void callback_decoder_failed();
 	private:
 
 		bool _init_decodes(uint32 gpu_index);
@@ -203,6 +211,13 @@ namespace chen {
 		std::vector<std::thread>   m_decode_pthread;
 		uint64				m_pts;
 
+
+
+		std::vector<uint64 >		m_frame_timestamp;
+
+		std::vector<uint64 >		m_frame_add;
+		uint64						m_frame_max;
+		uint64						m_frame_min;
 	};
 
 

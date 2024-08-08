@@ -32,7 +32,7 @@ purpose:		camera
 #include <thread>
 namespace chen {
 
-
+	class cvideo_splist;
 	class cdecode
 	{
 	public:
@@ -67,6 +67,7 @@ namespace chen {
 			, m_index(0)
 			, m_stoped(false)
 			, m_frame_list()
+			, m_video_split_ptr(NULL)
 			{}
 		virtual ~cdecode();
 	public:
@@ -75,7 +76,7 @@ namespace chen {
 		* @param fmt 输出像素格式
 		* @return 成功返回true 失败返回false
 		*/
-		bool init(uint32 gpu_index, const char * url, uint32 index);
+		bool init(uint32 gpu_index, const char * url, uint32 index, cvideo_splist *ptr);
 		void destroy();
 
 
@@ -135,7 +136,7 @@ namespace chen {
 		//cdecode(const cdecode&);
 
 
-
+		void _stop_callback();
 	private:
 		void _pthread_decoder();
 	public:
@@ -184,6 +185,7 @@ namespace chen {
 		bool			m_stoped;
 		 std::mutex  m_frame_lock;
 		std::list<AVFrame*> m_frame_list;
+		cvideo_splist* m_video_split_ptr;
 	};
 
 }

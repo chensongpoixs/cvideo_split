@@ -23,6 +23,38 @@ namespace chen {
 	}
 	void cvideo_split_mgr::udpate(uint32 uDateTime)
 	{
+
+
+		for (std::map<std::string, uint64>::iterator iter = m_video_split_restart.begin();
+			iter != m_video_split_restart.end(); )
+		{
+			if ((iter->second + (g_cfg.get_uint32(ECI_RestartVideoSplitTime))) < std::time(NULL))
+			{
+				handler_web_cmd_video_split(iter->first, 0);
+				iter = m_video_split_restart.erase(iter);
+			}
+			else
+			{
+				++iter;
+			}
+		}
+		{
+			std::vector<std::string> temp_video_split_list;
+			{
+				std::lock_guard<std::mutex> lock(m_video_split_lock);
+				temp_video_split_list = m_video_split_list;
+				m_video_split_list.clear();
+			}
+			for (const std::string& video_channel_name : temp_video_split_list)
+			{
+				handler_web_cmd_video_split(video_channel_name, 1);
+				m_video_split_restart.insert(std::make_pair(video_channel_name, std::time(NULL)));
+			}
+			temp_video_split_list.clear();
+		}
+
+		m_video_split_list.clear();
+
 		for (VIDEO_SPLIST_MAP::iterator iter = m_video_split_map.begin(); iter != m_video_split_map.end(); ++iter)
 		{
 			if (iter->second)
@@ -42,7 +74,8 @@ namespace chen {
 			}
 		}
 		m_video_split_map.clear();
-
+		m_video_split_list.clear();
+		m_video_split_restart.clear();
 		
 	}
 	uint32 cvideo_split_mgr::handler_web_cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd)
@@ -165,6 +198,11 @@ namespace chen {
 			status = m_channel_name_status_map[id];
 		}
 		return status;
+	}
+	void cvideo_split_mgr::push_stop_video(const std::string& channel_name)
+	{
+		std::lock_guard<std::mutex> lock(m_video_split_lock);
+		m_video_split_list.push_back(channel_name);
 	}
 	uint32 cvideo_split_mgr::use_gpu_index() const
 	{

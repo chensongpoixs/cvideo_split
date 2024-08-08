@@ -29,13 +29,15 @@
 #include "cweb_http_api_mgr.h"
 #include "ccamera_info_mgr.h"
 #include "ccfg.h"
+#include <vector>
 namespace chen {
 
 	class cvideo_split_server
 	{
 	public:
 		explicit cvideo_split_server()
-		: m_stoped(false){}
+		: m_stoped(false)
+		{}
 		virtual ~cvideo_split_server() {}
 
 	public:
@@ -54,6 +56,7 @@ namespace chen {
 
 
 		bool	m_stoped;
+		
 	private:
 
 	};
