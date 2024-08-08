@@ -350,7 +350,7 @@ void test_video_split()
 	// // http://192.168.2.192/
 	// http://192.168.2.192/cgi-bin/configManager.cgi?action=getConfig&name=Multicast
 	// http://192.168.2.192/cgi-bin/configManager.cgi?action=setConfig&Multicast.TS[3].Enable=true
-	if (!decode1.init(1, "udp://@224.1.2.3:20000", 0))
+	if (!decode1.init(1, "udp://@224.1.2.3:20000", 0, NULL))
 	{
 		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
 		return ;
@@ -366,7 +366,7 @@ void test_video_split()
 	const char* url2 = "udp://@224.1.2.3:60000";
 	//const char* url2 = "udp://@224.1.2.3:20000";
 	//const char* url2 = "udp://@224.1.1.3:20000";
-	if (!decode2.init(1, url2 /*"udp://@224.1.1.3:20000"*//**/, 1))
+	if (!decode2.init(1, url2 /*"udp://@224.1.1.3:20000"*//**/, 1, NULL))
 	{
 		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:60000");
 		return  ;
@@ -627,7 +627,7 @@ void test_video_split()
 				{
 					decode1.destroy();
 					std::this_thread::sleep_for(std::chrono::milliseconds(30));
-					decode1.init(1, "udp://@224.1.1.3:20000", 0);
+					decode1.init(1, "udp://@224.1.1.3:20000", 0, NULL);
 					count = 0;
 				}
 				else
@@ -662,7 +662,7 @@ void test_video_split()
 				{
 					decode2.destroy();
 					std::this_thread::sleep_for(std::chrono::milliseconds(30));
-					decode2.init(1, "udp://@224.1.2.3:60000", 1);
+					decode2.init(1, "udp://@224.1.2.3:60000", 1, NULL);
 					count = 0;
 				}
 				else
