@@ -24,6 +24,7 @@ purpose:		camera
 #include "cvideo_split.h"
 #include "clog.h"
 #include "ccfg.h"
+#include "ctime_stamp.h"
 #include "cvideo_split_mgr.h"
 namespace chen {
 	static				std::mutex   g_avfilter_lock;
@@ -496,6 +497,9 @@ namespace chen {
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		uint32 frame_fff = 0;
+
+		ctime_stamp  tp;
+
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
  //goto_init_frame:
