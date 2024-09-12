@@ -488,10 +488,10 @@ namespace chen {
 		uint64 dts = 0;
 		uint64 pts = 0;
 		uint32  d_ms =   1000   / 40;
-		for (int32 i = 0; i < m_decodes.size(); ++i)
+		/*for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
-		}
+		}*/
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -512,7 +512,7 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-			if (false)
+			if (true)
 			{
 				int64  pts_s = 0;
 				for (int32 i = 0 ; i < m_decodes.size(); ++i)
@@ -700,6 +700,7 @@ namespace chen {
 			}
 			if (ret < 0)
 			{
+				::av_frame_unref(m_filter_frame_ptr);
 				// filter 错误啦 ^_^
 				//filter error 
 				//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
@@ -797,7 +798,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / (m_decodes[decodec_id]->get_fps() +15);
+		uint32  d_ms = 1000 / 35; // (m_decodes[decodec_id]->get_fps() + 15);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
