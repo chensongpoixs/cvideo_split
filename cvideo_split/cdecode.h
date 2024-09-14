@@ -68,6 +68,7 @@ namespace chen {
 			, m_stoped(false)
 			, m_frame_list()
 			, m_video_split_ptr(NULL)
+			, m_packet_recv(false)
 			{}
 		virtual ~cdecode();
 	public:
@@ -186,6 +187,7 @@ namespace chen {
 		 std::mutex  m_frame_lock;
 		std::list<AVFrame*> m_frame_list;
 		cvideo_splist* m_video_split_ptr;
+		bool			m_packet_recv;
 	};
 
 }

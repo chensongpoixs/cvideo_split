@@ -403,6 +403,24 @@ namespace chen {
 				//m_packet_ptr->stream_index = m_video_stream_index;
 				break;
 			}
+			if (m_packet_ptr->flags & AV_PKT_FLAG_CORRUPT)
+			{
+				m_packet_recv = true;
+				av_packet_unref(m_packet_ptr);
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
+			//s	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT");
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT [thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+				//m_packet_ptr->stream_index = m_video_stream_index;
+				continue;
+				//break;;
+			}
+			if (m_packet_recv && m_packet_ptr->flags != AV_PKT_FLAG_KEY)
+			{
+				m_packet_recv = false;
+			}
 			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
 			//{
 			//	WARNING_EX_LOG("url  = %s", m_url.c_str());
