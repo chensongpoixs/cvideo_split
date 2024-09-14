@@ -375,7 +375,7 @@ namespace chen {
 		//AVPacket* pkt = av_packet_alloc();;
 #if USE_AV_SEND_FRAME_API
 		// check if we can receive frame from previously decoded packet
-		valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
+	//	valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
 #endif
 
 		while (!valid)
@@ -393,39 +393,49 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
+			if (ret < 0)
 			{
-				WARNING_EX_LOG("url  = %s", m_url.c_str());
-				av_packet_unref(m_packet_ptr);
-				continue;
+					av_packet_unref(m_packet_ptr);
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+				//m_packet_ptr->stream_index = m_video_stream_index;
+				break;
 			}
+			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
+			//{
+			//	WARNING_EX_LOG("url  = %s", m_url.c_str());
+			//	av_packet_unref(m_packet_ptr);
+			//	continue;
+			//}
  
-			/*if ()
-			{
-				continue;
-			}*/
-			if (ret == AVERROR_EOF)
-			{
-				av_packet_unref(m_packet_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				_stop_callback();
-				WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-				//m_packet_ptr->stream_index = m_video_stream_index;
-				break;
-			}
-			if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
-			{
-				// flush cached frames from video decoder
-				av_packet_unref(m_packet_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-				//m_packet_ptr->stream_index = m_video_stream_index;
-				break;
-			}
+			///*if ()
+			//{
+			//	continue;
+			//}*/
+			//if (ret == AVERROR_EOF)
+			//{
+			//	av_packet_unref(m_packet_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	_stop_callback();
+			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+			//	//m_packet_ptr->stream_index = m_video_stream_index;
+			//	break;
+			//}
+			//if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
+			//{
+			//	// flush cached frames from video decoder
+			//	av_packet_unref(m_packet_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+			//	//m_packet_ptr->stream_index = m_video_stream_index;
+			//	break;
+			//}
 
 			if (m_packet_ptr->stream_index != m_video_stream_index)
 			{

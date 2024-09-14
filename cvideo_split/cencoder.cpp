@@ -444,13 +444,16 @@ namespace chen {
 			{
 				frame_ptr->pts = m_frame_count;
 			}
+		 
 			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
 				 
+				::av_frame_unref(frame_ptr);
 				WARNING_EX_LOG("Error while transferring frame data to surface."
 					"Error code: %s. ", ffmpeg_util::make_error_string(ret));
 				return;
 			}
+			
 			if (m_hw_frame_ptr)
 			{
 				m_hw_frame_ptr->pts = m_frame_count;
@@ -458,6 +461,7 @@ namespace chen {
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
+				::av_frame_unref(frame_ptr);
 				//::av_frame_unref(frame_ptr);
 				WARNING_EX_LOG("[warr][  %s:%u] codec send frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return;
