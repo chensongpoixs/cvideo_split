@@ -492,7 +492,7 @@ namespace chen {
 			if (  m_packet_ptr->flags == AV_PKT_FLAG_CORRUPT)
 			{
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				WARNING_EX_LOG("flag  AV_PKT_FLAG_CORRUPT ");
+				WARNING_EX_LOG("flag  AV_PKT_FLAG_CORRUPT %s", m_url.c_str());
 			}
 			/*if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
 			{
