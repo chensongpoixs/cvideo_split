@@ -393,6 +393,7 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
+			/*
 			if (ret == AVERROR_EOF  ||   avio_feof(m_ic_ptr->pb))
 			{
 				av_packet_unref(m_packet_ptr);
@@ -404,6 +405,7 @@ namespace chen {
 				//m_packet_ptr->stream_index = m_video_stream_index;
 				break;
 			}
+			*/
 			//av_packet_unref(m_packet_ptr);
 			//if (ret == AVERROR(EAGAIN))
 			//{
