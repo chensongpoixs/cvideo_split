@@ -423,6 +423,13 @@ namespace chen {
 			{
 				continue;
 			}
+			if (ret == AVERROR_EOF)
+			{
+				// flush cached frames from video decoder
+				m_packet_ptr->data = NULL;
+				m_packet_ptr->size = 0;
+				m_packet_ptr->stream_index = m_video_stream_index;
+			}
 			//if (ret < 0)
 			//{
 			//	// 	av_packet_unref(m_packet_ptr);
@@ -515,15 +522,7 @@ namespace chen {
  
 			 
 			ret = avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr);
-			/*
-			if (ret == AVERROR(EAGAIN)) {
-				ret = 0;
-			}
-			else
-			*/ if (ret >= 0/* || ret == AVERROR_EOF*/) {
-				ret = 0;
-				 
-			}
+			 
 			
  
 			av_packet_unref(m_packet_ptr);
