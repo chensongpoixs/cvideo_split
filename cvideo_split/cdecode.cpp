@@ -393,6 +393,17 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
+			if (ret == AVERROR_EOF)
+			{
+				av_packet_unref(m_packet_ptr);
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("[thread_id = %s]av_read_frame  EOF url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+				//m_packet_ptr->stream_index = m_video_stream_index;
+				break;
+			}
 			if (ret < 0)
 			{
 					av_packet_unref(m_packet_ptr);
@@ -403,20 +414,20 @@ namespace chen {
 				//m_packet_ptr->stream_index = m_video_stream_index;
 				break;
 			}
-			if (m_packet_ptr->flags & AV_PKT_FLAG_CORRUPT)
-			{
-				m_packet_recv = true;
-				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//s	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT");
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT [thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-				//m_packet_ptr->stream_index = m_video_stream_index;
-				continue;
-				//break;;
-			}
+			//if (m_packet_ptr->flags & AV_PKT_FLAG_CORRUPT)
+			//{
+			//	m_packet_recv = true;
+			//	av_packet_unref(m_packet_ptr);
+			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
+			////s	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT");
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT [thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+			//	//m_packet_ptr->stream_index = m_video_stream_index;
+			//	continue;
+			//	//break;;
+			//}
 			
 			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
 			//{
@@ -463,7 +474,7 @@ namespace chen {
 				continue;
 			}
 			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
-			if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
+			/*if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
 			{
 				m_packet_recv = false;
 			}
@@ -471,7 +482,7 @@ namespace chen {
 			{
 				av_packet_unref(m_packet_ptr);
 				continue;
-			}
+			}*/
 			m_pts = m_packet_ptr->pts;
 			m_dts = m_packet_ptr->dts;
 			// Decode video frame
@@ -485,10 +496,20 @@ namespace chen {
 				ret = 0;
 				 
 			}
+			
  
 			av_packet_unref(m_packet_ptr);
-			 
-			 
+			if (ret == AVERROR_EOF)
+			{
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
+				_stop_callback();
+				::av_frame_unref(m_picture_ptr);
+				std::thread::id thread_id = std::this_thread::get_id();
+				std::ostringstream cmd;
+				cmd << thread_id;
+				WARNING_EX_LOG("[thread_id  = %s]avcodec_send_packet EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				break;
+			}
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr); 
 			if (ret >= 0)
 			{
@@ -507,11 +528,11 @@ namespace chen {
 			{
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
 				_stop_callback();
-				
+				::av_frame_unref(m_picture_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  EOF url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				break;
 			}
 			else if (ret == AVERROR(EAGAIN) )
@@ -520,12 +541,14 @@ namespace chen {
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
+				::av_frame_unref(m_picture_ptr);
 				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				break;
 			}
 			else
 			{
 				count_errs++;
+				::av_frame_unref(m_picture_ptr);
 				if (count_errs > max_number_of_attempts)
 				{
 					break;
