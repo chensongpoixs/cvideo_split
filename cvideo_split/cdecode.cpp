@@ -404,7 +404,7 @@ namespace chen {
 				//m_packet_ptr->stream_index = m_video_stream_index;
 				break;
 			}
-			av_packet_unref(m_packet_ptr);
+			//av_packet_unref(m_packet_ptr);
 			//if (ret == AVERROR(EAGAIN))
 			//{
 			//	av_packet_unref(m_packet_ptr);
