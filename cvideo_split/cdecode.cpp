@@ -505,7 +505,7 @@ namespace chen {
 			if (ret == AVERROR(EAGAIN)) {
 				ret = 0;
 			}
-			else if (ret >= 0 || ret == AVERROR_EOF) {
+			else if (ret >= 0/* || ret == AVERROR_EOF*/) {
 				ret = 0;
 				 
 			}
@@ -516,7 +516,7 @@ namespace chen {
 			{
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
 				_stop_callback();
-				::av_frame_unref(m_picture_ptr);
+				//::av_frame_unref(m_picture_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
@@ -573,7 +573,7 @@ namespace chen {
 			else
 			{
 				count_errs++;
-				::av_frame_unref(m_picture_ptr);
+				//::av_frame_unref(m_picture_ptr);
 				if (count_errs > max_number_of_attempts)
 				{
 					break;
