@@ -405,18 +405,18 @@ namespace chen {
 				break;
 			}
 			av_packet_unref(m_packet_ptr);
-			if (ret == AVERROR(EAGAIN))
-			{
-				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				//_stop_callback();
-				::av_frame_unref(m_picture_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				break;
-			}
+			//if (ret == AVERROR(EAGAIN))
+			//{
+			//	av_packet_unref(m_packet_ptr);
+			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
+			//	//_stop_callback();
+			//	::av_frame_unref(m_picture_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			//	break;
+			//}
 			if (ret < 0)
 			{
 					av_packet_unref(m_packet_ptr);
@@ -523,18 +523,18 @@ namespace chen {
 				WARNING_EX_LOG("[thread_id  = %s]avcodec_send_packet EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 				break;
 			}
-			if (ret == AVERROR(EAGAIN))
-			{
-				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				//_stop_callback();
-				::av_frame_unref(m_picture_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				break;
-			}
+			//if (ret == AVERROR(EAGAIN))
+			//{
+			//	av_packet_unref(m_packet_ptr);
+			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
+			//	//_stop_callback();
+			//	::av_frame_unref(m_picture_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			//	break;
+			//}
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr); 
 			if (ret >= 0)
 			{
