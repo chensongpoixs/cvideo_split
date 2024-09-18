@@ -421,7 +421,7 @@ namespace chen {
 			//}
 			if (ret < 0)
 			{
-				//	av_packet_unref(m_packet_ptr);
+				 //	av_packet_unref(m_packet_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
@@ -489,6 +489,11 @@ namespace chen {
 				continue;
 			}
 			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
+			if (  m_packet_ptr->flags == AV_PKT_FLAG_CORRUPT)
+			{
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
+				WARNING_EX_LOG("flag  AV_PKT_FLAG_CORRUPT ");
+			}
 			/*if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
 			{
 				m_packet_recv = false;
