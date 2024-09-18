@@ -421,7 +421,7 @@ namespace chen {
 			//}
 			if (ret < 0)
 			{
-				 //	av_packet_unref(m_packet_ptr);
+					av_packet_unref(m_packet_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
 				cmd << thread_id;
