@@ -375,7 +375,7 @@ namespace chen {
 		//AVPacket* pkt = av_packet_alloc();;
 #if USE_AV_SEND_FRAME_API
 		// check if we can receive frame from previously decoded packet
-	//	valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
+	 	valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
 #endif
 
 		while (!valid)
@@ -417,9 +417,15 @@ namespace chen {
 				continue;
 				//break;;
 			}
-			if (m_packet_recv && m_packet_ptr->flags != AV_PKT_FLAG_KEY)
+			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
+			if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
 			{
 				m_packet_recv = false;
+			}
+			if (m_packet_recv)
+			{
+				av_packet_unref(m_packet_ptr);
+				continue;
 			}
 			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
 			//{
