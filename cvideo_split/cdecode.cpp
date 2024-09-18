@@ -549,17 +549,17 @@ namespace chen {
 				valid = true;
 				break;
 			}
-			else if (  ret == AVERROR_EOF)
-			{
-				//::avcodec_flush_buffers(m_codec_ctx_ptr);
-				//_stop_callback();
-				::av_frame_unref(m_picture_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  EOF url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-				break;
-			}
+			//else if (  ret == AVERROR_EOF)
+			//{
+			//	//::avcodec_flush_buffers(m_codec_ctx_ptr);
+			//	//_stop_callback();
+			//	::av_frame_unref(m_picture_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  EOF url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
+			//	break;
+			//}
 			else if (ret == AVERROR(EAGAIN) )
 			{
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
