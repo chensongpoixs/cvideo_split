@@ -552,7 +552,7 @@ namespace chen {
 			else if (  ret == AVERROR_EOF)
 			{
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				_stop_callback();
+				//_stop_callback();
 				::av_frame_unref(m_picture_ptr);
 				std::thread::id thread_id = std::this_thread::get_id();
 				std::ostringstream cmd;
