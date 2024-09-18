@@ -584,6 +584,10 @@ namespace chen {
 			//	WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			//	break;
 			//}
+			else if (ret == AVERROR(EAGAIN))
+			{
+				continue;
+			}
 			else
 			{
 				count_errs++;
