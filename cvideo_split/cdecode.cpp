@@ -417,16 +417,7 @@ namespace chen {
 				continue;
 				//break;;
 			}
-			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
-			if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
-			{
-				m_packet_recv = false;
-			}
-			if (m_packet_recv)
-			{
-				av_packet_unref(m_packet_ptr);
-				continue;
-			}
+			
 			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
 			//{
 			//	WARNING_EX_LOG("url  = %s", m_url.c_str());
@@ -469,6 +460,16 @@ namespace chen {
 				{
 					break;
 				}
+				continue;
+			}
+			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
+			if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
+			{
+				m_packet_recv = false;
+			}
+			if (m_packet_recv)
+			{
+				av_packet_unref(m_packet_ptr);
 				continue;
 			}
 			m_pts = m_packet_ptr->pts;
