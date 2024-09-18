@@ -405,7 +405,7 @@ namespace chen {
 				//m_packet_ptr->stream_index = m_video_stream_index;
 				break;
 			}
-			*/
+			 */
 			//av_packet_unref(m_packet_ptr);
 			//if (ret == AVERROR(EAGAIN))
 			//{
@@ -423,16 +423,16 @@ namespace chen {
 			{
 				continue;
 			}
-			if (ret < 0)
-			{
-				// 	av_packet_unref(m_packet_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-				//m_packet_ptr->stream_index = m_video_stream_index;
-				break;
-			}
+			//if (ret < 0)
+			//{
+			//	// 	av_packet_unref(m_packet_ptr);
+			//	std::thread::id thread_id = std::this_thread::get_id();
+			//	std::ostringstream cmd;
+			//	cmd << thread_id;
+			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
+			//	//m_packet_ptr->stream_index = m_video_stream_index;
+			//	break;
+			//}
 			//if (m_packet_ptr->flags & AV_PKT_FLAG_CORRUPT)
 			//{
 			//	m_packet_recv = true;
