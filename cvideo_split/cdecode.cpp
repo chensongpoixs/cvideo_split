@@ -419,6 +419,10 @@ namespace chen {
 			//	WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
 			//	break;
 			//}
+			if (ret == AVERROR(EAGAIN))
+			{
+				continue;
+			}
 			if (ret < 0)
 			{
 				// 	av_packet_unref(m_packet_ptr);
