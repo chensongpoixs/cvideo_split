@@ -277,7 +277,7 @@ namespace chen {
 		ss << "<SumNum>" << 8 << "</SumNum>\r\n";
 		ss << "<DeviceList Num=\"" << 1 << "\">\r\n";
 		ss << "<Item>\r\n";
-		ss << "<DeviceID>" << m_vms_device_id /*m_vms_channel_id*/ << "</DeviceID>\r\n";
+		ss << "<DeviceID>" << "876348763274" /*m_vms_channel_id*/ << "</DeviceID>\r\n";
 		ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
 		ss << "<Status>ON</Status>\r\n";
 		ss << "<Channel Num=\"1\">\r\n";
