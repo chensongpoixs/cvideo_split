@@ -173,13 +173,13 @@ namespace chen {
 		// c=
 		auto c_sdp_first_index = body.find("c=");
 		auto c_sdp = body.substr(c_sdp_first_index);
-		auto c_sdp_last_index = y_sdp.find("\r\n");
-		std::string ccmd_line = y_sdp.substr(2, c_sdp_last_index - 1);
+		auto c_sdp_last_index = c_sdp.find("\r\n");
+		std::string ccmd_line = c_sdp.substr(2, c_sdp_last_index - 1);
 		 
 		std::stringstream ss;
 		ss << "v=0\r\n";
 		// o=0210011320001 0 0 IN IP4 172.18.16.1
-		ss << "o=" << channel_name_ << " 0 0 IN IP4 " + m_local_port << "\r\n";
+		ss << "o=" << channel_name_ << " 0 0 IN IP4 " << m_local_ip << "\r\n";
 		ss << "s=##ms20090428 log-restart-callid-ssrc-reinvite\r\n";
 		ss << "c=" << ccmd_line<< "\r\n";
 		ss << "t=0 0\r\n";
@@ -189,7 +189,7 @@ namespace chen {
 		//else {
 			//ss << "m=video " << local_port << " RTP/AVP 96\r\n";
 		//}
-		ss << "m=video 6000 RTP/AVP 96 98";
+		ss << "m=video 6000 RTP/AVP 96 98\r\n";
 		ss << "a=sendonly\r\n";
 
 		ss << "a=rtpmap:96 PS/90000\r\n";
