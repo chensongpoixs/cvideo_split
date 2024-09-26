@@ -1203,8 +1203,8 @@ void test_cmd()
 }
 int  main(int argc, char** argv) 
 {
-	test_cmd();
-	return 0;
+	//test_cmd();
+	//return 0;
 	//
 	test_vms(argc, argv);
 	return EXIT_SUCCESS;
