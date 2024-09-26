@@ -21,6 +21,7 @@
     <ClCompile Include="cudp.cpp" />
     <ClCompile Include="chardware_info.cpp" />
     <ClCompile Include="cbase64.cpp" />
+    <ClCompile Include="ctime_stamp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="casync_log.h" />
@@ -51,5 +52,6 @@
     <ClInclude Include="chardware_info.h" />
     <ClInclude Include="cbase64.h" />
     <ClInclude Include="cmd5.h" />
+    <ClInclude Include="ctime_stamp.h" />
   </ItemGroup>
 </Project>

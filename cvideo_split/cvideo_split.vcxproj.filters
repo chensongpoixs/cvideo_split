@@ -72,8 +72,5 @@
     <Filter Include="websocket">
       <UniqueIdentifier>{981437bd-e29f-4623-abea-ef5d732c8205}</UniqueIdentifier>
     </Filter>
-    <Filter Include="NewFilter1">
-      <UniqueIdentifier>{7f6e7af6-ec30-466e-8eb0-7b3548b5d267}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
 </Project>

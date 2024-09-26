@@ -2,18 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="cav_mem_pool.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="util">
       <UniqueIdentifier>{24f34e53-c7e0-480f-a21a-87488107f003}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="cav_mem_pool.h">
-      <Filter>util</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
