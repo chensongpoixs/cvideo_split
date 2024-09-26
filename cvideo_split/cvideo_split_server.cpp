@@ -37,6 +37,8 @@
 #include "crandom.h"
 #include "chardware_info.h"
 #include "cmd5.h"
+#include "cglobal_vms_port_mgr.h"
+#include "cvms_device.h"
 
 namespace chen {
 
@@ -106,14 +108,16 @@ namespace chen {
 		{
 			return false;
 		}
-
-		
-
-
-
-
+		 
 		
 		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
+
+
+
+		if (!g_global_vms_port_mgr.init())
+		{
+			return false;
+		}
 		// check data path
 		
 		/*NORMAL_EX_LOG("uuid = [%s]", c_rand.rand_str(32).c_str());
@@ -141,6 +145,14 @@ namespace chen {
 			return false;
 		}
 		SYSTEM_LOG("video split mgr init OK !!!");
+
+
+		SYSTEM_LOG("vms Device init ...");
+		if (!g_vms_device_mgr.init())
+		{
+			return false;
+		}
+		SYSTEM_LOG("vms device init OK!!!");
 
 		SYSTEM_LOG("Web Server API init ...");
 		if (!g_web_http_api_mgr.init())
@@ -195,7 +207,8 @@ namespace chen {
 			{
 				g_websocket_wan_server.update(uDelta);
 			}
-			
+			g_vms_device_mgr.update(uDelta);
+			g_global_vms_port_mgr.update(uDelta);
 			g_http_queue_mgr.update(); 
 			g_camera_info_mgr.update(uDelta);
 			g_video_split_info_mgr.update(uDelta);
@@ -230,6 +243,14 @@ namespace chen {
 		SYSTEM_LOG("video_split_info mgr destroy OK !!!");
 	 	g_client_msg_dispatch.destroy();
 		SYSTEM_LOG("msg dispath destroy OK !!!"); 
+
+		g_vms_device_mgr.destroy();
+		SYSTEM_LOG("vms device msg destroy OK !!!");
+
+		g_global_vms_port_mgr.destroy();
+		SYSTEM_LOG("global vms port destroy OK !!!");
+
+
 
 		g_cfg.destroy();
 		LOG::destroy();

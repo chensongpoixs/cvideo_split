@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{cafb2848-0e24-4165-b600-59d16221e8a2}</ProjectGuid>
     <RootNamespace>cvideosplit</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -82,7 +82,7 @@
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)..\vsout\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>$(C_INCLUDE)\ffmpeg-6.1\include\libxml2;..\common_sip;..\common_websocket;$(C_INCLUDE)/protobuf/include;$(C_INCLUDE)\boost_1_66_0\include;..\clib;..\common_execl;..\common_ffmpeg;..\common;..\common_web;$(C_INCLUDE)\json\include;$(C_INCLUDE)\ffmpeg-6.1\include;$(C_INCLUDE)\opencv\include;C:\Program Files\NVIDIA Corporation\NvToolsExt\include;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(C_INCLUDE)/protobuf/debug;$(C_INCLUDE)\boost_1_66_0\lib;$(C_INCLUDE)\json\lib\x64\debug;$(ProjectDir)..\lib\$(Platform)\$(Configuration);$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(C_INCLUDE)/protobuf/lib\x64\debug;$(C_INCLUDE)\boost_1_66_0\lib;$(C_INCLUDE)\json\lib\x64\debug;$(ProjectDir)..\lib\$(Platform)\$(Configuration);$(C_INCLUDE)\ffmpeg-6.1\lib\x64;$(C_INCLUDE)\opencv\x64\vc16\lib;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>$(C_INCLUDE)\ffmpeg-6.1\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -125,13 +125,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;BOOST_USE_WINDOWS_H;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;WIN32;_CONSOLE;WIN32_LEAN_AND_MEAN;NOMINMAX;NDEBUG;_WIN32_WINNT=0x0602;_INTSAFE_H_INCLUDED_;_WINSOCK_DEPRECATED_NO_WARNINGS;_WINDOWS;MS_LITTLE_ENDIAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>common_sip.lib;common_websocket.lib;libprotobufd.lib;common.lib;common_execl.lib;common_ffmpeg.lib;libboost_atomic-vc141-mt-gd-x64-1_66.lib;libboost_chrono-vc141-mt-gd-x64-1_66.lib;libboost_container-vc141-mt-gd-x64-1_66.lib;libboost_context-vc141-mt-gd-x64-1_66.lib;libboost_coroutine-vc141-mt-gd-x64-1_66.lib;libboost_date_time-vc141-mt-gd-x64-1_66.lib;libboost_exception-vc141-mt-gd-x64-1_66.lib;libboost_fiber-vc141-mt-gd-x64-1_66.lib;libboost_filesystem-vc141-mt-gd-x64-1_66.lib;libboost_graph-vc141-mt-gd-x64-1_66.lib;libboost_iostreams-vc141-mt-gd-x64-1_66.lib;libboost_locale-vc141-mt-gd-x64-1_66.lib;libboost_log-vc141-mt-gd-x64-1_66.lib;libboost_log_setup-vc141-mt-gd-x64-1_66.lib;libboost_math_c99-vc141-mt-gd-x64-1_66.lib;libboost_math_c99f-vc141-mt-gd-x64-1_66.lib;libboost_math_c99l-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1f-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1l-vc141-mt-gd-x64-1_66.lib;libboost_prg_exec_monitor-vc141-mt-gd-x64-1_66.lib;libboost_program_options-vc141-mt-gd-x64-1_66.lib;libboost_python-vc141-mt-gd-x64-1_66.lib;libboost_random-vc141-mt-gd-x64-1_66.lib;libboost_regex-vc141-mt-gd-x64-1_66.lib;libboost_serialization-vc141-mt-gd-x64-1_66.lib;libboost_signals-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_noop-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_windbg-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_windbg_cached-vc141-mt-gd-x64-1_66.lib;libboost_system-vc141-mt-gd-x64-1_66.lib;libboost_test_exec_monitor-vc141-mt-gd-x64-1_66.lib;libboost_thread-vc141-mt-gd-x64-1_66.lib;libboost_timer-vc141-mt-gd-x64-1_66.lib;libboost_type_erasure-vc141-mt-gd-x64-1_66.lib;libboost_unit_test_framework-vc141-mt-gd-x64-1_66.lib;lib_json.lib;libboost_wave-vc141-mt-gd-x64-1_66.lib;libboost_wserialization-vc141-mt-gd-x64-1_66.lib;common_web.lib;clib.lib;libassd.lib;libavfilterd.lib;libblurayd.lib;libcdiod.lib;libfribidid.lib;libgmpd.lib;libharfbuzzd.lib;libiconvd.lib;libmfxd.lib;libnettled.lib;libpostprocd.lib;libspeexd.lib;libswscaled.lib;libvpxd.lib;libxml2d.lib;libavcodecd.lib;libavformatd.lib;libbz2d.lib;libfontconfigd.lib;libgcryptd.lib;libgnutlsd.lib;libhogweedd.lib;libilbcd.lib;libmodplugd.lib;liboggd.lib;libsdl2d.lib;libsshd.lib;libtheorad.lib;libx264d.lib;libxvidcored.lib;libavdeviced.lib;libavutild.lib;libcdio_paranoiad.lib;libfreetyped.lib;libgmed.lib;libgpg-errord.lib;liblzmad.lib;libmp3lamed.lib;libopusd.lib;libsoxrd.lib;libswresampled.lib;libvorbisd.lib;libx265d.lib;libzlibd.lib;%(AdditionalDependencies);cudart.lib;cudadevrt.lib</AdditionalDependencies>
+      <AdditionalDependencies>Dnsapi.lib;Qwave.lib;delayimp.lib;ws2_32.lib;common_sip.lib;common_websocket.lib;libprotobufd.lib;common.lib;common_execl.lib;common_ffmpeg.lib;libboost_atomic-vc141-mt-gd-x64-1_66.lib;libboost_chrono-vc141-mt-gd-x64-1_66.lib;libboost_container-vc141-mt-gd-x64-1_66.lib;libboost_context-vc141-mt-gd-x64-1_66.lib;libboost_coroutine-vc141-mt-gd-x64-1_66.lib;libboost_date_time-vc141-mt-gd-x64-1_66.lib;libboost_exception-vc141-mt-gd-x64-1_66.lib;libboost_fiber-vc141-mt-gd-x64-1_66.lib;libboost_filesystem-vc141-mt-gd-x64-1_66.lib;libboost_graph-vc141-mt-gd-x64-1_66.lib;libboost_iostreams-vc141-mt-gd-x64-1_66.lib;libboost_locale-vc141-mt-gd-x64-1_66.lib;libboost_log-vc141-mt-gd-x64-1_66.lib;libboost_log_setup-vc141-mt-gd-x64-1_66.lib;libboost_math_c99-vc141-mt-gd-x64-1_66.lib;libboost_math_c99f-vc141-mt-gd-x64-1_66.lib;libboost_math_c99l-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1f-vc141-mt-gd-x64-1_66.lib;libboost_math_tr1l-vc141-mt-gd-x64-1_66.lib;libboost_prg_exec_monitor-vc141-mt-gd-x64-1_66.lib;libboost_program_options-vc141-mt-gd-x64-1_66.lib;libboost_python-vc141-mt-gd-x64-1_66.lib;libboost_random-vc141-mt-gd-x64-1_66.lib;libboost_regex-vc141-mt-gd-x64-1_66.lib;libboost_serialization-vc141-mt-gd-x64-1_66.lib;libboost_signals-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_noop-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_windbg-vc141-mt-gd-x64-1_66.lib;libboost_stacktrace_windbg_cached-vc141-mt-gd-x64-1_66.lib;libboost_system-vc141-mt-gd-x64-1_66.lib;libboost_test_exec_monitor-vc141-mt-gd-x64-1_66.lib;libboost_thread-vc141-mt-gd-x64-1_66.lib;libboost_timer-vc141-mt-gd-x64-1_66.lib;libboost_type_erasure-vc141-mt-gd-x64-1_66.lib;libboost_unit_test_framework-vc141-mt-gd-x64-1_66.lib;lib_json.lib;libboost_wave-vc141-mt-gd-x64-1_66.lib;libboost_wserialization-vc141-mt-gd-x64-1_66.lib;common_web.lib;clib.lib;libassd.lib;libavfilterd.lib;libblurayd.lib;libcdiod.lib;libfribidid.lib;libgmpd.lib;libharfbuzzd.lib;libiconvd.lib;libmfxd.lib;libnettled.lib;libpostprocd.lib;libspeexd.lib;libswscaled.lib;libvpxd.lib;libxml2d.lib;libavcodecd.lib;libavformatd.lib;libbz2d.lib;libfontconfigd.lib;libgcryptd.lib;libgnutlsd.lib;libhogweedd.lib;libilbcd.lib;libmodplugd.lib;liboggd.lib;libsdl2d.lib;libsshd.lib;libtheorad.lib;libx264d.lib;libxvidcored.lib;libavdeviced.lib;libavutild.lib;libcdio_paranoiad.lib;libfreetyped.lib;libgmed.lib;libgpg-errord.lib;liblzmad.lib;libmp3lamed.lib;libopusd.lib;libsoxrd.lib;libswresampled.lib;libvorbisd.lib;libx265d.lib;libzlibd.lib;%(AdditionalDependencies);cudart.lib;cudadevrt.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -162,12 +162,17 @@
     <ClCompile Include="cclient_msg_dispatch.cpp" />
     <ClCompile Include="cdecode.cpp" />
     <ClCompile Include="cencoder.cpp" />
+    <ClCompile Include="cglobal_vms_port_mgr.cpp" />
     <ClCompile Include="cnvidia_info.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
     <ClCompile Include="cvideo_split.cpp" />
     <ClCompile Include="cvideo_split_info_mgr.cpp" />
     <ClCompile Include="cvideo_split_mgr.cpp" />
     <ClCompile Include="cvideo_split_server.cpp" />
+    <ClCompile Include="cvms_device.cpp" />
+    <ClCompile Include="cvms_device_handler.cpp" />
+    <ClCompile Include="cvms_device_util.cpp" />
+    <ClCompile Include="cvms_msg_dispath.cpp" />
     <ClCompile Include="cwebsocket_wan_server.cpp" />
     <ClCompile Include="cwebsocket_wan_session.cpp" />
     <ClCompile Include="cwebsocket_wan_session_handler.cpp" />
@@ -195,6 +200,7 @@
     <ClInclude Include="cclient_msg_dispatch.h" />
     <ClInclude Include="cdecode.h" />
     <ClInclude Include="cencoder.h" />
+    <ClInclude Include="cglobal_vms_port_mgr.h" />
     <ClInclude Include="chttp_code.h" />
     <ClInclude Include="cnvidia_info.h" />
     <ClInclude Include="crect_mem_copy.h" />
@@ -202,6 +208,9 @@
     <ClInclude Include="cvideo_split_info_mgr.h" />
     <ClInclude Include="cvideo_split_mgr.h" />
     <ClInclude Include="cvideo_split_server.h" />
+    <ClInclude Include="cvms_device.h" />
+    <ClInclude Include="cvms_device_util.h" />
+    <ClInclude Include="cvms_msg_dispath.h" />
     <ClInclude Include="cwebsocket_wan_server.h" />
     <ClInclude Include="cwebsocket_wan_session.h" />
     <ClInclude Include="cweb_guard_reply.h" />

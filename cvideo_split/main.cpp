@@ -23,6 +23,9 @@
 #include "cvideo_split_server.h"
 #include <json/json.h>
 #include "cudp.h"
+#include "ctime_api.h"
+#include "cvms_msg_dispath.h"
+#include "cvms_device.h"
 //#include "ccommon_xml.h"
 //void test_protobuf_json()
 //{
@@ -300,11 +303,15 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\lib\x64\cublasLt.lib
 //}
 
 
+
+bool g_stoped = false;
+
 void Stop(int i)
 {
-
-	//m_stoped = true;
+	g_stoped = true;
+	 
 	chen::g_video_split_server.stop();
+
 }
 
 void RegisterSignal()
@@ -1119,8 +1126,80 @@ void test_mac_address()
 }
 
 
+void test_vms(int argc, char** argv)
+{
+
+
+	RegisterSignal();
+	const char* config_filename = "server.cfg";
+	const char* log_path = "./log";
+	if (argc > 1)
+	{
+		config_filename = argv[1];
+	}
+	if (argc > 2)
+	{
+		log_path = argv[2];
+	}
+	using namespace chen;
+
+	printf("Log init ...\n");
+	if (!LOG::init(log_path, "vms"))
+	{
+		return  ;
+	}
+	SYSTEM_LOG("config init ...");
+	if (!g_cfg.init(config_filename))
+	{
+		return  ;
+	}
+	LOG::set_level(static_cast<ELogLevelType>(g_cfg.get_uint32(ECI_LogLevel)));
+	ctime_base_api::set_time_zone(g_cfg.get_int32(ECI_TimeZone));
+	ctime_base_api::set_time_adjust(g_cfg.get_int32(ECI_TimeAdjust));
+
+
+	if (!g_vms_msg_dispatch.init())
+	{
+		return;
+	}
+
+	if (!g_global_vms_port_mgr.init())
+	{
+		return ;
+	}
+	if (!g_vms_device_mgr.init())
+	{
+		return;
+	}
+
+
+
+	while (!g_stoped)
+	{
+		g_vms_device_mgr.update(1);
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	/*bool init = chen::g_video_split_server.init(log_path, config_filename);
+
+	if (init)
+	{
+		init = chen::g_video_split_server.Loop();
+	}
+	chen::g_video_split_server.Destroy();
+	if (!init)
+	{
+		return 1;
+	}*/
+}
+
+
 int  main(int argc, char** argv) 
 {
+
+
+	test_vms(argc, argv);
+	return EXIT_SUCCESS;
 //	 test_mac_address();
 //	return 0;
 	/*

@@ -13,7 +13,7 @@ namespace chen {
  
 class Device {
 public:
-    Device() {}
+   // Device() {}
 
     Device(std::string server_sip_id, std::string server_ip, int server_port,
         std::string device_sip_id,  std::string channel_sip_id, std::string username, std::string password,

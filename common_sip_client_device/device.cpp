@@ -312,7 +312,7 @@ void Device::process_request() {
                 } else if ("DeviceControl" == cmd) {
                     this->process_devicecontrol_query(sn);
                 } else {
-                    WARNING_EX_LOG("unhandled cmd: {%s}", cmd.c_str());
+                    WARNING_EX_LOG("unhandled cmd: {%s} == > (body->body = %s", cmd.c_str(), body->body);
                 }
             } else if (MSG_IS_BYE(evt->request)) {
                 WARNING_EX_LOG("got BYE message");

@@ -81,7 +81,7 @@ namespace chen {
 		int32 udp_socket_create(sockaddr_storage* addr, socklen_t* addr_len, const char* localaddr)
 		{
 			int udp_fd = -1;
-			struct addrinfo* res0, * res;
+			struct addrinfo* res0 = NULL, * res = NULL;
 			int family = AF_UNSPEC;
 
 			//if (((struct sockaddr*)&s->dest_addr)->sa_family)

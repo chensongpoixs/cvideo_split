@@ -769,7 +769,7 @@ namespace chen {
 	void cdecode::seek(int64_t frame_number)
 	{
 		assert(m_ic_ptr);
-		m_frame_number = std::min(m_frame_number, get_total_frames());
+		m_frame_number =  min(m_frame_number, get_total_frames());
 		int delta = 16;
 
 		// if we have not grabbed a single frame before first seek, let's read the first frame
@@ -782,7 +782,7 @@ namespace chen {
 		for (;;)
 		{
 
-			int64_t _frame_number_temp =  std::max(m_frame_number - delta, (int64_t)0);
+			int64_t _frame_number_temp =   max(m_frame_number - delta, (int64_t)0);
 			double sec = (double)_frame_number_temp / get_fps();
 			int64_t time_stamp = m_ic_ptr->streams[m_video_stream_index]->start_time;
 			double  time_base = r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);

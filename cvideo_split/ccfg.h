@@ -57,6 +57,16 @@ namespace chen {
 		ECI_CheckCameraStatus,
 		ECI_AuthPass,
 		ECI_RestartVideoSplitTime,
+		ECI_VmsMinPort,
+		ECI_VmsMaxPort,
+		ECI_VmsDeviceId,
+		ECI_VmsServerIp,
+		ECI_VmsServerPort,
+		ECI_VmsServerDeviceId,
+		ECI_VmsHeartBeat,
+		ECI_VmsUserName,
+		ECI_VmsPassWord,
+		ECI_VmsDeviceManufacturer,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

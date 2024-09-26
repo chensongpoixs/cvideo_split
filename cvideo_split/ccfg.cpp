@@ -67,6 +67,16 @@ namespace chen {
 		set_uint32(ECI_CheckCameraStatus, "check_camera_status", 60 * 60 );
 		set_string(ECI_AuthPass, "auth_pass", "chensong");
 		set_uint32(ECI_RestartVideoSplitTime, "restart_video_split_time", 60);
+		set_uint32(ECI_VmsMinPort, "vms_min_port", 11000);
+		set_uint32(ECI_VmsMaxPort, "vms_max_port", 12000);
+		set_string(ECI_VmsDeviceId, "vms_device_id", "031000200032");
+		set_string(ECI_VmsServerIp, "vms_server_ip", "127.0.0.1");
+		set_uint32(ECI_VmsServerPort, "vms_server_port", 6554);
+		set_string(ECI_VmsServerDeviceId, "vms_server_device_id", "32432432322");
+		set_uint32(ECI_VmsHeartBeat, "vms_heart_beat", 5);
+		set_string(ECI_VmsUserName, "vms_user_name", "admin");
+		set_string(ECI_VmsPassWord, "vms_pass_word", "admin12345");
+		set_string(ECI_VmsDeviceManufacturer, "vms_device_manufacturer", "syz");
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 
