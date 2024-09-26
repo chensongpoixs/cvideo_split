@@ -45,6 +45,7 @@ add_dependencies(${PROJECT_NAME} clib)
 add_dependencies(${PROJECT_NAME} common_ffmpeg)
 add_dependencies(${PROJECT_NAME} common_web)
 add_dependencies(${PROJECT_NAME} common_websocket)
+add_dependencies(${PROJECT_NAME} common_sip)
 
 set(ALL_LIB  	pthread
  
@@ -52,6 +53,7 @@ set(ALL_LIB  	pthread
 		libcommon_web.a 
 		libcommon_ffmpeg.a 
 		libcommon_websocket.a 
+		libcommon_sip.a
 		libclib.a 
         pthread
         libavcodec.a
