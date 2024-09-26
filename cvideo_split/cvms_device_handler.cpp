@@ -135,7 +135,8 @@ namespace chen {
 			return;
 		}
 
-		/*rtp_ip = connection->c_addr;
+
+		//rtp_ip = connection->c_addr;
 
 		auto video_sdp = eXosip_get_video_media(sdp_msg);
 		if (!video_sdp) {
@@ -143,49 +144,64 @@ namespace chen {
 			return;
 		}
 
-		rtp_port = atoi(video_sdp->m_port);
+		//rtp_port = atoi(video_sdp->m_port);
 
-		NORMAL_EX_LOG("rtp server: {%s}:{%u}", rtp_ip.c_str(), rtp_port);
+		//NORMAL_EX_LOG("rtp server: {%s}:{%u}", rtp_ip.c_str(), rtp_port);
 
-		rtp_protocol = video_sdp->m_proto;
+		//rtp_protocol = video_sdp->m_proto;
 
-		NORMAL_EX_LOG("rtp protocol: {%s}", rtp_protocol.c_str());
+		//NORMAL_EX_LOG("rtp protocol: {%s}", rtp_protocol.c_str());
 
 		osip_body_t* sdp_body = NULL;
-		osip_message_get_body(evt->request, 0, &sdp_body);
-		if (nullptr == sdp_body) {
+		osip_message_get_body(event->request, 0, &sdp_body);
+		if (nullptr == sdp_body)
+		{
 			WARNING_EX_LOG("osip_message_get_body failed");
 			return;
 		}
-
+		// o=0210011320001 0 0 IN IP4 172.20.16.3 
 		std::string body = sdp_body->body;
-		auto y_sdp_first_index = body.find("y=");
+		// o=
+		auto y_sdp_first_index = body.find("o=");
 		auto y_sdp = body.substr(y_sdp_first_index);
 		auto y_sdp_last_index = y_sdp.find("\r\n");
-		ssrc = y_sdp.substr(2, y_sdp_last_index - 1);
-		NORMAL_EX_LOG("ssrc: {%u}", ssrc.c_str());
+		std::string cmd_line = y_sdp.substr(2, y_sdp_last_index - 1);
+		NORMAL_EX_LOG("ssrc: {%s}", cmd_line.c_str());
+		auto o_channel_name = cmd_line.find(" ");
+		std::string channel_name_ = cmd_line.substr(0, o_channel_name - 1);
 
+		// c=
+		auto c_sdp_first_index = body.find("c=");
+		auto c_sdp = body.substr(c_sdp_first_index);
+		auto c_sdp_last_index = y_sdp.find("\r\n");
+		std::string ccmd_line = y_sdp.substr(2, c_sdp_last_index - 1);
+		 
 		std::stringstream ss;
 		ss << "v=0\r\n";
-		ss << "o=" << m_vms_device_id << " 0 0 IN IP4 " << m_local_ip << "\r\n";
-		ss << "s=Play\r\n";
-		ss << "c=IN IP4 " << m_local_ip << "\r\n";
+		// o=0210011320001 0 0 IN IP4 172.18.16.1
+		ss << "o=" << channel_name_ << " 0 0 IN IP4 " + m_local_port << "\r\n";
+		ss << "s=##ms20090428 log-restart-callid-ssrc-reinvite\r\n";
+		ss << "c=" << ccmd_line<< "\r\n";
 		ss << "t=0 0\r\n";
-		if (rtp_protocol == "TCP/RTP/AVP") {
-			ss << "m=video " << local_port << " TCP/RTP/AVP 96\r\n";
-		}
-		else {
-			ss << "m=video " << local_port << " RTP/AVP 96\r\n";
-		}
+		//if (rtp_protocol == "TCP/RTP/AVP") {
+		//	ss << "m=video " << local_port << " TCP/RTP/AVP 96\r\n";
+		//}
+		//else {
+			//ss << "m=video " << local_port << " RTP/AVP 96\r\n";
+		//}
+		ss << "m=video 6000 RTP/AVP 96 98";
 		ss << "a=sendonly\r\n";
+
 		ss << "a=rtpmap:96 PS/90000\r\n";
-		ss << "y=" << ssrc << "\r\n";
+		ss << "a=rtpmap:98 H264/90000\r\n";
+		ss << "a=rtpmap:97 MPEG4/90000\r\n";
+		//ss << "y=" << ssrc << "\r\n";
 		std::string sdp_output_str = ss.str();
 
 		size_t size = sdp_output_str.size();
 
-		osip_message_t* message = evt->request;
-		int status = eXosip_call_build_answer(sip_context, evt->tid, 200, &message);
+		osip_message_t* message = event->request;
+		int status = eXosip_call_build_answer(m_vms_context_ptr, event->tid, 200, &message);
 
 		if (status != 0) {
 			WARNING_EX_LOG("call invite build answer failed");
@@ -195,9 +211,9 @@ namespace chen {
 		osip_message_set_content_type(message, "APPLICATION/SDP");
 		osip_message_set_body(message, sdp_output_str.c_str(), sdp_output_str.size());
 
-		eXosip_call_send_answer(sip_context, evt->tid, 200, message);*/
+		eXosip_call_send_answer(m_vms_context_ptr, event->tid, 200, message);
 
-		//NORMAL_EX_LOG("reply call invite: \n{%s}", sdp_output_str.c_str());
+		 NORMAL_EX_LOG("reply call invite: \n{%s}", sdp_output_str.c_str());
 	}
 	void cvms_device::_handler_vms_call_reinvite(const std::shared_ptr<eXosip_event_t>& event)
 	{

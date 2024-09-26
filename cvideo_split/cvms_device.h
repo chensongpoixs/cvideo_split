@@ -58,6 +58,7 @@ namespace chen {
 		, m_to_sip("")
 		, m_sn(0)
 		, m_heartbeat(::time(NULL))
+		, m_channel_heartbeat(::time(NULL))
 		{}
 		virtual ~cvms_device();
 	public:
@@ -70,6 +71,9 @@ namespace chen {
 	public:
 		void  vms_send_response_ok(const std::shared_ptr<eXosip_event_t>& event);
 
+
+
+		void vms_send_all_channel_info();
 	private: 
 
 
@@ -177,6 +181,7 @@ namespace chen {
 		std::thread			m_thread;
 		int32				m_sn; // 命令序列号
 		time_t				m_heartbeat;
+		time_t				m_channel_heartbeat;
 	};
 
 
