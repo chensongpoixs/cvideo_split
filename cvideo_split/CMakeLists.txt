@@ -2,7 +2,7 @@
 project(cvideo_split)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 MESSAGE(STATUS "#########################")
-ADD_DEFINITIONS(-std=c++11   -fpermissive )
+ADD_DEFINITIONS(-std=c++11   -fpermissive -fvisibility=hidden)
 
 # RTC
 
@@ -53,6 +53,7 @@ set(ALL_LIB  	pthread
 		libcommon_web.a 
 		libcommon_ffmpeg.a 
 		libcommon_websocket.a 
+		libresolv.so
 		libcommon_sip.a
 		libclib.a 
         pthread
