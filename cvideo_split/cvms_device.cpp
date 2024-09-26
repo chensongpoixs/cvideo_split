@@ -206,7 +206,7 @@ namespace chen {
 			//ss << "</Notify>\r\n";
 
 			 
-			ss << "<?xml version=\"1.0\" encoding=\"GB2312\"  ?>\r\n";
+			ss << "<?xml version=\"1.0\" encoding=\"GB2312\"?>\r\n";
 			ss << "<Response>\r\n";
 			ss << "<CmdType>Catalog</CmdType>\r\n";
 			ss << "<SN>" << get_sn() << "</SN>\r\n";
@@ -228,7 +228,7 @@ namespace chen {
 			// 父设备/区域/系统 ID（必选）
 			ss << "<ParentID>1200201180101</ParentID>\r\n";
 			// 设备/区域/系统 IP 地址（可选） 
-			ss << "<Address></Address>\r\n";
+			//ss << "<Address></Address>\r\n";
 			// 注册方式（必选）缺省为 1； 1：符合 IETF RFC 3261 标准的认证注册模式； 2：基于口令的
 			// 双向认证注册模式； 3：基于数字证书的双向认证注册模式 -
 			ss << "<RegisterWay>1</RegisterWay>\r\n";
@@ -240,7 +240,7 @@ namespace chen {
 			ss << "<IPAddress>"<< m_local_ip <<"</IPAddress>\r\n";
 			// 设备/区域/系统端口（可选）
 			ss << "<Port>"<< m_local_port <<"</Port>\r\n";
-			ss << "<Info></Info>\r\n";
+			//ss << "<Info></Info>\r\n";
 			ss << "</Item>\r\n";
 			ss << "</DeviceList>\r\n";
 			ss << "</Response>\r\n";
@@ -398,7 +398,7 @@ namespace chen {
 			eXosip_unlock(m_vms_context_ptr);
 			if (!vms_event_ptr)
 			{
-				WARNING_EX_LOG("sip vms event wait event == NULL failed !!! ");
+				//WARNING_EX_LOG("sip vms event wait event == NULL failed !!! ");
 				continue;
 			}
 
