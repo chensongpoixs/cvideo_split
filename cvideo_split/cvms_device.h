@@ -43,7 +43,7 @@ namespace chen {
 		explicit cvms_device() 
 		:m_vms_context_ptr(NULL)
 		, m_stoped(false)
-		, m_local_ip(128, '0')
+		, m_local_ip("")
 		, m_local_port(0)
 		, m_vms_server_device_id("")
 		, m_vms_server_ip("")

@@ -40,7 +40,7 @@ namespace chen {
 	}
 	bool cvms_device::init()
 	{
-
+		// tcpdump -i any -w file.cap
 		m_vms_context_ptr = ::eXosip_malloc();
 		if (!m_vms_context_ptr)
 		{
@@ -64,13 +64,14 @@ namespace chen {
 			return false;
 		}
 
-
+		char local_ip[128] = {0};
 		//获取本地ip 
-		if (OSIP_SUCCESS != eXosip_guess_localip(m_vms_context_ptr, AF_INET, (char*)(m_local_ip.c_str()), m_local_ip.length()))
+		if (OSIP_SUCCESS != eXosip_guess_localip(m_vms_context_ptr, AF_INET, (char*)(local_ip), 128))
 		{
 			WARNING_EX_LOG("vms get local ip failed !!!");
 			return false;
 		}
+		m_local_ip = local_ip;
 		NORMAL_EX_LOG("vms local ip  [%s]", m_local_ip.c_str());
 
 
@@ -196,7 +197,7 @@ namespace chen {
 		{
 			// 
 
-			std::stringstream ss;
+			std::ostringstream ss;
 			//ss << "<?xml version=\"1.0\"   encoding=\"GB2312\"  ?>\r\n";
 			//ss << "<Response>\r\n";
 			//ss << "<CmdType>Catalog</CmdType>\r\n";
@@ -233,18 +234,20 @@ namespace chen {
 			// 双向认证注册模式； 3：基于数字证书的双向认证注册模式 -
 			ss << "<RegisterWay>1</RegisterWay>\r\n";
 			// 保密属性（必选）缺省为 0； 0：不涉密， 1：涉密
-				ss << "<Secrecy>0</Secrecy>\r\n";
+			ss << "<Secrecy>0</Secrecy>\r\n";
 			// 设备状态（必选） 
 			ss << "<Status>1</Status>\r\n";
 			// 设备/区域/系统 IP 地址（可选）
-			ss << "<IPAddress>"<< m_local_ip <<"</IPAddress>\r\n";
+			//std::string ip = m_local_ip;
+			ss << "<IPAddress>" <<m_local_ip << "</IPAddress>\r\n";
 			// 设备/区域/系统端口（可选）
 			ss << "<Port>"<< m_local_port <<"</Port>\r\n";
 			//ss << "<Info></Info>\r\n";
 			ss << "</Item>\r\n";
 			ss << "</DeviceList>\r\n";
 			ss << "</Response>\r\n";
-			
+			std::string cmd = ss.str();
+			NORMAL_EX_LOG("cmd = %s", cmd.c_str());
 			osip_message_t* request = _create_msg();
 			if (request != NULL) {
 				osip_message_set_content_type(request, "Application/MANSCDP+xml");
