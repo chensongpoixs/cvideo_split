@@ -214,7 +214,7 @@ namespace chen {
 			ss << "<SumNum>"<<8 /*中的通道数*/ <<"</SumNum>\r\n";
 			ss << "<DeviceList Num = \"1\">\r\n";
 			ss << "<Item>\r\n";
-			ss << "<DeviceID>" << "1900242000001"/*每个通道*/ << "</DeviceID>\r\n";
+			ss << "<DeviceID>" << "1900242999999000001"/*每个通道*/ << "</DeviceID>\r\n";
 			ss << "<Name>" << "channel_name" << "</Name>\r\n";
 			ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
 			// 当为设备时，设备型号（必选）
@@ -245,7 +245,13 @@ namespace chen {
 			ss << "</DeviceList>\r\n";
 			ss << "</Response>\r\n";
 			
-			 
+			osip_message_t* request = _create_msg();
+			if (request != NULL) {
+				osip_message_set_content_type(request, "Application/MANSCDP+xml");
+				osip_message_set_body(request, ss.str().c_str(), strlen(ss.str().c_str()));
+				_vms_send_request(request);
+				NORMAL_EX_LOG("sent all_channel info --> ");
+			}
 		}
 
 	}
