@@ -187,7 +187,7 @@ namespace chen {
 
 	void cvms_device::vms_send_all_channel_info()
 	{
-		if (::time(NULL) - m_channel_heartbeat < 30)
+		if (::time(NULL) - m_channel_heartbeat < 3)
 		{
 			return;
 		}
@@ -274,7 +274,7 @@ namespace chen {
 		ss << "<CmdType>Catalog</CmdType>\r\n";
 		ss << "<SN>" << sn << "</SN>\r\n";
 		ss << "<DeviceID>" << m_vms_device_id << "</DeviceID>\r\n";
-		ss << "<SumNum>" << 1 << "</SumNum>\r\n";
+		ss << "<SumNum>" << 8 << "</SumNum>\r\n";
 		ss << "<DeviceList Num=\"" << 1 << "\">\r\n";
 		ss << "<Item>\r\n";
 		ss << "<DeviceID>" << m_vms_device_id /*m_vms_channel_id*/ << "</DeviceID>\r\n";
