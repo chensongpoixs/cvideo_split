@@ -77,6 +77,7 @@ namespace chen {
 		NORMAL_EX_LOG("[vms_video_split_id = %s]", m_video_split_device_id.c_str());
 		NORMAL_EX_LOG("[vms_user_name = %s]", m_user_name.c_str());
 		NORMAL_EX_LOG("[vms_pass_word = %s]", m_pass_word.c_str());
+		m_data_type = EDataLoad;
 		return result;
 	}
 	cresult_vms_server_config cglobal_vms_server_config_mgr::handler_web_get_vms_server_config()
@@ -119,6 +120,7 @@ namespace chen {
 				WARNING_EX_LOG("vms server run ing !!! ");
 				return 1;
 			}
+			
 		}
 	}
 

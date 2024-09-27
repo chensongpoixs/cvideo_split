@@ -39,6 +39,8 @@
 #include "cmd5.h"
 #include "cglobal_vms_port_mgr.h"
 #include "cvms_device.h"
+#include "cvms_msg_dispath.h"
+
 
 namespace chen {
 
@@ -112,6 +114,11 @@ namespace chen {
 		
 		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
 
+
+		if (!g_vms_msg_dispatch.init())
+		{
+			return false;
+		}
 
 
 		if (!g_global_vms_port_mgr.init())
