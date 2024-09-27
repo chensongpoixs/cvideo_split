@@ -160,6 +160,7 @@
     <ClCompile Include="cdecode.cpp" />
     <ClCompile Include="cencoder.cpp" />
     <ClCompile Include="cglobal_vms_port_mgr.cpp" />
+    <ClCompile Include="cglobal_vms_server_config_mgr.cpp" />
     <ClCompile Include="cnvidia_info.cpp" />
     <ClCompile Include="crect_mem_copy.cpp" />
     <ClCompile Include="cvideo_split.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="cdecode.h" />
     <ClInclude Include="cencoder.h" />
     <ClInclude Include="cglobal_vms_port_mgr.h" />
+    <ClInclude Include="cglobal_vms_server_config_mgr.h" />
     <ClInclude Include="chttp_code.h" />
     <ClInclude Include="cnvidia_info.h" />
     <ClInclude Include="crect_mem_copy.h" />

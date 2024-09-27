@@ -106,7 +106,7 @@ namespace chen {
 		g_gpu_index = get_gpu_count();
 		if (!_check_auth_info())
 		{
-			return false;
+		//	return false;
 		}
 		 
 		
@@ -148,10 +148,10 @@ namespace chen {
 
 
 		SYSTEM_LOG("vms Device init ...");
-		if (!g_vms_device_mgr.init())
+		/*if (!g_vms_device_mgr.init())
 		{
 			return false;
-		}
+		}*/
 		SYSTEM_LOG("vms device init OK!!!");
 
 		SYSTEM_LOG("Web Server API init ...");

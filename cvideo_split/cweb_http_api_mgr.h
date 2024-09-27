@@ -76,6 +76,12 @@ namespace chen {
 
 		virtual uint32		cmd_video_split(const std::string& channel_name/*uint32 id*/, uint32 cmd);
 		virtual cresult_video_split_osd		modify_video_split(const VideoSplitOsd& video_osd);
+
+
+
+		virtual   cresult_vms_server_config           modify_vms_server_config(const cvms_server_config & server_config);
+		virtual   cresult_vms_server_config           get_vms_server_config( );
+		virtual   uint32								cmd_vms_server(uint32 cmd);
 	private:
 		void _handler_default_options(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_default_get(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
@@ -94,6 +100,17 @@ namespace chen {
 		
 		void _handler_cmd_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 		void _handler_modify_video_split(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+
+
+
+
+
+		// vms server config 
+
+		void _handler_modify_vms_server_config(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+		void _handler_get_vms_server_config(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
+
+		void _handler_cmd_vms_server(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request);
 
 	private:
 		void _pthread_work();

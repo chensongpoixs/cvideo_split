@@ -42,7 +42,7 @@ namespace chen {
 	public:
 		explicit cvms_device() 
 		:m_vms_context_ptr(NULL)
-		, m_stoped(false)
+		, m_stoped(true)
 		, m_local_ip("")
 		, m_local_port(0)
 		, m_vms_server_device_id("")
@@ -62,9 +62,14 @@ namespace chen {
 		{}
 		virtual ~cvms_device();
 	public:
-		bool init();
+		bool init(const std::string & vms_server_ip, uint32 vms_server_port, const std::string & vms_server_device_id
+			, const std::string & video_split_id, const std::string & user_name, const std::string pass_word);
 		void update(uint32 uDataTime);
 		void destroy();
+
+
+		bool get_status() const { return m_stoped; }
+
 
 
 		void stop();

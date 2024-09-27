@@ -38,7 +38,8 @@ namespace chen {
 	cvms_device::~cvms_device()
 	{
 	}
-	bool cvms_device::init()
+	bool cvms_device::init(const std::string & vms_server_ip, uint32 vms_server_port, const std::string & vms_server_device_id
+		, const std::string & video_split_id, const std::string & user_name, const std::string pass_word)
 	{
 		// tcpdump -i any -w file.cap
 		m_vms_context_ptr = ::eXosip_malloc();
@@ -82,15 +83,15 @@ namespace chen {
 		std::ostringstream proxy_uri;
 
 		// 通道
-		m_vms_server_ip = g_cfg.get_string(ECI_VmsServerIp);
-		m_vms_server_port = g_cfg.get_uint32(ECI_VmsServerPort);
+		m_vms_server_ip = vms_server_ip;//g_cfg.get_string(ECI_VmsServerIp);
+		m_vms_server_port = vms_server_port;// g_cfg.get_uint32(ECI_VmsServerPort);
 		
-		m_vms_server_device_id = g_cfg.get_string(ECI_VmsServerDeviceId);
+		m_vms_server_device_id = vms_server_device_id;// g_cfg.get_string(ECI_VmsServerDeviceId);
 		
-		m_vms_device_id = g_cfg.get_string(ECI_VmsDeviceId);
+		m_vms_device_id = video_split_id;// g_cfg.get_string(ECI_VmsDeviceId);
 
-		m_username = g_cfg.get_string(ECI_VmsUserName);
-		m_password = g_cfg.get_string(ECI_VmsPassWord);
+		m_username = user_name;// g_cfg.get_string(ECI_VmsUserName);
+		m_password = pass_word; // g_cfg.get_string(ECI_VmsPassWord);
 
 		//
 	//	m_vms_channel_id = "31011500991320000342";
@@ -160,7 +161,7 @@ namespace chen {
 				}
 			}
 		}
-		vms_send_all_channel_info();
+		//vms_send_all_channel_info();
 		
 
 
@@ -169,15 +170,22 @@ namespace chen {
 	{
 
 		m_stoped = true;
+		m_is_register = false;
+
 		if (m_vms_context_ptr)
 		{
 			::eXosip_quit(m_vms_context_ptr);
 			m_vms_context_ptr = NULL;
 		}
+		if (m_thread.joinable())
+		{
+			m_thread.join();
+		}
 	}
 	void cvms_device::stop()
 	{
 		m_stoped = true;
+		m_is_register = false;
 	}
 	void cvms_device::vms_send_response_ok(const std::shared_ptr<eXosip_event_t>& event)
 	{

@@ -1167,19 +1167,38 @@ void test_vms(int argc, char** argv)
 	{
 		return ;
 	}
-	if (!g_vms_device_mgr.init())
+	/*if (!g_vms_device_mgr.init())
 	{
 		return;
-	}
+	}*/
 
 
 
-	while (!g_stoped)
+	//while (!g_stoped)
+	
+
+	SYSTEM_LOG("vms init ");;
+	g_vms_device_mgr.init("192.168.2.20", 5062, "44010200492000000001", "440102004920776767601", "admin123", "admin123") ;
 	{
 		g_vms_device_mgr.update(1);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	std::this_thread::sleep_for(std::chrono::seconds(2));
+	SYSTEM_LOG("vms destroy ...");
+	g_vms_device_mgr.destroy();
+	SYSTEM_LOG("vms destroy !!!");
+	std::this_thread::sleep_for(std::chrono::seconds(30));
+	g_vms_device_mgr.init("192.168.2.20", 5062, "44010200492000000001", "440102004920776767601", "admin123", "admin123");
+	std::this_thread::sleep_for(std::chrono::seconds(20));
 
+	SYSTEM_LOG("vms destroy ...");
+	g_vms_device_mgr.destroy();
+	SYSTEM_LOG("vms destroy !!!");
+ 
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 	/*bool init = chen::g_video_split_server.init(log_path, config_filename);
 
 	if (init)
@@ -1206,8 +1225,8 @@ int  main(int argc, char** argv)
 	//test_cmd();
 	//return 0;
 	//
-	test_vms(argc, argv);
-	return EXIT_SUCCESS;
+	//test_vms(argc, argv);
+	//return EXIT_SUCCESS;
 //	 test_mac_address();
 //	return 0;
 	/*

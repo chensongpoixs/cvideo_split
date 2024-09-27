@@ -1,9 +1,9 @@
 ﻿/***********************************************************************************************
-created: 		2019-05-06
+created: 		2024-01-25
 
 author:			chensong
 
-purpose:		gateway
+purpose:		camera
 
 输赢不重要，答案对你们有什么意义才重要。
 
@@ -20,98 +20,79 @@ purpose:		gateway
 我叫他本心猎手。他可能是和宇宙同在的级别 但是我并不害怕，我仔细回忆自己平淡的一生 寻找本心猎手的痕迹。
 沿着自己的回忆，一个个的场景忽闪而过，最后发现，我的本心，在我写代码的时候，会回来。
 安静，淡然，代码就是我的一切，写代码就是我本心回归的最好方式，我还没找到本心猎手，但我相信，顺着这个线索，我一定能顺藤摸瓜，把他揪出来。
-*********************************************************************/
-#ifndef _C_WEB_HTTP_STRUCT_H_
-#define _C_WEB_HTTP_STRUCT_H_
-#include <string>
-#include "cnoncopytable.h"
-#include "cnet_type.h"
-#include <string>
+************************************************************************************************/
+
+
+#ifndef _C_GLOBAL_VMS_SERVER_CONFIG_MGR_H_
+#define _C_GLOBAL_VMS_SERVER_CONFIG_MGR_H_
+
+#include <stdint.h>
+//#include <GL/eglew.h>
 #include <vector>
-#include "cnoncopytable.h"
-#include <unordered_map>  
-#include "VideoSplit.pb.h"
-//#include "RenderCentral.pb.h"
+#include <string>
+#include <thread>
+#include "cffmpeg_util.h"
+#include <list>
+#include "cnet_type.h"
+#include "cmpegts_encoder.h"
+#include "cweb_http_struct.h"
+#include "ccamera_info_mgr.h"
 namespace chen {
-	 
 
-	struct cresult_add_camera_info
+	class cglobal_vms_server_config_mgr
 	{
-		uint32 result; 
-		AddCameraInfos camera_infos;
-		cresult_add_camera_info()
-			: result(0)
-			, camera_infos()
-			/*, app_render()*/{}
-	};
-	struct cresult_camera_list
-	{
-		uint32 result;
-		PageInfo	page_info;
-		AddCameraInfos camera_infos;
-		cresult_camera_list()
-			: result(0)
-			, page_info()
-			, camera_infos(){}
-	};
-	struct cresult_add_video_split
-	{
-		uint32 result;
-		VideoSplitInfo video_split_info;
-		cresult_add_video_split()
-			: result(0)
-			, video_split_info() {}
-	};
-	typedef cresult_add_video_split  cresult_get_video_split;
-	struct cresult_video_split_list
-	{
-		uint32 result;
-		PageInfo	page_info;
-		std::vector< VideoSplitInfo> video_split_infos;
-		cresult_video_split_list()
-			: result(0)
-			, page_info()
-			, video_split_infos() {}
-	};
-	struct cresult_video_split_osd
-	{
-		uint32 result;
-		VideoSplitOsd video_split_osd;
-		cresult_video_split_osd()
-			: result(0)
-			, video_split_osd(){}
-	};
+	public:
+		explicit cglobal_vms_server_config_mgr()
+			: m_vms_server_ip("")
+			, m_vms_server_port(0)
+			, m_vms_server_device_id("")
+			, m_video_split_device_id("")
+			, m_user_name("")
+			, m_pass_word("")
+		{}
+		virtual ~cglobal_vms_server_config_mgr();
+	
+	public:
+
+		bool init();
+		void update(uint32 uDataTime);
+		void destroy();
 
 
-	struct cvms_server_config
-	{
-		std::string		vms_server_ip;
-		uint32			vms_server_port;
-		std::string		vms_server_device_id; 
+
+	public:
+		cresult_vms_server_config handler_web_modify_vms_server_config(const cvms_server_config & server_config);
+		cresult_vms_server_config handler_web_get_vms_server_config();
+
+		uint32    handler_web_cmd_vms_server(uint32 cmd);
+	private:
+		void _write_vms_server_config();
+
+		void _sync_save();
+	private:
+		void _load_vms_server_config();
+		
+		void _parse_json_data(const std::string & data);;
+	private:
+
+		EDataType						m_data_type;
+		// server 
+		std::string		m_vms_server_ip;
+		uint32			m_vms_server_port;
+		std::string		m_vms_server_device_id;
+
 		// client 
-		std::string		video_split_device_id; 
-		std::string		user_name;
-		std::string		pass_word;
-		cvms_server_config()
-			: vms_server_ip("")
-			, vms_server_port(0)
-			, vms_server_device_id("")
-			, video_split_device_id("")
-			, user_name("")
-			, pass_word(""){}
+		std::string		m_video_split_device_id;
 
+
+		std::string		m_user_name;
+		std::string		m_pass_word;
+
+
+		
 	};
-
-
-	struct cresult_vms_server_config
-	{
-		uint32 result;
-		cvms_server_config   vms_config;
-		uint32			vms_server_status;
-		cresult_vms_server_config() 
-			: result(0)
-			, vms_config()
-			, vms_server_status(0){}
-	};
+	extern cglobal_vms_server_config_mgr g_global_vms_server_config_mgr;;
 }
-#endif //_C_WEB_HTTP_STRUCT_H_
+
+
+#endif // _C_GLOBAL_VMS_SERVER_CONFIG_MGR_H_

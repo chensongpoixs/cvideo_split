@@ -42,6 +42,10 @@ namespace chen {
 
 		virtual   cresult_video_split_osd			  modify_video_split(const VideoSplitOsd &video_osd) = 0;
 
+		virtual   cresult_vms_server_config           modify_vms_server_config(const cvms_server_config & server_config) = 0;
+		virtual   cresult_vms_server_config           get_vms_server_config() = 0;
+
+		virtual   uint32								cmd_vms_server(uint32 cmd) = 0;
 
 		virtual ~cweb_http_api_interface() {}
 	};
