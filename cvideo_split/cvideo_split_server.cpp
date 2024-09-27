@@ -40,7 +40,8 @@
 #include "cglobal_vms_port_mgr.h"
 #include "cvms_device.h"
 #include "cvms_msg_dispath.h"
-
+#include "cglobal_vms_server_config_mgr.h"
+#include "cvms_device.h"
 
 namespace chen {
 
@@ -119,7 +120,10 @@ namespace chen {
 		{
 			return false;
 		}
-
+		if (!g_global_vms_server_config_mgr.init())
+		{
+			return false;
+		}
 
 		if (!g_global_vms_port_mgr.init())
 		{
@@ -215,6 +219,7 @@ namespace chen {
 				g_websocket_wan_server.update(uDelta);
 			}
 			g_vms_device_mgr.update(uDelta);
+			g_global_vms_server_config_mgr.update(uDelta);
 			g_global_vms_port_mgr.update(uDelta);
 			g_http_queue_mgr.update(); 
 			g_camera_info_mgr.update(uDelta);
@@ -236,6 +241,7 @@ namespace chen {
 
 	void cvideo_split_server::Destroy()
 	{
+		g_global_vms_server_config_mgr.destroy();
 		g_websocket_wan_server.shutdown();
 		g_websocket_wan_server.destroy();
 		SYSTEM_LOG("g_wan_server Destroy OK!!!");

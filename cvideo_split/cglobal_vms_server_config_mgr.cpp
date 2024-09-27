@@ -89,6 +89,7 @@ namespace chen {
 		vms_server_config.vms_config.video_split_device_id	= m_video_split_device_id;
 		vms_server_config.vms_config.user_name				= m_user_name;
 		vms_server_config.vms_config.pass_word				= m_pass_word;
+		vms_server_config.vms_server_status = g_vms_device_mgr.get_status() == true ? 1 : 0;
 		return vms_server_config;
 	}
 
