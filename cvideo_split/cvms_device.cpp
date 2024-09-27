@@ -192,12 +192,71 @@ namespace chen {
 		{
 			return;
 		}
+
+		//std::vector<std::string> channel_names = {"0300991320500", "0300991320501"};
+
 		m_channel_heartbeat = ::time(NULL);
 		if (m_is_register)
 		{
 			// 
 
-			std::ostringstream ss;
+			std::vector<std::string> channel_names = { "0300991320500", "0300991320501" };
+			std::vector<std::string> names = { "视频拼接_1", "视频拼接_2" };
+			
+			for (size_t i = 0; i < channel_names.size(); ++i)
+			{
+				std::stringstream ss;
+				ss << "<?xml version=\"1.0\" encoding=\"GB2312\"?>\r\n";
+				ss << "<Response>\r\n";
+				ss << "<CmdType>Catalog</CmdType>\r\n";
+				ss << "<SN>" << get_sn() << "</SN>\r\n";
+				ss << "<DeviceID>" << m_vms_device_id << "</DeviceID>\r\n";
+				ss << "<SumNum>" << channel_names.size() /*中的通道数*/ << "</SumNum>\r\n";
+				ss << "<DeviceList Num = \"1\">\r\n";
+				ss << "<Item>\r\n";
+				ss << "<DeviceID>" << channel_names[i] /*每个通道*/ << "</DeviceID>\r\n";
+				ss << "<Name>" << names[i] << "</Name>\r\n";
+				ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
+				// 当为设备时，设备型号（必选）
+				ss << "<Model>split_camera</Model>\r\n";
+				// 当为设备时，设备归属（必选）
+				ss << "<Owner>syz</Owner>\r\n";
+				// 行政区域（必选）
+				ss << "<CivilCode>1230011180101</CivilCode>\r\n";
+				// 当为设备时，是否有子设备（必选） 1 有， 0 没有
+				ss << "<Parental>0</Parental>\r\n";
+				// 父设备/区域/系统 ID（必选）
+				ss << "<ParentID>1200201180101</ParentID>\r\n";
+				// 设备/区域/系统 IP 地址（可选） 
+				//ss << "<Address></Address>\r\n";
+				// 注册方式（必选）缺省为 1； 1：符合 IETF RFC 3261 标准的认证注册模式； 2：基于口令的
+				// 双向认证注册模式； 3：基于数字证书的双向认证注册模式 -
+				ss << "<RegisterWay>1</RegisterWay>\r\n";
+				// 保密属性（必选）缺省为 0； 0：不涉密， 1：涉密
+				ss << "<Secrecy>0</Secrecy>\r\n";
+				// 设备状态（必选） 
+				ss << "<Status>ON</Status>\r\n";
+				// 设备/区域/系统 IP 地址（可选）
+				//std::string ip = m_local_ip;
+				//ss << "<IPAddress>" << m_local_ip << "</IPAddress>\r\n";
+				// 设备/区域/系统端口（可选）
+				//ss << "<Port>" << m_local_port << "</Port>\r\n";
+				//ss << "<Info></Info>\r\n";
+				ss << "</Item>\r\n";
+				ss << "</DeviceList>\r\n";
+				ss << "</Response>\r\n";
+				std::string cmd = ss.str();
+				NORMAL_EX_LOG("cmd = %s", cmd.c_str());
+				osip_message_t* request = _create_msg();
+				if (request != NULL) {
+					osip_message_set_content_type(request, "Application/MANSCDP+xml");
+					osip_message_set_body(request, ss.str().c_str(), strlen(ss.str().c_str()));
+					_vms_send_request(request);
+					NORMAL_EX_LOG("sent all_channel info --> ");
+				}
+			}
+
+			//std::ostringstream ss;
 			//ss << "<?xml version=\"1.0\"   encoding=\"GB2312\"  ?>\r\n";
 			//ss << "<Response>\r\n";
 			//ss << "<CmdType>Catalog</CmdType>\r\n";
@@ -205,18 +264,40 @@ namespace chen {
 			//ss << "<DeviceID>" << m_vms_device_id << "</DeviceID>\r\n";
 			//ss << "<Status>OK</Status>\r\n";
 			//ss << "</Notify>\r\n";
-
 			 
+			
+		}
+
+	}
+
+	int32 cvms_device::get_sn()
+	{
+		static const int32 SN_MAX = 99999999;
+		if (m_sn >= SN_MAX)
+		{
+			m_sn = 0;
+		}
+		return ++m_sn;
+	}
+
+	void cvms_device::_process_catalog_query(const std::string& sn)
+	{
+		std::vector<std::string> channel_names = { "0300991320500", "0300991320501" };
+		std::vector<std::string> names = {"视频拼接_1", "视频拼接_2"};
+		
+		for (size_t i = 0; i < channel_names.size(); ++i)
+		{
+			std::stringstream ss;
 			ss << "<?xml version=\"1.0\" encoding=\"GB2312\"?>\r\n";
 			ss << "<Response>\r\n";
 			ss << "<CmdType>Catalog</CmdType>\r\n";
 			ss << "<SN>" << get_sn() << "</SN>\r\n";
 			ss << "<DeviceID>" << m_vms_device_id << "</DeviceID>\r\n";
-			ss << "<SumNum>"<<8 /*中的通道数*/ <<"</SumNum>\r\n";
+			ss << "<SumNum>" << channel_names.size() /*中的通道数*/ << "</SumNum>\r\n";
 			ss << "<DeviceList Num = \"1\">\r\n";
 			ss << "<Item>\r\n";
-			ss << "<DeviceID>" << "1900242999999000001"/*每个通道*/ << "</DeviceID>\r\n";
-			ss << "<Name>" << "channel_name" << "</Name>\r\n";
+			ss << "<DeviceID>" << channel_names[i] /*每个通道*/ << "</DeviceID>\r\n";
+			ss << "<Name>" << names[i] << "</Name>\r\n";
 			ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
 			// 当为设备时，设备型号（必选）
 			ss << "<Model>split_camera</Model>\r\n";
@@ -236,12 +317,12 @@ namespace chen {
 			// 保密属性（必选）缺省为 0； 0：不涉密， 1：涉密
 			ss << "<Secrecy>0</Secrecy>\r\n";
 			// 设备状态（必选） 
-			ss << "<Status>1</Status>\r\n";
+			ss << "<Status>ON</Status>\r\n";
 			// 设备/区域/系统 IP 地址（可选）
 			//std::string ip = m_local_ip;
-			ss << "<IPAddress>" <<m_local_ip << "</IPAddress>\r\n";
+			//ss << "<IPAddress>" << m_local_ip << "</IPAddress>\r\n";
 			// 设备/区域/系统端口（可选）
-			ss << "<Port>"<< m_local_port <<"</Port>\r\n";
+			//ss << "<Port>" << m_local_port << "</Port>\r\n";
 			//ss << "<Info></Info>\r\n";
 			ss << "</Item>\r\n";
 			ss << "</DeviceList>\r\n";
@@ -257,20 +338,8 @@ namespace chen {
 			}
 		}
 
-	}
 
-	int32 cvms_device::get_sn()
-	{
-		static const int32 SN_MAX = 99999999;
-		if (m_sn >= SN_MAX)
-		{
-			m_sn = 0;
-		}
-		return ++m_sn;
-	}
-
-	void cvms_device::_process_catalog_query(const std::string& sn)
-	{
+		return;
 		std::stringstream ss;
 		ss << "<?xml version=\"1.0\" encoding=\"GB2312\"?>\r\n";
 		ss << "<Response>\r\n";

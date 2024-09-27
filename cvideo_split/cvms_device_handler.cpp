@@ -61,6 +61,18 @@ namespace chen {
 	void cvms_device::_handler_vms_call_invite(const std::shared_ptr<eXosip_event_t>& event)
 	{
 		/*
+
+http://30.3.61.31:8314/vslVita/user/login
+
+
+system
+J9100@hua123
+
+
+decide 0300991180100
+channel = 0300991320500
+		*/
+		/*
 		流程描述如下： 
 			1：终端设备向视频管理设备发送 Invite 请求，消息头域中携带 Subject 字段，表明点播的视频
 			源 ID、分辨率、视频流接收者 ID、接收端视频流序列号等参数。携带 SDP 消息体，s 字段为
