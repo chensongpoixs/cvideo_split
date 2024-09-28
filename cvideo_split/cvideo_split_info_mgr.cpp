@@ -29,7 +29,12 @@ namespace chen {
 		for (VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.begin();
 			iter != m_video_split_info_map.end(); ++iter)
 		{
-			g_vms_device_mgr.update_device_info(iter->second.id(), iter->second.split_channel_id(), iter->second.split_channel_name(), 0);
+			//if (iter->second)
+			{
+				g_vms_device_mgr.update_device_info(iter->second.id(), iter->second.split_channel_id(), iter->second.split_channel_name(), 0);
+
+			}
+			
 		}
 
 

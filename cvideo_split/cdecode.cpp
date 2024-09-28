@@ -586,16 +586,13 @@ namespace chen {
 			//}
 			else if (ret == AVERROR(EAGAIN))
 			{
-				continue;
+				break;
 			}
-			else
+			count_errs++;
+			//::av_frame_unref(m_picture_ptr);
+			if (count_errs > max_number_of_attempts)
 			{
-				count_errs++;
-				//::av_frame_unref(m_picture_ptr);
-				if (count_errs > max_number_of_attempts)
-				{
-					break;
-				}
+				break;
 			}
 			 
 		}
