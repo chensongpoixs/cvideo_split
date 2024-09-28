@@ -584,13 +584,13 @@ namespace chen {
 				//filter error 
 				//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
 				//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				continue;
-				WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
-				continue;
+				//continue;
+				//WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
+				//continue;
 			}
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
-			if (!m_stoped)
+			if (!m_stoped && ret >= 0)
 			{
 				
 				 pts = m_decodes[0]->get_index_pts(frame_count_num);
@@ -628,8 +628,8 @@ namespace chen {
 				}
 				else
 				{
-				 	//ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					//	std::chrono::system_clock::now().time_since_epoch());
+				 	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch());
 					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 				//NORMAL_EX_LOG("frame [d_ms = %u] pts = [%u]", d_ms, diff_ms.count());
