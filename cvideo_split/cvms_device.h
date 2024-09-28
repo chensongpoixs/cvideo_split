@@ -43,8 +43,9 @@ namespace chen {
 		std::string channel_id;
 		std::string channel_name;
 		uint32	    channel_status;
-		cdevice_channel_info() : channel_id()
-			, channel_name(0)
+		cdevice_channel_info() : id(0)
+			, channel_id("")
+			, channel_name("")
 			, channel_status(0) {}
 	};
 
