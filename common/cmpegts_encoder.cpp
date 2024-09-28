@@ -124,13 +124,44 @@ namespace chen {
         
 		/// </summary>
 		/// <returns></returns>
+        m_stoped = false;
+
+        m_thread = std::thread(&cmpegts_encoder::_pthread_work, this);
+
+
 		return true;;
 	}
 	void cmpegts_encoder::update(uint32 DataTime)
 	{
 	}
+
+
+    void cmpegts_encoder::stop()
+    {
+        m_stoped = true;
+        m_condition.notify_all();
+    
+    }
 	void cmpegts_encoder::destroy()
 	{
+
+        m_stoped = true;
+        m_condition.notify_all();
+        if (m_thread.joinable())
+        {
+            m_thread.join();
+        }
+
+         
+        for (std::list<cmpegts_page>::iterator iter = m_mpegts_page_list.begin(); iter != m_mpegts_page_list.end(); ++iter)
+        {
+            if (iter->data)
+            {
+                delete[] iter->data;
+                iter->data = NULL;
+            }
+        }
+        m_mpegts_page_list.clear();
         if (m_send_buffer)
         {
             ::free(m_send_buffer);
@@ -152,6 +183,23 @@ namespace chen {
             
         }
 	}
+    void cmpegts_encoder::app_push_packet(bool I_frame, uint8* data, uint32 size, int64 pts, int64 dts)
+    {
+        cmpegts_page page;
+        page.I_frame = I_frame;
+        page.data = new uint8[size+1];
+        memcpy(page.data, data, size);
+        page.size = size;
+        page.pts = pts;
+        page.dts = dts;
+        {
+            std::lock_guard<std::mutex> lock{ m_mpgets_page_lock };
+
+            m_mpegts_page_list.push_back(page);
+        }
+        m_condition.notify_one();
+
+    }
 	void cmpegts_encoder::push_packet(bool I_frame, uint8* _data, uint32 size, int64 pts, int64 dts)
 	{
        // return;
@@ -1252,5 +1300,50 @@ namespace chen {
         /*mpegts_write_section1(&ts->sdt, SDT_TID, ts->transport_stream_id, ts->tables_version, 0, 0,
             data, q - data);*/
         return true;
+    }
+
+
+    void cmpegts_encoder::_pthread_work()
+    {
+        cmpegts_page* mpegts_ptr = NULL;
+        while (!m_stoped)
+        {
+            {
+                std::unique_lock<std::mutex> lock(m_mpgets_page_lock);
+                m_condition.wait(lock, [this]() {return m_mpegts_page_list.size() > 0 || m_stoped; });
+            }
+           // _handler_check_log_file();
+            while (!m_mpegts_page_list.empty())
+            {
+                 {
+                    std::lock_guard<std::mutex> lock{ m_mpgets_page_lock };
+                    mpegts_ptr = &m_mpegts_page_list.front();
+                    m_mpegts_page_list.pop_front();
+                }
+
+                if (!mpegts_ptr)
+                {
+                    continue;
+                } 
+
+
+                push_packet(mpegts_ptr->I_frame, mpegts_ptr->data, mpegts_ptr->size, mpegts_ptr->pts, mpegts_ptr->dts);
+                if (mpegts_ptr->data)
+                {
+                    delete[] mpegts_ptr->data;
+                    mpegts_ptr->data = NULL;
+                }
+                mpegts_ptr = NULL;
+               // _handler_log_item(log_item_ptr);
+
+               /* if (log_item_ptr->buf)
+                {
+                    delete[] log_item_ptr->buf;
+                }
+
+                delete log_item_ptr;*/
+
+            }
+        }
     }
 }

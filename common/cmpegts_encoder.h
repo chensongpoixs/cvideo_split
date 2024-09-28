@@ -38,10 +38,31 @@ return false;
 
 #include "cmpegts_define.h"
 #include <string>
+#include <condition_variable>
+#include <thread>
+#include <mutex>
+#include<list>
 namespace chen {
 
+
+	struct cmpegts_page
+	{
+		bool I_frame;
+		uint8* data;
+		uint32 size; 
+		int64 pts; 
+		int64 dts;
+		cmpegts_page()
+			: I_frame(false)
+			, data(NULL)
+			, size(0)
+			, pts(0)
+			, dts(0){}
+	};
 	class cmpegts_encoder
 	{
+	private:
+		typedef std::condition_variable					ccond;
 	public:
 
 		explicit cmpegts_encoder()
@@ -62,6 +83,8 @@ namespace chen {
 			, m_servaddr()
 			, m_send_buffer(NULL)
 			, m_send_len(0)
+			, m_mpegts_page_list()
+			, m_stoped(true)
 		{}
 		virtual ~cmpegts_encoder();
 
@@ -69,6 +92,13 @@ namespace chen {
 		bool init(const char * ip, uint32 port);
 		void update(uint32 DataTime);
 		void destroy();
+
+
+		void stop();
+
+
+
+		void app_push_packet(bool I_frame, uint8* data, uint32 size, int64 pts, int64 dts);
 	public:
 		void push_packet(bool I_frame, uint8 * data, uint32 size, int64 pts, int64 dts);
 
@@ -150,6 +180,11 @@ namespace chen {
 		bool _mpegts_write_nit();
 		bool _mpegts_write_sdt();
 
+
+
+	private:
+		void _pthread_work();
+
 	private:
 		std::string		m_ip;
 		uint32			m_port;
@@ -176,6 +211,14 @@ namespace chen {
 
 		uint8* m_send_buffer;
 		int32  m_send_len;
+
+
+		std::thread		m_thread;
+		std::mutex				 m_mpgets_page_lock;
+		std::list<cmpegts_page>   m_mpegts_page_list;
+		bool			m_stoped;
+		ccond					m_condition;    /*ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½*/
+
 
 	};
 
