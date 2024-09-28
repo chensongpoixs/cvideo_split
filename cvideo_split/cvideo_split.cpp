@@ -571,7 +571,7 @@ namespace chen {
 				
 				// 上面问题崩溃 我解决方案是修改ffmpeg源码
 				ret = -1;
-				while (ret <0 && !m_stoped)
+				//while (ret <0 && !m_stoped)
 				{
 					clock_guard lock(g_avfilter_lock);
 
@@ -628,6 +628,7 @@ namespace chen {
 					cnt = 0;
 					timestamp = timestamp_curr;
 				}
+				NORMAL_EX_LOG("main ms = %u", diff_ms.count());
 				if (diff_ms.count() < d_ms)
 				{
 					 // std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
@@ -701,12 +702,7 @@ namespace chen {
 			{
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
-					{
-						//if (decodec_id == 0)
-						{
-						//	 NORMAL_EX_LOG("[%u]pts = %u", m_decodes[decodec_id]->get_number_frame(), m_decodes[0]->get_pts());
-						}
-						//AV_TIME_BASE
+					{ 
 						frame_ptr->pts = global_calculate_pts(m_decodes[decodec_id]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 						frame_ptr->pkt_dts = frame_ptr->pts;
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
