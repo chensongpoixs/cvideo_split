@@ -544,10 +544,11 @@ namespace chen {
 			.count();
 		size_t cnt = 0;
 		uint64 frame_count_num = 0;
+		//m_filter_frame_ptr = NULL;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
  //goto_init_frame:
-			/*if (!m_filter_frame_ptr)
+			 if (!m_filter_frame_ptr)
 			{
 				m_filter_frame_ptr = ::av_frame_alloc();
 			}
@@ -555,7 +556,7 @@ namespace chen {
 			{
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
-			}*/
+			} 
 			 
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
@@ -597,8 +598,8 @@ namespace chen {
 			if (m_filter_frame_ptr)
 			{
 				::av_frame_unref(m_filter_frame_ptr);
-				::av_frame_free(&m_filter_frame_ptr);
-				m_filter_frame_ptr = NULL;
+				//::av_frame_free(&m_filter_frame_ptr);
+				//m_filter_frame_ptr = NULL;
 			}
 			
 
