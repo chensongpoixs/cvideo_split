@@ -702,7 +702,7 @@ namespace chen {
 						//	//NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
 						//}
 						frame_ptr->pts = m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+						ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
 						if (ret < 0)
 						{
 							WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
