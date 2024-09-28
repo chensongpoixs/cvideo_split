@@ -692,7 +692,7 @@ namespace chen {
 					.count();
 				  size_t cnt = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 30; // (m_decodes[decodec_id]->get_fps() + 15);
+		uint32  d_ms = 1000 / 27; // (m_decodes[decodec_id]->get_fps() + 15);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
@@ -715,6 +715,16 @@ namespace chen {
 							WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
 
 						}
+						cnt++;
+						auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+							std::chrono::system_clock::now().time_since_epoch())
+							.count();
+						if (timestamp_curr - timestamp > 1000) {
+							//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+							NORMAL_EX_LOG("chiled[%u] fps = %u", decodec_id, cnt);
+							cnt = 0;
+							timestamp = timestamp_curr;
+						}
 					}
 					::av_frame_unref(frame_ptr);
 
@@ -734,16 +744,7 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
-				cnt++;
-				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch())
-					.count();
-				if (timestamp_curr - timestamp > 1000) {
-					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
-					NORMAL_EX_LOG("chiled[%u] fps = %u", decodec_id, cnt);
-					cnt = 0;
-					timestamp = timestamp_curr;
-				}
+				
 				if (diff_ms.count() < d_ms)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
