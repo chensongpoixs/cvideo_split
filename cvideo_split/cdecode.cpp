@@ -385,18 +385,19 @@ namespace chen {
 				av_packet_unref(m_packet_ptr);
 				continue;
 			}
-			//if (ret == AVERROR(EAGAIN))
-			//{
-			//	continue;
-			//}
-			//if (ret == AVERROR_EOF)
-			//{
-			//	// flush cached frames from video decoder
-			//	m_packet_ptr->data = NULL;
-			//	m_packet_ptr->size = 0;
-			//	m_packet_ptr->stream_index = m_video_stream_index;
-			//	
-			//}
+			if (ret == AVERROR(EAGAIN))
+			{
+				continue;
+			}
+			if (ret == AVERROR_EOF)
+			{
+				break;
+				// flush cached frames from video decoder
+				m_packet_ptr->data = NULL;
+				m_packet_ptr->size = 0;
+				m_packet_ptr->stream_index = m_video_stream_index;
+				
+			}
 
 			/*if (m_packet_ptr->stream_index != m_video_stream_index)
 			{
