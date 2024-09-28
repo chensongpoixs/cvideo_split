@@ -547,7 +547,7 @@ namespace chen {
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
  //goto_init_frame:
-			if (!m_filter_frame_ptr)
+			/*if (!m_filter_frame_ptr)
 			{
 				m_filter_frame_ptr = ::av_frame_alloc();
 			}
@@ -555,7 +555,7 @@ namespace chen {
 			{
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
-			}
+			}*/
 			 
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
@@ -578,7 +578,7 @@ namespace chen {
 				}
 				 
 			}
-			if (ret < 0)
+			if (ret < 0 && m_filter_frame_ptr)
 			{
 				::av_frame_unref(m_filter_frame_ptr);
 				// filter 错误啦 ^_^
@@ -586,7 +586,7 @@ namespace chen {
 			}
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
-			if (!m_stoped && ret >= 0)
+			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
 				++frame_count_num;
 				pts = global_calculate_pts(frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
@@ -594,7 +594,13 @@ namespace chen {
 				
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
-			::av_frame_unref(m_filter_frame_ptr);
+			if (m_filter_frame_ptr)
+			{
+				::av_frame_unref(m_filter_frame_ptr);
+				::av_frame_free(&m_filter_frame_ptr);
+				m_filter_frame_ptr = NULL;
+			}
+			
 
 			{
 				 
