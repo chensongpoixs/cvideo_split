@@ -271,6 +271,7 @@ namespace chen {
 	{
 		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		close();
+
 	}
 	void cdecode::close()
 	{
@@ -330,6 +331,33 @@ namespace chen {
 		}
 		m_open = false;
 		m_pixfmt = AV_PIX_FMT_NONE;
+		m_vec_dts.clear();
+		m_vec_pts.clear();
+	}
+	uint64 cdecode::get_index_pts(  uint32 number_frame)
+	{
+		if (m_vec_dts.size() == 0)
+		{
+			return 0;
+		}
+		if (number_frame >= m_vec_pts.size())
+		{
+			return m_vec_pts[m_vec_pts.size() - 1];
+		}
+		return m_vec_pts[number_frame];
+	}
+	uint64 cdecode::get_index_dts(uint32 number_frame)
+	{
+		if (m_vec_dts.size() == 0)
+		{
+			return 0;
+		}
+		if (number_frame >= m_vec_dts.size())
+		{
+
+			return m_vec_dts[m_vec_dts.size() - 1];
+		}
+		return m_vec_dts[number_frame];
 	}
 	bool cdecode::grab_frame( )
 	{
@@ -409,11 +437,11 @@ namespace chen {
 				}
 				continue;
 			}*/
-			if (ret >= 0)
+			 if (ret >= 0)
 			{
 				m_pts = m_packet_ptr->pts;
 				m_dts = m_packet_ptr->dts;
-			}
+			} 
 			// Decode video frame
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
@@ -459,6 +487,8 @@ namespace chen {
 
 		if (valid)
 		{
+			m_vec_pts.push_back(m_pts);
+			m_vec_dts.push_back(m_dts);
 			++m_frame_number;
 		}
 		if (valid && m_first_frame_number < 0)

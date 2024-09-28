@@ -69,6 +69,8 @@ namespace chen {
 			, m_frame_list()
 			, m_video_split_ptr(NULL)
 			, m_packet_recv(false)
+			, m_vec_pts()
+			, m_vec_dts()
 			{}
 		virtual ~cdecode();
 	public:
@@ -92,6 +94,9 @@ namespace chen {
 		*/
 		bool grab_frame( );
 
+		uint64 get_index_pts( uint32 number_frame);
+		uint64 get_index_dts( uint32 number_frame);
+		uint32 get_number_frame() const { return m_frame_number; }
 		/**
 		* 读取一帧视频数据并转换到目标像素格式
 		* @param out_frame 输出帧数据， 目标像素格式， open函数设置
@@ -188,6 +193,8 @@ namespace chen {
 		std::list<AVFrame*> m_frame_list;
 		cvideo_splist* m_video_split_ptr;
 		bool			m_packet_recv;
+		std::vector<uint64>  m_vec_pts;
+		std::vector<uint64>  m_vec_dts;
 	};
 
 }

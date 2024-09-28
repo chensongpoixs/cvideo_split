@@ -487,7 +487,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 45;
+		uint32  d_ms =   1000   / 30;
 		 for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -504,6 +504,7 @@ namespace chen {
 				std::chrono::system_clock::now().time_since_epoch())
 			.count();
 		size_t cnt = 0;
+		uint64 frame_count_num = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
  //goto_init_frame:
@@ -567,152 +568,14 @@ namespace chen {
  
 			// get buffersink filer frame --> 
 			{
-				// TODO@chensong 20240403 OSD字体库thread 是不安全的啦 ！！！
-				 
-				// TODO@chensong 20240725  linux  core  
-				/*
-				Program terminated with signal SIGSEGV, Segmentation fault.
-				#0  scale_eval_dimensions (ctx=0x7fa1d91e5080) at libavfilter/vf_scale.c:465
-				465     libavfilter/vf_scale.c: 没有那个文件或目录.
-				[Current thread is 1 (Thread 0x7fa1e2cf9700 (LWP 106627))]
-				(gdb) bt
-				#0  scale_eval_dimensions (ctx=0x7fa1d91e5080) at libavfilter/vf_scale.c:465
-				#1  config_props (outlink=outlink@entry=0x7fa1d91f2780) at libavfilter/vf_scale.c:526
-				#2  0x0000563442c4d465 in scale_frame (link=link@entry=0x7fa1d91f25c0, in=<optimized out>,
-					frame_out=frame_out@entry=0x7fa1e2cf8d20) at libavfilter/vf_scale.c:802
-				#3  0x0000563442c4df2c in filter_frame (link=link@entry=0x7fa1d91f25c0, in=<optimized out>)
-					at libavfilter/vf_scale.c:911
-				#4  0x0000563442b0562a in ff_filter_frame_framed (frame=<optimized out>, link=0x7fa1d91f25c0)
-					at libavfilter/avfilter.c:969
-				#5  ff_filter_frame_to_filter (link=0x7fa1d91f25c0) at libavfilter/avfilter.c:1123
-				#6  ff_filter_activate_default (filter=<optimized out>) at libavfilter/avfilter.c:1182
-				#7  ff_filter_activate (filter=<optimized out>) at libavfilter/avfilter.c:1341
-				#8  0x0000563442b08437 in ff_filter_graph_run_once (graph=<optimized out>) at libavfilter/avfiltergraph.c:1353
-				#9  0x0000563442b08dbd in get_frame_internal (ctx=0x7fa1d91e3b80, frame=0x7fa1da84ff80, flags=flags@entry=0,
-					samples=<optimized out>) at libavfilter/buffersink.c:139
-				#10 0x0000563442b08f86 in av_buffersink_get_frame_flags (ctx=<optimized out>, frame=<optimized out>,
-					flags=flags@entry=0) at libavfilter/buffersink.c:150
-				#11 0x0000563442b08f9b in av_buffersink_get_frame (ctx=<optimized out>, frame=<optimized out>)
-					at libavfilter/buffersink.c:98
-				#12 0x000056344211a6e5 in chen::cvideo_splist::_pthread_work (this=0x563446edf1c0)
-					at /home/chensong/Work/cvideo_split/cvideo_split/cvideo_split.cpp:547
-				#13 0x00007fa1f2e50df4 in ?? () from /lib/x86_64-linux-gnu/libstdc++.so.6
-				#14 0x00007fa1f2f6a609 in start_thread (arg=<optimized out>) at pthread_create.c:477
-				#15 0x00007fa1f2b3b353 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:95
-				*/
-				/*
-				源文件   可能输入的inlink值获取不到desc是空指针
-				 437 static int scale_eval_dimensions(AVFilterContext *ctx)
-				 438 {
-				 439     ScaleContext *scale = ctx->priv;
-				 440     const char scale2ref = ctx->filter == &ff_vf_scale2ref;
-				 441     const AVFilterLink *inlink = scale2ref ? ctx->inputs[1] : ctx->inputs[0];
-				 442     const AVFilterLink *outlink = ctx->outputs[0];
-				 443     const AVPixFmtDescriptor *desc = av_pix_fmt_desc_get(inlink->format);
-				 444     const AVPixFmtDescriptor *out_desc = av_pix_fmt_desc_get(outlink->format);
-				 445     char *expr;
-				 446     int eval_w, eval_h;
-				 447     int ret;
-				 448     double res;
-				 449     const AVPixFmtDescriptor *main_desc;
-				 450     const AVFilterLink *main_link;
-				 451
-				 452     if (scale2ref) {
-				 453         main_link = ctx->inputs[0];
-				 454         main_desc = av_pix_fmt_desc_get(main_link->format);
-				 455     }
-				 456
-				 457     scale->var_values[VAR_IN_W]  = scale->var_values[VAR_IW] = inlink->w;
-				 458     scale->var_values[VAR_IN_H]  = scale->var_values[VAR_IH] = inlink->h;
-				 459     scale->var_values[VAR_OUT_W] = scale->var_values[VAR_OW] = NAN;
-				 460     scale->var_values[VAR_OUT_H] = scale->var_values[VAR_OH] = NAN;
-				 461     scale->var_values[VAR_A]     = (double) inlink->w / inlink->h;
-				 462     scale->var_values[VAR_SAR]   = inlink->sample_aspect_ratio.num ?
-				 463         (double) inlink->sample_aspect_ratio.num / inlink->sample_aspect_ratio.den : 1;
-				 464     scale->var_values[VAR_DAR]   = scale->var_values[VAR_A] * scale->var_values[VAR_SAR];
-				 465     scale->var_values[VAR_HSUB]  = 1 << desc->log2_chroma_w;
-				 466     scale->var_values[VAR_VSUB]  = 1 << desc->log2_chroma_h;
-				 467     scale->var_values[VAR_OHSUB] = 1 << out_desc->log2_chroma_w;
-				 468     scale->var_values[VAR_OVSUB] = 1 << out_desc->log2_chroma_h;
-				 469
-				 470     if (scale2ref) {
-				 471         scale->var_values[VAR_S2R_MAIN_W] = main_link->w;
-				 472         scale->var_values[VAR_S2R_MAIN_H] = main_link->h;
-				 473         scale->var_values[VAR_S2R_MAIN_A] = (double) main_link->w / main_link->h;
-				 474         scale->var_values[VAR_S2R_MAIN_SAR] = main_link->sample_aspect_ratio.num ?
-				 475             (double) main_link->sample_aspect_ratio.num / main_link->sample_aspect_ratio.den : 1;
-				 476         scale->var_values[VAR_S2R_MAIN_DAR] = scale->var_values[VAR_S2R_MDAR] =
-				 477             scale->var_values[VAR_S2R_MAIN_A] * scale->var_values[VAR_S2R_MAIN_SAR];
-				 478         scale->var_values[VAR_S2R_MAIN_HSUB] = 1 << main_desc->log2_chroma_w;
-				 479         scale->var_values[VAR_S2R_MAIN_VSUB] = 1 << main_desc->log2_chroma_h;
-				 480     }
-				 481
-				 482     res = av_expr_eval(scale->w_pexpr, scale->var_values, NULL);
-				 483     eval_w = scale->var_values[VAR_OUT_W] = scale->var_values[VAR_OW] = (int) res == 0 ? inlink->w : (int) res;
-				 484
-				 485     res = av_expr_eval(scale->h_pexpr, scale->var_values, NULL);
-				 486     if (isnan(res)) {
-				 487         expr = scale->h_expr;
-				 488         ret = AVERROR(EINVAL);
-				 489         goto fail;
-				 490     }
-				 491     eval_h = scale->var_values[VAR_OUT_H] = scale->var_values[VAR_OH] = (int) res == 0 ? inlink->h : (int) res;
-				 492
-				 493     res = av_expr_eval(scale->w_pexpr, scale->var_values, NULL);
-				 494     if (isnan(res)) {
-				 495         expr = scale->w_expr;
-				 496         ret = AVERROR(EINVAL);
-				*/
-				//判断scae 函数中inputs变量是否存在
-				//for (  size_t inlink_i = 0; inlink_i < m_buffers_scale_ctx_ptr.size(); ++inlink_i)
-				//{
-
-				//	const AVFilterLink* inlink = m_buffers_scale_ctx_ptr[inlink_i]->inputs[0];
-				//	if (inlink == NULL)
-				//	{
-				//		WARNING_EX_LOG("push = [%s] inlink == NULL , scale get inlink format(%u) failed !!!", std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
-				//		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-				//		goto goto_init_frame;
-				//	}
-				//	const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(static_cast<AVPixelFormat>(inlink->format));
-				//	if (desc == NULL)
-				//	{
-				//		WARNING_EX_LOG("push = [%s] scale get inlink format(%u) failed !!!",  std::string(m_multicast_ip + std::to_string(m_multicast_port)).c_str(), inlink_i);
-				//		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-				//		goto goto_init_frame;
-				//	}
-				//	//if (av_pix_fmt_desc_get(inlink->format))
-				//}
-				// 
+				
 				// 上面问题崩溃 我解决方案是修改ffmpeg源码
-				clock_guard lock(g_avfilter_lock);
-				/*try
 				{
-					
+					clock_guard lock(g_avfilter_lock);
+
+					ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr);
 				}
-				catch (const std::exception&  e)
-				{
-					WARNING_EX_LOG("video split [name = %s] exception =[%s][filter error = %s] failed !!!", m_video_split_name.c_str(),e.what(),  ffmpeg_util::make_error_string(ret));
-					continue;
-				}
-				catch (...)
-				{
-					WARNING_EX_LOG("video split [name = %s] exception [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
-					continue;
-				}*/
-				if ((ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr)) < 0)
-				{
-					//if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-					{
-						//NORMAL_EX_LOG("");
-						// 需要继续处理啦
-						::av_frame_unref(m_filter_frame_ptr);
-						//continue;
-					}
-					//filter error 
-					//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
-					//continue;
-				}
+				 
 			}
 			if (ret < 0)
 			{
@@ -729,8 +592,10 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped)
 			{
-				pts = m_decodes[0]->get_pts();
-				dts = m_decodes[0]->get_dts();
+				
+				 pts = m_decodes[0]->get_index_pts(frame_count_num);
+				 dts = m_decodes[0]->get_index_dts(frame_count_num);
+				 ++frame_count_num;
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
 			::av_frame_unref(m_filter_frame_ptr);
@@ -842,7 +707,7 @@ namespace chen {
 						//{
 						//	//NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
 						//}
-						frame_ptr->pts = m_decodes[0]->get_pts();
+						frame_ptr->pts = m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						if (ret < 0)
 						{
@@ -868,7 +733,16 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
-				
+				cnt++;
+				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch())
+					.count();
+				if (timestamp_curr - timestamp > 1000) {
+					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+					NORMAL_EX_LOG("chiled[%u] fps = %u", decodec_id, cnt);
+					cnt = 0;
+					timestamp = timestamp_curr;
+				}
 				if (diff_ms.count() < d_ms)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
@@ -881,16 +755,7 @@ namespace chen {
 				}
 				
 
-				cnt++;
-				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch())
-					.count();
-				if (timestamp_curr - timestamp > 1000) {
-					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
-					NORMAL_EX_LOG("chiled[%u] fps = %u" ,decodec_id, cnt);
-					cnt = 0;
-					timestamp = timestamp_curr;
-				}
+				
 			}
 		}
 		::av_frame_unref(frame_ptr);
