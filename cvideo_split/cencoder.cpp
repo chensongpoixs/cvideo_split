@@ -548,7 +548,7 @@ namespace chen {
 		 }
 		else if (m_empgets_ptr)
 		{
-			m_empgets_ptr->push_packet(m_pkt_ptr->flags& AV_PKT_FLAG_KEY, m_pkt_ptr->data, m_pkt_ptr->size, pts, dts);
+			m_empgets_ptr->app_push_packet(m_pkt_ptr->flags& AV_PKT_FLAG_KEY, m_pkt_ptr->data, m_pkt_ptr->size, pts, dts);
 		}
 		 
 		/*static FILE* out_file_ptr = ::fopen("./chensong_test.h264", "wb+");

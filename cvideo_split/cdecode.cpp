@@ -26,9 +26,7 @@ purpose:		camera
 #include "cffmpeg_util.h"
 #include <cassert>
 #include "ccfg.h"
-#include "cvideo_split.h"
 #include "clog.h"
-#include <sstream>
 
 namespace chen {
 
@@ -87,19 +85,17 @@ namespace chen {
 	cdecode::~cdecode()
 	{
 	}
-	bool cdecode::init(uint32 gpu_index, const char* url, uint32 index, cvideo_splist* ptr)
+	bool cdecode::init(uint32 gpu_index, const char* url , uint32 index, cvideo_splist* ptr)
 	{
 		
+		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
 		{
 			close();
 		}
-		std::lock_guard<std::mutex> lock(g_ffmpeg_lock);
-		
-		m_url = url;// +std::string("?overrun_nonfatal=1");
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
-		m_index = index;
+
 #if USE_AV_INTERRUPT_CALLBACK
  
 		m_open_timeout = g_cfg.get_uint32(ECI_MediaOpenTimeOut); //LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
@@ -109,9 +105,9 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = m_open_timeout;
 		get_monotonic_time(&m_interrupt_metadata.value);
 
-		 m_ic_ptr = avformat_alloc_context();
+		m_ic_ptr = avformat_alloc_context();
 		m_ic_ptr->interrupt_callback.callback = &ffmpeg_util:: ffmpeg_interrupt_callback;
-		m_ic_ptr->interrupt_callback.opaque = &m_interrupt_metadata; 
+		m_ic_ptr->interrupt_callback.opaque = &m_interrupt_metadata;
 #endif
 		//char* options = getenv("OPENCV_FFMPEG_CAPTURE_OPTIONS");
 #if LIBAVUTIL_BUILD >= (LIBAVUTIL_VERSION_MICRO >= 100 ? CALC_FFMPEG_VERSION(52, 17, 100) : CALC_FFMPEG_VERSION(52, 7, 0))
@@ -137,7 +133,7 @@ namespace chen {
 		// echo 10240000 > /proc/sys/net/core/rmem_max
 		::av_dict_set(&m_dict, "buffer_size", "10240000", 0);
 		::av_dict_set(&m_dict, "reuse", "1", 0);
-		//::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
+		::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
 		if (entry != 0)
@@ -262,15 +258,12 @@ namespace chen {
 		m_frame.data = NULL;
 		//检测是否支持当前视频的像素格式
 		m_pixfmt = (AVPixelFormat)m_video_stream_ptr->codecpar->format;
-		m_video_split_ptr = ptr;
+		 
 #if USE_AV_INTERRUPT_CALLBACK
 		// deactivate interrupt callback
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		get_rotation_angle();
-		m_stoped = false;
-		//m_thread = std::thread(&cdecode::_pthread_decoder, this);
-
 		return true;
 		//return false;
 	}
@@ -287,11 +280,8 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		 
-		m_stoped = true;
-		/*if (m_thread.joinable())
-		{
-			m_thread.join();
-		}*/
+
+		
 		
 		if (m_sws_ctx_ptr)
 		{
@@ -333,8 +323,7 @@ namespace chen {
 		}
 		if (m_ic_ptr)
 		{
-			  ::avformat_flush(m_ic_ptr);
-			 // TODO@chensong 20240303  底层网络没有关闭会
+			 ::avformat_flush(m_ic_ptr);
 			  ::avformat_close_input(&m_ic_ptr); 
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
@@ -357,12 +346,10 @@ namespace chen {
 		if (m_ic_ptr->streams[m_video_stream_index]->nb_frames > 0 
 			&& m_frame_number > m_ic_ptr->streams[m_video_stream_index]->nb_frames)
 		{
-			WARNING_EX_LOG("video stream index frame not new failed !!!");
 			return false;
 		}
-		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-			std::chrono::system_clock::now().time_since_epoch());
-		const int max_number_of_attempts = 1 << 2;
+
+		const int max_number_of_attempts = 1 << 3;
 		int32_t ret = 0;
 		int32_t count_errs = 0;
 		bool    valid = false;
@@ -375,9 +362,9 @@ namespace chen {
 		//AVPacket* pkt = av_packet_alloc();;
 #if USE_AV_SEND_FRAME_API
 		// check if we can receive frame from previously decoded packet
-	 	valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
+		valid = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr) >= 0;
 #endif
-
+		 
 		while (!valid)
 		{
 
@@ -387,41 +374,20 @@ namespace chen {
 #if USE_AV_INTERRUPT_CALLBACK
 			if (m_interrupt_metadata.timeout)
 			{
-				//valid = false;
-				//break;
+				valid = false;
+				break;
 			}
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			/*
-			if (ret == AVERROR_EOF  ||   avio_feof(m_ic_ptr->pb))
+			/*if (ret != AVERROR_EOF && pkt->stream_index != m_video_stream_index)
 			{
-				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				std::thread::id thread_id = std::this_thread::get_id();
-				std::ostringstream cmd;
-				cmd << thread_id;
-				WARNING_EX_LOG("[thread_id = %s]av_read_frame  EOF url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-				//m_packet_ptr->stream_index = m_video_stream_index;
-				break;
-			}
-			 */
-			//av_packet_unref(m_packet_ptr);
-			//if (ret == AVERROR(EAGAIN))
-			//{
-			//	av_packet_unref(m_packet_ptr);
-			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//	//_stop_callback();
-			//	::av_frame_unref(m_picture_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			//	break;
-			//}
+				av_packet_unref(pkt);
+				continue;
+			}*/
 			if (ret == AVERROR(EAGAIN))
 			{
-				break;
+				continue;
 			}
 			if (ret == AVERROR_EOF)
 			{
@@ -430,64 +396,6 @@ namespace chen {
 				m_packet_ptr->size = 0;
 				m_packet_ptr->stream_index = m_video_stream_index;
 			}
-			//if (ret < 0)
-			//{
-			//	// 	av_packet_unref(m_packet_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-			//	//m_packet_ptr->stream_index = m_video_stream_index;
-			//	break;
-			//}
-			//if (m_packet_ptr->flags & AV_PKT_FLAG_CORRUPT)
-			//{
-			//	m_packet_recv = true;
-			//	av_packet_unref(m_packet_ptr);
-			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
-			////s	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT");
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("AV_PKT_FLAG_CORRUPT [thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-			//	//m_packet_ptr->stream_index = m_video_stream_index;
-			//	continue;
-			//	//break;;
-			//}
-			
-			//if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
-			//{
-			//	WARNING_EX_LOG("url  = %s", m_url.c_str());
-			//	av_packet_unref(m_packet_ptr);
-			//	continue;
-			//}
- 
-			///*if ()
-			//{
-			//	continue;
-			//}*/
-			//if (ret == AVERROR_EOF)
-			//{
-			//	av_packet_unref(m_packet_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	_stop_callback();
-			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-			//	//m_packet_ptr->stream_index = m_video_stream_index;
-			//	break;
-			//}
-			//if (ret == AVERROR_EOF || ret == AVERROR(EAGAIN))
-			//{
-			//	// flush cached frames from video decoder
-			//	av_packet_unref(m_packet_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id = %s]av_read_frame  url  = %s failed !!!", cmd.str().c_str(), m_url.c_str());
-			//	//m_packet_ptr->stream_index = m_video_stream_index;
-			//	break;
-			//}
 
 			if (m_packet_ptr->stream_index != m_video_stream_index)
 			{
@@ -499,104 +407,50 @@ namespace chen {
 				}
 				continue;
 			}
-			// TODO@chensong 20240914 查看下一个关键帧的数据的到来
-			/*if (  m_packet_ptr->flags == AV_PKT_FLAG_CORRUPT)
-			{
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				av_packet_unref(m_packet_ptr);
-				WARNING_EX_LOG("flag  AV_PKT_FLAG_CORRUPT %s", m_url.c_str());
-				break;
-			}*/
-			/*if (m_packet_recv && m_packet_ptr->flags == AV_PKT_FLAG_KEY)
-			{
-				m_packet_recv = false;
-			}
-			if (m_packet_recv)
-			{
-				av_packet_unref(m_packet_ptr);
-				continue;
-			}*/
 			m_pts = m_packet_ptr->pts;
 			m_dts = m_packet_ptr->dts;
 			// Decode video frame
- 
-			 
-			ret = avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr);
-			 
-			
- 
+#if USE_AV_SEND_FRAME_API
+			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
+			{
+				av_packet_unref(m_packet_ptr);
+				break;
+			}
+
 			av_packet_unref(m_packet_ptr);
-			//if (ret == AVERROR_EOF || avio_feof(m_ic_ptr->pb))
-			//{
-			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//	_stop_callback();
-			//	//::av_frame_unref(m_picture_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id  = %s]avcodec_send_packet EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			//	break;
-			//}
-			//if (ret == AVERROR(EAGAIN))
-			//{
-			//	av_packet_unref(m_packet_ptr);
-			//	::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//	//_stop_callback();
-			//	::av_frame_unref(m_picture_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id  = %s]av_read_frame EOF   url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			//	break;
-			//}
-			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr); 
+			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
+#else
+			int got_picture = 0;
+			avcodec_decode_video2(context, picture, &got_picture, &packet);
+			ret = got_picture ? 0 : -1;
+#endif
+
 			if (ret >= 0)
 			{
 				//picture_pts = picture->best_effort_timestamp;
 				if (m_picture_pts == AV_NOPTS_VALUE)
 				{
-					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
+					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE 
 						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
 						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
 				}
 
 				valid = true;
-				break;
 			}
-			//else if (  ret == AVERROR_EOF)
-			//{
-			//	//::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//	//_stop_callback();
-			//	::av_frame_unref(m_picture_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  EOF url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			//	break;
-			//}
-			//else if (ret == AVERROR(EAGAIN) )
-			//{
-			//	//::avcodec_flush_buffers(m_codec_ctx_ptr);
-			//	std::thread::id thread_id = std::this_thread::get_id();
-			//	std::ostringstream cmd;
-			//	cmd << thread_id;
-			//	::av_frame_unref(m_picture_ptr);
-			//	WARNING_EX_LOG("[thread_id  = %s]avcodec_receive_frame  url  = %s failed (%s)!!!", cmd.str().c_str(), m_url.c_str(), ffmpeg_util::make_error_string(ret));
-			//	break;
-			//}
-			else if (ret == AVERROR(EAGAIN))
+			else if (ret == AVERROR(EAGAIN)) 
 			{
-				break;
+				continue;
 			}
-			count_errs++;
-			//::av_frame_unref(m_picture_ptr);
-			if (count_errs > max_number_of_attempts)
+			else
 			{
-				break;
+				count_errs++;
+				if (count_errs > max_number_of_attempts)
+				{
+					break;
+				}
 			}
-			 
-		}
-		 
+
+		}  
 
 		if (valid)
 		{
@@ -615,7 +469,6 @@ namespace chen {
 		int* height, int* cn*/ )
 	{
 		//AVFrame* srcFrame = nullptr;
-		av_frame_unref(m_picture_ptr);
 		bool ret = grab_frame( );
 		if (ret )
 		{
@@ -726,22 +579,6 @@ namespace chen {
 		 
 		return ret;
 	}
-	bool cdecode::get_frame(AVFrame*& frame)
-	{
-		std::lock_guard<std::mutex> lock(m_frame_lock);
-		if (m_frame_list.empty())
-		{
-			return false;
-		}
-		frame = m_frame_list.front();
-		m_frame_list.pop_front();
-		//while (m_frame_list.size()>0)
-		//{
-		//	//::av_frame_free(&m_frame_list.front());
-		//	m_frame_list.pop_front();
-		//}
-		return true;
-	}
 	bool cdecode::seek(double sec)
 	{
 		if (!m_open)
@@ -766,7 +603,7 @@ namespace chen {
 	void cdecode::seek(int64_t frame_number)
 	{
 		assert(m_ic_ptr);
-		m_frame_number = m_frame_number > get_total_frames() ? get_total_frames() : m_frame_number; //std::min(m_frame_number, get_total_frames());
+		m_frame_number = std::min(m_frame_number, get_total_frames());
 		int delta = 16;
 
 		// if we have not grabbed a single frame before first seek, let's read the first frame
@@ -779,7 +616,7 @@ namespace chen {
 		for (;;)
 		{
 
-			int64_t _frame_number_temp = (m_frame_number - delta) > 0 ? (m_frame_number - delta) : 0;// std::max(m_frame_number - delta, (int64_t)0);
+			int64_t _frame_number_temp =  std::max(m_frame_number - delta, (int64_t)0);
 			double sec = (double)_frame_number_temp / get_fps();
 			int64_t time_stamp = m_ic_ptr->streams[m_video_stream_index]->start_time;
 			double  time_base = r2d(m_ic_ptr->streams[m_video_stream_index]->time_base);
@@ -924,31 +761,5 @@ namespace chen {
 		if (rotate_tag != NULL)
 			rotation_angle = atoi(rotate_tag->value);
 #endif
-	}
-	void cdecode::_stop_callback()
-	{
-		if (!m_video_split_ptr)
-		{
-			WARNING_EX_LOG("video split ptr == NULL !!!!");
-			return;
-		}
-		m_video_split_ptr->callback_decoder_failed();
-	}
-	void cdecode::_pthread_decoder()
-	{
-		while (!m_stoped)
-		{
-			AVFrame* frame = NULL;
-			if (!retrieve(frame))
-			{
-				continue;
-			}
-			AVFrame* new_frame = av_frame_clone(frame);
-			av_frame_unref(frame);
-			{
-				std::lock_guard<std::mutex> lock(m_frame_lock); 
-				m_frame_list.push_back(new_frame);
-			}
-		}
 	}
 }

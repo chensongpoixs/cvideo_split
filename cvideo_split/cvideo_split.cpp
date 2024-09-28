@@ -487,7 +487,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 30;
+		uint32  d_ms =   1000   / 40;
 		/*for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -517,22 +517,34 @@ namespace chen {
 				int64  pts_s = 0;
 				for (int32 i = 0 ; i < m_decodes.size(); ++i)
 				{
-						if (m_decodes[i]->retrieve(frame_ptr))
-						{
-							if (i == 0)
+					bool decode_ret  = false;
+					uint32 count_decode = 0;
+					  do
+					  {
+							decode_ret = 	m_decodes[i]->retrieve(frame_ptr) ;
+							if (decode_ret)
 							{
-								pts = m_decodes[0]->get_pts();
-								dts = m_decodes[0]->get_dts();
-								pts_s = frame_ptr->pts;
-							} 
-							frame_ptr->pts = pts_s;
-							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr); 
-							if (ret < 0)
-							{
-								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-									 
+								if (i == 0)
+								{
+									pts = m_decodes[0]->get_pts();
+									dts = m_decodes[0]->get_dts();
+									pts_s = frame_ptr->pts;
+								}
+								frame_ptr->pts = pts_s;
+								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+								if (ret < 0)
+								{
+									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+
+								}
 							}
-						}  
+							else
+							{
+								++count_decode;
+							}
+						}  while (!decode_ret && count_decode< 3);
+
+
 						::av_frame_unref(frame_ptr);
 
 						if (m_stoped)
@@ -736,20 +748,20 @@ namespace chen {
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
-				
+				ms = encoder_ms;
 				if (diff_ms.count() < d_ms)
 				{
-					 std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+					  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 					 ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						 std::chrono::system_clock::now().time_since_epoch());
 				}
-				//else
+				 else
 				{
-					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				 	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
-					//ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					 ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
-
+				NORMAL_EX_LOG("frame [d_ms = %u] pts = [%u]", d_ms, diff_ms.count());
 			}
 
 		}
