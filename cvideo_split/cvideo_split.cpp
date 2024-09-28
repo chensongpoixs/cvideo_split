@@ -570,6 +570,8 @@ namespace chen {
 			{
 				
 				// 上面问题崩溃 我解决方案是修改ffmpeg源码
+				ret = -1;
+				while (ret <0 && !m_stoped)
 				{
 					clock_guard lock(g_avfilter_lock);
 
