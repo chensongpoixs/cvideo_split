@@ -67,6 +67,7 @@ namespace chen {
 		ECI_VmsUserName,
 		ECI_VmsPassWord,
 		ECI_VmsDeviceManufacturer,
+		ECI_VideoSkipFrameNum,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

@@ -77,6 +77,7 @@ namespace chen {
 		set_string(ECI_VmsUserName, "vms_user_name", "admin");
 		set_string(ECI_VmsPassWord, "vms_pass_word", "admin12345");
 		set_string(ECI_VmsDeviceManufacturer, "vms_device_manufacturer", "syz");
+		set_uint32(ECI_VideoSkipFrameNum, "video_skip_frame_num", 2);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

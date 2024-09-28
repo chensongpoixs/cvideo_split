@@ -729,7 +729,7 @@ namespace chen {
 					//	if (m_decodes[decodec_id]->get_number_frame() > )
 						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
 						// TODO@chensong 20240929 消费能力太差了
-						if (((frmame_fps - m_frame_count_num) < 25) && (m_decodes[decodec_id]->get_number_frame() %3 == 0 ))
+						if (((frmame_fps - m_frame_count_num) < 25) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ))
 						{
 							++frmame_fps;
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
