@@ -606,7 +606,7 @@ namespace chen {
 			{
 				::av_frame_unref(m_filter_frame_ptr);
 				// filter 错误啦 ^_^
-				 continue;
+				// continue;
 			}
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
@@ -648,7 +648,7 @@ namespace chen {
 					cnt = 0;
 					timestamp = timestamp_curr;
 				}
-				//NORMAL_EX_LOG("main ms = %u", diff_ms.count());
+				NORMAL_EX_LOG("main ms = %u", diff_ms.count());
 				if (diff_ms.count() < d_ms)
 				{
 					//  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
