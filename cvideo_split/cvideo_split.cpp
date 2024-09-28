@@ -488,10 +488,10 @@ namespace chen {
 		uint64 dts = 0;
 		uint64 pts = 0;
 		uint32  d_ms =   1000   / 40;
-		/*for (int32 i = 0; i < m_decodes.size(); ++i)
+		 for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
-		}*/
+		} 
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -512,7 +512,7 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-			if (true)
+			if (false)
 			{
 				int64  pts_s = 0;
 				for (int32 i = 0 ; i < m_decodes.size(); ++i)
@@ -755,11 +755,11 @@ namespace chen {
 					 ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						 std::chrono::system_clock::now().time_since_epoch());
 				}
-				 else
+				else
 				{
 				 	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 						std::chrono::system_clock::now().time_since_epoch());
-					 ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 				NORMAL_EX_LOG("frame [d_ms = %u] pts = [%u]", d_ms, diff_ms.count());
 			}
