@@ -29,6 +29,45 @@ purpose:		camera
 namespace chen {
 	static				std::mutex   g_avfilter_lock;
 
+
+
+	/*
+	
+	def calculate_pts(frame_number, timebase, framerate, container_timebase):
+	# 将时间基转换为秒
+	timebase_in_seconds = timebase / 1000000.0
+	# 计算每个编码帧的时间长度（秒）
+	pts_per_frame = timebase_in_seconds / framerate
+	# 将容器时间基转换为秒
+	container_timebase_in_seconds = container_timebase / 1000000000.0
+	# 计算PTS
+	pts = int((frame_number * pts_per_frame) * (container_timebase_in_seconds / timebase_in_seconds))
+	return pts
+
+	# 示例使用
+	timebase = 1000000  # 假设编码器时间基是微秒
+	framerate = 25     # 25fps
+	container_timebase = 1000000000  # 假设容器时间基是纳秒
+
+	# 第一个视频帧的PTS
+	print(calculate_pts(0, timebase, framerate, container_timebase))
+	# 第二个视频帧的PTS
+	print(calculate_pts(1, timebase, framerate, container_timebase))
+	*/
+
+	static uint64  global_calculate_pts(uint64 frame_number , uint32 frame_rate)
+	{
+		static const uint64 container_timebase = 1000000000;
+		//# 将时间基转换为秒
+		uint64 timebase_in_seconds = AV_TIME_BASE / 1000000.0;
+			//# 计算每个编码帧的时间长度（秒）
+		uint64 	pts_per_frame = timebase_in_seconds / frame_rate;
+		//	# 将容器时间基转换为秒
+		uint64	container_timebase_in_seconds = container_timebase / 1000000000.0;
+		//	# 计算PTS
+		uint64	pts = int((frame_number * pts_per_frame) * (container_timebase_in_seconds / timebase_in_seconds));
+		return pts;
+	}
 	static std::string osd_text_str(const std::string& old)
 	{
 		std::string txt = old;
@@ -549,10 +588,10 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped && ret >= 0)
 			{
+				++frame_count_num;
+				pts = global_calculate_pts(frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
+				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
 				
-				 pts = m_decodes[0]->get_index_pts(frame_count_num);
-				 dts = m_decodes[0]->get_index_dts(frame_count_num);
-				 ++frame_count_num;
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
 			::av_frame_unref(m_filter_frame_ptr);
@@ -652,11 +691,12 @@ namespace chen {
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
 					{
-						if (decodec_id == 0)
+						//if (decodec_id == 0)
 						{
-							 NORMAL_EX_LOG("[%u]pts = %u", m_decodes[decodec_id]->get_number_frame(), m_decodes[0]->get_pts());
+						//	 NORMAL_EX_LOG("[%u]pts = %u", m_decodes[decodec_id]->get_number_frame(), m_decodes[0]->get_pts());
 						}
-						frame_ptr->pts = m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+						//AV_TIME_BASE
+						frame_ptr->pts = global_calculate_pts(m_decodes[decodec_id]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
