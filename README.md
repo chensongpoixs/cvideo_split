@@ -158,6 +158,13 @@ ffplay  -i input.mp4  -vf "movice=./input.npg,scale=64:64[wm];in[wm]overlay=30:1
 >>>>>>> c01615f5939020980b763ea04154e8ee4c9065a4
 
 ```
+30.3.69.60
+
+24
+
+
+30.3.69.254
+
 
 
 
