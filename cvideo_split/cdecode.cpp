@@ -349,7 +349,7 @@ namespace chen {
 			return false;
 		}
 
-		const int max_number_of_attempts = 1 << 3;
+		const int max_number_of_attempts = 1 << 9;
 		int32_t ret = 0;
 		int32_t count_errs = 0;
 		bool    valid = false;
