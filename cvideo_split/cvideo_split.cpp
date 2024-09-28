@@ -517,47 +517,7 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			}
-			if (false)
-			{
-				int64  pts_s = 0;
-				for (int32 i = 0 ; i < m_decodes.size(); ++i)
-				{
-					bool decode_ret  = false;
-					uint32 count_decode = 0;
-					  do
-					  {
-							decode_ret = 	m_decodes[i]->retrieve(frame_ptr) ;
-							if (decode_ret)
-							{
-								if (i == 0)
-								{
-									pts = m_decodes[0]->get_pts();
-									dts = m_decodes[0]->get_dts();
-									pts_s = frame_ptr->pts;
-								}
-								frame_ptr->pts = pts_s;
-								ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-								if (ret < 0)
-								{
-									WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-
-								}
-							}
-							else
-							{
-								++count_decode;
-							}
-						}  while (!decode_ret && count_decode< 3);
-
-
-						::av_frame_unref(frame_ptr);
-
-						if (m_stoped)
-						{
-							break;
-						} 
-				}
-			}
+			 
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
 			{
@@ -583,12 +543,7 @@ namespace chen {
 			{
 				::av_frame_unref(m_filter_frame_ptr);
 				// filter 错误啦 ^_^
-				//filter error 
-				//WARNING_EX_LOG("[video_channel = %s][buffersink get frame = %s]", m_video_split_channel, ffmpeg_util::make_error_string(ret));
-				//std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				//continue;
-				//WARNING_EX_LOG("video split [name = %s] [filter error = %s] failed !!!", m_video_split_name.c_str(), ffmpeg_util::make_error_string(ret));
-				//continue;
+				 
 			}
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
@@ -624,14 +579,14 @@ namespace chen {
 				
 				if (diff_ms.count() < d_ms)
 				{
-					  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+					 // std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 					// ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					//	 std::chrono::system_clock::now().time_since_epoch());
 				}
 				else
 				{
-				 	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch());
+					/*	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+						   std::chrono::system_clock::now().time_since_epoch());*/
 					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 				NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
