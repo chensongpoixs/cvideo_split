@@ -380,24 +380,25 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			/*if (ret != AVERROR_EOF && pkt->stream_index != m_video_stream_index)
+			if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
 			{
-				av_packet_unref(pkt);
-				continue;
-			}*/
-			if (ret == AVERROR(EAGAIN))
-			{
+				av_packet_unref(m_packet_ptr);
 				continue;
 			}
-			if (ret == AVERROR_EOF)
-			{
-				// flush cached frames from video decoder
-				m_packet_ptr->data = NULL;
-				m_packet_ptr->size = 0;
-				m_packet_ptr->stream_index = m_video_stream_index;
-			}
+			//if (ret == AVERROR(EAGAIN))
+			//{
+			//	continue;
+			//}
+			//if (ret == AVERROR_EOF)
+			//{
+			//	// flush cached frames from video decoder
+			//	m_packet_ptr->data = NULL;
+			//	m_packet_ptr->size = 0;
+			//	m_packet_ptr->stream_index = m_video_stream_index;
+			//	
+			//}
 
-			if (m_packet_ptr->stream_index != m_video_stream_index)
+			/*if (m_packet_ptr->stream_index != m_video_stream_index)
 			{
 				av_packet_unref(m_packet_ptr);
 				count_errs++;
@@ -406,9 +407,12 @@ namespace chen {
 					break;
 				}
 				continue;
+			}*/
+			if (ret >= 0)
+			{
+				m_pts = m_packet_ptr->pts;
+				m_dts = m_packet_ptr->dts;
 			}
-			m_pts = m_packet_ptr->pts;
-			m_dts = m_packet_ptr->dts;
 			// Decode video frame
 #if USE_AV_SEND_FRAME_API
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
