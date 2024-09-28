@@ -576,7 +576,8 @@ namespace chen {
 					clock_guard lock(g_avfilter_lock);
 
 				//	ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_PEEK);
-					ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_NO_REQUEST);
+					//ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_NO_REQUEST);
+					ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr);
 
 				}
 				 
@@ -614,19 +615,19 @@ namespace chen {
 				if (ret >= 0)
 				{
 					cnt++;
-					auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch())
-						.count();
-					if (timestamp_curr - timestamp > 1000) {
-						//RTC_LOG(LS_INFO) << "FPS: " << cnt;
-						NORMAL_EX_LOG("main  send  fps = %u", cnt);
-						NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
-
-						cnt = 0;
-						timestamp = timestamp_curr;
-					}
+					
 				}
-				
+				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch())
+					.count();
+				if (timestamp_curr - timestamp > 1000) {
+					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+					NORMAL_EX_LOG("main  send  fps = %u", cnt);
+					NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
+
+					cnt = 0;
+					timestamp = timestamp_curr;
+				}
 				if (diff_ms.count() < d_ms)
 				{
 					 // std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
@@ -717,15 +718,7 @@ namespace chen {
 
 						}
 						cnt++;
-						auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-							std::chrono::system_clock::now().time_since_epoch())
-							.count();
-						if (timestamp_curr - timestamp > 1000) {
-							//RTC_LOG(LS_INFO) << "FPS: " << cnt;
-							NORMAL_EX_LOG("chiled[%u] fps = %u", decodec_id, cnt);
-							cnt = 0;
-							timestamp = timestamp_curr;
-						}
+						
 					}
 					::av_frame_unref(frame_ptr);
 
@@ -742,6 +735,15 @@ namespace chen {
 				break;
 			}
 			{
+				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch())
+					.count();
+				if (timestamp_curr - timestamp > 1000) {
+					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+					NORMAL_EX_LOG("chiled[%u] fps = %u", decodec_id, cnt);
+					cnt = 0;
+					timestamp = timestamp_curr;
+				}
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
