@@ -543,7 +543,7 @@ namespace chen {
 				std::chrono::system_clock::now().time_since_epoch())
 			.count();
 		size_t cnt = 0;
-		uint64 frame_count_num = 0;
+		  m_frame_count_num = 0;
 		//m_filter_frame_ptr = NULL;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
@@ -612,8 +612,8 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
-				++frame_count_num;
-				pts =  global_calculate_pts(frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
+				++m_frame_count_num;
+				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
 				
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
@@ -643,7 +643,7 @@ namespace chen {
 				if (timestamp_curr - timestamp > 1000) {
 					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
 					NORMAL_EX_LOG("main  send  fps = %u", cnt);
-					NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
+					NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", m_frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
 
 					cnt = 0;
 					timestamp = timestamp_curr;
@@ -718,15 +718,20 @@ namespace chen {
 		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + 15);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
+		uint32 frmame_fps = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			{
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
 					{ 
-						if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
+						
+					//	if (m_decodes[decodec_id]->get_number_frame() > )
+						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
+						if (frmame_fps - m_frame_count_num < 15)
 						{
-							frame_ptr->pts = global_calculate_pts(m_decodes[decodec_id]->get_number_frame() / 2, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+							++frmame_fps;
+							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
 							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 							//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
