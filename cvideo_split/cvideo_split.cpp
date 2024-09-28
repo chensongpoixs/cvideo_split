@@ -707,9 +707,10 @@ namespace chen {
 						}
 						//AV_TIME_BASE
 						frame_ptr->pts = global_calculate_pts(m_decodes[decodec_id]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-						//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+						frame_ptr->pkt_dts = frame_ptr->pts;
+						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-						ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+						//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
 						if (ret < 0)
 						{
 							WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
