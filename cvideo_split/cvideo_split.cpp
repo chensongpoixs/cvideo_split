@@ -487,7 +487,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 30;
+		uint32  d_ms =   1000   / 40;
 		 for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -694,7 +694,7 @@ namespace chen {
 					.count();
 				  size_t cnt = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 40; // (m_decodes[decodec_id]->get_fps() + 15);
+		uint32  d_ms = 1000 / 30; // (m_decodes[decodec_id]->get_fps() + 15);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
