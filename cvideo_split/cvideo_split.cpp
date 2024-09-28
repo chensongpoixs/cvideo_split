@@ -421,7 +421,7 @@ namespace chen {
 			}
 
 			
-			ret = ::avfilter_graph_create_filter(&m_buffers_scale_ctx_ptr[i], ::avfilter_get_by_name("scale_cuda"), "scale", scale_str.c_str(), NULL/*buffer 用户数据*/, m_filter_graph_ptr);
+			ret = ::avfilter_graph_create_filter(&m_buffers_scale_ctx_ptr[i], ::avfilter_get_by_name("scale"), "scale", scale_str.c_str(), NULL/*buffer 用户数据*/, m_filter_graph_ptr);
 			if (ret < 0)
 			{
 				WARNING_EX_LOG("in -->avfilter graph create filter failed !!!");
