@@ -606,7 +606,7 @@ namespace chen {
 			{
 				::av_frame_unref(m_filter_frame_ptr);
 				// filter 错误啦 ^_^
-				 
+				 continue;
 			}
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
@@ -715,7 +715,7 @@ namespace chen {
 					.count();
 				  size_t cnt = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 / 27; // (m_decodes[decodec_id]->get_fps() + 15);
+		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + 15);
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped && m_buffersink_ctx_ptr)
