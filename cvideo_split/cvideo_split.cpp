@@ -59,11 +59,11 @@ namespace chen {
 	{
 		static const uint64 container_timebase = 1000000000;
 		//# 将时间基转换为秒
-		uint64 timebase_in_seconds = AV_TIME_BASE / 1000000.0;
+		static const uint64 timebase_in_seconds = AV_TIME_BASE / 1000000.0;
 			//# 计算每个编码帧的时间长度（秒）
-		uint64 	pts_per_frame = timebase_in_seconds / frame_rate;
+		static const uint64 	pts_per_frame = timebase_in_seconds / frame_rate;
 		//	# 将容器时间基转换为秒
-		uint64	container_timebase_in_seconds = container_timebase / 1000000000.0;
+		static const uint64	container_timebase_in_seconds = container_timebase / 1000000000.0;
 		//	# 计算PTS
 		uint64	pts = int((frame_number * pts_per_frame) * (container_timebase_in_seconds / timebase_in_seconds));
 		return pts;
