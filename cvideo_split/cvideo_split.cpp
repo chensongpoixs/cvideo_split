@@ -487,7 +487,7 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 40;
+		uint32  d_ms =   1000   / 45;
 		 for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
@@ -601,33 +601,25 @@ namespace chen {
 			::av_frame_unref(m_filter_frame_ptr);
 
 			{
-				if (false)
-				{
-					++frame_fff;
-					std::chrono::milliseconds diff_ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch());
-					std::chrono::milliseconds  diff_ms = diff_ms_frame_count - ms_frame_count;
-					if (diff_ms.count() > 1000)
-					{
-						WARNING_EX_LOG("push frame = %u fps ", frame_fff);
-						frame_fff = 0;
-						ms_frame_count = diff_ms_frame_count;
-					}
-				}
+				 
 				std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
 				std::chrono::milliseconds  diff_ms = encoder_ms - ms;
 				ms = encoder_ms;
-				cnt++;
-				auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-					std::chrono::system_clock::now().time_since_epoch())
-					.count();
-				if (timestamp_curr - timestamp > 1000) {
-					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
-					NORMAL_EX_LOG("main  send  fps = %u", cnt);
-					cnt = 0;
-					timestamp = timestamp_curr;
+				if (ret >= 0)
+				{
+					cnt++;
+					auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+						std::chrono::system_clock::now().time_since_epoch())
+						.count();
+					if (timestamp_curr - timestamp > 1000) {
+						//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+						NORMAL_EX_LOG("main  send  fps = %u", cnt);
+						cnt = 0;
+						timestamp = timestamp_curr;
+					}
 				}
+				
 				if (diff_ms.count() < d_ms)
 				{
 					  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
