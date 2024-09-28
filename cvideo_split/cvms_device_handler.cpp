@@ -61,6 +61,18 @@ namespace chen {
 	void cvms_device::_handler_vms_call_invite(const std::shared_ptr<eXosip_event_t>& event)
 	{
 		/*
+
+http://30.3.61.31:8314/vslVita/user/login
+
+
+system
+J9100@hua123
+
+
+decide 0300991180100
+channel = 0300991320500
+		*/
+		/*
 		流程描述如下： 
 			1：终端设备向视频管理设备发送 Invite 请求，消息头域中携带 Subject 字段，表明点播的视频
 			源 ID、分辨率、视频流接收者 ID、接收端视频流序列号等参数。携带 SDP 消息体，s 字段为
@@ -173,13 +185,13 @@ namespace chen {
 		// c=
 		auto c_sdp_first_index = body.find("c=");
 		auto c_sdp = body.substr(c_sdp_first_index);
-		auto c_sdp_last_index = y_sdp.find("\r\n");
-		std::string ccmd_line = y_sdp.substr(2, c_sdp_last_index - 1);
+		auto c_sdp_last_index = c_sdp.find("\r\n");
+		std::string ccmd_line = c_sdp.substr(2, c_sdp_last_index - 1);
 		 
 		std::stringstream ss;
 		ss << "v=0\r\n";
 		// o=0210011320001 0 0 IN IP4 172.18.16.1
-		ss << "o=" << channel_name_ << " 0 0 IN IP4 " + m_local_port << "\r\n";
+		ss << "o=" << channel_name_ << " 0 0 IN IP4 " << m_local_ip << "\r\n";
 		ss << "s=##ms20090428 log-restart-callid-ssrc-reinvite\r\n";
 		ss << "c=" << ccmd_line<< "\r\n";
 		ss << "t=0 0\r\n";
@@ -189,7 +201,7 @@ namespace chen {
 		//else {
 			//ss << "m=video " << local_port << " RTP/AVP 96\r\n";
 		//}
-		ss << "m=video 6000 RTP/AVP 96 98";
+		ss << "m=video 6000 RTP/AVP 96 98\r\n";
 		ss << "a=sendonly\r\n";
 
 		ss << "a=rtpmap:96 PS/90000\r\n";

@@ -37,13 +37,30 @@ namespace chen {
 
 
 
+	struct cdevice_channel_info
+	{
+		uint64  id;
+		std::string channel_id;
+		std::string channel_name;
+		uint32	    channel_status;
+		cdevice_channel_info() : id(0)
+			, channel_id("")
+			, channel_name("")
+			, channel_status(0) {}
+	};
+
+
 	class cvms_device
 	{
+	private:
+		typedef   std::unordered_map<std::string, cdevice_channel_info>     MDEVICE_ALL_CHANNEL_INFO_MAP;
+		typedef   std::mutex							clock_type;
+		typedef   std::lock_guard<clock_type>			clock_guard;
 	public:
 		explicit cvms_device() 
 		:m_vms_context_ptr(NULL)
-		, m_stoped(false)
-		, m_local_ip(128, '0')
+		, m_stoped(true)
+		, m_local_ip("")
 		, m_local_port(0)
 		, m_vms_server_device_id("")
 		, m_vms_server_ip("")
@@ -62,12 +79,25 @@ namespace chen {
 		{}
 		virtual ~cvms_device();
 	public:
-		bool init();
+		bool init(const std::string & vms_server_ip, uint32 vms_server_port, const std::string & vms_server_device_id
+			, const std::string & video_split_id, const std::string & user_name, const std::string pass_word);
 		void update(uint32 uDataTime);
 		void destroy();
 
 
+		bool get_status() const { return m_stoped; }
+
+
+
 		void stop();
+
+
+	public:
+
+		void clear_all_device_infos();
+
+		void update_device_info(uint64 id, const std::string &channel_id, const std::string &channel_name, uint32 status);
+		void remove_device_info(const std::string& channel_id);
 	public:
 		void  vms_send_response_ok(const std::shared_ptr<eXosip_event_t>& event);
 
@@ -182,6 +212,8 @@ namespace chen {
 		int32				m_sn; // 命令序列号
 		time_t				m_heartbeat;
 		time_t				m_channel_heartbeat;
+		clock_type								m_device_all_channel_lock;
+		MDEVICE_ALL_CHANNEL_INFO_MAP			m_device_all_channel_info_map;
 	};
 
 

@@ -35,6 +35,7 @@
     <ClCompile Include="cvms_device_handler.cpp" />
     <ClCompile Include="cvms_msg_dispath.cpp" />
     <ClCompile Include="cvms_device_util.cpp" />
+    <ClCompile Include="cglobal_vms_server_config_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ccamera_info_mgr.h" />
@@ -67,6 +68,7 @@
     <ClInclude Include="cglobal_vms_port_mgr.h" />
     <ClInclude Include="cvms_msg_dispath.h" />
     <ClInclude Include="cvms_device_util.h" />
+    <ClInclude Include="cglobal_vms_server_config_mgr.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="websocket">

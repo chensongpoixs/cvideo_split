@@ -39,6 +39,14 @@ namespace chen {
 
 
 		PROXY_WORKER_METHOD2(uint32, cmd_video_split, const std::string&, uint32)
+
+		
+		PROXY_WORKER_METHOD0(cresult_vms_server_config, get_vms_server_config );
+
+		PROXY_WORKER_METHOD1(cresult_vms_server_config, modify_vms_server_config, const cvms_server_config&);
+		PROXY_WORKER_METHOD1(uint32, cmd_vms_server, uint32)
+
+
 	END_PROXY_MAP()
 
 

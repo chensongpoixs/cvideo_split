@@ -362,7 +362,7 @@ namespace chen {
 		}
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		const int max_number_of_attempts = 1 << 9;
+		const int max_number_of_attempts = 1 << 2;
 		int32_t ret = 0;
 		int32_t count_errs = 0;
 		bool    valid = false;
@@ -421,7 +421,7 @@ namespace chen {
 			//}
 			if (ret == AVERROR(EAGAIN))
 			{
-				continue;
+				break;
 			}
 			if (ret == AVERROR_EOF)
 			{
@@ -586,16 +586,13 @@ namespace chen {
 			//}
 			else if (ret == AVERROR(EAGAIN))
 			{
-				continue;
+				break;
 			}
-			else
+			count_errs++;
+			//::av_frame_unref(m_picture_ptr);
+			if (count_errs > max_number_of_attempts)
 			{
-				count_errs++;
-				//::av_frame_unref(m_picture_ptr);
-				if (count_errs > max_number_of_attempts)
-				{
-					break;
-				}
+				break;
 			}
 			 
 		}

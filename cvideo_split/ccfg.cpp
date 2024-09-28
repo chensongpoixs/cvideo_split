@@ -73,7 +73,7 @@ namespace chen {
 		set_string(ECI_VmsServerIp, "vms_server_ip", "127.0.0.1");
 		set_uint32(ECI_VmsServerPort, "vms_server_port", 6554);
 		set_string(ECI_VmsServerDeviceId, "vms_server_device_id", "32432432322");
-		set_uint32(ECI_VmsHeartBeat, "vms_heart_beat", 5);
+		set_uint32(ECI_VmsHeartBeat, "vms_heart_beat", 15);
 		set_string(ECI_VmsUserName, "vms_user_name", "admin");
 		set_string(ECI_VmsPassWord, "vms_pass_word", "admin12345");
 		set_string(ECI_VmsDeviceManufacturer, "vms_device_manufacturer", "syz");

@@ -9,7 +9,7 @@
 #include <json/json.h>
 #include <cinttypes>
 #include "cvideo_split_info_mgr.h"
-
+#include "cglobal_vms_server_config_mgr.h"
 //#include "cserver_msg_header.h"
 #include "ccamera_info_mgr.h"
 
@@ -76,6 +76,11 @@ namespace chen {
 		//_handler_cmd_video_split
 		REGISTER_WEB_HANDLER("cmd_video_split/split_channel_id=([0-9]+)&cmd=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_cmd_video_split, this, std::placeholders::_1, std::placeholders::_2));
 		REGISTER_WEB_HANDLER("modify_video_osd", "POST", std::bind(&cweb_http_api_mgr::_handler_modify_video_split, this, std::placeholders::_1, std::placeholders::_2));
+		
+		// vms server 
+		REGISTER_WEB_HANDLER("modify_vms_server_config", "POST", std::bind(&cweb_http_api_mgr::_handler_modify_vms_server_config, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("get_vms_server_config", "POST", std::bind(&cweb_http_api_mgr::_handler_get_vms_server_config, this, std::placeholders::_1, std::placeholders::_2));
+		REGISTER_WEB_HANDLER("cmd_vms_server/cmd=([0-9]+)", "GET", std::bind(&cweb_http_api_mgr::_handler_cmd_vms_server, this, std::placeholders::_1, std::placeholders::_2));
 
 
 
@@ -282,5 +287,19 @@ namespace chen {
 	cresult_video_split_osd		cweb_http_api_mgr:: modify_video_split(const VideoSplitOsd& video_osd)
 	{
 		return g_video_split_info_mgr.handler_web_modify_video_split(video_osd);
+	}
+	cresult_vms_server_config         cweb_http_api_mgr::modify_vms_server_config(const cvms_server_config & server_config)
+	{
+		return g_global_vms_server_config_mgr.handler_web_modify_vms_server_config(server_config);
+	}
+	cresult_vms_server_config         cweb_http_api_mgr::get_vms_server_config( )
+	{
+		return g_global_vms_server_config_mgr.handler_web_get_vms_server_config();
+	}
+
+	uint32			cweb_http_api_mgr::cmd_vms_server(uint32 cmd)
+	{
+	
+		return g_global_vms_server_config_mgr.handler_web_cmd_vms_server(cmd);
 	}
 }

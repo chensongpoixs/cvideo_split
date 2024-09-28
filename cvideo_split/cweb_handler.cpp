@@ -782,4 +782,140 @@ namespace chen {
 		}
 	}
 
+
+
+	void cweb_http_api_mgr::_handler_modify_vms_server_config(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+
+		CWEB_GUARD_REPLY(response);
+
+		std::string  content = request->content.string();
+
+		// pase json 
+		Json::Reader reader;
+		Json::Value data;
+
+		if (!reader.parse((const char*)content.c_str(), (const char*)content.c_str() + content.size(), data))
+		{
+			WARNING_EX_LOG("parse  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonError, ret.c_str());
+			web_guard_reply.set_result(EWebJsonError, ret);
+			return;
+		}
+
+
+		//VideoSplitOsd video_osd;
+		cvms_server_config server_config;
+		try
+		{
+			if (!data.isMember("vms_server_ip") || !data["vms_server_ip"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "vms_server_ip ");
+				return;
+			}
+			if (!data.isMember("vms_server_port") || !data["vms_server_port"].isUInt())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "vms_server_port ");
+				return;
+			}
+			if (!data.isMember("vms_server_device_id") || !data["vms_server_device_id"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "vms_server_device_id ");
+				return;
+			}
+			if (!data.isMember("video_split_device_id") || !data["video_split_device_id"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "video_split_device_id ");
+				return;
+			}
+
+			if (!data.isMember("user_name") || !data["user_name"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "user_name ");
+				return;
+			}
+			if (!data.isMember("pass_word") || !data["pass_word"].isString())
+			{
+				web_guard_reply.set_result(EWebJsonParam, "pass_word ");
+				return;
+			}
+		 
+			server_config.vms_server_ip				= data["vms_server_ip"].asString();
+			server_config.vms_server_port			= data["vms_server_port"].asUInt();
+			server_config.vms_server_device_id		= data["vms_server_device_id"].asString();
+			server_config.video_split_device_id		= data["video_split_device_id"].asString();
+			server_config.user_name					= data["user_name"].asString();
+			server_config.pass_word					= data["pass_word"].asString();
+
+			//server_config.set_vms_server_ip(data["vms_server_ip"].asString());
+			//server_config.set_txt(data["txt"].asString());
+			//server_config.set_fontsize(data["fontsize"].asUInt());
+			//server_config.set_video_width(data["out_video_width"].asUInt());
+			//server_config.set_video_height(data["out_video_height"].asUInt());
+			//server_config.set_x(data["x"].asDouble());
+			//server_config.set_y(data["y"].asDouble());
+		}
+		catch (const std::exception&)
+		{
+			WARNING_EX_LOG("parse value  [payload = %s] failed !!!", content.c_str());
+			std::string ret = "parse  " + content + " failed !!! ";
+			//_send_message(response, EWebJsonParam, ret.c_str()); 
+			web_guard_reply.set_result(EWebJsonParam);
+			return;
+		}
+
+
+		cresult_vms_server_config result = g_web_http_api_proxy.modify_vms_server_config(server_config);
+		web_guard_reply.set_result(result.result);
+		if (result.result == EWebSuccess)
+		{
+
+
+			reply["vms_server_ip"] = result.vms_config.vms_server_ip;
+			reply["vms_server_port"] = result.vms_config.vms_server_port;
+			reply["vms_server_device_id"] = result.vms_config.vms_server_device_id;
+			reply["video_split_device_id"] = result.vms_config.video_split_device_id;
+			reply["user_name"] = result.vms_config.user_name;
+			reply["pass_word"] = result.vms_config.pass_word;
+
+					/*reply["split_channel_id"] = result.video_split_osd.split_channel_id();
+					reply["out_video_width"] = result.video_split_osd.video_width();
+					reply["out_video_height"] = result.video_split_osd.video_height();
+					reply["txt"] = result.video_split_osd.txt();
+					reply["fontsize"] = result.video_split_osd.fontsize();
+					reply["x"] = result.video_split_osd.x();
+					reply["y"] = result.video_split_osd.y();*/
+		}
+
+
+	}
+	void cweb_http_api_mgr::_handler_get_vms_server_config(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		cresult_vms_server_config result = g_web_http_api_proxy.get_vms_server_config();
+		web_guard_reply.set_result(result.result);
+		if (result.result == EWebSuccess)
+		{
+
+
+			reply["vms_server_ip"] = result.vms_config.vms_server_ip;
+			reply["vms_server_port"] = result.vms_config.vms_server_port;
+			reply["vms_server_device_id"] = result.vms_config.vms_server_device_id;
+			reply["video_split_device_id"] = result.vms_config.video_split_device_id;
+			reply["user_name"] = result.vms_config.user_name;
+			reply["pass_word"] = result.vms_config.pass_word;
+			reply["vms_server_status"] = result.vms_server_status;
+			 
+		}
+	}
+
+	void cweb_http_api_mgr::_handler_cmd_vms_server(std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Response> response, std::shared_ptr<SimpleWeb::Server<SimpleWeb::HTTP>::Request> request)
+	{
+		CWEB_GUARD_REPLY(response);
+		 uint32 result = g_web_http_api_proxy.cmd_vms_server( std::atoi(request->path_match[1].str().c_str()));
+		 web_guard_reply.set_result(result);
+	}
+
+
 }
