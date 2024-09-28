@@ -652,10 +652,10 @@ namespace chen {
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
 					{
-						//if (decodec_id == 0)
-						//{
-						//	//NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
-						//}
+						if (decodec_id == 0)
+						{
+							 NORMAL_EX_LOG("[%u]pts = %u", m_decodes[decodec_id]->get_number_frame(), m_decodes[0]->get_pts());
+						}
 						frame_ptr->pts = m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
