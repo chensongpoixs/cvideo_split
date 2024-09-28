@@ -648,10 +648,13 @@ namespace chen {
 					cnt = 0;
 					timestamp = timestamp_curr;
 				}
-				NORMAL_EX_LOG("main ms = %u", diff_ms.count());
+				if (diff_ms.count() != 0)
+				{
+					NORMAL_EX_LOG("main ms = %u", diff_ms.count());
+				}
 				if (diff_ms.count() < d_ms)
 				{
-					//  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+					  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
 					// ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					//	 std::chrono::system_clock::now().time_since_epoch());
 				}
