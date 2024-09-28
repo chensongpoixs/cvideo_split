@@ -613,7 +613,7 @@ namespace chen {
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
 				++frame_count_num;
-				pts = global_calculate_pts(frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
+				pts = m_decodes[0]->get_dts(); // global_calculate_pts(frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
 				
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
@@ -724,7 +724,7 @@ namespace chen {
 				{
 					if (m_decodes[decodec_id]->retrieve(frame_ptr))
 					{ 
-						frame_ptr->pts = global_calculate_pts(m_decodes[decodec_id]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+						frame_ptr->pts = m_decodes[0]->get_dts();// global_calculate_pts(m_decodes[decodec_id]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 						frame_ptr->pkt_dts = frame_ptr->pts;
 						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
