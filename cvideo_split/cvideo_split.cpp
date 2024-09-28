@@ -634,7 +634,7 @@ namespace chen {
 						std::chrono::system_clock::now().time_since_epoch());
 					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
-				//NORMAL_EX_LOG("frame [d_ms = %u] pts = [%u]", d_ms, diff_ms.count());
+				NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
 			}
 
 		}
@@ -702,8 +702,8 @@ namespace chen {
 						//	//NORMAL_EX_LOG("pts = %u", m_decodes[0]->get_pts());
 						//}
 						frame_ptr->pts = m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-						//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-						ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 						//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
 						if (ret < 0)
 						{
