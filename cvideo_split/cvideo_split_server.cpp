@@ -109,7 +109,7 @@ namespace chen {
 		g_gpu_index = get_gpu_count();
 		if (!_check_auth_info())
 		{
-		//	return false;
+			return false;
 		}
 		 
 		
