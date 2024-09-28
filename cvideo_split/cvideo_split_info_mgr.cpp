@@ -11,6 +11,7 @@ purpose:	video_split mgr
 #include "ccfg.h"
 #include "cvideo_split_mgr.h"
 #include "chttp_code.h"
+#include "cvms_device.h"
 namespace chen {
 
 
@@ -23,6 +24,15 @@ namespace chen {
 	bool cvideo_split_info_mgr::init()
 	{
 		_load_video_split_config();
+
+
+		for (VIDEO_SPLIT_INFO_MAP::iterator iter = m_video_split_info_map.begin();
+			iter != m_video_split_info_map.end(); ++iter)
+		{
+			g_vms_device_mgr.update_device_info(iter->second.id(), iter->second.split_channel_id(), iter->second.split_channel_name(), 0);
+		}
+
+
 		return true;
 	}
 	void cvideo_split_info_mgr::update(uint32 uDelta)
@@ -571,10 +581,12 @@ namespace chen {
 	void cvideo_split_info_mgr::_sync_save_video_split_data()
 	{
 		Json::Value value;
-
+		// 20240928 TODO@chensong 先清除所有设备信息然后再添加
+		g_vms_device_mgr.clear_all_device_infos();
 		for (VIDEO_SPLIT_INFO_MAP::const_iterator iter = m_video_split_info_map.begin();
 			iter != m_video_split_info_map.end(); ++iter)
 		{
+			g_vms_device_mgr.update_device_info(iter->second.id(), iter->second.split_channel_id(), iter->second.split_channel_name(), 0);
 			Json::Value video_split_info;
 			video_split_info["id"] = static_cast<uint32>(iter->second.id());
 			video_split_info["split_channel_name"] = iter->second.split_channel_name();
