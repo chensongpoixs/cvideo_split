@@ -527,10 +527,10 @@ namespace chen {
 		uint64 dts = 0;
 		uint64 pts = 0;
 		uint32  d_ms =   1000   / 45;
-		 for (int32 i = 0; i < m_decodes.size(); ++i)
+		/* for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
-		} 
+		} */
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -557,6 +557,26 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			} 
+
+			for (size_t i = 0; i < m_decodes.size(); ++i)
+			{
+				if (m_decodes[i]->retrieve(frame_ptr))
+				{
+					frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					frame_ptr->pkt_dts = frame_ptr->pts;
+					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+					if (ret < 0)
+					{
+						WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+
+					}
+				//	cnt++;
+
+				}
+				::av_frame_unref(frame_ptr);
+			}
 			 
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
@@ -570,7 +590,7 @@ namespace chen {
 			{
 				
 				// 上面问题崩溃 我解决方案是修改ffmpeg源码
-				ret = -1;
+				//ret = -1;
 				//while (ret <0 && !m_stoped)
 				{
 					clock_guard lock(g_avfilter_lock);
