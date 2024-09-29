@@ -1178,7 +1178,7 @@ void test_vms(int argc, char** argv)
 	
 
 	SYSTEM_LOG("vms init ");;
-	g_vms_device_mgr.init("192.168.2.20", 5062, "44010200492000000001", "440102004920776767601", "admin123", "admin123") ;
+	/*g_vms_device_mgr.init("192.168.2.20", 5062, "44010200492000000001", "440102004920776767601", "admin123", "admin123") ;
 	{
 		g_vms_device_mgr.update(1);
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -1187,13 +1187,13 @@ void test_vms(int argc, char** argv)
 	SYSTEM_LOG("vms destroy ...");
 	g_vms_device_mgr.destroy();
 	SYSTEM_LOG("vms destroy !!!");
-	std::this_thread::sleep_for(std::chrono::seconds(30));
-	g_vms_device_mgr.init("192.168.2.20", 5062, "44010200492000000001", "440102004920776767601", "admin123", "admin123");
+	std::this_thread::sleep_for(std::chrono::seconds(30));*/
+	g_vms_device_mgr.init("30.3.9.31", 5060, "0300252000001", "0300251180008", "0300251180008", "12345678");
 	std::this_thread::sleep_for(std::chrono::seconds(20));
 
-	SYSTEM_LOG("vms destroy ...");
-	g_vms_device_mgr.destroy();
-	SYSTEM_LOG("vms destroy !!!");
+	//SYSTEM_LOG("vms destroy ...");
+	//g_vms_device_mgr.destroy();
+	//SYSTEM_LOG("vms destroy !!!");
  
 	while (true)
 	{
@@ -1225,8 +1225,8 @@ int  main(int argc, char** argv)
 	//test_cmd();
 	//return 0;
 	//
-	//test_vms(argc, argv);
-	//return EXIT_SUCCESS;
+	// test_vms(argc, argv);
+	// return EXIT_SUCCESS;
 //	 test_mac_address();
 //	return 0;
 	/*

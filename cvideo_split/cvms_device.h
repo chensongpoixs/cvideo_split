@@ -43,17 +43,19 @@ namespace chen {
 		std::string channel_id;
 		std::string channel_name;
 		uint32	    channel_status;
+		uint64		socre;
 		cdevice_channel_info() : id(0)
 			, channel_id("")
 			, channel_name("")
-			, channel_status(0) {}
+			, channel_status(0)
+			, socre(0){}
 	};
 
 
 	class cvms_device
 	{
 	private:
-		typedef   std::unordered_map<std::string, cdevice_channel_info>     MDEVICE_ALL_CHANNEL_INFO_MAP;
+		typedef   std::vector< cdevice_channel_info>     MDEVICE_ALL_CHANNEL_INFO_MAP;
 		typedef   std::mutex							clock_type;
 		typedef   std::lock_guard<clock_type>			clock_guard;
 	public:
@@ -98,6 +100,7 @@ namespace chen {
 
 		void update_device_info(uint64 id, const std::string &channel_id, const std::string &channel_name, uint32 status);
 		void remove_device_info(const std::string& channel_id);
+		void all_device_channel_sort();
 	public:
 		void  vms_send_response_ok(const std::shared_ptr<eXosip_event_t>& event);
 
@@ -214,6 +217,7 @@ namespace chen {
 		time_t				m_channel_heartbeat;
 		clock_type								m_device_all_channel_lock;
 		MDEVICE_ALL_CHANNEL_INFO_MAP			m_device_all_channel_info_map;
+		//std::set<uint64>		m_channel_ids;
 	};
 
 

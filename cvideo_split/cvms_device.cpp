@@ -28,7 +28,9 @@ purpose:	camera mgr
 #include <cstdlib>
 #include "cvms_msg_dispath.h"
 #include <cstring>
+#include <vector>
 #include "ccfg.h"
+#include <algorithm>
 #include "cvideo_split_info_mgr.h"
 #include "cvideo_split_mgr.h"
 namespace chen {
@@ -37,6 +39,31 @@ namespace chen {
 	/*cvms_device::cvms_device()
 	{
 	}*/
+
+
+	static uint64    get_channel_uint64(const std::string& data)
+	{
+		uint64 sorce = 0;
+
+		for (size_t i = 0; i < data.length(); ++i)
+		{
+			if (data[i] > '0' && data[i] < '9')
+			{
+				if (sorce > 0)
+				{
+					sorce *= 10;
+				}
+				sorce += (data[i] - '0' );
+			}
+			else if (sorce > 0)
+			{
+				sorce *= 10;
+			}
+
+			return sorce;
+		}
+
+	}
 	cvms_device::~cvms_device()
 	{
 	}
@@ -176,20 +203,22 @@ namespace chen {
 	void cvms_device::update_device_info(uint64 id, const std::string &channel_id, const std::string &channel_name, uint32 status)
 	{
 		clock_guard lock(m_device_all_channel_lock);
-		MDEVICE_ALL_CHANNEL_INFO_MAP::iterator iter =  m_device_all_channel_info_map.find(channel_id);
+		/*MDEVICE_ALL_CHANNEL_INFO_MAP::iterator iter =  m_device_all_channel_info_map.find(channel_id);
 		if (iter != m_device_all_channel_info_map.end())
 		{
 			iter->second.channel_status = status;
 			return;
-		}
+		}*/
 		cdevice_channel_info info;
 		info.id = id;
 		info.channel_name = channel_name;
 		info.channel_id = channel_id;
 		info.channel_status = status;
-		if (!m_device_all_channel_info_map.insert(std::make_pair(channel_id, info)).second)
+		info.socre = get_channel_uint64(channel_id);
+		 m_device_all_channel_info_map.push_back( info) ;
+		 all_device_channel_sort();
 		{
-			WARNING_EX_LOG("insert channel id = %s fialed !!!", channel_id.c_str());
+		//	WARNING_EX_LOG("insert channel id = %s fialed !!!", channel_id.c_str());
 		}
 		//m_device_all_channel_info_map[channel_name].channel_name = channel_name;
 		//m_device_all_channel_info_map[channel_name].channel_status = status;
@@ -197,7 +226,16 @@ namespace chen {
 	void cvms_device::remove_device_info(const std::string& channel_id)
 	{
 		clock_guard lock(m_device_all_channel_lock);
-		m_device_all_channel_info_map.erase(channel_id);
+		//m_device_all_channel_info_map.erase(channel_id);
+		m_device_all_channel_info_map.clear();
+	}
+	void cvms_device::all_device_channel_sort()
+	{
+		std::sort(m_device_all_channel_info_map.begin(), m_device_all_channel_info_map.end(),
+			[&]( const cdevice_channel_info &channel1, const   cdevice_channel_info& channel2) 
+		{
+			return channel1.socre > channel2.socre;
+		});
 	}
 	void cvms_device::destroy()
 	{
@@ -323,13 +361,67 @@ namespace chen {
 
 	void cvms_device::_process_catalog_query(const std::string& sn)
 	{
-		//std::vector<std::string> channel_names = { "0300991320500", "0300991320501" };
+		 std::vector<std::string> channel_names = { "0300251320503", "0300251320504", "0300251320505" };
 		//std::vector<std::string> names = {"视频拼接_1", "视频拼接_2"};
 		MDEVICE_ALL_CHANNEL_INFO_MAP temp_device; 
 		{
 			clock_guard lock(m_device_all_channel_lock);
 			temp_device = m_device_all_channel_info_map;
 		}
+		if (temp_device.empty())
+		{
+			std::stringstream ss;
+			ss << "<?xml version=\"1.0\" encoding=\"GB2312\"?>\r\n";
+			ss << "<Response>\r\n";
+			ss << "<CmdType>Catalog</CmdType>\r\n";
+			ss << "<SN>" << get_sn() << "</SN>\r\n";
+			ss << "<DeviceID>" << m_vms_device_id << "</DeviceID>\r\n";
+			ss << "<SumNum>" << temp_device.size()/*中的通道数*/ << "</SumNum>\r\n";
+			ss << "<DeviceList Num = \"1\">\r\n";
+			ss << "<Item>\r\n";
+			ss << "<DeviceID>" << m_vms_device_id/*每个通道*/ << "</DeviceID>\r\n";
+			ss << "<Name>" << m_vms_device_id << "</Name>\r\n";
+			ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
+			// 当为设备时，设备型号（必选）
+			ss << "<Model>split_camera</Model>\r\n";
+			// 当为设备时，设备归属（必选）
+			ss << "<Owner>syz</Owner>\r\n";
+			// 行政区域（必选）
+			ss << "<CivilCode>1230011180101</CivilCode>\r\n";
+			// 当为设备时，是否有子设备（必选） 1 有， 0 没有
+			ss << "<Parental>0</Parental>\r\n";
+			// 父设备/区域/系统 ID（必选）
+			ss << "<ParentID>1200201180101</ParentID>\r\n";
+			// 设备/区域/系统 IP 地址（可选） 
+			//ss << "<Address></Address>\r\n";
+			// 注册方式（必选）缺省为 1； 1：符合 IETF RFC 3261 标准的认证注册模式； 2：基于口令的
+			// 双向认证注册模式； 3：基于数字证书的双向认证注册模式 -
+			ss << "<RegisterWay>1</RegisterWay>\r\n";
+			// 保密属性（必选）缺省为 0； 0：不涉密， 1：涉密
+			ss << "<Secrecy>0</Secrecy>\r\n";
+
+			ss << "<Status>ON</Status>\r\n";
+
+			// 设备/区域/系统 IP 地址（可选）
+			//std::string ip = m_local_ip;
+			//ss << "<IPAddress>" << m_local_ip << "</IPAddress>\r\n";
+			// 设备/区域/系统端口（可选）
+			//ss << "<Port>" << m_local_port << "</Port>\r\n";
+			//ss << "<Info></Info>\r\n";
+			ss << "</Item>\r\n";
+			ss << "</DeviceList>\r\n";
+			ss << "</Response>\r\n";
+			std::string cmd = ss.str();
+			NORMAL_EX_LOG("cmd = %s", cmd.c_str());
+			osip_message_t* request = _create_msg();
+			if (request != NULL) {
+				osip_message_set_content_type(request, "Application/MANSCDP+xml");
+				osip_message_set_body(request, ss.str().c_str(), strlen(ss.str().c_str()));
+				_vms_send_request(request);
+				NORMAL_EX_LOG("sent all_channel info --> ");
+			}
+		}
+		uint32 index = 0;
 		for (MDEVICE_ALL_CHANNEL_INFO_MAP::iterator iter = temp_device.begin(); 
 			iter != temp_device.end(); ++iter)
 		{
@@ -342,8 +434,8 @@ namespace chen {
 			ss << "<SumNum>" << temp_device.size() /*中的通道数*/ << "</SumNum>\r\n";
 			ss << "<DeviceList Num = \"1\">\r\n";
 			ss << "<Item>\r\n";
-			ss << "<DeviceID>" << iter->first /*每个通道*/ << "</DeviceID>\r\n";
-			ss << "<Name>" << iter->second.channel_name << "</Name>\r\n";
+			ss << "<DeviceID>" << iter->channel_id /*每个通道*/ << "</DeviceID>\r\n";
+			ss << "<Name>" << iter->channel_name<< "</Name>\r\n";
 			ss << "<Manufacturer>" << g_cfg.get_string(ECI_VmsDeviceManufacturer) << "</Manufacturer>\r\n";
 			// 当为设备时，设备型号（必选）
 			ss << "<Model>split_camera</Model>\r\n";
@@ -363,14 +455,14 @@ namespace chen {
 			// 保密属性（必选）缺省为 0； 0：不涉密， 1：涉密
 			ss << "<Secrecy>0</Secrecy>\r\n";
 			// 设备状态（必选） 
-			uint32 channel_status = g_video_split_mgr.get_channel_name_status(iter->second.id);
-			if (channel_status != 0)
+			uint32 channel_status = g_video_split_mgr.get_channel_name_status(iter->id);
+			//if (channel_status != 0)
 			{
 				ss << "<Status>ON</Status>\r\n";
 			}
-			else
+			//else
 			{
-				ss << "<Status>OFF</Status>\r\n";
+				//ss << "<Status>OFF</Status>\r\n";
 			}
 			// 设备/区域/系统 IP 地址（可选）
 			//std::string ip = m_local_ip;
@@ -392,6 +484,8 @@ namespace chen {
 			}
 		}
 
+
+		 
 
 		return;
 		std::stringstream ss;

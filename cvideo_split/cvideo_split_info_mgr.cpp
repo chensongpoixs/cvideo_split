@@ -592,6 +592,7 @@ namespace chen {
 			iter != m_video_split_info_map.end(); ++iter)
 		{
 			g_vms_device_mgr.update_device_info(iter->second.id(), iter->second.split_channel_id(), iter->second.split_channel_name(), 0);
+			//g_vms_device_mgr.all_device_channel_sort();
 			Json::Value video_split_info;
 			video_split_info["id"] = static_cast<uint32>(iter->second.id());
 			video_split_info["split_channel_name"] = iter->second.split_channel_name();
