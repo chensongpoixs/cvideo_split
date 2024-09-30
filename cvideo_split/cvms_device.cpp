@@ -215,6 +215,7 @@ namespace chen {
 		info.channel_id = channel_id;
 		info.channel_status = status;
 		info.socre = get_channel_uint64(channel_id);
+		clock_guard lock(m_device_all_channel_lock);
 		 m_device_all_channel_info_map.push_back( info) ;
 		 all_device_channel_sort();
 		{
