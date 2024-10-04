@@ -107,6 +107,8 @@ namespace chen {
 			else
 			{
 				WARNING_EX_LOG("vms server not run ing !!!");
+				g_vms_device_mgr.stop();
+				g_vms_device_mgr.destroy();
 			}
 			return 0;
 		}
@@ -114,6 +116,8 @@ namespace chen {
 		{
 			if (g_vms_device_mgr.get_status())
 			{
+				g_vms_device_mgr.stop();
+				g_vms_device_mgr.destroy();
 				return 	g_vms_device_mgr.init(m_vms_server_ip, m_vms_server_port, m_vms_server_device_id, m_video_split_device_id, m_user_name, m_pass_word) == true ? 0 : 1;
 			}
 			else

@@ -60,8 +60,9 @@ namespace chen {
 				sorce *= 10;
 			}
 
-			return sorce;
+			
 		}
+		return sorce;
 
 	}
 	cvms_device::~cvms_device()
@@ -167,7 +168,7 @@ namespace chen {
 
 
 		// 5s 秒发送一次心
-		if (::time(NULL) - m_heartbeat > g_cfg.get_uint32(ECI_VmsHeartBeat))
+		if (::time(NULL) - m_heartbeat > g_cfg.get_uint32(ECI_VmsHeartBeat) && !m_stoped )
 		{
 			m_heartbeat = ::time(NULL);
 			if (m_is_register)
@@ -220,6 +221,7 @@ namespace chen {
 		{
 		//	WARNING_EX_LOG("insert channel id = %s fialed !!!", channel_id.c_str());
 		}
+
 		//m_device_all_channel_info_map[channel_name].channel_name = channel_name;
 		//m_device_all_channel_info_map[channel_name].channel_status = status;
 	}
@@ -234,7 +236,7 @@ namespace chen {
 		std::sort(m_device_all_channel_info_map.begin(), m_device_all_channel_info_map.end(),
 			[&]( const cdevice_channel_info &channel1, const   cdevice_channel_info& channel2) 
 		{
-			return channel1.socre > channel2.socre;
+			return channel1.socre < channel2.socre;
 		});
 	}
 	void cvms_device::destroy()
@@ -456,13 +458,13 @@ namespace chen {
 			ss << "<Secrecy>0</Secrecy>\r\n";
 			// 设备状态（必选） 
 			uint32 channel_status = g_video_split_mgr.get_channel_name_status(iter->id);
-			//if (channel_status != 0)
+			if (channel_status != 0)
 			{
 				ss << "<Status>ON</Status>\r\n";
 			}
-			//else
+			else
 			{
-				//ss << "<Status>OFF</Status>\r\n";
+				ss << "<Status>OFF</Status>\r\n";
 			}
 			// 设备/区域/系统 IP 地址（可选）
 			//std::string ip = m_local_ip;

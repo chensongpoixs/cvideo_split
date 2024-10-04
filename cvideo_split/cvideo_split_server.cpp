@@ -211,6 +211,7 @@ namespace chen {
 		//NORMAL_EX_LOG("");
 		ctime_elapse time_elapse;
 		uint32 uDelta = 0;
+		g_global_vms_server_config_mgr.handler_web_cmd_vms_server(0);
 		while (!m_stoped)
 		{
 			uDelta += time_elapse.get_elapse();

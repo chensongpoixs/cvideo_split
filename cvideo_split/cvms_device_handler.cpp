@@ -37,6 +37,8 @@ namespace chen {
 		if (!event->response)
 		{
 			WARNING_EX_LOG("vms register 401 has no response !!!");
+			m_is_register = false;
+			m_stoped = true;
 			return;
 		}
 		// 注册流程
