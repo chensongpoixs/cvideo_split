@@ -179,8 +179,8 @@ namespace chen {
 			/* frames per second */
 			m_codec_ctx_ptr->time_base = rate;// (AVRational) { 1, 25 };
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 30;
-			m_codec_ctx_ptr->max_b_frames = 1;
+			m_codec_ctx_ptr->gop_size = 120;
+			m_codec_ctx_ptr->max_b_frames = 3;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
 			{
