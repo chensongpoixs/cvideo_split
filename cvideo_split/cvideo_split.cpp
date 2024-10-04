@@ -26,6 +26,12 @@ purpose:		camera
 #include "ccfg.h"
 #include "ctime_stamp.h"
 #include "cvideo_split_mgr.h"
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include "cudaCrop.h"
+#include "cudaResize.h"
+#include "cudaOverlay.h"
+#include "cudaYUV.h"
 namespace chen {
 	static				std::mutex   g_avfilter_lock;
 
@@ -86,6 +92,24 @@ namespace chen {
 			return EWebWait;
 		}
 		m_gpu_index = gpu_index;
+
+
+		CUresult rc = cuDeviceGet(&m_cuda_device, gpu_index);
+
+		if (rc != CUDA_SUCCESS)
+		{
+			//Log(Tool::Error, "CUDA get device error.");
+			WARNING_EX_LOG(" cuda get device error gpu index = %u !!!", gpu_index);
+			return EWebWait;
+		}
+		rc = cuCtxCreate(&m_cuda_context_ptr, CU_CTX_BLOCKING_SYNC, m_cuda_device);
+
+		if (rc != CUDA_SUCCESS)
+		{
+			//Log(Tool::Error, "CUDA create context error.");
+			WARNING_EX_LOG(" Cuda create context error failed gpu index = %u !!!", gpu_index);
+			return EWebWait;
+		}
 		m_stoped = false;
 		m_id = video_split_info->id();
 		m_video_split_name = video_split_info->split_channel_name();
@@ -526,8 +550,8 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 45;
-		for (int32 i = 0; i < m_decodes.size(); ++i)
+		uint32  d_ms =   1000   / 25;
+		for (int32 i = 0; i <  m_decodes.size() ; ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
 		} 
@@ -544,8 +568,21 @@ namespace chen {
 			.count();
 		size_t cnt = 0;
 		  m_frame_count_num = 0;
+		  uint32 split_one_width = m_out_video_width;
+		  uint32 split_one_height = m_out_video_height;
+		  if (!m_overlay)
+		  {
+			  if (m_split_method)
+			  {
+				  split_one_height = m_out_video_height / m_camera_infos.size();
+			  }
+			  else
+			  {
+				  split_one_width = m_out_video_width / m_camera_infos.size();
+			  }
+		  }
 		//m_filter_frame_ptr = NULL;
-		while (!m_stoped && m_buffersink_ctx_ptr)
+		while (!m_stoped /*&& m_buffersink_ctx_ptr*/)
 		{
  //goto_init_frame:
 			 if (!m_filter_frame_ptr)
@@ -558,27 +595,6 @@ namespace chen {
 				continue;
 			} 
 
-			//for (size_t i = 0; i < m_decodes.size(); ++i)
-			//{
-			//	if (m_decodes[i]->retrieve(frame_ptr))
-			//	{
-			//		frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-			//		frame_ptr->pkt_dts = frame_ptr->pts;
-			//		ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-			//		//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-			//		//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-			//		if (ret < 0)
-			//		{
-			//			WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
-
-			//		}
-			//	//	cnt++;
-
-			//	}
-			//	::av_frame_unref(frame_ptr);
-			//}
-			 
-			//NORMAL_EX_LOG("");
 			if (m_stoped)
 			{
 				//中退出时啦 ^_^
@@ -587,36 +603,67 @@ namespace chen {
 			 
  
 			// get buffersink filer frame --> 
-			{
-				
-				// 上面问题崩溃 我解决方案是修改ffmpeg源码
-				//ret = -1;
-				//while (ret <0 && !m_stoped)
-				{
-					clock_guard lock(g_avfilter_lock);
-
-				//	ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_PEEK);
-					//ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_NO_REQUEST);
-					ret = ::av_buffersink_get_frame(m_buffersink_ctx_ptr, m_filter_frame_ptr);
-
-				}
-				 
-			}
-			if (ret < 0 && m_filter_frame_ptr)
-			{
-				::av_frame_unref(m_filter_frame_ptr);
-				// filter 错误啦 ^_^
-				// continue;
-			}
+			 
+			 
 			//NORMAL_EX_LOG("---> frame -- encoder ");
 			// 放到编码器中去编码啦 ^_^
-			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
+			if (!m_stoped && ret >= 0 && m_all_video_ptr)
 			{
 				++m_frame_count_num;
-				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
+				pts =  global_calculate_pts(m_frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
-				
-			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
+				cuCtxPushCurrent(m_cuda_context_ptr);
+				//cudaMemcpy(m_all_video_ptr, m_scales[0], m_out_video_height *  m_out_video_width    * 4, cudaMemcpyDeviceToDevice);
+				/*
+				( void* input, size_t inputWidth, size_t inputHeight,
+                         void* output, size_t outputWidth, size_t outputHeight,
+                         imageFormat format, int x, int y, cudaStream_t stream=0 )
+				*/
+
+				////////////////////////////////////////////////////////////////////////////////////////////
+
+				//int4 rerg;
+				//rerg.x = split_one_width;
+				//rerg.z = m_out_video_width;
+				//rerg.y = 0;
+				//rerg.w = split_one_height;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
+
+				//cudaFill(m_all_video_ptr, m_scales[0], rerg, m_out_video_width, m_out_video_height, IMAGE_RGBA8);
+				//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+				for (size_t w = 0; w < m_decodes.size(); ++w)
+				{
+					int4 rerg;
+					rerg.x = split_one_width * w;
+					//uint32   scc_width = (split_one_width * (w + 1))
+					rerg.z =  (split_one_width * (w + 1));
+					rerg.y = 0;
+					rerg.w = split_one_height;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
+
+					cudaFill(m_all_video_ptr, m_scales[w], rerg, m_out_video_width, m_out_video_height, IMAGE_RGBA8);
+				}
+				/*
+				void* input, void* output, size_t width, size_t height, imageFormat format, 
+						  float4* rects, int numRects, const float4& color
+				*/
+				float4  cor;
+				cor.x = 0;
+				cor.z = split_one_width;
+				cor.y = 0;
+				cor.w = split_one_height;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
+
+				float4 color_c;
+				color_c.x = split_one_width;
+				color_c.z = m_out_video_width;
+				color_c.y = 0;
+				color_c.w = m_out_video_height;
+
+				//cudaRectFill((void*)m_scales[0], (void *)m_all_video_ptr, (size_t) m_out_video_width, (size_t)m_out_video_height,  IMAGE_RGBA8,  &cor, 1, color_c);
+				//cudaOverlay((void *)m_scales[0], split_one_width, split_one_height, m_all_video_ptr, m_out_video_width, m_out_video_height, IMAGE_RGBA8, 0, 0);
+				cuCtxPushCurrent(m_cuda_context_ptr);
+			 	m_encoder_ptr->push_frame(m_cuda_context_ptr, m_all_video_ptr, dts, pts);
 			}
 			if (m_filter_frame_ptr)
 			{
@@ -687,10 +734,30 @@ namespace chen {
 		{
 			return false;
 		}
-		if (!_init_filter())
+		m_cuda_decodes.resize(m_decodes.size());
+		m_rgbas.resize(m_decodes.size());
+		m_crops.resize(m_decodes.size());
+		m_scales.resize(m_decodes.size());
+		for (size_t i = 0; i <  m_cuda_decodes.size(); ++i)
+		{
+			CUresult rc = cuCtxCreate(&m_cuda_decodes[i], CU_CTX_BLOCKING_SYNC, m_cuda_device);
+
+			if (rc != CUDA_SUCCESS)
+			{
+				//Log(Tool::Error, "CUDA create context error.");
+				WARNING_EX_LOG(" Cuda create context error failed gpu index = %u !!!", m_gpu_index);
+				return false;
+			}
+		}
+		cuCtxPushCurrent(m_cuda_context_ptr);
+		
+		cudaMalloc(&m_all_video_ptr, m_out_video_height * m_out_video_width * 4);
+		cuCtxPopCurrent(&m_cuda_context_ptr);
+		//m_rgbas.resize(m_decodes.size());
+		/*if (!_init_filter())
 		{
 			return false;
-		}
+		}*/
 		m_encoder_ptr = new cencoder();
 		if (!m_encoder_ptr)
 		{
@@ -722,42 +789,116 @@ namespace chen {
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		uint32 frmame_fps = 0;
-		while (!m_stoped && m_buffersink_ctx_ptr)
+
+
+		//TODO@chensong 2023-02-21 拼接效果视频放置每个宽度或者高度
+		uint32 split_one_width = m_out_video_width;
+		uint32 split_one_height = m_out_video_height;
+		cudaStream_t stream_t = NULL;
+		//uint8* y = NULL;
+		//uint8* uv = NULL;
+		//cudaStreamCreate(&stream_t);
+		if (!m_overlay)
 		{
+			if (m_split_method)
 			{
-				{
-					if (m_decodes[decodec_id]->retrieve(frame_ptr))
-					{ 
-						
-					//	if (m_decodes[decodec_id]->get_number_frame() > )
-						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
-						// TODO@chensong 20240929 消费能力太差了
-						if (((frmame_fps - m_frame_count_num) < 25) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ))
-						{
-							++frmame_fps;
-							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-							frame_ptr->pkt_dts = frame_ptr->pts;
-							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-							//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-							//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-							if (ret < 0)
-							{
-								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
-
-							}
-						}
-						
-						cnt++;
-						
-					}
-					::av_frame_unref(frame_ptr);
-
-					if (m_stoped)
-					{
-						break;
-					}
-				}
+				split_one_height = m_out_video_height / m_camera_infos.size();
 			}
+			else
+			{
+				split_one_width = m_out_video_width / m_camera_infos.size();
+			}
+		}
+		while (!m_stoped /*&& m_buffersink_ctx_ptr*/)
+		{
+			if (m_decodes[decodec_id]->retrieve(frame_ptr))
+			{
+
+				uint32 crop_x = m_camera_infos[decodec_id].x * frame_ptr->width;
+				uint32 crop_y = m_camera_infos[decodec_id].y * frame_ptr->height;
+				uint32 crop_width = m_camera_infos[decodec_id].w * frame_ptr->width;
+				uint32 crop_height = m_camera_infos[decodec_id].h * frame_ptr->height;
+
+
+				if (true)
+				{
+					CUresult  push_res = cuCtxPushCurrent(m_cuda_decodes[decodec_id]);
+					if (m_rgbas[decodec_id] != NULL)
+					{
+
+					}
+					else
+					{
+						cudaError_t re = cudaMalloc(&m_rgbas[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
+						re = cudaMalloc(&m_crops[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
+						re = cudaMalloc(&m_scales[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
+
+						//cudaMalloc(&y, frame_ptr->linesize[0] * frame_ptr->height);
+						//cudaMalloc(&uv, frame_ptr->linesize[0] * frame_ptr->height);
+					}
+
+					//cudaError_t re = cudaMemcpy(y, frame_ptr->data[0], frame_ptr->linesize[0] * frame_ptr->height, cudaMemcpyDeviceToHost);
+					//re = cudaMemcpy(uv, frame_ptr->data[1], frame_ptr->linesize[1] * frame_ptr->height / 2, cudaMemcpyDeviceToHost);
+					// NV12 -> rgba 
+					//cudaNV12ToRGBA();
+					NV12ToRGBAConvert(frame_ptr->data[0], frame_ptr->data[1], frame_ptr->linesize[0], frame_ptr->linesize[1], m_rgbas[decodec_id], frame_ptr->width, frame_ptr->height, 4);;
+					//crop
+					//int4 rect;
+					//rect.x = 0;
+					//rect.z = frame_ptr->width; // pYuvData->_ulLineSize[0];// pYuvData->_ulPicHeight / 2;
+					//rect.y = 0;
+					//rect.w = frame_ptr->height;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
+
+					//cudaCrop(m_rgbas[decodec_id], m_crops[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8);
+
+					////
+					static const uint32 cuda_bit = 8;
+					uint32 cire_width_diff = crop_width / cuda_bit;
+					uint32 cire_height_diff = crop_height / cuda_bit;
+					uint32 crop_width_ = ((cire_width_diff * cuda_bit) + (crop_width % cuda_bit > 0 ? cuda_bit : 0));
+					uint32 crop_height_ = ((cire_height_diff * cuda_bit) + (crop_height % cuda_bit > 0 ? cuda_bit : 0));
+
+
+					uint32 crop_x_diff =     crop_x / cuda_bit;
+					uint32 crop_y_diff = crop_y / cuda_bit;
+					int4 rect;
+					rect.x = ((crop_x_diff * cuda_bit) + (crop_x % cuda_bit > 0 ? cuda_bit : 0));;
+					rect.z = rect.x + crop_width_; // pYuvData->_ulLineSize[0];// pYuvData->_ulPicHeight / 2;
+
+					rect.y = ((crop_y_diff * cuda_bit) + (crop_x % cuda_bit > 0 ? cuda_bit : 0));;;
+					rect.w = rect.y + crop_height_;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
+
+					cudaCrop(m_rgbas[decodec_id], m_crops[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8);
+					//cudaCrop(m_rgbas[decodec_id], m_scales[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8);
+					cudaResize(m_crops[decodec_id], crop_width_, crop_height_, m_scales[decodec_id], split_one_width, split_one_height, IMAGE_RGBA8);
+
+
+					cuCtxPopCurrent(&m_cuda_decodes[decodec_id]);
+				}
+				//	if (m_decodes[decodec_id]->get_number_frame() > )
+					//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
+					// TODO@chensong 20240929 消费能力太差了
+					//if (((frmame_fps - m_frame_count_num) < 25) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ))
+					//{
+					//	++frmame_fps;
+					//	frame_ptr->pts = global_calculate_pts(frmame_fps, 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					//	frame_ptr->pkt_dts = frame_ptr->pts;
+					//	//ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//	//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//	//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+					//	if (ret < 0)
+					//	{
+					//		WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
+
+					//	}
+					//}
+
+				cnt++;
+
+			}
+			::av_frame_unref(frame_ptr);
+
+
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
 			{

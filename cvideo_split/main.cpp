@@ -704,7 +704,7 @@ void test_video_split()
 			printf("[width = %u][height = %u]\n", filter_frame->width, filter_frame->height);
 			/*filter_frame->width = 1920;
 			filter_frame->height = 1080;*/
-		 	encoder.push_frame(filter_frame);
+		 //	encoder.push_frame(filter_frame);
 			::av_frame_unref(filter_frame);
 			// 
 			//::av_frame_unref(filter_frame);

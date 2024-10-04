@@ -199,18 +199,42 @@ namespace chen {
 			WARNING_EX_LOG("can't find codec, codec id:%d ", m_video_stream_ptr->codecpar->codec_id);
 			return false;
 		}
-		//AVBufferRef* hw_device_ctx = NULL;
-		////创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
-		//std::string gpu_index = "0";
-		//ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, gpu_index.c_str(), NULL, 0);
 
+
+		{
+			//for (int i = 0;; i++) {
+			//	const AVCodecHWConfig* config = avcodec_get_hw_config(m_AVCodec, i);
+			//	if (!config) {
+			//		Log(Tool::Error, "Decoder %s does not support device type %s.",
+			//			m_AVCodec->name, av_hwdevice_get_type_name(type));
+			//		break;
+			//		//return false;
+			//	}
+			//	if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX &&
+			//		config->device_type == type) {
+			//		hw_pix_fmt = config->pix_fmt;
+
+			//		Log(Tool::Debug, "got hw_pix_fmt %d", hw_pix_fmt);
+			//		break;
+			//	}
+			//}
+		
+		}
+
+
+		
 		//5.创建解码器上下文
 		if (!(m_codec_ctx_ptr = avcodec_alloc_context3(codec)))
 		{
 			WARNING_EX_LOG("avcodec_alloc_context3 failed !!! ");
 			return false;
 		}
+		AVBufferRef* hw_device_ctx = NULL;
+		////创建GPU设备 默认第一个设备  也可以指定gpu 索引id 
+		//std::string gpu_index = std::to_string(m_gpu_index).c_str();
+		ret = av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, std::to_string(m_gpu_index).c_str(), NULL, 0);
 
+		m_codec_ctx_ptr->hw_device_ctx = av_buffer_ref(hw_device_ctx);
 		//6.从输入流复制编解码器参数到输出编解码器上下文
 		if ((ret = avcodec_parameters_to_context(m_codec_ctx_ptr, m_video_stream_ptr->codecpar)) < 0)
 		{

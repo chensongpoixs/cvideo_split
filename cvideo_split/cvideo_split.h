@@ -37,6 +37,7 @@ purpose:		camera
 #include "cvideo_split_info_mgr.h"
 #include "chttp_code.h"
 #include <string>
+#include <cuda.h>
 namespace chen {
 
 	struct cosd
@@ -80,6 +81,9 @@ namespace chen {
 			, m_out_video_height(1920)
 			, m_camera_infos()
 			, m_decodes()
+			, m_cuda_decodes()
+			, m_crops()
+			, m_scales()
 			, m_encoder_ptr(NULL)
 			, m_filter_graph_ptr(NULL)
 			, m_buffers_ctx_ptr()
@@ -102,6 +106,9 @@ namespace chen {
 			, m_frame_max(0)
 			, m_frame_min(0)
 			, m_frame_count_num(0)
+			, m_cuda_device(NULL)
+			, m_cuda_context_ptr(NULL)
+			, m_all_video_ptr(NULL)
 		{}
 		virtual ~cvideo_splist(){}
 
@@ -163,6 +170,10 @@ namespace chen {
 
 		// 解码路数
 		std::vector<cdecode*>       m_decodes;
+		std::vector< CUcontext>     m_cuda_decodes;
+		std::vector<uint8*>			m_rgbas;
+		std::vector<uint8*>			m_crops;
+		std::vector<uint8*>			m_scales;
 	/*	cdecode* m_decode_ptr1;
 		cdecode* m_decode_ptr2;*/
 		
@@ -220,6 +231,11 @@ namespace chen {
 		uint64						m_frame_max;
 		uint64						m_frame_min;
 		uint64						m_frame_count_num;
+
+		CUdevice					m_cuda_device;
+		CUcontext					m_cuda_context_ptr;
+
+		uint8* m_all_video_ptr;
 	};
 
 

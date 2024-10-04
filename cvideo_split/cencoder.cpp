@@ -46,7 +46,7 @@ namespace chen {
 		}
 		frames_ctx = (AVHWFramesContext*)(hw_frames_ref->data);
 		frames_ctx->format = AV_PIX_FMT_CUDA;
-		frames_ctx->sw_format = AV_PIX_FMT_NV12;
+		frames_ctx->sw_format = AV_PIX_FMT_RGBA;
 		//frames_ctx->sw_format = AV_PIX_FMT_YUV420P;
 		frames_ctx->width = ctx->width;
 		frames_ctx->height = ctx->height;
@@ -417,12 +417,12 @@ namespace chen {
 		m_stoped = true;
 	}
 
-	void cencoder::push_frame(  AVFrame* frame_ptr, uint64 dts  , uint64 pts  )
+	void cencoder::push_frame(CUcontext cuda_context, uint8* cuda_ptr, uint64 dts  , uint64 pts  )
 	{
 		//return;
 		if (m_stoped)
 		{
-			::av_frame_unref(frame_ptr);
+			//::av_frame_unref(frame_ptr);
 			return;
 		}
 		 
@@ -440,28 +440,38 @@ namespace chen {
 					return;
 				}
 			}
-			if (frame_ptr)
-			{
-				frame_ptr->pts = m_frame_count;
-			}
+			 
 		 
-			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
+			cuCtxPushCurrent(cuda_context);
+			cuMemcpy((CUdeviceptr)m_hw_frame_ptr->data[0], (CUdeviceptr)cuda_ptr, m_width * m_height * 4);
+
+			cuCtxPopCurrent(&cuda_context);
+
+			//m_hw_frame_ptr->data[0] = frame_ptr->data[0];
+			//m_hw_frame_ptr->data[1] = frame_ptr->data[1];
+			 m_hw_frame_ptr->pts = pts;
+			 m_hw_frame_ptr->pkt_dts = pts;
+			 m_hw_frame_ptr->format = AV_PIX_FMT_RGBA;
+			 m_hw_frame_ptr->width = m_width;
+			 m_hw_frame_ptr->height = m_height;
+
+			/*if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
 				 
 				::av_frame_unref(frame_ptr);
 				WARNING_EX_LOG("Error while transferring frame data to surface."
 					"Error code: %s. ", ffmpeg_util::make_error_string(ret));
 				return;
-			}
+			}*/
 			
-			if (m_hw_frame_ptr)
+			/*if (m_hw_frame_ptr)
 			{
 				m_hw_frame_ptr->pts = m_frame_count;
-			}
+			}*/
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
-				::av_frame_unref(frame_ptr);
+				//::av_frame_unref(frame_ptr);
 				//::av_frame_unref(frame_ptr);
 				WARNING_EX_LOG("[warr][  %s:%u] codec send frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
 				return;

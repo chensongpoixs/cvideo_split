@@ -61,8 +61,11 @@ namespace chen {
 		std::string outstr;
 
 		bool ret = false;
-
-
+		CUresult ret1;
+		ret1 = cuInit(0);
+		int device_count = 0;
+		cuDeviceGetCount(&device_count);
+		NORMAL_EX_LOG("cuda count = %u", device_count);
 		std::thread reader([&p2, &gpu_indexs]
 		{
 			std::string line;
