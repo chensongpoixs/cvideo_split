@@ -59,7 +59,7 @@ namespace chen {
 		set_uint32(ECI_OpenWebSocket, "open_websocket", 0);
 		set_string(ECI_WebSocketWanIp, "websocket_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebSocketWanPort, "websocket_wan_port", 9600);
-		set_uint32(ECI_MediaRate, "media_rate", 10000);
+		set_uint32(ECI_MediaRate, "media_rate", 1000);
 		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 1000);
 		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 1000);
 		set_uint32(ECI_UseGpuMaxCount, "use_gpu_max_count", 8);

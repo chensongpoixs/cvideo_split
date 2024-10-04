@@ -167,7 +167,7 @@ namespace chen {
 			//avctx->pix_fmt = AV_PIX_FMT_VAAPI;
 			//4000 * 1024;//
 			uint64 config_rate = g_cfg.get_uint32(ECI_MediaRate);//m_width * m_height * 25   / 100000;//
-			m_codec_ctx_ptr->bit_rate = config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
+			m_codec_ctx_ptr->bit_rate =   config_rate * 1000;///*m_width * m_height * 25 * 1*/ 100000;
 			//m_codec_ctx_ptr->bit_rate_tolerance = 400000;
 			m_codec_ctx_ptr->width = m_width;
 			m_codec_ctx_ptr->height = m_height;
@@ -180,8 +180,8 @@ namespace chen {
 			/* frames per second */
 			m_codec_ctx_ptr->time_base = rate;// (AVRational) { 1, 25 };
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 30;
-			m_codec_ctx_ptr->max_b_frames = 1;
+			m_codec_ctx_ptr->gop_size = 150;
+			m_codec_ctx_ptr->max_b_frames = 3;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
 			{
@@ -450,42 +450,7 @@ namespace chen {
 		//m_pkt_ptr->size = 0; 
 		++m_frame_count;
 		{ 
-			//if (!m_hw_frame_ptr)
-			//{
-			//	if (!_init_gpu_frame())
-			//	{
-			//		// init gpu frame failed !!! 
-			//		return;
-			//	}
-			//}
-			 
-		 
-			//cuCtxPushCurrent(cuda_context);
-			//cudaMemcpy( m_hw_frame_ptr->data[0],  cuda_ptr, m_width * m_height * 4, cudaMemcpyDeviceToDevice);
 			
-			//cuCtxPopCurrent(&cuda_context);
-
-			//m_hw_frame_ptr->data[0] = frame_ptr->data[0];
-			//m_hw_frame_ptr->data[1] = frame_ptr->data[1];
-			// m_hw_frame_ptr->pts = pts;
-			// m_hw_frame_ptr->pkt_dts = pts;
-			// m_hw_frame_ptr->format = AV_PIX_FMT_RGBA;
-			// m_hw_frame_ptr->width = m_width;
-			// m_hw_frame_ptr->height = m_height;
-
-			/*if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
-			{
-				 
-				::av_frame_unref(frame_ptr);
-				WARNING_EX_LOG("Error while transferring frame data to surface."
-					"Error code: %s. ", ffmpeg_util::make_error_string(ret));
-				return;
-			}*/
-			
-			/*if (m_hw_frame_ptr)
-			{
-				m_hw_frame_ptr->pts = m_frame_count;
-			}*/
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
@@ -498,20 +463,7 @@ namespace chen {
 		}
 
 		
-		//::av_frame_unref(frame_ptr);
-		//::av_frame_free(&frame_ptr);
-		//frame_ptr = NULL;
 		
-		//if (ret < 0)
-		//{
-		//	av_packet_unref(m_pkt_ptr);
-		//	WARNING_EX_LOG("[warr][url = %s]codec  receive packet  (%s) failed !!! ", m_url.c_str(), ffmpeg_util::make_error_string(ret));
-		//	return;
-		//
-		//}
-
-		//current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-		//	std::chrono::system_clock::now().time_since_epoch()) - m_mic;
 		ret = -1;
 		while (ret < 0)
 		{
@@ -531,16 +483,7 @@ namespace chen {
 			}				
 			break;
 		}
-		/*if (dts > pts)
-		{
-			m_pkt_ptr->pts = dts;
-			m_pkt_ptr->dts = dts;
-		}
-		else 
-		{
-			m_pkt_ptr->dts = pts;
-			m_pkt_ptr->pts = pts;
-		}*/
+		
 		 
 
 		 //pts (1312130528) < dts (5607097824)
@@ -568,10 +511,19 @@ namespace chen {
 		}
 		if (g_cfg.get_uint32(ECI_OpenFfmpegMpegts))
 		{
+			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
 			ret = av_interleaved_write_frame(m_push_format_context_ptr, m_pkt_ptr);
 			if (ret < 0)
 			{
 				WARNING_EX_LOG("[error][ %s:%u] interleaved write frame (%s) failed !!!", m_ip.c_str(), m_port, ffmpeg_util::make_error_string(ret));
+			}
+			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			std::chrono::milliseconds  diff_ms = encoder_ms - ms;
+			if (diff_ms.count() > 5)
+			{
+				WARNING_EX_LOG("av_interleaved_write_frame  = %u ms ", diff_ms.count());
 			}
 		 }
 		else if (m_empgets_ptr)
@@ -714,14 +666,14 @@ namespace chen {
 		std::chrono::microseconds mic = std::chrono::duration_cast<std::chrono::microseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		
-		int32_t sleep_ms = 1000  / 30;
+		int32_t sleep_ms = 1000  / 40;
 		AVFrame* frame_ptr = NULL;
 		int32_t frame_num = 0;
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		while (!m_stoped)
 		{
-			 
+		/*	 
 			{
 				clock_guard lock(m_frame_lock);
 				frame_num = m_frame_list.size();
@@ -731,20 +683,20 @@ namespace chen {
 					m_frame_list.pop_front();
 				}
 				frame_num = m_frame_list.size();
-			}
+			}*/
 			
 			if (frame_ptr)
 			{
 				
-				++frame_cycle;
+				/*++frame_cycle;
 				if (frame_cycle > 25)
 				{
 					frame_cycle = 0;
 					pts = 0;
-				}
+				}*/
 				m_pkt_ptr->data = NULL;
 				m_pkt_ptr->size = 0;
-				pts += (100000 / 120);
+				/*pts += (100000 / 120);
 				std::chrono::microseconds current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
 					std::chrono::system_clock::now().time_since_epoch()) - mic;
 				frame_ptr->pts = (current_mic.count() / 10) + AV_TIME_BASE;
@@ -752,7 +704,7 @@ namespace chen {
 				if (frame_count == 500)
 				{
 					frame_count = 0;
-				}
+				}*/
 				ret = ::avcodec_send_frame(m_codec_ctx_ptr, frame_ptr);
 				if (ret < 0)
 				{
@@ -769,11 +721,11 @@ namespace chen {
 
 				}
 
-				current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
-					std::chrono::system_clock::now().time_since_epoch()) - mic;
-				m_pkt_ptr->pts = (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
+				//current_mic = std::chrono::duration_cast<std::chrono::microseconds>(
+				//	std::chrono::system_clock::now().time_since_epoch()) - mic;
+				////m_pkt_ptr->pts = (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.pts;// + (int)(duration*AV_TIME_BASE);
 
-				m_pkt_ptr->dts = (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
+				//m_pkt_ptr->dts = (current_mic.count() / 10) + AV_TIME_BASE; // decodePacket.dts;// + (int)(duration*AV_TIME_BASE);
 
 				m_pkt_ptr->stream_index = 0;
 				//NORMAL_EX_LOG(" [frame = %lu][%lu]  [pts = %lu]\n", frame_count, ::time(NULL), m_pkt_ptr->dts);

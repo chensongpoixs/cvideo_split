@@ -602,6 +602,8 @@ namespace chen {
 		uint32 split_one_height = m_out_video_height;
 		// 
 		m_video_rects.resize(m_decodes.size());
+		uint32 fps = 25;
+		
 		if (!m_overlay)
 		{
 			if (m_split_method)
@@ -654,7 +656,10 @@ namespace chen {
 			.count();
 		size_t cnt = 0;
 		  m_frame_count_num = 0;
-		 
+		  CUstream phStream = NULL;
+		  cuCtxPushCurrent(m_cuda_context_ptr);
+		  cuStreamCreate(&phStream, 0);
+		  cuCtxPopCurrent(&m_cuda_context_ptr);
 		//m_filter_frame_ptr = NULL;
 		while (!m_stoped /*&& m_buffersink_ctx_ptr*/)
 		{
@@ -687,7 +692,7 @@ namespace chen {
 				if (m_encoder_ptr->get_hw_frame(m_filter_frame_ptr))
 				{
 					++m_frame_count_num;
-					pts = global_calculate_pts(m_frame_count_num, 25);  //m_decodes[0]->get_index_pts(frame_count_num);
+					pts = global_calculate_pts(m_frame_count_num, fps);  //m_decodes[0]->get_index_pts(frame_count_num);
 					dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
 					cuCtxPushCurrent(m_cuda_context_ptr);
 
@@ -700,7 +705,7 @@ namespace chen {
 						rerg.y = 0;
 						rerg.w = m_video_rects[w].height;// pYuvData->_ulPicHeight; // pYuvData->_ulPicWidth; // pYuvData->_ulPicWidth / 2;
 
-						cudaFill(m_filter_frame_ptr->data[0], m_scales[w], rerg, m_out_video_width, m_out_video_height, IMAGE_RGBA8);
+						cudaFill(m_filter_frame_ptr->data[0], m_scales[w], rerg, m_out_video_width, m_out_video_height, IMAGE_RGBA8, phStream);
 					}
 
 					cuCtxPushCurrent(m_cuda_context_ptr);
@@ -742,6 +747,7 @@ namespace chen {
 					.count();
 				if (timestamp_curr - timestamp > 1000) {
 					//RTC_LOG(LS_INFO) << "FPS: " << cnt;
+					fps = cnt;
 					NORMAL_EX_LOG("main  send  fps = %u", cnt);
 					NORMAL_EX_LOG("frame [filter number = %u] [   %u][%u][d_ms = %u] pts = [%u]", m_frame_count_num, m_decodes[0]->get_number_frame(), m_decodes[0]->get_number_frame(), d_ms, diff_ms.count());
 
@@ -761,7 +767,7 @@ namespace chen {
 				else
 				{
 					ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-						std::chrono::system_clock::now().time_since_epoch()); 
+						std::chrono::system_clock::now().time_since_epoch()) - std::chrono::milliseconds(d_ms);
 				}
 				
 			}
@@ -836,6 +842,9 @@ namespace chen {
 		int4 rect;
 		uint32 crop_width_ = 0;
 		uint32 crop_height_ = 0;
+		CUstream phStream = NULL;
+
+		
 		while (!m_stoped /*&& m_buffersink_ctx_ptr*/)
 		{
 			if (m_decodes[decodec_id]->retrieve(frame_ptr))
@@ -853,6 +862,7 @@ namespace chen {
 					  
 					if (!init) 
 					{
+						cuStreamCreate(&phStream, 0);
 						cudaError_t re = cudaMalloc(&m_rgbas[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
 						re = cudaMalloc(&m_crops[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
 						re = cudaMalloc(&m_scales[decodec_id], frame_ptr->linesize[0] * frame_ptr->height * 4);
@@ -888,9 +898,9 @@ namespace chen {
 					//cudaNV12ToRGBA();
 					NV12ToRGBAConvert(frame_ptr->data[0], frame_ptr->data[1], frame_ptr->linesize[0], frame_ptr->linesize[1], m_rgbas[decodec_id], frame_ptr->width, frame_ptr->height, 4);;
 
-					cudaCrop(m_rgbas[decodec_id], m_crops[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8);
+					cudaCrop(m_rgbas[decodec_id], m_crops[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8, phStream);
 					//cudaCrop(m_rgbas[decodec_id], m_scales[decodec_id], rect, frame_ptr->width, frame_ptr->height, IMAGE_BGRA8);
-					cudaResize(m_crops[decodec_id], crop_width_, crop_height_, m_scales[decodec_id], m_video_rects[decodec_id].width, m_video_rects[decodec_id].height, IMAGE_RGBA8);
+					cudaResize(m_crops[decodec_id], crop_width_, crop_height_, m_scales[decodec_id], m_video_rects[decodec_id].width, m_video_rects[decodec_id].height, IMAGE_RGBA8, FILTER_POINT, phStream);
 
 
 					cuCtxPopCurrent(&m_cuda_decodes[decodec_id]);
@@ -927,9 +937,9 @@ namespace chen {
 				}
 				else
 				{
-				 	ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					 std::chrono::system_clock::now().time_since_epoch());
-					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+				 	//ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					// std::chrono::system_clock::now().time_since_epoch());
+					 ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 				
 

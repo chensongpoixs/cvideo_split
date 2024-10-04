@@ -511,8 +511,8 @@ namespace chen {
 
 		if (valid)
 		{
-			m_vec_pts.push_back(m_pts);
-			m_vec_dts.push_back(m_dts);
+			//m_vec_pts.push_back(m_pts);
+		//	m_vec_dts.push_back(m_dts);
 			++m_frame_number;
 		}
 		if (valid && m_first_frame_number < 0)
