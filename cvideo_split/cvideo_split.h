@@ -65,6 +65,15 @@ namespace chen {
 
 	class cvideo_splist : public cnoncopytable
 	{
+	private:
+		struct cvdieo_rect
+		{
+			uint32    width;
+			uint32    height;
+			cvdieo_rect()
+				: width(0)
+				, height(0){}
+		};
 	public:
 		explicit cvideo_splist()
 			: m_stoped(false)
@@ -171,6 +180,7 @@ namespace chen {
 		// 解码路数
 		std::vector<cdecode*>       m_decodes;
 		std::vector< CUcontext>     m_cuda_decodes;
+		std::vector< cvdieo_rect>   m_video_rects;
 		std::vector<uint8*>			m_rgbas;
 		std::vector<uint8*>			m_crops;
 		std::vector<uint8*>			m_scales;

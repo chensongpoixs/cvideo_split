@@ -61,11 +61,7 @@ namespace chen {
 		std::string outstr;
 
 		bool ret = false;
-		CUresult ret1;
-		ret1 = cuInit(0);
-		int device_count = 0;
-		cuDeviceGetCount(&device_count);
-		NORMAL_EX_LOG("cuda count = %u", device_count);
+		
 		std::thread reader([&p2, &gpu_indexs]
 		{
 			std::string line;
@@ -114,7 +110,7 @@ namespace chen {
 		{
 			return false;
 		}
-		 
+		_check_all_cuda_device();
 		
 		SYSTEM_LOG("gpu info size = [%u]", g_gpu_index.size());
 
@@ -277,7 +273,38 @@ namespace chen {
 	{
 		m_stoped = true;
 	}
+	void cvideo_split_server::_check_all_cuda_device()
+	{
+		CUresult ret1;
+		ret1 = cuInit(0);
+		int device_count = 0;
+		cuDeviceGetCount(&device_count);
+		NORMAL_EX_LOG("cuda count = %u", device_count);
+		m_all_cuda_device.resize(device_count);
+		for (size_t i = 0; i < device_count; ++i)
+		{
+			//CUdevice device;
+			CUresult rc = cuDeviceGet(&m_all_cuda_device[i], i);
 
+			if (rc != CUDA_SUCCESS)
+			{
+				//Log(Tool::Error, "CUDA get device error.");
+				WARNING_EX_LOG("cuda get device error index = %u", i);
+			}
+			else
+			{
+
+			}
+		}
+	}
+	CUdevice cvideo_split_server::get_cuda_index(uint32 index)
+	{
+		if (index >= m_all_cuda_device.size())
+		{
+			return NULL;
+		}
+		return m_all_cuda_device[index];
+	}
 	bool cvideo_split_server::_check_auth_info()
 	{
 

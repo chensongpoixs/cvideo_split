@@ -30,6 +30,7 @@
 #include "ccamera_info_mgr.h"
 #include "ccfg.h"
 #include <vector>
+#include <cuda.h>
 namespace chen {
 
 	class cvideo_split_server
@@ -37,6 +38,7 @@ namespace chen {
 	public:
 		explicit cvideo_split_server()
 		: m_stoped(false)
+		, m_all_cuda_device()
 		{}
 		virtual ~cvideo_split_server() {}
 
@@ -47,16 +49,21 @@ namespace chen {
 
 
 		void stop();
-
+	public:
+		CUdevice get_cuda_index(uint32 index);
 	private:
 
 
 		bool _check_auth_info();
+		void _check_all_cuda_device();
+		
 	private:
 
 
 		bool	m_stoped;
 		
+
+		std::vector< CUdevice>		m_all_cuda_device;
 	private:
 
 	};
