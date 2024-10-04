@@ -76,7 +76,9 @@ namespace chen {
 
 
 	public:
-		void push_frame(CUcontext cuda_context, uint8* cuda_ptr /*AVFrame* frame_ptr*/, uint64 dts = 0, uint64 pts = 0);
+
+		bool get_hw_frame(AVFrame*& frame_ptr);
+		void push_frame(/*CUcontext cuda_context, uint8* cuda_ptr*/ /*AVFrame* frame_ptr,*/ uint64 dts = 0, uint64 pts = 0);
 		void consume_frame1(const AVFrame * frame_ptr
 		 /*const uint8_t * data,int32_t step, int32_t width, uint32_t height, int32_t cn*/ );
 		void consume_frame2(const AVFrame * frame_ptr

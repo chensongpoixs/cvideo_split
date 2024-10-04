@@ -29,6 +29,7 @@ purpose:		camera
 #include "ccfg.h"
 #include "cwebsocket_wan_server.h"
 #include <chrono>
+#include <cuda_runtime_api.h>
 namespace chen {
 
 
@@ -416,8 +417,25 @@ namespace chen {
 	{
 		m_stoped = true;
 	}
-
-	void cencoder::push_frame(CUcontext cuda_context, uint8* cuda_ptr, uint64 dts  , uint64 pts  )
+	bool cencoder::get_hw_frame(AVFrame*& frame_ptr)
+	{
+		if (m_stoped)
+		{
+			//::av_frame_unref(frame_ptr);
+			frame_ptr = NULL;
+			return false;
+		}
+		if (!m_hw_frame_ptr)
+		{
+			if (!_init_gpu_frame())
+			{
+				// init gpu frame failed !!! 
+				return false;
+			}
+		}
+		frame_ptr = m_hw_frame_ptr;
+	}
+	void cencoder::push_frame(/*CUcontext cuda_context, uint8* cuda_ptr,*/ uint64 dts  , uint64 pts  )
 	{
 		//return;
 		if (m_stoped)
@@ -432,28 +450,28 @@ namespace chen {
 		//m_pkt_ptr->size = 0; 
 		++m_frame_count;
 		{ 
-			if (!m_hw_frame_ptr)
-			{
-				if (!_init_gpu_frame())
-				{
-					// init gpu frame failed !!! 
-					return;
-				}
-			}
+			//if (!m_hw_frame_ptr)
+			//{
+			//	if (!_init_gpu_frame())
+			//	{
+			//		// init gpu frame failed !!! 
+			//		return;
+			//	}
+			//}
 			 
 		 
-			cuCtxPushCurrent(cuda_context);
-			cuMemcpy((CUdeviceptr)m_hw_frame_ptr->data[0], (CUdeviceptr)cuda_ptr, m_width * m_height * 4);
-
-			cuCtxPopCurrent(&cuda_context);
+			//cuCtxPushCurrent(cuda_context);
+			//cudaMemcpy( m_hw_frame_ptr->data[0],  cuda_ptr, m_width * m_height * 4, cudaMemcpyDeviceToDevice);
+			
+			//cuCtxPopCurrent(&cuda_context);
 
 			//m_hw_frame_ptr->data[0] = frame_ptr->data[0];
 			//m_hw_frame_ptr->data[1] = frame_ptr->data[1];
-			 m_hw_frame_ptr->pts = pts;
-			 m_hw_frame_ptr->pkt_dts = pts;
-			 m_hw_frame_ptr->format = AV_PIX_FMT_RGBA;
-			 m_hw_frame_ptr->width = m_width;
-			 m_hw_frame_ptr->height = m_height;
+			// m_hw_frame_ptr->pts = pts;
+			// m_hw_frame_ptr->pkt_dts = pts;
+			// m_hw_frame_ptr->format = AV_PIX_FMT_RGBA;
+			// m_hw_frame_ptr->width = m_width;
+			// m_hw_frame_ptr->height = m_height;
 
 			/*if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
