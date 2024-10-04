@@ -389,6 +389,7 @@ namespace chen {
 
 	void casync_log::_handler_check_log_file()
 	{
+		//_check_expired_log_file();
 		int32 day_time = ctime_base_api::get_today_stamp_time64(0);
 		if (day_time > m_date_time)
 		{
@@ -424,8 +425,8 @@ namespace chen {
 		std::vector<std::string>   filenames;
 		if (path_util::get_path_all_filenames(m_path, filenames) > 0)
 		{
-
-			std::time_t expired_date_time = m_date_time - (60 * 60 * 24 * (m_expired_log_day>0? m_expired_log_day: 1));
+			
+			std::time_t expired_date_time = m_date_time - (ETC_Day * (m_expired_log_day>0? m_expired_log_day: 1));
 			for (const std::string& fname : filenames)
 			{
 				if (boost::filesystem::is_regular_file(fname))

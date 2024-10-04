@@ -48,7 +48,7 @@ namespace chen {
 		
 		set_int32(ECI_TimeAdjust, "time_adjust", 0); 
 		 
-		set_uint32(ECI_LogLevel, "log_level", ELogLevel_Num); 
+		set_uint32(ECI_LogLevel, "log_level", ELogLevel_Warn);
 		 
 		//		ECI_WebHttpWanIp,
 		//ECI_WebHttpWanPort,
