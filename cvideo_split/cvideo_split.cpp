@@ -593,7 +593,7 @@ namespace chen {
 				//ret = -1;
 				//while (ret <0 && !m_stoped)
 				{
-					clock_guard lock(g_avfilter_lock);
+					//clock_guard lock(g_avfilter_lock);
 
 				//	ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_PEEK);
 					//ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_NO_REQUEST);
