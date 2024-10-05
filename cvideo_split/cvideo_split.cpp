@@ -718,7 +718,7 @@ namespace chen {
 					.count();
 				  size_t cnt = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + 15);
+		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + g_cfg.get_uint32(ECI_VideoDecoderFrame));
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		uint32 frmame_fps = 0;
@@ -735,7 +735,7 @@ namespace chen {
 						if (((frmame_fps - m_frame_count_num) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 						{
 							++frmame_fps;
-							frame_ptr->pts = global_calculate_pts(frmame_fps, 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
 							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
 							//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
