@@ -421,9 +421,13 @@ namespace chen {
 			if (ret == AVERROR_EOF)
 			{
 			
+
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				//if (m_ic_ptr->io)
-				m_reconnect = true;
+				if (avio_feof(m_ic_ptr->pb))
+				{
+					m_reconnect = true;
+				}
+				
 				break;
 				// flush cached frames from video decoder
 				m_packet_ptr->data = NULL;
