@@ -92,6 +92,7 @@ namespace chen {
 		{
 			close();
 		}
+		m_reconnect = false;
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
@@ -419,6 +420,10 @@ namespace chen {
 			}
 			if (ret == AVERROR_EOF)
 			{
+			
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
+				//if (m_ic_ptr->io)
+				m_reconnect = true;
 				break;
 				// flush cached frames from video decoder
 				m_packet_ptr->data = NULL;

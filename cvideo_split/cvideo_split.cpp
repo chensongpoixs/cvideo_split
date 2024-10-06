@@ -544,6 +544,8 @@ namespace chen {
 			.count();
 		size_t cnt = 0;
 		  m_frame_count_num = 0;
+		 // uint64 frame_dps = 0;
+		  m_frame_total_count = 0;
 		//m_filter_frame_ptr = NULL;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
@@ -612,7 +614,12 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
-				++m_frame_count_num;
+				 
+				if (++m_frame_count_num > 65534)
+				{
+					m_frame_count_num = 0;
+					++m_frame_total_count;
+				}
 				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
 				
@@ -721,7 +728,8 @@ namespace chen {
 		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + g_cfg.get_uint32(ECI_VideoDecoderFrame));
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		uint32 frmame_fps = 0;
+		uint64 frmame_fps = 0;
+		uint64 frame_total_count_fps = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			{
@@ -732,7 +740,7 @@ namespace chen {
 					//	if (m_decodes[decodec_id]->get_number_frame() > )
 						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
 						// TODO@chensong 20240929 消费能力太差了
-						if (((frmame_fps - m_frame_count_num) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
+						if ((((frmame_fps + (65535 * frame_total_count_fps)) - (m_frame_count_num + (65535 * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 						{
 							++frmame_fps;
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
@@ -746,9 +754,14 @@ namespace chen {
 
 							}
 						}
-						else if (((frmame_fps - m_frame_count_num) < 12)  && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ) )
+						else if (((frmame_fps + (65535 * frame_total_count_fps)) - (m_frame_count_num + (65535 * m_frame_total_count)))  && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ) )
 						{
 							++frmame_fps;
+							if (frmame_fps > 65535)
+							{
+								frmame_fps = 0;
+								++frame_total_count_fps;
+							}
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
 							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
@@ -763,6 +776,27 @@ namespace chen {
 						
 						cnt++;
 						
+					}
+					else if (m_decodes[decodec_id]->get_reconnect())
+					{
+						::av_frame_unref(frame_ptr);
+						m_decodes[decodec_id]->destroy();
+						if (!m_decodes[decodec_id]->init(m_gpu_index, m_camera_infos[decodec_id].url.c_str(), decodec_id, this))
+						{
+							m_decodes[decodec_id]->destroy();
+						//	delete decoder_ptr;
+							WARNING_EX_LOG("[m_video_split_name = %s][%u] reconnect  not open  [camera = %s]", m_video_split_name.c_str(), decodec_id, m_camera_infos[decodec_id].url.c_str());
+							//return false;
+						
+
+						}
+						else
+						{
+							NORMAL_EX_LOG("[m_video_split_name = %s][%u] reconnect  open  [camera = %s]", m_video_split_name.c_str(), decodec_id, m_camera_infos[decodec_id].url.c_str());
+							continue;
+						}
+						
+
 					}
 					::av_frame_unref(frame_ptr);
 

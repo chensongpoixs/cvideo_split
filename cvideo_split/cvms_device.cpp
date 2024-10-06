@@ -190,6 +190,7 @@ namespace chen {
 					NORMAL_EX_LOG("sent heartbeat");
 				}
 			}
+			_process_catalog_query(std::to_string(get_sn()));
 		}
 		//vms_send_all_channel_info();
 		

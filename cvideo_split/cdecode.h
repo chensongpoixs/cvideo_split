@@ -71,6 +71,7 @@ namespace chen {
 			, m_packet_recv(false)
 			, m_vec_pts()
 			, m_vec_dts()
+			, m_reconnect(false)
 			{}
 		virtual ~cdecode();
 	public:
@@ -107,6 +108,10 @@ namespace chen {
 
 
 		bool get_frame(AVFrame*& frame);
+
+
+
+		bool get_reconnect() const { return m_reconnect ; }
 
 		/**
 		* seek到目标位置相近的关键帧
@@ -195,6 +200,7 @@ namespace chen {
 		bool			m_packet_recv;
 		std::vector<uint64>  m_vec_pts;
 		std::vector<uint64>  m_vec_dts;
+		bool			m_reconnect;
 	};
 
 }

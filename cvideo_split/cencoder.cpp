@@ -470,7 +470,7 @@ namespace chen {
 		}
 
 		
-		//::av_frame_unref(frame_ptr);
+		 ::av_frame_unref(frame_ptr);
 		//::av_frame_free(&frame_ptr);
 		//frame_ptr = NULL;
 		
