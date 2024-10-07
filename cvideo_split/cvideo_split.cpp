@@ -743,6 +743,11 @@ namespace chen {
 						if ((((frmame_fps + (65535 * frame_total_count_fps)) - (m_frame_count_num + (65535 * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 						{
 							++frmame_fps;
+							if (frmame_fps > 65535)
+							{
+								frmame_fps = 0;
+								++frame_total_count_fps;
+							}
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
 							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
