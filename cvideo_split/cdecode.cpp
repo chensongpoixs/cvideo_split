@@ -484,10 +484,12 @@ namespace chen {
 			}
 			else if (ret == AVERROR(EAGAIN)) 
 			{
+				av_frame_unref(m_picture_ptr);
 				continue;
 			}
 			else
 			{
+				av_frame_unref(m_picture_ptr);
 				count_errs++;
 				if (count_errs > max_number_of_attempts)
 				{
@@ -503,6 +505,10 @@ namespace chen {
 		//	m_vec_dts.push_back(m_dts);
 			++m_frame_number;
 			m_reconnect = 0;
+		}
+		else
+		{
+			av_frame_unref(m_picture_ptr);
 		}
 		if (valid && m_first_frame_number < 0)
 		{
