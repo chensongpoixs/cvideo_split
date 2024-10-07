@@ -220,8 +220,8 @@ namespace chen {
 		std::vector<uint64 >		m_frame_add;
 		uint64						m_frame_max;
 		uint64						m_frame_min;
-		uint64                      m_frame_total_count;
-		uint64						m_frame_count_num;
+		int64                      m_frame_total_count;
+		int64						m_frame_count_num;
 	};
 
 

@@ -615,7 +615,7 @@ namespace chen {
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
 				 
-				if (++m_frame_count_num > 65534)
+				if (++m_frame_count_num > 65535)
 				{
 					m_frame_count_num = 0;
 					++m_frame_total_count;
@@ -728,8 +728,8 @@ namespace chen {
 		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + g_cfg.get_uint32(ECI_VideoDecoderFrame));
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		uint64 frmame_fps = 0;
-		uint64 frame_total_count_fps = 0;
+		int64 frmame_fps = 0;
+		int64 frame_total_count_fps = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
 			{
