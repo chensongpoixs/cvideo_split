@@ -417,12 +417,13 @@ namespace chen {
 			}
 			if (ret == AVERROR(EAGAIN))
 			{
+				av_packet_unref(m_packet_ptr);
 				continue;
 			}
 			if (ret == AVERROR_EOF)
 			{
 			
-
+				av_packet_unref(m_packet_ptr);
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
 				//if (avio_feof(m_ic_ptr->pb))
 				{
