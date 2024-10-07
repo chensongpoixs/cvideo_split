@@ -92,7 +92,7 @@ namespace chen {
 		{
 			close();
 		}
-		m_reconnect = false;
+		m_reconnect = 0;
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
@@ -334,6 +334,7 @@ namespace chen {
 		m_pixfmt = AV_PIX_FMT_NONE;
 		m_vec_dts.clear();
 		m_vec_pts.clear();
+		m_reconnect = 0;
 	}
 	uint64 cdecode::get_index_pts(  uint32 number_frame)
 	{
@@ -423,10 +424,11 @@ namespace chen {
 			
 
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				if (avio_feof(m_ic_ptr->pb))
+				//if (avio_feof(m_ic_ptr->pb))
 				{
-					m_reconnect = true;
+					//m_reconnect = true;
 				}
+				++m_reconnect;
 				
 				break;
 				// flush cached frames from video decoder
@@ -496,9 +498,10 @@ namespace chen {
 
 		if (valid)
 		{
-			m_vec_pts.push_back(m_pts);
-			m_vec_dts.push_back(m_dts);
+		//	m_vec_pts.push_back(m_pts);
+		//	m_vec_dts.push_back(m_dts);
 			++m_frame_number;
+			m_reconnect = 0;
 		}
 		if (valid && m_first_frame_number < 0)
 		{
