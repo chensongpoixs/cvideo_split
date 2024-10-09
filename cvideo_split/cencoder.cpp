@@ -440,10 +440,10 @@ namespace chen {
 					return;
 				}
 			}
-			if (frame_ptr)
+			/*if (frame_ptr)
 			{
 				frame_ptr->pts = m_frame_count;
-			}
+			}*/
 		 
 			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
@@ -454,10 +454,10 @@ namespace chen {
 				return;
 			}
 			
-			if (m_hw_frame_ptr)
+			/*if (m_hw_frame_ptr)
 			{
 				m_hw_frame_ptr->pts = m_frame_count;
-			}
+			}*/
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
