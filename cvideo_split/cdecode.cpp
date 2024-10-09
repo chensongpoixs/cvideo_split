@@ -410,7 +410,7 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			if (ret != AVERROR_EOF && m_packet_ptr->stream_index != m_video_stream_index)
+			if ( m_packet_ptr->stream_index != m_video_stream_index)
 			{
 				av_packet_unref(m_packet_ptr);
 				continue;
@@ -425,18 +425,15 @@ namespace chen {
 			
 				av_packet_unref(m_packet_ptr);
 				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				//if (avio_feof(m_ic_ptr->pb))
-				{
-					//m_reconnect = true;
-				}
+				
 				++m_reconnect;
 				
-				break;
-				// flush cached frames from video decoder
-				m_packet_ptr->data = NULL;
-				m_packet_ptr->size = 0;
-				m_packet_ptr->stream_index = m_video_stream_index;
+				break; 
 				
+			}
+			else
+			{
+
 			}
 
 			/*if (m_packet_ptr->stream_index != m_video_stream_index)
