@@ -69,6 +69,7 @@ namespace chen {
 		ECI_VmsDeviceManufacturer,
 		ECI_VideoSkipFrameNum,
 		ECI_VideoDecoderFrame,
+		ECI_VideoMulitThread,
 		ECI_Max,
 	};
 	class ccfg : public cconfig
