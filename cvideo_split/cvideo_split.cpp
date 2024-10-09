@@ -739,7 +739,7 @@ namespace chen {
 				//	if (m_decodes[decodec_id]->get_number_frame() > )
 					//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
 					// TODO@chensong 20240929 消费能力太差了
-				if ((((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
+				if ((((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) < g_cfg.get_uint32(ECI_VideoSkipFrameNum)) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 				{
 					++frmame_fps;
 					if (frmame_fps > g_frame_cryle)
@@ -761,27 +761,27 @@ namespace chen {
 
 					}
 				}
-				else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0))
-				{
-					++frmame_fps;
-					if (frmame_fps > g_frame_cryle)
-					{
-						frmame_fps = 0;
-						++frame_total_count_fps;
-						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
+				//else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0))
+				//{
+				//	++frmame_fps;
+				//	if (frmame_fps > g_frame_cryle)
+				//	{
+				//		frmame_fps = 0;
+				//		++frame_total_count_fps;
+				//		NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
 
-					}
-					frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-					frame_ptr->pkt_dts = frame_ptr->pts;
-					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-					//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-					if (ret < 0)
-					{
-						WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
+				//	}
+				//	frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+				//	frame_ptr->pkt_dts = frame_ptr->pts;
+				//	ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+				//	//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+				//	//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+				//	if (ret < 0)
+				//	{
+				//		WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
 
-					}
-				}
+				//	}
+				//}
 
 				cnt++;
 
