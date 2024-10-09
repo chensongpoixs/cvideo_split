@@ -623,8 +623,13 @@ namespace chen {
 				}
 				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
-				
+				frame_ptr = m_filter_frame_ptr;
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
+			}
+			if (frame_ptr)
+			{
+				::av_frame_unref(frame_ptr);
+				//::av_frame_free(&frame_ptr);
 			}
 			if (m_filter_frame_ptr)
 			{
