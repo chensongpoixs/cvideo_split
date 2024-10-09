@@ -564,7 +564,7 @@ namespace chen {
 			{
 				if (m_decodes[i]->retrieve(frame_ptr))
 				{
-					frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					frame_ptr->pts = m_decodes[0]->get_pts(); ////global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 					frame_ptr->pkt_dts = frame_ptr->pts;
 					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
 					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
@@ -646,9 +646,9 @@ namespace chen {
 					++m_frame_total_count;
 					NORMAL_EX_LOG("main  frame cylec = %u", m_frame_total_count);
 				}
-				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
+				pts = m_decodes[0]->get_pts();// global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
-				frame_ptr = m_filter_frame_ptr;
+				//frame_ptr = m_filter_frame_ptr;
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
 			}
 			if (frame_ptr)
