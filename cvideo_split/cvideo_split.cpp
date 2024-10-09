@@ -526,11 +526,11 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 45;
-		for (int32 i = 0; i < m_decodes.size(); ++i)
+		uint32  d_ms =   1000   / 30;
+		/*for (int32 i = 0; i < m_decodes.size(); ++i)
 		{
 			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
-		} 
+		} */
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -560,25 +560,50 @@ namespace chen {
 				continue;
 			} 
 
-			//for (size_t i = 0; i < m_decodes.size(); ++i)
-			//{
-			//	if (m_decodes[i]->retrieve(frame_ptr))
-			//	{
-			//		frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-			//		frame_ptr->pkt_dts = frame_ptr->pts;
-			//		ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-			//		//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-			//		//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-			//		if (ret < 0)
-			//		{
-			//			WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+			for (size_t i = 0; i < m_decodes.size(); ++i)
+			{
+				if (m_decodes[i]->retrieve(frame_ptr))
+				{
+					frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					frame_ptr->pkt_dts = frame_ptr->pts;
+					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+					if (ret < 0)
+					{
+						WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
 
-			//		}
-			//	//	cnt++;
+					}
+				//	cnt++;
 
-			//	}
-			//	::av_frame_unref(frame_ptr);
-			//}
+				}
+				else if (m_decodes[i]->get_reconnect())
+				{
+					::av_frame_unref(frame_ptr);
+					m_decodes[i]->destroy();
+					if (!m_decodes[i]->init(m_gpu_index, m_camera_infos[i].url.c_str(), i, this))
+					{
+						m_decodes[i]->destroy();
+						//	delete decoder_ptr;
+						WARNING_EX_LOG("[m_video_split_name = %s][%u] reconnect  not open  [camera = %s]", m_video_split_name.c_str(), i, m_camera_infos[i].url.c_str());
+						//return false;
+
+
+					}
+					else
+					{
+						NORMAL_EX_LOG("[m_video_split_name = %s][%u] reconnect  open  [camera = %s]", m_video_split_name.c_str(), i, m_camera_infos[i].url.c_str());
+						continue;
+					}
+
+
+				}
+				else
+				{
+					WARNING_EX_LOG("[m_video_split_name = %s] i = %u", m_video_split_name.c_str(), i);
+				}
+				::av_frame_unref(frame_ptr);
+			}
 			 
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
