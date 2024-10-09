@@ -410,7 +410,7 @@ namespace chen {
 #endif 
 			//读取一帧压缩数据
 			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			if ( m_packet_ptr->stream_index != m_video_stream_index)
+			if (m_packet_ptr->stream_index != m_video_stream_index   )
 			{
 				av_packet_unref(m_packet_ptr);
 				continue;
@@ -431,9 +431,10 @@ namespace chen {
 				break; 
 				
 			}
-			else
+			else if (ret < 0)
 			{
-
+				av_packet_unref(m_packet_ptr);
+				continue;
 			}
 
 			/*if (m_packet_ptr->stream_index != m_video_stream_index)
