@@ -746,7 +746,7 @@ namespace chen {
 					{
 						++frame_total_count_fps;
 						frmame_fps = 0;
-						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u", decodec_id, frame_total_count_fps);
+						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
 
 
 					}
@@ -768,7 +768,8 @@ namespace chen {
 					{
 						frmame_fps = 0;
 						++frame_total_count_fps;
-						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u", decodec_id, frame_total_count_fps);
+						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
+
 					}
 					frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 					frame_ptr->pkt_dts = frame_ptr->pts;
