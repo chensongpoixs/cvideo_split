@@ -804,7 +804,7 @@ namespace chen {
 
 					}
 				}
-				else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0))
+				else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count)) < 12) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0))
 				{
 					++frmame_fps;
 					if (frmame_fps > g_frame_cryle)
