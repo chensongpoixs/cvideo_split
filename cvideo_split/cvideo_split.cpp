@@ -562,7 +562,7 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			} 
-			if (g_cfg.get_uint32(ECI_VideoMulitThread) > 0)
+			if (g_cfg.get_uint32(ECI_VideoMulitThread) == 0)
 			{
 				for (size_t i = 0; i < m_decodes.size(); ++i)
 				{
