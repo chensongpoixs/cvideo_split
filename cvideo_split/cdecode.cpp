@@ -378,7 +378,7 @@ namespace chen {
 		{
 			return false;
 		}
-
+		av_frame_unref(m_picture_ptr);
 		const int max_number_of_attempts = 1 << 9;
 		int32_t ret = 0;
 		int32_t count_errs = 0;
@@ -523,6 +523,11 @@ namespace chen {
 		int* height, int* cn*/ )
 	{
 		//AVFrame* srcFrame = nullptr;
+		if (m_picture_ptr)
+		{
+			av_frame_unref(m_picture_ptr);
+		}
+		
 		bool ret = grab_frame( );
 		if (ret )
 		{
