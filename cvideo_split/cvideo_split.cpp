@@ -30,7 +30,7 @@ namespace chen {
 	static				std::mutex   g_avfilter_lock;
 
 
-
+	static	const int64				g_frame_cryle = 500;
 	/*
 	
 	def calculate_pts(frame_number, timebase, framerate, container_timebase):
@@ -615,10 +615,11 @@ namespace chen {
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
 				 
-				if (++m_frame_count_num > 65535)
+				if (++m_frame_count_num > g_frame_cryle)
 				{
 					m_frame_count_num = 0;
 					++m_frame_total_count;
+					NORMAL_EX_LOG("main  frame cylec = %u", m_frame_total_count);
 				}
 				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
 				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
@@ -740,13 +741,16 @@ namespace chen {
 					//	if (m_decodes[decodec_id]->get_number_frame() > )
 						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
 						// TODO@chensong 20240929 消费能力太差了
-						if ((((frmame_fps + (65535 * frame_total_count_fps)) - (m_frame_count_num + (65535 * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
+						if ((((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 						{
 							++frmame_fps;
-							if (frmame_fps > 65535)
+							if (frmame_fps > g_frame_cryle)
 							{
-								frmame_fps = 0;
 								++frame_total_count_fps;
+								frmame_fps = 0;
+								NORMAL_EX_LOG("decoder [ %u] frame cylec = %u", decodec_id, frame_total_count_fps);
+								
+								
 							}
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
@@ -759,13 +763,14 @@ namespace chen {
 
 							}
 						}
-						else if (((frmame_fps + (65535 * frame_total_count_fps)) - (m_frame_count_num + (65535 * m_frame_total_count)))  && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ) )
+						else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count)))  && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ) )
 						{
 							++frmame_fps;
-							if (frmame_fps > 65535)
+							if (frmame_fps > g_frame_cryle)
 							{
 								frmame_fps = 0;
 								++frame_total_count_fps;
+								NORMAL_EX_LOG("decoder [ %u] frame cylec = %u", decodec_id, frame_total_count_fps);
 							}
 							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
 							frame_ptr->pkt_dts = frame_ptr->pts;
