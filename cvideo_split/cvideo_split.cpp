@@ -30,7 +30,7 @@ namespace chen {
 	static				std::mutex   g_avfilter_lock;
 
 
-	static	const int64				g_frame_cryle = 500;
+	static	const int64				g_frame_cryle = 65535;
 	/*
 	
 	def calculate_pts(frame_number, timebase, framerate, container_timebase):
