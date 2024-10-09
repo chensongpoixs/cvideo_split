@@ -831,7 +831,11 @@ namespace chen {
 			}
 			else if (m_decodes[decodec_id]->get_reconnect())
 			{
-				::av_frame_unref(frame_ptr);
+				if (frame_ptr)
+				{
+
+					::av_frame_unref(frame_ptr);
+				}
 				m_decodes[decodec_id]->destroy();
 				if (!m_decodes[decodec_id]->init(m_gpu_index, m_camera_infos[decodec_id].url.c_str(), decodec_id, this))
 				{
@@ -850,7 +854,11 @@ namespace chen {
 
 
 			}
-			::av_frame_unref(frame_ptr);
+			if (frame_ptr)
+			{
+
+				::av_frame_unref(frame_ptr);
+			}
 
 			if (m_stoped)
 			{
@@ -891,6 +899,9 @@ namespace chen {
 				
 			}
 		}
-		::av_frame_unref(frame_ptr);
+		if (frame_ptr)
+		{
+			::av_frame_unref(frame_ptr);
+		}
 	}
 }
