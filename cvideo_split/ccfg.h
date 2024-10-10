@@ -70,6 +70,7 @@ namespace chen {
 		ECI_VideoSkipFrameNum,
 		ECI_VideoDecoderFrame,
 		ECI_VideoMulitThread,
+		ECI_UdpRecvBufferEnable,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

@@ -96,7 +96,7 @@ namespace chen {
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
 		m_open = false;
-
+		m_url = url;
 #if USE_AV_INTERRUPT_CALLBACK
  
 		m_open_timeout = g_cfg.get_uint32(ECI_MediaOpenTimeOut); //LIBAVFORMAT_INTERRUPT_OPEN_DEFAULT_TIMEOUT_MS;
@@ -134,7 +134,12 @@ namespace chen {
 		// echo 10240000 > /proc/sys/net/core/rmem_max
 		::av_dict_set(&m_dict, "buffer_size", "10240000", 0);
 		::av_dict_set(&m_dict, "reuse", "1", 0);
-		//::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
+		if (g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0)
+		{
+			::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
+			// "udp://@239.1.1.7:5107?overrun_nonfatal=1&fifo_size=50000000"
+			::av_dict_set(&m_dict, "fifo_size", "50000000", 0);
+		}
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
 		if (entry != 0)
