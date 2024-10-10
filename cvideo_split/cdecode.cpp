@@ -420,10 +420,20 @@ namespace chen {
 				av_packet_unref(m_packet_ptr);
 				continue;
 			}
+			// AVERROR(EIO)
+			
 			if (ret == AVERROR(EAGAIN))
 			{
 				av_packet_unref(m_packet_ptr);
 				continue;
+			}
+			if (ret == AVERROR(EIO))
+			{
+				WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
+
+				++m_reconnect;
+				valid = false;
+				break;
 			}
 			if (ret == AVERROR_EOF)
 			{
@@ -433,7 +443,8 @@ namespace chen {
 				
 				++m_reconnect;
 				
-				break; 
+				valid = false;
+				break;
 				
 			}
 			else if (ret < 0)
