@@ -430,7 +430,7 @@ namespace chen {
 			if (ret == AVERROR(EIO))
 			{
 				WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
-
+				av_packet_unref(m_packet_ptr);
 				++m_reconnect;
 				valid = false;
 				break;
