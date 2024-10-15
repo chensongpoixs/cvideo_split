@@ -471,16 +471,24 @@ namespace chen {
 			if (ret >= 0)
 			{
 				//picture_pts = picture->best_effort_timestamp;
-				//std::lock_guard<std::mutex> lock(m_packet_list_lock);
-				if (m_picture_pts == AV_NOPTS_VALUE)
+				std::lock_guard<std::mutex> lock(m_packet_list_lock);
+				if (m_packet_list.empty())
 				{
-					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
-						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
-						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
-				}
+					if (m_picture_pts == AV_NOPTS_VALUE)
+					{
+						m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
+							&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
+							? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
+					}
 
-				valid = true;
-				break;
+					valid = true;
+					break;
+				}
+				else
+				{
+					av_frame_unref(m_picture_ptr);
+					continue;
+				}
 				 
 			}
 			else if (ret == AVERROR(EAGAIN)) 
@@ -497,7 +505,7 @@ namespace chen {
 				{
 					break;
 				}
-				//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 
 		}  
