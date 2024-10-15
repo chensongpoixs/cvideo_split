@@ -452,7 +452,7 @@ namespace chen {
 				av_packet_unref(packet_ptr);
 				av_packet_free(&packet_ptr);
 				packet_ptr = NULL;
-				break;
+				continue;
 			}
 			if (packet_ptr)
 			{
@@ -486,7 +486,7 @@ namespace chen {
 			else if (ret == AVERROR(EAGAIN)) 
 			{
 				//av_frame_unref(m_picture_ptr);
-				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(5));
 				continue;
 			}
 			else
@@ -497,7 +497,7 @@ namespace chen {
 				{
 					break;
 				}
-				std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 
 		}  
