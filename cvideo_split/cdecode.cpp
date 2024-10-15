@@ -92,6 +92,7 @@ namespace chen {
 		{
 			close();
 		}
+		m_stoped = true;
 		m_reconnect = 0;
 		m_gpu_index = gpu_index;
 		m_video_stream_ptr = NULL;
@@ -274,6 +275,9 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		get_rotation_angle();
+
+		m_stoped = false;
+		m_thread = std::thread(&cdecode::_pthread_read_packet, this);
 		return true;
 		//return false;
 	}
@@ -290,7 +294,21 @@ namespace chen {
 		// deactivate interrupt callback
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
-		 
+		m_stoped = true;
+
+		if (m_thread.joinable())
+		{
+			m_thread.join();
+
+		}
+
+		while (m_packet_list.front())
+		{
+			AVPacket*& packet = m_packet_list.front();
+			m_packet_list.pop_front();
+			av_packet_free(&packet);
+
+		}
 
 		
 		
@@ -408,7 +426,7 @@ namespace chen {
 		{
 
 
-			av_packet_unref(m_packet_ptr);
+			/*av_packet_unref(m_packet_ptr);
 
 #if USE_AV_INTERRUPT_CALLBACK
 			if (m_interrupt_metadata.timeout)
@@ -416,71 +434,33 @@ namespace chen {
 				valid = false;
 				break;
 			}
-#endif 
-			//读取一帧压缩数据
-			ret = av_read_frame(m_ic_ptr, m_packet_ptr);
-			if (m_packet_ptr->stream_index != m_video_stream_index   )
+#endif */
+			if (m_stoped)
 			{
-				av_packet_unref(m_packet_ptr);
+				return false;
+			}
+			AVPacket* packet_ptr = _pop_packet();
+			if (!packet_ptr)
+			{
 				continue;
 			}
-			// AVERROR(EIO)
-			
-			if (ret == AVERROR(EAGAIN))
-			{
-				av_packet_unref(m_packet_ptr);
-				continue;
-			}
-			if (ret == AVERROR(EIO))
-			{
-				WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
-				av_packet_unref(m_packet_ptr);
-				m_reconnect = 1000;
-				valid = false;
-				break;
-			}
-			if (ret == AVERROR_EOF)
-			{
-			
-				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
-				
-				++m_reconnect;
-				
-				valid = false;
-				break;
-				
-			}
-			else if (ret < 0)
-			{
-				av_packet_unref(m_packet_ptr);
-				continue;
-			}
-
-			/*if (m_packet_ptr->stream_index != m_video_stream_index)
-			{
-				av_packet_unref(m_packet_ptr);
-				count_errs++;
-				if (count_errs > max_number_of_attempts)
-				{
-					break;
-				}
-				continue;
-			}*/
-			 if (ret >= 0)
-			{
-				m_pts = m_packet_ptr->pts;
-				m_dts = m_packet_ptr->dts;
-			} 
+			av_frame_unref(m_picture_ptr);
 			// Decode video frame
 #if USE_AV_SEND_FRAME_API
-			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
+			if (avcodec_send_packet(m_codec_ctx_ptr, packet_ptr) < 0)
 			{
-				av_packet_unref(m_packet_ptr);
+				av_packet_unref(packet_ptr);
+				av_packet_free(&packet_ptr);
+				packet_ptr = NULL;
 				break;
 			}
+			if (packet_ptr)
+			{
 
-			av_packet_unref(m_packet_ptr);
+				av_packet_unref(packet_ptr);
+				av_packet_free(&packet_ptr);
+				packet_ptr = NULL;
+			}
 			ret = avcodec_receive_frame(m_codec_ctx_ptr, m_picture_ptr);
 #else
 			int got_picture = 0;
@@ -491,28 +471,41 @@ namespace chen {
 			if (ret >= 0)
 			{
 				//picture_pts = picture->best_effort_timestamp;
-				if (m_picture_pts == AV_NOPTS_VALUE)
+				std::lock_guard<std::mutex> lock(m_packet_list_lock);
+				if (m_packet_list.empty())
 				{
-					m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE 
-						&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
-						? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
-				}
+					if (m_picture_pts == AV_NOPTS_VALUE)
+					{
+						m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
+							&& m_picture_ptr->CV_FFMPEG_PTS_FIELD != 0
+							? m_picture_ptr->CV_FFMPEG_PTS_FIELD : m_picture_ptr->pkt_dts;
+					}
 
-				valid = true;
+					valid = true;
+					break;
+				}
+				else
+				{
+					av_frame_unref(m_picture_ptr);
+					continue;
+				}
+				 
 			}
 			else if (ret == AVERROR(EAGAIN)) 
 			{
-				av_frame_unref(m_picture_ptr);
+				//av_frame_unref(m_picture_ptr);
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 				continue;
 			}
 			else
 			{
-				av_frame_unref(m_picture_ptr);
+				//av_frame_unref(m_picture_ptr);
 				count_errs++;
 				if (count_errs > max_number_of_attempts)
 				{
 					break;
 				}
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
 
 		}  
@@ -838,5 +831,96 @@ namespace chen {
 		if (rotate_tag != NULL)
 			rotation_angle = atoi(rotate_tag->value);
 #endif
+	}
+	void cdecode::_push_packet(AVPacket* packet)
+	{
+	
+		if (!packet)
+		{
+			return;
+		}
+
+		std::lock_guard<std::mutex> lock(m_packet_list_lock);
+		m_packet_list.push_back(packet);
+	}
+	AVPacket* cdecode:: _pop_packet()
+	{
+		std::lock_guard<std::mutex> lock(m_packet_list_lock);
+		if (m_packet_list.empty())
+		{
+			return NULL;
+		}
+		AVPacket* p = m_packet_list.front();
+		m_packet_list.pop_front();
+		return p;
+	}
+	void cdecode ::_pthread_read_packet()
+	{
+		uint32  d_ms = 1000 / 30;
+		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch());
+		AVPacket* packet_ptr = av_packet_alloc();
+		while (!m_stoped)
+		{
+			
+			if (!packet_ptr)
+			{
+				packet_ptr = av_packet_alloc();
+			}
+			if (!packet_ptr)
+			{
+				continue;
+			}
+			int32 ret = av_read_frame(m_ic_ptr, packet_ptr);
+			if (packet_ptr->stream_index != m_video_stream_index)
+			{
+				av_packet_unref(packet_ptr);
+				continue;
+			}
+			// AVERROR(EIO)
+
+			if (ret == AVERROR(EAGAIN))
+			{
+				av_packet_unref(packet_ptr);
+			//	continue;
+			}else if (ret == AVERROR(EIO))
+			{
+				WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
+				av_packet_unref(packet_ptr);
+				m_stoped = true;
+			}
+			else if (ret == AVERROR_EOF)
+			{
+
+				av_packet_unref(packet_ptr);
+				
+
+			}
+			else if (ret < 0)
+			{
+				av_packet_unref(packet_ptr);
+				//continue;
+			}
+			else
+			{
+				_push_packet(packet_ptr);
+				packet_ptr = NULL;
+			}
+			 
+			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch());
+			std::chrono::milliseconds  diff_ms = encoder_ms - ms;
+
+			if (diff_ms.count() < d_ms)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
+			}
+			//else 
+			{
+				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					std::chrono::system_clock::now().time_since_epoch());
+				// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+			}
+		}
 	}
 }

@@ -72,6 +72,7 @@ namespace chen {
 			, m_vec_pts()
 			, m_vec_dts()
 			, m_reconnect(0)
+			, m_packet_list()
 		{}
 		virtual ~cdecode();
 	public:
@@ -111,7 +112,7 @@ namespace chen {
 
 
 
-		bool get_reconnect() const { return m_reconnect > 6 || !m_open;
+		bool get_reconnect() const { return m_reconnect > 6 || !m_open || m_stoped;
 	}
 
 		/**
@@ -147,11 +148,15 @@ namespace chen {
 	private:
 		//cdecode(const cdecode&);
 
-
+	
 		void _stop_callback();
+
+		void _push_packet(AVPacket * packet);
+		AVPacket* _pop_packet();
 	private:
-		void _pthread_decoder();
+		void _pthread_read_packet();
 	public:
+		 
 		bool   m_open;
 		std::string m_url;
 		int	   m_width;
@@ -202,6 +207,14 @@ namespace chen {
 		std::vector<uint64>  m_vec_pts;
 		std::vector<uint64>  m_vec_dts;
 		uint32			m_reconnect;
+
+
+		std::mutex			   m_packet_list_lock;
+		std::list<AVPacket*>   m_packet_list;
+
+
+		//std::thread				m_thread;
+
 	};
 
 }
