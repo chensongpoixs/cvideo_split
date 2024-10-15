@@ -854,6 +854,13 @@ namespace chen {
 		m_packet_list.pop_front();
 		return p;
 	}
+
+	bool  cdecode::_writable_packet_list()
+	{
+		std::lock_guard<std::mutex> lock(m_packet_list_lock);
+		return m_packet_list.size() > 25;
+	}
+
 	void cdecode ::_pthread_read_packet()
 	{
 		uint32  d_ms = 1000 / 30;
@@ -863,49 +870,55 @@ namespace chen {
 		while (!m_stoped)
 		{
 			
-			if (!packet_ptr)
+			
+			if (!_writable_packet_list())
 			{
-				packet_ptr = av_packet_alloc();
-			}
-			if (!packet_ptr)
-			{
-				continue;
-			}
-			int32 ret = av_read_frame(m_ic_ptr, packet_ptr);
-			if (packet_ptr->stream_index != m_video_stream_index)
-			{
-				av_packet_unref(packet_ptr);
-				continue;
-			}
-			// AVERROR(EIO)
+				if (!packet_ptr)
+				{
+					packet_ptr = av_packet_alloc();
+				}
+				if (!packet_ptr)
+				{
+					continue;
+				}
+				int32 ret = av_read_frame(m_ic_ptr, packet_ptr);
+				if (packet_ptr->stream_index != m_video_stream_index)
+				{
+					av_packet_unref(packet_ptr);
+					continue;
+				}
+				// AVERROR(EIO)
 
-			if (ret == AVERROR(EAGAIN))
-			{
-				av_packet_unref(packet_ptr);
-			//	continue;
-			}else if (ret == AVERROR(EIO))
-			{
-				WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
-				av_packet_unref(packet_ptr);
-				m_stoped = true;
-			}
-			else if (ret == AVERROR_EOF)
-			{
+				if (ret == AVERROR(EAGAIN))
+				{
+					av_packet_unref(packet_ptr);
+					//	continue;
+				}
+				else if (ret == AVERROR(EIO))
+				{
+					WARNING_EX_LOG("[url = %s] read packet AVERROR(EIO)  failed !!!", m_url.c_str());
+					av_packet_unref(packet_ptr);
+					m_stoped = true;
+				}
+				else if (ret == AVERROR_EOF)
+				{
 
-				av_packet_unref(packet_ptr);
-				
+					av_packet_unref(packet_ptr);
 
+
+				}
+				else if (ret < 0)
+				{
+					av_packet_unref(packet_ptr);
+					//continue;
+				}
+				else
+				{
+					_push_packet(packet_ptr);
+					packet_ptr = NULL;
+				}
 			}
-			else if (ret < 0)
-			{
-				av_packet_unref(packet_ptr);
-				//continue;
-			}
-			else
-			{
-				_push_packet(packet_ptr);
-				packet_ptr = NULL;
-			}
+			
 			 
 			std::chrono::milliseconds encoder_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch());

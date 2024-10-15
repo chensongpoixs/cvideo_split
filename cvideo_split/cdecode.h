@@ -153,6 +153,9 @@ namespace chen {
 
 		void _push_packet(AVPacket * packet);
 		AVPacket* _pop_packet();
+
+
+		bool  _writable_packet_list() ;
 	private:
 		void _pthread_read_packet();
 	public:
