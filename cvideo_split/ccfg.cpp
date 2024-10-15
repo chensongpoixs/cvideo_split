@@ -81,7 +81,7 @@ namespace chen {
 		set_uint32(ECI_VideoDecoderFrame, "video_decoder_frame", 10);
 		set_uint32(ECI_VideoMulitThread, "video_mulit_thread", 1);
 		set_uint32(ECI_UdpRecvBufferEnable, "udp_recv_buffer_enable", 0);
-		set_uint32(ECI_UdpRecvBufferOverrunNonfatal, "udp_recv_buffer_overrun_nonfatal", 1);
+		set_uint32(ECI_UdpRecvBufferOverrunNonfatal, "udp_recv_buffer_overrun_nonfatal", 0);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 
