@@ -471,9 +471,9 @@ namespace chen {
 			if (ret >= 0)
 			{
 				//picture_pts = picture->best_effort_timestamp;
-				std::lock_guard<std::mutex> lock(m_packet_list_lock);
-				if (m_packet_list.empty())
-				{
+				//std::lock_guard<std::mutex> lock(m_packet_list_lock);
+				//if (m_packet_list.empty())
+				//{
 					if (m_picture_pts == AV_NOPTS_VALUE)
 					{
 						m_picture_pts = m_picture_ptr->CV_FFMPEG_PTS_FIELD != AV_NOPTS_VALUE
@@ -483,13 +483,13 @@ namespace chen {
 
 					valid = true;
 					break;
-				}
+			/*	}
 				else
 				{
 					av_frame_unref(m_picture_ptr);
 					continue;
 				}
-				 
+				 */
 			}
 			else if (ret == AVERROR(EAGAIN)) 
 			{
@@ -859,7 +859,7 @@ namespace chen {
 		uint32  d_ms = 1000 / 30;
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		AVPacket* packet_ptr = av_packet_alloc();
+		AVPacket* packet_ptr = NULL;// av_packet_alloc();
 		while (!m_stoped)
 		{
 			
@@ -921,6 +921,11 @@ namespace chen {
 					std::chrono::system_clock::now().time_since_epoch());
 				// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 			}
+		}
+		if (packet_ptr)
+		{
+			av_packet_free(&packet_ptr);
+			packet_ptr = NULL;
 		}
 	}
 }
