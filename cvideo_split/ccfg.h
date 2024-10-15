@@ -71,6 +71,7 @@ namespace chen {
 		ECI_VideoDecoderFrame,
 		ECI_VideoMulitThread,
 		ECI_UdpRecvBufferEnable,
+		ECI_UdpRecvBufferOverrunNonfatal,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

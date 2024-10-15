@@ -138,10 +138,21 @@ namespace chen {
 				// 设置缓存区的大小
 				camera_info.url = "udp://@" + camera_info_ptr->address() + ":" + std::to_string(camera_info_ptr->port());
 			
-				if (g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0)
+				if (g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0 && (g_cfg.get_uint32(ECI_UdpRecvBufferOverrunNonfatal) > 0))
 				{
 					camera_info.url += "?overrun_nonfatal=1&fifo_size=50000000";
 				}
+				else if ( (g_cfg.get_uint32(ECI_UdpRecvBufferOverrunNonfatal) > 0))
+				{
+					camera_info.url += "?overrun_nonfatal=1";
+				}
+				else if ((g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0))
+				{
+					camera_info.url += "?fifo_size=50000000";
+				}
+				 
+
+
 			}
 			m_camera_infos.push_back(camera_info);
 			//camera_info.url = video_split_info->camera_group(i).();

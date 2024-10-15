@@ -136,9 +136,13 @@ namespace chen {
 		::av_dict_set(&m_dict, "reuse", "1", 0);
 		if (g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0)
 		{
-			::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
+			
 			// "udp://@239.1.1.7:5107?overrun_nonfatal=1&fifo_size=50000000"
 			::av_dict_set(&m_dict, "fifo_size", "50000000", 0);
+		}
+		if (g_cfg.get_uint32(ECI_UdpRecvBufferOverrunNonfatal) > 0)
+		{
+			::av_dict_set(&m_dict, "overrun_nonfatal", "1", 0);
 		}
 		const AVInputFormat* input_format = NULL;
 		AVDictionaryEntry* entry = av_dict_get(m_dict, "input_format", NULL, 0);
