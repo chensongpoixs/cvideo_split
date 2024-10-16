@@ -291,7 +291,7 @@ namespace chen {
 		m_interrupt_metadata.timeout_after_ms = 0;
 #endif
 		 
-
+		m_stoped = true;
 		
 		
 		if (m_sws_ctx_ptr)
@@ -339,6 +339,7 @@ namespace chen {
 			::avformat_free_context(m_ic_ptr);
 			m_ic_ptr = NULL;
 		}
+		m_stoped = true;
 		m_open = false;
 		m_pixfmt = AV_PIX_FMT_NONE;
 		m_vec_dts.clear();

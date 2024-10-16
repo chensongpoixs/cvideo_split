@@ -79,7 +79,7 @@ namespace chen {
 		set_string(ECI_VmsDeviceManufacturer, "vms_device_manufacturer", "syz");
 		set_uint32(ECI_VideoSkipFrameNum, "video_skip_frame_num", 2);
 		set_uint32(ECI_VideoDecoderFrame, "video_decoder_frame", 10);
-		set_uint32(ECI_VideoMulitThread, "video_mulit_thread", 1);
+		set_uint32(ECI_VideoMulitThread, "video_mulit_thread", 0);
 		set_uint32(ECI_UdpRecvBufferEnable, "udp_recv_buffer_enable", 0);
 		set_uint32(ECI_UdpRecvBufferOverrunNonfatal, "udp_recv_buffer_overrun_nonfatal", 0);
 		//é…ç½®è¡¨çš„å€¼
