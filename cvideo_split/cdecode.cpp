@@ -444,7 +444,9 @@ namespace chen {
 			{
 			
 				av_packet_unref(m_packet_ptr);
-				::avcodec_flush_buffers(m_codec_ctx_ptr);
+				// TODO@chensong 2024-10-21  崩溃到解码器中 avci-> frame 
+				// 
+				//::avcodec_flush_buffers(m_codec_ctx_ptr);
 				
 				++m_reconnect;
 				
@@ -478,7 +480,7 @@ namespace chen {
 			if (avcodec_send_packet(m_codec_ctx_ptr, m_packet_ptr) < 0)
 			{
 				av_packet_unref(m_packet_ptr);
-				break;
+				continue;
 			}
 
 			av_packet_unref(m_packet_ptr);
