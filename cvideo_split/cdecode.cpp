@@ -383,11 +383,13 @@ namespace chen {
 			return false;
 		}
 		// TODO@chensong 2024-01-26 视频帧数量判断是否最新的新的
-		if (m_ic_ptr->streams[m_video_stream_index]->nb_frames > 0 
+		 if (m_ic_ptr->streams[m_video_stream_index]->nb_frames > 0 
 			&& m_frame_number > m_ic_ptr->streams[m_video_stream_index]->nb_frames)
 		{
+			  ++m_reconnect  ;
+			  WARNING_EX_LOG("[url = %s][frame old = %u][new frame = %u]", m_url.c_str(), m_frame_number, m_ic_ptr->streams[m_video_stream_index]->nb_frames);
 			return false;
-		}
+		} 
 		av_frame_unref(m_picture_ptr);
 		const int max_number_of_attempts = 1 << 9;
 		int32_t ret = 0;
@@ -529,6 +531,7 @@ namespace chen {
 		}
 		else
 		{
+			++m_reconnect;
 			av_frame_unref(m_picture_ptr);
 		}
 		if (valid && m_first_frame_number < 0)
