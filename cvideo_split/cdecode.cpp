@@ -386,7 +386,7 @@ namespace chen {
 		 if (m_ic_ptr->streams[m_video_stream_index]->nb_frames > 0 
 			&& m_frame_number > m_ic_ptr->streams[m_video_stream_index]->nb_frames)
 		{
-			  ++m_reconnect  ;
+			//  ++m_reconnect  ;
 			  WARNING_EX_LOG("[url = %s][frame old = %u][new frame = %u]", m_url.c_str(), m_frame_number, m_ic_ptr->streams[m_video_stream_index]->nb_frames);
 			return false;
 		} 
@@ -448,9 +448,9 @@ namespace chen {
 				av_packet_unref(m_packet_ptr);
 				// TODO@chensong 2024-10-21  崩溃到解码器中 avci-> frame 
 				// 
-				//::avcodec_flush_buffers(m_codec_ctx_ptr);
+				::avcodec_flush_buffers(m_codec_ctx_ptr);
 				
-				++m_reconnect;
+				//++m_reconnect;
 				
 				valid = false;
 				break;
@@ -531,7 +531,7 @@ namespace chen {
 		}
 		else
 		{
-			++m_reconnect;
+			//++m_reconnect;
 			av_frame_unref(m_picture_ptr);
 		}
 		if (valid && m_first_frame_number < 0)

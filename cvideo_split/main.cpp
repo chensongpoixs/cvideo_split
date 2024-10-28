@@ -1222,6 +1222,47 @@ void test_cmd()
 }
 int  main(int argc, char** argv) 
 {
+	chen::cdecode decode1;
+
+	if (!decode1.init(0, "udp://@224.1.2.3:60000", 0, NULL))
+	{
+		printf("[decodec init = = %s]failed !!!\n", "udp://@224.1.2.3:20048");
+		return 0;
+	}
+	AVFrame * frame_ptr = NULL;
+	while (true)
+	{
+		if (decode1.retrieve(frame_ptr))
+		{
+			 
+			//	cnt++;
+
+		}
+		else if (decode1.get_reconnect())
+		{
+			::av_frame_unref(frame_ptr);
+			decode1.destroy();
+			if (!decode1.init(0, "udp://@224.1.2.3:60000", 0, NULL))
+			{
+				decode1.destroy();
+				//	delete decoder_ptr;
+				//WARNING_EX_LOG("[m_video_split_name = %s][%u] reconnect  not open  [camera = %s]", m_video_split_name.c_str(), i, m_camera_infos[i].url.c_str());
+				//return false;
+				printf("  reconnect  open  [camera = ]\n");
+
+			}
+			else
+			{
+
+				printf("  reconnect  open  [camera = ]\n");
+				continue;
+			}
+		}
+		//decode1.retrieve(frame);
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	}
+
+	return 0;
 	//test_cmd();
 	//return 0;
 	//
