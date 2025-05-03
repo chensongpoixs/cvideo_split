@@ -211,6 +211,7 @@ namespace chen {
 		//NORMAL_EX_LOG("");
 		ctime_elapse time_elapse;
 		uint32 uDelta = 0;
+		g_global_vms_server_config_mgr.handler_web_cmd_vms_server(0);
 		while (!m_stoped)
 		{
 			uDelta += time_elapse.get_elapse();
@@ -290,7 +291,7 @@ namespace chen {
 		std::string re_md5_name = md5::md5_hash_hex(re_all_name.c_str());
 		//NORMAL_EX_LOG("re_all_name = %s, re_md5 name = [%s]", re_all_name.c_str(), re_md5_name.c_str());
 		std::string all_md5_cr_name = md5_name + re_md5_name;
-		NORMAL_EX_LOG("key = [%s]", all_md5_cr_name.c_str());
+		WARNING_EX_LOG("key = [%s]", all_md5_cr_name.c_str());
 
 
 		md5_name += "chensong20240719";

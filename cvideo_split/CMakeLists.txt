@@ -49,6 +49,8 @@ add_dependencies(${PROJECT_NAME} common_sip)
 
 set(ALL_LIB  	pthread
  
+	#X11
+		#		vdpau
 		libcommon.a 
 		libcommon_web.a 
 		libcommon_ffmpeg.a 

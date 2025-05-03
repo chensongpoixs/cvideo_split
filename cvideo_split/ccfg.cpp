@@ -48,7 +48,7 @@ namespace chen {
 		
 		set_int32(ECI_TimeAdjust, "time_adjust", 0); 
 		 
-		set_uint32(ECI_LogLevel, "log_level", ELogLevel_Num); 
+		set_uint32(ECI_LogLevel, "log_level", ELogLevel_Warn);
 		 
 		//		ECI_WebHttpWanIp,
 		//ECI_WebHttpWanPort,
@@ -59,7 +59,7 @@ namespace chen {
 		set_uint32(ECI_OpenWebSocket, "open_websocket", 0);
 		set_string(ECI_WebSocketWanIp, "websocket_wan_ip", "0.0.0.0");
 		set_uint32(ECI_WebSocketWanPort, "websocket_wan_port", 9600);
-		set_uint32(ECI_MediaRate, "media_rate", 10000);
+		set_uint32(ECI_MediaRate, "media_rate", 1000);
 		set_uint32(ECI_MediaOpenTimeOut, "media_open_time_out", 1000);
 		set_uint32(ECI_MediaReadTimeOut, "media_read_time_out", 1000);
 		set_uint32(ECI_UseGpuMaxCount, "use_gpu_max_count", 8);
@@ -78,6 +78,10 @@ namespace chen {
 		set_string(ECI_VmsPassWord, "vms_pass_word", "admin12345");
 		set_string(ECI_VmsDeviceManufacturer, "vms_device_manufacturer", "syz");
 		set_uint32(ECI_VideoSkipFrameNum, "video_skip_frame_num", 2);
+		set_uint32(ECI_VideoDecoderFrame, "video_decoder_frame", 10);
+		set_uint32(ECI_VideoMulitThread, "video_mulit_thread", 1);
+		set_uint32(ECI_UdpRecvBufferEnable, "udp_recv_buffer_enable", 0);
+		set_uint32(ECI_UdpRecvBufferOverrunNonfatal, "udp_recv_buffer_overrun_nonfatal", 0);
 		//é…ç½®è¡¨çš„å€¼
 		load_cfg_file();
 

@@ -68,6 +68,10 @@ namespace chen {
 		ECI_VmsPassWord,
 		ECI_VmsDeviceManufacturer,
 		ECI_VideoSkipFrameNum,
+		ECI_VideoDecoderFrame,
+		ECI_VideoMulitThread,
+		ECI_UdpRecvBufferEnable,
+		ECI_UdpRecvBufferOverrunNonfatal,
 		ECI_Max,
 	};
 	class ccfg : public cconfig

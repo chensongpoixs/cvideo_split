@@ -101,6 +101,7 @@ namespace chen {
 			, m_frame_add()
 			, m_frame_max(0)
 			, m_frame_min(0)
+			, m_frame_total_count(0)
 			, m_frame_count_num(0)
 		{}
 		virtual ~cvideo_splist(){}
@@ -219,7 +220,8 @@ namespace chen {
 		std::vector<uint64 >		m_frame_add;
 		uint64						m_frame_max;
 		uint64						m_frame_min;
-		uint64						m_frame_count_num;
+		int64                      m_frame_total_count;
+		int64						m_frame_count_num;
 	};
 
 

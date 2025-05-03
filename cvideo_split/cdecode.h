@@ -71,7 +71,9 @@ namespace chen {
 			, m_packet_recv(false)
 			, m_vec_pts()
 			, m_vec_dts()
-			{}
+			, m_reconnect(0)
+			, m_packet_list()
+		{}
 		virtual ~cdecode();
 	public:
 		/**
@@ -79,7 +81,7 @@ namespace chen {
 		* @param fmt 输出像素格式
 		* @return 成功返回true 失败返回false
 		*/
-		bool init(uint32 gpu_index, const char * url, uint32 index, cvideo_splist *ptr);
+		bool init(uint32 gpu_index, const char* url, uint32 index, cvideo_splist* ptr);
 		void destroy();
 
 
@@ -92,21 +94,26 @@ namespace chen {
 		* @param out_frame 输出帧数据，原始像素格式
 		* @return -1 错误, -2 没有打开、0：获取到结尾，1:获取成功，
 		*/
-		bool grab_frame( );
+		bool grab_frame();
 
-		uint64 get_index_pts( uint32 number_frame);
-		uint64 get_index_dts( uint32 number_frame);
+		uint64 get_index_pts(uint32 number_frame);
+		uint64 get_index_dts(uint32 number_frame);
 		uint32 get_number_frame() const { return m_frame_number; }
 		/**
 		* 读取一帧视频数据并转换到目标像素格式
 		* @param out_frame 输出帧数据， 目标像素格式， open函数设置
 		*/
-		bool retrieve(AVFrame * &frame
-					   /*unsigned char** data, int* step, int* width,
-			int* height, int* cn */);
+		bool retrieve(AVFrame*& frame
+			/*unsigned char** data, int* step, int* width,
+ int* height, int* cn */);
 
 
 		bool get_frame(AVFrame*& frame);
+
+
+
+		bool get_reconnect() const { return m_reconnect > 6 || !m_open || m_stoped;
+	}
 
 		/**
 		* seek到目标位置相近的关键帧
@@ -141,11 +148,18 @@ namespace chen {
 	private:
 		//cdecode(const cdecode&);
 
-
+	
 		void _stop_callback();
+
+		void _push_packet(AVPacket * packet);
+		AVPacket* _pop_packet();
+
+
+		bool  _writable_packet_list() ;
 	private:
-		void _pthread_decoder();
+		void _pthread_read_packet();
 	public:
+		 
 		bool   m_open;
 		std::string m_url;
 		int	   m_width;
@@ -195,6 +209,15 @@ namespace chen {
 		bool			m_packet_recv;
 		std::vector<uint64>  m_vec_pts;
 		std::vector<uint64>  m_vec_dts;
+		uint32			m_reconnect;
+
+
+		std::mutex			   m_packet_list_lock;
+		std::list<AVPacket*>   m_packet_list;
+
+
+		//std::thread				m_thread;
+
 	};
 
 }

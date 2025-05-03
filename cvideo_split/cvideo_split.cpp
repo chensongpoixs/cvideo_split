@@ -30,7 +30,7 @@ namespace chen {
 	static				std::mutex   g_avfilter_lock;
 
 
-
+	static	const int64				g_frame_cryle = 65535;
 	/*
 	
 	def calculate_pts(frame_number, timebase, framerate, container_timebase):
@@ -134,7 +134,25 @@ namespace chen {
 			}
 			else
 			{
+				// "udp://@239.1.1.7:5107?overrun_nonfatal=1&fifo_size=50000000"
+				// 设置缓存区的大小
 				camera_info.url = "udp://@" + camera_info_ptr->address() + ":" + std::to_string(camera_info_ptr->port());
+			
+				if (g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0 && (g_cfg.get_uint32(ECI_UdpRecvBufferOverrunNonfatal) > 0))
+				{
+					camera_info.url += "?overrun_nonfatal=1&fifo_size=50000000";
+				}
+				else if ( (g_cfg.get_uint32(ECI_UdpRecvBufferOverrunNonfatal) > 0))
+				{
+					camera_info.url += "?overrun_nonfatal=1";
+				}
+				else if ((g_cfg.get_uint32(ECI_UdpRecvBufferEnable) > 0))
+				{
+					camera_info.url += "?fifo_size=50000000";
+				}
+				 
+
+
 			}
 			m_camera_infos.push_back(camera_info);
 			//camera_info.url = video_split_info->camera_group(i).();
@@ -526,11 +544,14 @@ namespace chen {
 		AVFrame* frame_ptr = NULL;
 		uint64 dts = 0;
 		uint64 pts = 0;
-		uint32  d_ms =   1000   / 45;
-		for (int32 i = 0; i < m_decodes.size(); ++i)
+		uint32  d_ms =   1000   / 30;
+		if (g_cfg.get_uint32(ECI_VideoMulitThread) > 0)
 		{
-			m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
-		} 
+			for (int32 i = 0; i < m_decodes.size(); ++i)
+			{
+				m_decode_pthread.emplace_back(std::thread(&cvideo_splist::_pthread_decodec, this, i));
+			}
+		}
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
 		std::chrono::milliseconds ms_frame_count = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -544,6 +565,8 @@ namespace chen {
 			.count();
 		size_t cnt = 0;
 		  m_frame_count_num = 0;
+		 // uint64 frame_dps = 0;
+		  m_frame_total_count = 0;
 		//m_filter_frame_ptr = NULL;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
@@ -557,27 +580,54 @@ namespace chen {
 				WARNING_EX_LOG("[video_channel = %s]alloc frame failed !!!", m_video_split_channel.c_str());
 				continue;
 			} 
+			if (g_cfg.get_uint32(ECI_VideoMulitThread) == 0)
+			{
+				for (size_t i = 0; i < m_decodes.size(); ++i)
+				{
+					if (m_decodes[i]->retrieve(frame_ptr))
+					{
+						frame_ptr->pts = m_decodes[0]->get_pts(); ////global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+						frame_ptr->pkt_dts = frame_ptr->pts;
+						ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
+						//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+						//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+						if (ret < 0)
+						{
+							WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
 
-			//for (size_t i = 0; i < m_decodes.size(); ++i)
-			//{
-			//	if (m_decodes[i]->retrieve(frame_ptr))
-			//	{
-			//		frame_ptr->pts = global_calculate_pts(m_decodes[i]->get_number_frame(), 25);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-			//		frame_ptr->pkt_dts = frame_ptr->pts;
-			//		ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[i], frame_ptr);
-			//		//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-			//		//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-			//		if (ret < 0)
-			//		{
-			//			WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", i, chen::ffmpeg_util::make_error_string(ret));
+						}
+						//	cnt++;
 
-			//		}
-			//	//	cnt++;
+					}
+					else if (m_decodes[i]->get_reconnect())
+					{
+						::av_frame_unref(frame_ptr);
+						m_decodes[i]->destroy();
+						if (!m_decodes[i]->init(m_gpu_index, m_camera_infos[i].url.c_str(), i, this))
+						{
+							m_decodes[i]->destroy();
+							//	delete decoder_ptr;
+							WARNING_EX_LOG("[m_video_split_name = %s][%u] reconnect  not open  [camera = %s]", m_video_split_name.c_str(), i, m_camera_infos[i].url.c_str());
+							//return false;
 
-			//	}
-			//	::av_frame_unref(frame_ptr);
-			//}
-			 
+
+						}
+						else
+						{
+							NORMAL_EX_LOG("[m_video_split_name = %s][%u] reconnect  open  [camera = %s]", m_video_split_name.c_str(), i, m_camera_infos[i].url.c_str());
+							continue;
+						}
+
+
+					}
+					else
+					{
+						WARNING_EX_LOG("[m_video_split_name = %s] i = %u", m_video_split_name.c_str(), i);
+					}
+					::av_frame_unref(frame_ptr);
+				}
+
+			}
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
 			{
@@ -593,7 +643,7 @@ namespace chen {
 				//ret = -1;
 				//while (ret <0 && !m_stoped)
 				{
-					clock_guard lock(g_avfilter_lock);
+					//clock_guard lock(g_avfilter_lock);
 
 				//	ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_PEEK);
 					//ret = ::av_buffersink_get_frame_flags(m_buffersink_ctx_ptr, m_filter_frame_ptr, AV_BUFFERSINK_FLAG_NO_REQUEST);
@@ -612,11 +662,30 @@ namespace chen {
 			// 放到编码器中去编码啦 ^_^
 			if (!m_stoped && ret >= 0 && m_filter_frame_ptr)
 			{
-				++m_frame_count_num;
-				pts =  global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
-				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
+				 
+				if (++m_frame_count_num > g_frame_cryle)
+				{
+					m_frame_count_num = 0;
+					++m_frame_total_count;
+					NORMAL_EX_LOG("main  frame cylec = %u", m_frame_total_count);
+				}
+				if (g_cfg.get_uint32(ECI_VideoMulitThread) > 0)
+				{
+					pts =   global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
+				}
+				else
+				{
+					pts = m_decodes[0]->get_pts();// global_calculate_pts(m_frame_count_num, 12);  //m_decodes[0]->get_index_pts(frame_count_num);
+				}
 				
+				dts = pts;//m_decodes[0]->get_index_dts(frame_count_num);
+				//frame_ptr = m_filter_frame_ptr;
 			 	m_encoder_ptr->push_frame(m_filter_frame_ptr, dts, pts);
+			}
+			if (frame_ptr)
+			{
+				::av_frame_unref(frame_ptr);
+				//::av_frame_free(&frame_ptr);
 			}
 			if (m_filter_frame_ptr)
 			{
@@ -648,20 +717,20 @@ namespace chen {
 					cnt = 0;
 					timestamp = timestamp_curr;
 				}
-				if (diff_ms.count() != 0)
+				/*if (diff_ms.count() != 0)
 				{
 					NORMAL_EX_LOG("main ms = %u", diff_ms.count());
-				}
+				}*/
 				if (diff_ms.count() < d_ms)
 				{
 					  std::this_thread::sleep_for(std::chrono::milliseconds(d_ms - diff_ms.count()));
-					// ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-					//	 std::chrono::system_clock::now().time_since_epoch());
+					  ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+					 	 std::chrono::system_clock::now().time_since_epoch());
 				}
 				else
 				{
 					 
-					// ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
+					  ms += std::chrono::milliseconds(diff_ms.count() - d_ms);
 				}
 				ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch());
@@ -718,45 +787,100 @@ namespace chen {
 					.count();
 				  size_t cnt = 0;
 		uint64 pts = 0;
-		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + 15);
+		uint32  d_ms = 1000 /  (m_decodes[decodec_id]->get_fps() + g_cfg.get_uint32(ECI_VideoDecoderFrame));
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
 			std::chrono::system_clock::now().time_since_epoch());
-		uint32 frmame_fps = 0;
+		int64 frmame_fps = 0;
+		int64 frame_total_count_fps = 0;
 		while (!m_stoped && m_buffersink_ctx_ptr)
 		{
+			if (m_decodes[decodec_id]->retrieve(frame_ptr))
 			{
+
+				//	if (m_decodes[decodec_id]->get_number_frame() > )
+					//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
+					// TODO@chensong 20240929 消费能力太差了
+				if ((((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count))) < 5) /*&& (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 )*/)
 				{
-					if (m_decodes[decodec_id]->retrieve(frame_ptr))
-					{ 
-						
-					//	if (m_decodes[decodec_id]->get_number_frame() > )
-						//if (m_decodes[decodec_id]->get_number_frame() % 2 == 0)
-						// TODO@chensong 20240929 消费能力太差了
-						if (((frmame_fps - m_frame_count_num) < 25) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0 ))
-						{
-							++frmame_fps;
-							frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
-							frame_ptr->pkt_dts = frame_ptr->pts;
-							ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-							//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
-							//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
-							if (ret < 0)
-							{
-								WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
-
-							}
-						}
-						
-						cnt++;
-						
-					}
-					::av_frame_unref(frame_ptr);
-
-					if (m_stoped)
+					++frmame_fps;
+					if (frmame_fps > g_frame_cryle)
 					{
-						break;
+						++frame_total_count_fps;
+						frmame_fps = 0;
+						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
+
+
+					}
+					frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					frame_ptr->pkt_dts = frame_ptr->pts;
+					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+					if (ret < 0)
+					{
+						WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
+
 					}
 				}
+				else if (((frmame_fps + (g_frame_cryle * frame_total_count_fps)) - (m_frame_count_num + (g_frame_cryle * m_frame_total_count)) < 12) && (m_decodes[decodec_id]->get_number_frame() % g_cfg.get_uint32(ECI_VideoSkipFrameNum) == 0))
+				{
+					++frmame_fps;
+					if (frmame_fps > g_frame_cryle)
+					{
+						frmame_fps = 0;
+						++frame_total_count_fps;
+						NORMAL_EX_LOG("decoder [ %u] frame cylec = %u [main = %u] total = %u", decodec_id, frame_total_count_fps, m_frame_total_count, m_frame_count_num);
+
+					}
+					frame_ptr->pts = global_calculate_pts(frmame_fps, 12);//m_decodes[0]->get_index_pts(m_decodes[decodec_id]->get_number_frame());
+					frame_ptr->pkt_dts = frame_ptr->pts;
+					ret = ::av_buffersrc_add_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_write_frame(m_buffers_ctx_ptr[decodec_id], frame_ptr);
+					//ret = ::av_buffersrc_add_frame_flags(m_buffers_ctx_ptr[decodec_id], frame_ptr, AV_BUFFERSRC_FLAG_PUSH);
+					if (ret < 0)
+					{
+						WARNING_EX_LOG("filter buffer%dsrc add frame failed (%s)!!!\n", decodec_id, chen::ffmpeg_util::make_error_string(ret));
+
+					}
+				}
+
+				cnt++;
+
+			}
+			else if (m_decodes[decodec_id]->get_reconnect())
+			{
+				if (frame_ptr)
+				{
+
+					::av_frame_unref(frame_ptr);
+				}
+				m_decodes[decodec_id]->destroy();
+				if (!m_decodes[decodec_id]->init(m_gpu_index, m_camera_infos[decodec_id].url.c_str(), decodec_id, this))
+				{
+					m_decodes[decodec_id]->destroy();
+					//	delete decoder_ptr;
+					WARNING_EX_LOG("[m_video_split_name = %s][%u] reconnect  not open  [camera = %s]", m_video_split_name.c_str(), decodec_id, m_camera_infos[decodec_id].url.c_str());
+					//return false;
+
+
+				}
+				else
+				{
+					NORMAL_EX_LOG("[m_video_split_name = %s][%u] reconnect  open  [camera = %s]", m_video_split_name.c_str(), decodec_id, m_camera_infos[decodec_id].url.c_str());
+					continue;
+				}
+
+
+			}
+			if (frame_ptr)
+			{
+
+				::av_frame_unref(frame_ptr);
+			}
+
+			if (m_stoped)
+			{
+				break;
 			}
 			//NORMAL_EX_LOG("");
 			if (m_stoped)
@@ -793,6 +917,9 @@ namespace chen {
 				
 			}
 		}
-		::av_frame_unref(frame_ptr);
+		if (frame_ptr)
+		{
+			::av_frame_unref(frame_ptr);
+		}
 	}
 }

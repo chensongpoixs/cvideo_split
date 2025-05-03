@@ -37,6 +37,8 @@ namespace chen {
 		if (!event->response)
 		{
 			WARNING_EX_LOG("vms register 401 has no response !!!");
+			m_is_register = false;
+			m_stoped = true;
 			return;
 		}
 		// 注册流程
@@ -401,7 +403,7 @@ channel = 0300991320500
 	}
 	void cvms_device::_handler_vms_message_answered(const std::shared_ptr<eXosip_event_t>& event)
 	{
-		WARNING_EX_LOG("");
+		NORMAL_EX_LOG("");
 	}
 
 	void cvms_device::_handler_vms_message_redirected(const std::shared_ptr<eXosip_event_t>& event)

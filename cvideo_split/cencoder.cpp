@@ -179,8 +179,8 @@ namespace chen {
 			/* frames per second */
 			m_codec_ctx_ptr->time_base = rate;// (AVRational) { 1, 25 };
 			m_codec_ctx_ptr->framerate = { 25, 1 };
-			m_codec_ctx_ptr->gop_size = 30;
-			m_codec_ctx_ptr->max_b_frames = 1;
+			m_codec_ctx_ptr->gop_size = 120;
+			m_codec_ctx_ptr->max_b_frames = 3;
 			m_codec_ctx_ptr->pix_fmt = AV_PIX_FMT_CUDA;
 			//	if (false)
 			{
@@ -440,10 +440,10 @@ namespace chen {
 					return;
 				}
 			}
-			if (frame_ptr)
+			/*if (frame_ptr)
 			{
 				frame_ptr->pts = m_frame_count;
-			}
+			}*/
 		 
 			if ((ret = ::av_hwframe_transfer_data(m_hw_frame_ptr, frame_ptr, 0)) < 0) 
 			{
@@ -454,10 +454,10 @@ namespace chen {
 				return;
 			}
 			
-			if (m_hw_frame_ptr)
+			/*if (m_hw_frame_ptr)
 			{
 				m_hw_frame_ptr->pts = m_frame_count;
-			}
+			}*/
 			ret = ::avcodec_send_frame(m_codec_ctx_ptr, m_hw_frame_ptr);
 			if (ret < 0)
 			{
@@ -470,7 +470,7 @@ namespace chen {
 		}
 
 		
-		//::av_frame_unref(frame_ptr);
+		 ::av_frame_unref(frame_ptr);
 		//::av_frame_free(&frame_ptr);
 		//frame_ptr = NULL;
 		
