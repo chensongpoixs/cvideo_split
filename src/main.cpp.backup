@@ -1,0 +1,261 @@
+#include "VideoStreamPuller.h"
+#include "HardwareDecoder.h"
+#include "CudaVideoStitcher.h"
+#include "OSDOverlay.h"
+#include "VideoEncoder.h"
+#include "Logger.h"
+
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <signal.h>
+
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+}
+
+std::atomic<bool> running(true);
+
+void signalHandler(int signum) {
+    std::cout << "收到信号 " << signum << "，正在停止..." << std::endl;
+    running = false;
+}
+
+int main(int argc, char* argv[]) {
+    // 初始化日志系统
+    Logger::getInstance().setLogFile("video_stitch_system.log");
+    Logger::getInstance().setLogLevel(LogLevel::INFO);
+
+    LOG_INFO("Starting Multi-Stream Video Stitching System");
+
+    // 设置信号处理
+    signal(SIGINT, signalHandler);
+    signal(SIGTERM, signalHandler);
+
+    // 初始化FFmpeg
+    // 注意：在FFmpeg 4.0+中，av_register_all()和avcodec_register_all()已被移除
+    // 编解码器会自动注册，不需要手动调用
+    LOG_DEBUG("Initializing FFmpeg network components");
+    avformat_network_init();
+
+    // RTSP流URL配置 - 请根据实际情况修改IP地址、用户名和密码
+    std::vector<std::string> rtsp_urls = {
+        "rtsp://admin:hik@12345@192.168.9.161/streaming/channels/101", // 第一个摄像头 - 工作正常
+         "rtsp://admin:cs@563519@192.168.9.162/streaming/channels/101", // 第二个摄像头 - 认证失败，已注释掉
+          "rtsp://admin:hik@12345@192.168.9.161/streaming/channels/101",
+          "rtsp://admin:cs@563519@192.168.9.162/streaming/channels/101"
+        // 其他备用URL（取消注释并修改为实际地址）:
+        // "rtsp://admin:password@192.168.1.100:554/live",
+        // "rtsp://user:pass@192.168.1.101:8554/stream",
+        // "rtsp://192.168.1.102:554/stream1"
+    };
+
+    const int NUM_STREAMS = 2; // 当前配置了2个RTSP流
+    const int OUTPUT_WIDTH = 1920;
+    const int OUTPUT_HEIGHT = 1080;
+    const int FPS = 30;
+    const std::string OUTPUT_URL = "rtsp://127.0.0.1:554/live/chensong";
+
+    LOG_INFO("Multi-stream video stitching system starting");
+    LOG_INFO("Number of input streams: " + std::to_string(NUM_STREAMS));
+    LOG_INFO("Output resolution: " + std::to_string(OUTPUT_WIDTH) + "x" + std::to_string(OUTPUT_HEIGHT));
+    LOG_INFO("Output RTSP URL: " + OUTPUT_URL);
+
+    // 创建组件
+    std::vector<std::unique_ptr<VideoStreamPuller>> stream_pullers;
+    std::vector<std::unique_ptr<HardwareDecoder>> decoders;
+    std::unique_ptr<CudaVideoStitcher> stitcher;
+    std::unique_ptr<OSDOverlay> osd_overlay;
+    std::unique_ptr<VideoEncoder> encoder;
+
+    try {
+        // 初始化视频流拉取器
+        for (int i = 0; i < NUM_STREAMS; i++) {
+            auto puller = std::make_unique<VideoStreamPuller>(rtsp_urls[i], i);
+            if (!puller->initialize()) {
+                LOG_ERROR("Failed to initialize RTSP stream puller " + std::to_string(i));
+                return -1;
+            }
+            stream_pullers.push_back(std::move(puller));
+
+            auto decoder = std::make_unique<HardwareDecoder>();
+            if (!decoder->initialize("h264")) {
+                LOG_ERROR("Failed to initialize CUDA hardware decoder " + std::to_string(i));
+                return -1;
+            }
+            decoders.push_back(std::move(decoder));
+        }
+
+        // 初始化CUDA拼接器
+        StitchConfig stitch_config;
+        stitch_config.output_width = OUTPUT_WIDTH;
+        stitch_config.output_height = OUTPUT_HEIGHT;
+        stitch_config.num_streams = NUM_STREAMS;
+
+        // 配置4宫格布局
+        stitch_config.stream_positions[0] = {0, 0, OUTPUT_WIDTH/2, OUTPUT_HEIGHT/2};           // 左上
+        stitch_config.stream_positions[1] = {OUTPUT_WIDTH/2, 0, OUTPUT_WIDTH/2, OUTPUT_HEIGHT/2}; // 右上
+        stitch_config.stream_positions[2] = {0, OUTPUT_HEIGHT/2, OUTPUT_WIDTH/2, OUTPUT_HEIGHT/2}; // 左下
+        stitch_config.stream_positions[3] = {OUTPUT_WIDTH/2, OUTPUT_HEIGHT/2, OUTPUT_WIDTH/2, OUTPUT_HEIGHT/2}; // 右下
+
+        stitcher = std::make_unique<CudaVideoStitcher>();
+        if (!stitcher->initialize(stitch_config)) {
+            LOG_ERROR("Failed to initialize CUDA video stitcher");
+            return -1;
+        }
+
+        // 初始化OSD叠加
+        // 暂时禁用OSD overlay，因为FFmpeg filter graph配置有问题
+        // TODO: 修复OSD overlay的像素格式配置问题
+        LOG_WARNING("OSD overlay is temporarily disabled due to pixel format configuration issues");
+
+        // 创建空的OSD overlay对象（后续可以重新启用）
+        // osd_overlay = std::make_unique<OSDOverlay>();
+        // if (!osd_overlay->initialize(OUTPUT_WIDTH, OUTPUT_HEIGHT, AV_PIX_FMT_NV12)) {
+        //     LOG_ERROR("Failed to initialize OSD overlay system");
+        //     return -1;
+        // }
+
+        // 初始化编码器
+        encoder = std::make_unique<VideoEncoder>();
+        if (!encoder->initialize(OUTPUT_WIDTH, OUTPUT_HEIGHT, FPS, OUTPUT_URL)) {
+            LOG_ERROR("Failed to initialize video encoder");
+            return -1;
+        }
+
+        // 启动所有视频流拉取器
+        for (auto& puller : stream_pullers) {
+            puller->start();
+        }
+
+        LOG_INFO("All components initialized successfully, starting video stream processing");
+
+        // 主处理循环
+        auto last_time = std::chrono::steady_clock::now();
+        int frame_count = 0;
+
+        while (running) {
+            std::vector<CudaFrame> input_frames;
+            std::vector<bool> stream_status(NUM_STREAMS, false); // 记录每个流的视频状态
+            bool all_frames_ready = true;
+
+            // 收集所有流的最新帧
+            for (int i = 0; i < NUM_STREAMS; i++) {
+                VideoFrame video_frame;
+                if (stream_pullers[i]->getLatestFrame(video_frame)) {
+                    LOG_DEBUG("Stream " + std::to_string(i) + ": Got frame " +
+                             std::to_string(video_frame.width) + "x" + std::to_string(video_frame.height) +
+                             ", PTS: " + std::to_string(video_frame.pts));
+                    // 这里应该将VideoFrame转换为CudaFrame
+                    // 实际应用中需要将数据上传到GPU
+                    CudaFrame cuda_frame;
+                    cuda_frame.width = video_frame.width;
+                    cuda_frame.height = video_frame.height;
+                    // cuda_frame.nv12_data = ... (需要从video_frame复制到GPU)
+                    input_frames.push_back(cuda_frame);
+                    stream_status[i] = true;
+                } else {
+                    LOG_WARNING("Stream " + std::to_string(i) + ": No frame available");
+                    stream_status[i] = false;
+                    all_frames_ready = false;
+                    // 继续检查其他流，不要break
+                }
+            }
+
+            if (all_frames_ready && input_frames.size() == NUM_STREAMS) {
+                LOG_INFO("All " + std::to_string(NUM_STREAMS) + " streams have video frames ready for stitching");
+
+                // 执行CUDA拼接
+                CudaFrame stitched_frame;
+                if (stitcher->stitchFrames(input_frames, stitched_frame)) {
+                    LOG_DEBUG("Successfully stitched " + std::to_string(NUM_STREAMS) + " video frames");
+
+                    // 创建AVFrame用于编码
+                    AVFrame* av_frame = av_frame_alloc();
+                    av_frame->format = AV_PIX_FMT_NV12;
+                    av_frame->width = OUTPUT_WIDTH;
+                    av_frame->height = OUTPUT_HEIGHT;
+                    av_frame->pts = frame_count;
+
+                    // 这里需要从GPU复制数据回CPU用于编码
+                    // 实际应用中应该优化为GPU到GPU的处理链
+                    // 暂时创建一个空白帧用于测试
+                    if (av_frame_get_buffer(av_frame, 0) >= 0) {
+                        // 填充黑色帧用于测试
+                        memset(av_frame->data[0], 0, av_frame->width * av_frame->height);
+                        memset(av_frame->data[1], 128, (av_frame->width * av_frame->height) / 2);
+
+                        // 编码并推流
+                        EncodedPacket packet;
+                        if (encoder->encodeFrame(av_frame, packet)) {
+                            LOG_DEBUG("Successfully encoded and streamed frame " + std::to_string(frame_count));
+                            delete[] packet.data;
+                        } else {
+                            LOG_WARNING("Failed to encode frame " + std::to_string(frame_count));
+                        }
+                    } else {
+                        LOG_ERROR("Failed to allocate frame buffer");
+                    }
+
+                    av_frame_free(&av_frame);
+                } else {
+                    LOG_WARNING("Failed to stitch video frames");
+                }
+            } else {
+                // 检查哪些路没有视频
+                std::string missing_streams;
+                for (int i = 0; i < NUM_STREAMS; i++) {
+                    if (!stream_status[i]) {
+                        if (!missing_streams.empty()) missing_streams += ", ";
+                        missing_streams += "Stream " + std::to_string(i);
+                    }
+                }
+
+                if (!missing_streams.empty()) {
+                    LOG_WARNING("Missing video frames from: " + missing_streams +
+                               " (" + std::to_string(input_frames.size()) + "/" + std::to_string(NUM_STREAMS) + " streams ready)");
+                }
+
+                // 即使没有所有流都准备好，也可能需要生成一些输出
+                // 这里暂时跳过编码
+                LOG_DEBUG("Skipping encoding due to incomplete video frames");
+            }
+
+                frame_count++;
+            }
+
+            // 控制帧率
+            auto current_time = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_time).count();
+            if (elapsed < 1000 / FPS) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000 / FPS - elapsed));
+            }
+            last_time = std::chrono::steady_clock::now();
+
+            // 简单的状态输出
+            if (frame_count % (FPS * 5) == 0) { // 每5秒输出一次
+                LOG_INFO("Processed " + std::to_string(frame_count) + " frames");
+            }
+        }
+
+        LOG_INFO("Stopping all components");
+
+        // 停止所有组件
+        for (auto& puller : stream_pullers) {
+            puller->stop();
+        }
+
+        encoder->flush();
+
+    } catch (const std::exception& e) {
+        LOG_FATAL("Exception occurred: " + std::string(e.what()));
+        return -1;
+    }
+
+    LOG_INFO("Video stitching system stopped");
+    return 0;
+}
