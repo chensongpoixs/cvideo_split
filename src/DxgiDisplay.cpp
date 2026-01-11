@@ -1,6 +1,15 @@
+/**
+ * @file DxgiDisplay.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief Windows DXGI/DirectX11 视频显示实现（CUDA-D3D11 零拷贝）
+ * @see DxgiDisplay.h
+ */
+
 #ifdef _WIN32
 
 #include "DxgiDisplay.h"
+#include "CudaStreamManager.h"
 #include "Logger.h"
 
 #include <d3dcompiler.h>
@@ -10,6 +19,20 @@
 #include <algorithm>
 #include <cstring>
 #include <cmath>
+#include <thread>
+
+#include <cuda_runtime.h>
+#include <cuda_d3d11_interop.h>
+#include "Nv12ToRgbaKernel.h"
+
+// 获取共享的 display stream
+cudaStream_t DxgiDisplay::getDisplayStream() {
+    auto& mgr = CudaStreamManager::getInstance();
+    if (mgr.isInitialized()) {
+        return mgr.getDisplayStream();
+    }
+    return nullptr;
+}
 
 // 顶点结构：NDC坐标 + 纹理坐标
 struct Vertex {
@@ -611,15 +634,26 @@ void DxgiDisplay::render() {
     float clear_color[4] = { 0.05f, 0.05f, 0.15f, 1.0f };
     d3d_context_->ClearRenderTargetView(render_target_view_, clear_color);
 
-    std::lock_guard<std::mutex> lock(frame_mutex_);
-
-    // 渲染每个区域
-    for (const auto& region : regions_) {
-        if (region.current_frame) {
-            // 在渲染线程中上传最新帧到纹理
-            (void)updateTextureFromGpu(region.id, region.current_frame);
-            renderTexture(region.id, region.x, region.y, region.width, region.height);
+    // 拷贝出当前帧指针（避免长时间持锁影响解码线程）
+    std::vector<std::pair<int, std::shared_ptr<GpuFrame>>> region_frames;
+    struct RegionDraw { int id; int x; int y; int w; int h; };
+    std::vector<RegionDraw> draw_list;
+    {
+        std::lock_guard<std::mutex> lock(frame_mutex_);
+        region_frames.reserve(regions_.size());
+        draw_list.reserve(regions_.size());
+        for (const auto& region : regions_) {
+            if (region.current_frame) {
+                region_frames.emplace_back(region.id, region.current_frame);
+                draw_list.push_back(RegionDraw{region.id, region.x, region.y, region.width, region.height});
+            }
         }
+    }
+
+    // zero-copy 批量更新（必要时回退 CPU），然后绘制
+    updateTexturesFromGpuBatch(region_frames);
+    for (const auto& d : draw_list) {
+        renderTexture(d.id, d.x, d.y, d.w, d.h);
     }
 
     // 画“解码区域/拼接区域”大框与分割线（即使没有视频也能看到边界）
@@ -762,10 +796,12 @@ void DxgiDisplay::cleanupDirectX() {
     }
 
     // 清理纹理
-    for (auto& tex : textures_) {
-        destroyTexture(tex.texture ? 0 : -1);  // 简化处理
+    for (int i = 0; i < static_cast<int>(textures_.size()); ++i) {
+        destroyTexture(i);
     }
     textures_.clear();
+
+    // 注意：CUDA stream 由 CudaStreamManager 统一管理，不在此销毁
 }
 
 bool DxgiDisplay::createTexture(int region_id, int width, int height) {
@@ -809,6 +845,28 @@ bool DxgiDisplay::createTexture(int region_id, int width, int height) {
         return false;
     }
 
+    // CUDA-D3D11 互操作：注册纹理用于零CPU拷贝更新
+    tex.cuda_resource = nullptr;
+    tex.last_uploaded_pts = INT64_MIN;
+    tex.last_uploaded_ptr = 0;
+    tex.cpu_nv12.clear();
+    tex.cpu_rgba.clear();
+
+    // 使用统一的 CUDA Stream 管理器
+    cudaStream_t display_stream = getDisplayStream();
+    if (display_stream) {
+        cudaError_t ce = cudaGraphicsD3D11RegisterResource(&tex.cuda_resource, tex.texture, cudaGraphicsRegisterFlagsNone);
+        if (ce != cudaSuccess) {
+            tex.cuda_resource = nullptr;
+            LOG_WARNING("cudaGraphicsD3D11RegisterResource failed, fallback to CPU upload. err=" + std::string(cudaGetErrorString(ce)));
+        } else {
+            LOG_INFO("DXGI zero-copy enabled for region " + std::to_string(region_id) +
+                     " texture " + std::to_string(width) + "x" + std::to_string(height));
+        }
+    } else {
+        LOG_WARNING("CudaStreamManager not available, DXGI display will use CPU fallback");
+    }
+
     return true;
 }
 
@@ -819,6 +877,10 @@ void DxgiDisplay::destroyTexture(int region_id) {
 
     DxgiTexture& tex = textures_[region_id];
     
+    if (tex.cuda_resource) {
+        cudaGraphicsUnregisterResource(tex.cuda_resource);
+        tex.cuda_resource = nullptr;
+    }
     if (tex.srv) {
         tex.srv->Release();
         tex.srv = nullptr;
@@ -827,9 +889,13 @@ void DxgiDisplay::destroyTexture(int region_id) {
         tex.texture->Release();
         tex.texture = nullptr;
     }
+    tex.last_uploaded_pts = INT64_MIN;
+    tex.last_uploaded_ptr = 0;
+    tex.cpu_nv12.clear();
+    tex.cpu_rgba.clear();
 }
 
-bool DxgiDisplay::updateTextureFromGpu(int region_id, std::shared_ptr<GpuFrame> gpu_frame) {
+bool DxgiDisplay::updateTextureFromGpu(int region_id, std::shared_ptr<GpuFrame> gpu_frame, bool allow_zero_copy) {
     if (!gpu_frame || !gpu_frame->gpu_ptr) return false;
     if (region_id < 0 || region_id >= static_cast<int>(textures_.size())) return false;
 
@@ -847,20 +913,62 @@ bool DxgiDisplay::updateTextureFromGpu(int region_id, std::shared_ptr<GpuFrame> 
         }
     }
 
-    // CPU拷贝：GPU(NV12) -> CPU(NV12) -> CPU(RGBA) -> D3D纹理
-    // 注意：不要用 width*height*3/2 这种“写死公式”，因为上游可能存在对齐/打包差异。
-    // 这里优先使用 gpu_frame->size（由分配/打包阶段决定）。
+    if (tex.width != target_w || tex.height != target_h) {
+        destroyTexture(region_id);
+        if (!createTexture(region_id, target_w, target_h)) {
+            return false;
+        }
+    }
+
+    // 异步更新：同一帧不重复上传
+    const uintptr_t src_ptr = reinterpret_cast<uintptr_t>(gpu_frame->gpu_ptr);
+    if (tex.last_uploaded_ptr == src_ptr && tex.last_uploaded_pts == gpu_frame->pts) {
+        return true;
+    }
+
+    // 零拷贝 GPU 路径：NV12(GPU) -> CUDA kernel -> D3D11 RGBA 纹理（cudaGraphicsResource 映射）
+    cudaStream_t display_stream = getDisplayStream();
+    if (allow_zero_copy && tex.cuda_resource && display_stream && gpu_frame->is_nv12) {
+        cudaError_t me = cudaGraphicsMapResources(1, &tex.cuda_resource, 0);
+        if (me == cudaSuccess) {
+            cudaArray_t array = nullptr;
+            cudaError_t ae = cudaGraphicsSubResourceGetMappedArray(&array, tex.cuda_resource, 0, 0);
+            if (ae == cudaSuccess && array) {
+                bool ok = launchNv12ToRgbaResizeToCudaArray(
+                    reinterpret_cast<const uint8_t*>(gpu_frame->gpu_ptr),
+                    gpu_frame->width, gpu_frame->height,
+                    array,
+                    target_w, target_h,
+                    true, // center-crop fill
+                    display_stream
+                );
+                cudaGraphicsUnmapResources(1, &tex.cuda_resource, 0);
+                if (ok) {
+                    tex.last_uploaded_ptr = src_ptr;
+                    tex.last_uploaded_pts = gpu_frame->pts;
+                    return true;
+                }
+            } else {
+                cudaGraphicsUnmapResources(1, &tex.cuda_resource, 0);
+            }
+        }
+        LOG_WARNING("DXGI zero-copy update failed for region " + std::to_string(region_id) + ", fallback to CPU path");
+    }
+
+    // CPU拷贝 fallback（复用 staging buffer，避免每帧分配）：
+    // GPU(NV12) -> CPU(NV12) -> CPU(RGBA) -> D3D纹理
     const size_t nv12_size = gpu_frame->size;
-    std::vector<uint8_t> nv12_data(nv12_size);
-    
-    if (!GpuMemoryManager::getInstance().copyFromGpu(gpu_frame, nv12_data.data(), nv12_size)) {
+    if (tex.cpu_nv12.size() != nv12_size) {
+        tex.cpu_nv12.resize(nv12_size);
+    }
+
+    if (!GpuMemoryManager::getInstance().copyFromGpu(gpu_frame, tex.cpu_nv12.data(), nv12_size)) {
         LOG_ERROR("Failed to copy frame data from GPU");
         return false;
     }
 
-    std::vector<uint8_t> rgba;
     // 关键：将输入NV12动态缩放/裁剪到区域方块大小
-    nv12ToRgbaCpuScaled(nv12_data.data(), rgba, gpu_frame->width, gpu_frame->height, target_w, target_h, true);
+    nv12ToRgbaCpuScaled(tex.cpu_nv12.data(), tex.cpu_rgba, gpu_frame->width, gpu_frame->height, target_w, target_h, true);
 
     if (tex.width != target_w || tex.height != target_h) {
         destroyTexture(region_id);
@@ -870,8 +978,111 @@ bool DxgiDisplay::updateTextureFromGpu(int region_id, std::shared_ptr<GpuFrame> 
     }
 
     const UINT row_pitch = static_cast<UINT>(target_w * 4);
-    d3d_context_->UpdateSubresource(tex.texture, 0, nullptr, rgba.data(), row_pitch, 0);
+    d3d_context_->UpdateSubresource(tex.texture, 0, nullptr, tex.cpu_rgba.data(), row_pitch, 0);
+    tex.last_uploaded_ptr = src_ptr;
+    tex.last_uploaded_pts = gpu_frame->pts;
     return true;
+}
+
+void DxgiDisplay::updateTexturesFromGpuBatch(const std::vector<std::pair<int, std::shared_ptr<GpuFrame>>>& region_frames) {
+    // 只批量处理 zero-copy 脏帧；其余/失败的走单个 CPU fallback
+    if (region_frames.empty()) return;
+
+    struct ZcItem {
+        int region_id;
+        std::shared_ptr<GpuFrame> frame;
+        int target_w;
+        int target_h;
+        cudaGraphicsResource_t res;
+        uintptr_t src_ptr;
+    };
+
+    std::vector<ZcItem> items;
+    items.reserve(region_frames.size());
+
+    for (const auto& rf : region_frames) {
+        const int region_id = rf.first;
+        const auto& gpu_frame = rf.second;
+        if (!gpu_frame || !gpu_frame->gpu_ptr) continue;
+        if (region_id < 0 || region_id >= static_cast<int>(textures_.size())) continue;
+
+        DxgiTexture& tex = textures_[region_id];
+        if (!tex.texture) continue;
+
+        // 目标尺寸 = region 尺寸
+        int target_w = gpu_frame->width;
+        int target_h = gpu_frame->height;
+        for (const auto& r : regions_) {
+            if (r.id == region_id) {
+                target_w = std::max(1, r.width);
+                target_h = std::max(1, r.height);
+                break;
+            }
+        }
+
+        if (tex.width != target_w || tex.height != target_h) {
+            destroyTexture(region_id);
+            if (!createTexture(region_id, target_w, target_h)) {
+                continue;
+            }
+        }
+
+        const uintptr_t src_ptr = reinterpret_cast<uintptr_t>(gpu_frame->gpu_ptr);
+        if (tex.last_uploaded_ptr == src_ptr && tex.last_uploaded_pts == gpu_frame->pts) {
+            continue; // 不脏
+        }
+
+        cudaStream_t display_stream = getDisplayStream();
+        if (tex.cuda_resource && display_stream && gpu_frame->is_nv12) {
+            items.push_back(ZcItem{region_id, gpu_frame, target_w, target_h, tex.cuda_resource, src_ptr});
+        }
+    }
+
+    if (!items.empty()) {
+        std::vector<cudaGraphicsResource_t> resources;
+        resources.reserve(items.size());
+        for (const auto& it : items) resources.push_back(it.res);
+
+        cudaStream_t display_stream = getDisplayStream();
+        cudaError_t me = cudaGraphicsMapResources(static_cast<int>(resources.size()), resources.data(), 0);
+        if (me == cudaSuccess) {
+            for (size_t i = 0; i < items.size(); ++i) {
+                const auto& it = items[i];
+                cudaArray_t array = nullptr;
+                cudaError_t ae = cudaGraphicsSubResourceGetMappedArray(&array, resources[i], 0, 0);
+                if (ae == cudaSuccess && array) {
+                    bool ok = launchNv12ToRgbaResizeToCudaArray(
+                        reinterpret_cast<const uint8_t*>(it.frame->gpu_ptr),
+                        it.frame->width, it.frame->height,
+                        array,
+                        it.target_w, it.target_h,
+                        true,
+                        display_stream
+                    );
+                    if (ok) {
+                        DxgiTexture& tex = textures_[it.region_id];
+                        tex.last_uploaded_ptr = it.src_ptr;
+                        tex.last_uploaded_pts = it.frame->pts;
+                    }
+                }
+            }
+            cudaGraphicsUnmapResources(static_cast<int>(resources.size()), resources.data(), 0);
+        } else {
+            LOG_WARNING("DXGI zero-copy batch map failed, fallback to CPU path");
+        }
+    }
+
+    // 对仍未上传的帧走 CPU fallback（禁用单个 zero-copy，避免重复 map/unmap）
+    for (const auto& rf : region_frames) {
+        const int region_id = rf.first;
+        const auto& gpu_frame = rf.second;
+        if (!gpu_frame || !gpu_frame->gpu_ptr) continue;
+        if (region_id < 0 || region_id >= static_cast<int>(textures_.size())) continue;
+        DxgiTexture& tex = textures_[region_id];
+        const uintptr_t src_ptr = reinterpret_cast<uintptr_t>(gpu_frame->gpu_ptr);
+        if (tex.last_uploaded_ptr == src_ptr && tex.last_uploaded_pts == gpu_frame->pts) continue;
+        (void)updateTextureFromGpu(region_id, gpu_frame, false);
+    }
 }
 
 void DxgiDisplay::renderTexture(int region_id, int x, int y, int width, int height) {

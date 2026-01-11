@@ -1,4 +1,13 @@
+/**
+ * @file VideoStitcher.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 视频拼接器实现（多路 GPU 帧合成）
+ * @see VideoStitcher.h
+ */
+
 #include "VideoStitcher.h"
+#include "CudaStreamManager.h"
 #include "Logger.h"
 #include <chrono>
 #include <sstream>
@@ -217,10 +226,17 @@ bool VideoStitcher::processStitching() {
         cuda_input_frames.push_back(cuda_frame);
     }
 
+    // 异步管道：等待解码完成后再开始拼接
+    auto& stream_mgr = CudaStreamManager::getInstance();
+    stream_mgr.waitForDecode(stream_mgr.getStitchStream());
+
     if (cuda_stitcher_->stitchFrames(cuda_input_frames, output_frame)) {
+        // 记录拼接完成事件（供 encoder/display 等待）
+        stream_mgr.recordStitchComplete();
+
         LOG_DEBUG("CUDA stitching completed successfully");
 
-        // 轻量自检：抽样读取输出Y平面前64字节，判断是否仍为全黑（避免长期“黑屏”不知原因）
+        // 轻量自检：抽样读取输出Y平面前64字节，判断是否仍为全黑（避免长期"黑屏"不知原因）
         static uint64_t sample_counter = 0;
         sample_counter++;
         if ((sample_counter % 60) == 0) { // 每60帧抽样一次

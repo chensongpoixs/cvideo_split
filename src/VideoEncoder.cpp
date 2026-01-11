@@ -1,4 +1,13 @@
+/**
+ * @file VideoEncoder.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 视频编码器实现（NVENC/libx264 编码 + RTSP 推流）
+ * @see VideoEncoder.h
+ */
+
 #include "VideoEncoder.h"
+#include "CudaStreamManager.h"
 #include "Logger.h"
 #include <iostream>
 #include <chrono>
@@ -390,11 +399,18 @@ bool VideoEncoder::processGpuQueue() {
     LOG_DEBUG("Processing GPU frame for encoding: " + std::to_string(gpu_frame->width) + "x" +
              std::to_string(gpu_frame->height) + ", PTS: " + std::to_string(gpu_frame->pts));
 
+    // 异步管道：等待拼接完成后再开始编码（确保 GPU 数据已就绪）
+    auto& stream_mgr = CudaStreamManager::getInstance();
+    stream_mgr.waitForStitch(stream_mgr.getEncodeStream());
+
     // 编码GPU帧
     LOG_DEBUG("Starting to encode GPU frame: " + std::to_string(gpu_frame->width) + "x" + std::to_string(gpu_frame->height));
 
     EncodedPacket packet;
     if (encodeGpuFrame(gpu_frame, packet)) {
+        // 记录编码完成事件
+        stream_mgr.recordEncodeComplete();
+
         LOG_DEBUG("GPU frame encoded successfully, packet size: " + std::to_string(packet.size) + " bytes");
 
         // 写入编码包
@@ -526,45 +542,94 @@ AVFrame* VideoEncoder::createFrameFromGpuDirect(std::shared_ptr<GpuFrame> gpu_fr
         return nullptr;
     }
 
+    // 复用或初始化硬件帧池（只在分辨率变化时重建）
+    if (!hw_frames_ctx_pool_ ||
+        hw_frames_width_ != gpu_frame->width ||
+        hw_frames_height_ != gpu_frame->height) {
+        
+        if (hw_frames_ctx_pool_) {
+            av_buffer_unref(&hw_frames_ctx_pool_);
+            hw_frames_ctx_pool_ = nullptr;
+        }
+
+        hw_frames_ctx_pool_ = av_hwframe_ctx_alloc(hw_device_ctx_);
+        if (!hw_frames_ctx_pool_) {
+            LOG_ERROR("Failed to allocate hardware frame context pool");
+            return nullptr;
+        }
+
+        AVHWFramesContext* frames_ctx = reinterpret_cast<AVHWFramesContext*>(hw_frames_ctx_pool_->data);
+        frames_ctx->format = AV_PIX_FMT_CUDA;
+        frames_ctx->sw_format = AV_PIX_FMT_NV12;
+        frames_ctx->width = gpu_frame->width;
+        frames_ctx->height = gpu_frame->height;
+        frames_ctx->initial_pool_size = 4;  // 保持少量帧池
+
+        int ret = av_hwframe_ctx_init(hw_frames_ctx_pool_);
+        if (ret < 0) {
+            LOG_ERROR("Failed to initialize hardware frame context pool, error code: " + std::to_string(ret));
+            av_buffer_unref(&hw_frames_ctx_pool_);
+            hw_frames_ctx_pool_ = nullptr;
+            return nullptr;
+        }
+
+        hw_frames_width_ = gpu_frame->width;
+        hw_frames_height_ = gpu_frame->height;
+        LOG_INFO("Created NVENC hw_frames_ctx pool: " + std::to_string(hw_frames_width_) + "x" + std::to_string(hw_frames_height_));
+    }
+
+    // 分配硬件帧（从池中获取 CUDA surface）
     AVFrame* frame = av_frame_alloc();
     if (!frame) {
         LOG_ERROR("Failed to allocate AVFrame for direct GPU encoding");
         return nullptr;
     }
 
-    // 设置为CUDA像素格式
-    frame->format = AV_PIX_FMT_CUDA;
+    int ret = av_hwframe_get_buffer(hw_frames_ctx_pool_, frame, 0);
+    if (ret < 0) {
+        LOG_ERROR("av_hwframe_get_buffer failed, error code: " + std::to_string(ret));
+        av_frame_free(&frame);
+        return nullptr;
+    }
+
     frame->width = gpu_frame->width;
     frame->height = gpu_frame->height;
 
-    // 为CUDA硬件帧分配缓冲区
-    frame->hw_frames_ctx = av_hwframe_ctx_alloc(hw_device_ctx_);
-    if (!frame->hw_frames_ctx) {
-        LOG_ERROR("Failed to allocate hardware frame context");
+    // GPU → GPU 拷贝：把我们的 NV12 数据拷贝到 FFmpeg 分配的 CUDA surface
+    // frame->data[0] 是 FFmpeg 分配的 CUDA 指针，linesize[0] 是 pitch
+    const size_t y_size = static_cast<size_t>(gpu_frame->width) * gpu_frame->height;
+    const size_t uv_size = y_size / 2;
+    const uint8_t* src_y = reinterpret_cast<const uint8_t*>(gpu_frame->gpu_ptr);
+    const uint8_t* src_uv = src_y + y_size;
+
+    // Y plane: 使用 cudaMemcpy2D 处理 pitch 差异
+    cudaError_t e1 = cudaMemcpy2D(
+        frame->data[0], frame->linesize[0],  // dst, dst_pitch
+        src_y, gpu_frame->width,             // src, src_pitch (我们的是紧密的)
+        gpu_frame->width, gpu_frame->height, // width, height
+        cudaMemcpyDeviceToDevice
+    );
+    if (e1 != cudaSuccess) {
+        LOG_ERROR("NVENC GPU copy Y plane failed: " + std::string(cudaGetErrorString(e1)));
         av_frame_free(&frame);
         return nullptr;
     }
 
-    AVHWFramesContext* hw_frames_ctx = (AVHWFramesContext*)frame->hw_frames_ctx->data;
-    hw_frames_ctx->format = AV_PIX_FMT_CUDA;
-    hw_frames_ctx->sw_format = AV_PIX_FMT_NV12;
-    hw_frames_ctx->width = gpu_frame->width;
-    hw_frames_ctx->height = gpu_frame->height;
-
-    int ret = av_hwframe_ctx_init(frame->hw_frames_ctx);
-    if (ret < 0) {
-        LOG_ERROR("Failed to initialize hardware frame context, error code: " + std::to_string(ret));
+    // UV plane: NV12 的 UV 交错在一起，高度是 height/2
+    cudaError_t e2 = cudaMemcpy2D(
+        frame->data[1], frame->linesize[1],  // dst, dst_pitch
+        src_uv, gpu_frame->width,            // src, src_pitch
+        gpu_frame->width, gpu_frame->height / 2,
+        cudaMemcpyDeviceToDevice
+    );
+    if (e2 != cudaSuccess) {
+        LOG_ERROR("NVENC GPU copy UV plane failed: " + std::string(cudaGetErrorString(e2)));
         av_frame_free(&frame);
         return nullptr;
     }
 
-    // 直接设置GPU内存指针到帧数据
-    frame->data[0] = reinterpret_cast<uint8_t*>(gpu_frame->gpu_ptr);
-    frame->linesize[0] = gpu_frame->width;  // 对于NV12，Y分量的行大小
-
-    LOG_DEBUG("Created AVFrame for direct GPU encoding: " +
-             std::to_string(gpu_frame->width) + "x" + std::to_string(gpu_frame->height) +
-             ", GPU ptr: " + std::to_string(reinterpret_cast<uintptr_t>(gpu_frame->gpu_ptr)));
+    LOG_DEBUG("Created AVFrame for NVENC GPU encoding (GPU→GPU copy): " +
+             std::to_string(gpu_frame->width) + "x" + std::to_string(gpu_frame->height));
 
     return frame;
 }
@@ -573,6 +638,13 @@ void VideoEncoder::cleanup() {
     if (codec_ctx_) {
         avcodec_free_context(&codec_ctx_);
         codec_ctx_ = nullptr;
+    }
+
+    if (hw_frames_ctx_pool_) {
+        av_buffer_unref(&hw_frames_ctx_pool_);
+        hw_frames_ctx_pool_ = nullptr;
+        hw_frames_width_ = 0;
+        hw_frames_height_ = 0;
     }
 
     if (hw_device_ctx_) {

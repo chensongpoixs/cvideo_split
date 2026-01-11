@@ -1,3 +1,11 @@
+/**
+ * @file OpenGLDisplay.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief Linux OpenGL 视频显示实现
+ * @see OpenGLDisplay.h
+ */
+
 #ifdef __linux__
 
 #include "OpenGLDisplay.h"

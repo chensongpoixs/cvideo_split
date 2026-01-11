@@ -1,3 +1,11 @@
+/**
+ * @file OSDOverlay.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief OSD 文字叠加模块实现（FFmpeg libavfilter）
+ * @see OSDOverlay.h
+ */
+
 #include "OSDOverlay.h"
 #include "Logger.h"
 #include <iostream>

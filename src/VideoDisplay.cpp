@@ -1,3 +1,12 @@
+/**
+ * @file VideoDisplay.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 视频显示器实现（历史遗留模块）
+ * @see VideoDisplay.h
+ * @deprecated 建议使用 PlatformDisplay 系统替代
+ */
+
 #include "VideoDisplay.h"
 #include "Logger.h"
 

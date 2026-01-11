@@ -1,3 +1,11 @@
+/**
+ * @file VideoStreamPuller.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief RTSP 视频流拉取器实现（自动重连机制）
+ * @see VideoStreamPuller.h
+ */
+
 #include "VideoStreamPuller.h"
 #include "Logger.h"
 #include <iostream>

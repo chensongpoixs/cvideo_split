@@ -1,3 +1,11 @@
+/**
+ * @file Config.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 系统配置管理实现（命令行参数解析）
+ * @see Config.h
+ */
+
 #include "Config.h"
 #include <iostream>
 #include <cstring>

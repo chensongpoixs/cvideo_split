@@ -1,21 +1,30 @@
+/**
+ * @file GpuMemoryManager.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief GPU 内存管理器实现
+ * @see GpuMemoryManager.h
+ */
+
 #include "GpuMemoryManager.h"
 #include "Logger.h"
 #include <cstring>
+#include <string>
+#include <chrono>
+#include <thread>
 
 bool GpuMemoryManager::initialize() {
-    LOG_INFO("Initializing GPU Memory Manager");
+    LOG_INFO("Initializing GPU Memory Manager with Ring Buffer");
 
-    // 初始化帧队列
-    frame_queues_.resize(MAX_STREAMS);
-    queue_mutexes_.reserve(MAX_STREAMS);
-    queue_cvs_.reserve(MAX_STREAMS);
-
+    // 初始化环形缓冲区
+    frame_ring_buffers_.reserve(MAX_STREAMS);
     for (int i = 0; i < MAX_STREAMS; ++i) {
-        queue_mutexes_.push_back(std::make_unique<std::mutex>());
-        queue_cvs_.push_back(std::make_unique<std::condition_variable>());
+        frame_ring_buffers_.push_back(std::make_unique<FrameRingBuffer>());
     }
 
-    LOG_INFO("GPU Memory Manager initialized successfully");
+    LOG_INFO("GPU Memory Manager initialized successfully with " + 
+             std::to_string(MAX_STREAMS) + " ring buffers, capacity: " + 
+             std::to_string(RING_BUFFER_CAPACITY - 1) + " frames each");
     return true;
 }
 
@@ -169,65 +178,79 @@ void GpuMemoryManager::setFrameReady(std::shared_ptr<GpuFrame> frame, bool ready
 }
 
 bool GpuMemoryManager::pushFrameToQueue(int stream_id, std::shared_ptr<GpuFrame> frame) {
-    // 将-1映射到输出队列（索引16）
-    int array_index = (stream_id == -1) ? 16 : stream_id;
-    if ((stream_id < 0 && stream_id != -1) || array_index >= MAX_STREAMS || !frame) {
+    int array_index = mapStreamIdToIndex(stream_id);
+    if (array_index < 0 || array_index >= MAX_STREAMS || !frame) {
         LOG_ERROR("Invalid stream ID or frame for queue push: " + std::to_string(stream_id));
         return false;
     }
 
-    {
-        std::unique_lock<std::mutex> lock(*queue_mutexes_[array_index]);
-
-        // 限制队列大小
-        if (frame_queues_[array_index].size() >= MAX_FRAMES_PER_STREAM) {
-            LOG_WARNING("Frame queue full for stream " + std::to_string(stream_id) + ", dropping oldest frame");
-            auto old_frame = frame_queues_[array_index].front();
-            frame_queues_[array_index].pop();
+    // 尝试推入环形缓冲区（非阻塞）
+    if (!frame_ring_buffers_[array_index]->push(std::move(frame), false)) {
+        // 缓冲区已满，弹出最老的帧再推入
+        LOG_WARNING("Ring buffer full for stream " + std::to_string(stream_id) + ", dropping oldest frame");
+        std::shared_ptr<GpuFrame> old_frame;
+        if (frame_ring_buffers_[array_index]->pop(old_frame, false)) {
             freeFrame(old_frame);
         }
-
-        frame_queues_[array_index].push(frame);
-        LOG_DEBUG("Frame pushed to queue for stream " + std::to_string(stream_id) +
-                  ", queue size: " + std::to_string(frame_queues_[array_index].size()));
+        // 再次尝试推入
+        if (!frame_ring_buffers_[array_index]->push(std::move(frame), false)) {
+            LOG_ERROR("Failed to push frame to ring buffer after drop");
+            return false;
+        }
     }
 
-    queue_cvs_[array_index]->notify_one();
+    LOG_DEBUG("Frame pushed to ring buffer for stream " + std::to_string(stream_id) +
+              ", buffer size: " + std::to_string(frame_ring_buffers_[array_index]->size()));
     return true;
 }
 
 std::shared_ptr<GpuFrame> GpuMemoryManager::popFrameFromQueue(int stream_id) {
-    // 将-1映射到输出队列（索引16）
-    int array_index = (stream_id == -1) ? 16 : stream_id;
-    if ((stream_id < 0 && stream_id != -1) || array_index >= MAX_STREAMS) {
+    int array_index = mapStreamIdToIndex(stream_id);
+    if (array_index < 0 || array_index >= MAX_STREAMS) {
         LOG_ERROR("Invalid stream ID for queue pop: " + std::to_string(stream_id));
         return nullptr;
     }
 
-    std::unique_lock<std::mutex> lock(*queue_mutexes_[array_index]);
-
-    if (frame_queues_[array_index].empty()) {
-        return nullptr;
+    std::shared_ptr<GpuFrame> frame;
+    if (!frame_ring_buffers_[array_index]->pop(frame, false)) {
+        return nullptr; // 缓冲区为空
     }
 
-    auto frame = frame_queues_[array_index].front();
-    frame_queues_[array_index].pop();
-
-    LOG_DEBUG("Frame popped from queue for stream " + std::to_string(stream_id) +
-              ", remaining queue size: " + std::to_string(frame_queues_[array_index].size()));
+    LOG_DEBUG("Frame popped from ring buffer for stream " + std::to_string(stream_id) +
+              ", remaining buffer size: " + std::to_string(frame_ring_buffers_[array_index]->size()));
 
     return frame;
 }
 
 bool GpuMemoryManager::isQueueEmpty(int stream_id) {
-    // 将-1映射到输出队列（索引16）
-    int array_index = (stream_id == -1) ? 16 : stream_id;
-    if ((stream_id < 0 && stream_id != -1) || array_index >= MAX_STREAMS) {
+    int array_index = mapStreamIdToIndex(stream_id);
+    if (array_index < 0 || array_index >= MAX_STREAMS) {
         return true;
     }
 
-    std::unique_lock<std::mutex> lock(*queue_mutexes_[array_index]);
-    return frame_queues_[array_index].empty();
+    return frame_ring_buffers_[array_index]->empty();
+}
+
+size_t GpuMemoryManager::getQueueSize(int stream_id) {
+    int array_index = mapStreamIdToIndex(stream_id);
+    if (array_index < 0 || array_index >= MAX_STREAMS) {
+        return 0;
+    }
+
+    return frame_ring_buffers_[array_index]->size();
+}
+
+std::string GpuMemoryManager::getBufferStats() {
+    std::string stats = "Ring Buffer Stats:\n";
+    for (int i = 0; i < MAX_STREAMS; ++i) {
+        size_t sz = frame_ring_buffers_[i]->size();
+        if (sz > 0 || i == MAX_INPUT_STREAMS) {
+            std::string label = (i == MAX_INPUT_STREAMS) ? "Output" : "Stream " + std::to_string(i);
+            stats += "  " + label + ": " + std::to_string(sz) + "/" + 
+                     std::to_string(RING_BUFFER_CAPACITY - 1) + "\n";
+        }
+    }
+    return stats;
 }
 
 std::shared_ptr<GpuFrame> GpuMemoryManager::createFrameFromPointer(void* gpu_ptr, cudaIpcMemHandle_t mem_handle, size_t size,
@@ -265,14 +288,18 @@ std::shared_ptr<GpuFrame> GpuMemoryManager::createFrameFromPointer(void* gpu_ptr
 void GpuMemoryManager::cleanup() {
     LOG_INFO("Cleaning up GPU Memory Manager");
 
-    // 清理所有队列：shared_ptr出队后由引用计数自动释放（若owns_memory=true）
+    // 清理所有环形缓冲区：shared_ptr 引用计数归零时自动释放 GPU 内存
     for (int i = 0; i < MAX_STREAMS; i++) {
-        std::unique_lock<std::mutex> lock(*queue_mutexes_[i]);
-        while (!frame_queues_[i].empty()) {
-            auto frame = frame_queues_[i].front();
-            frame_queues_[i].pop();
+        if (frame_ring_buffers_[i]) {
+            std::shared_ptr<GpuFrame> frame;
+            while (frame_ring_buffers_[i]->pop(frame, false)) {
+                // shared_ptr 离开作用域时自动释放
+            }
+            frame_ring_buffers_[i]->clear();
         }
     }
+
+    frame_ring_buffers_.clear();
 
     LOG_INFO("GPU Memory Manager cleanup completed");
 }

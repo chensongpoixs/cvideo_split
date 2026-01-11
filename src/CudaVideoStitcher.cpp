@@ -1,4 +1,13 @@
+/**
+ * @file CudaVideoStitcher.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief CUDA 视频拼接器实现（GPU Kernel 调用）
+ * @see CudaVideoStitcher.h
+ */
+
 #include "CudaVideoStitcher.h"
+#include "CudaStreamManager.h"
 #include "Logger.h"
 #include <iostream>
 #include <string>
@@ -34,12 +43,14 @@ bool CudaVideoStitcher::initialize(const StitchConfig& config) {
     // 初始化CUDA runtime（创建primary context等）
     (void)cudaFree(0);
 
-    // 创建CUDA流
-    err = cudaStreamCreate(&cuda_stream_);
-    if (err != cudaSuccess) {
-        std::cerr << "Failed to create CUDA stream: " << cudaGetErrorString(err) << std::endl;
+    // 使用统一的 CUDA Stream 管理器
+    auto& stream_mgr = CudaStreamManager::getInstance();
+    if (!stream_mgr.isInitialized()) {
+        LOG_ERROR("CudaStreamManager not initialized before CudaVideoStitcher");
         return false;
     }
+    cuda_stream_ = stream_mgr.getStitchStream();
+    LOG_INFO("CudaVideoStitcher using shared stitch stream from CudaStreamManager");
 
     // 分配输出缓冲区
     if (!allocateBuffers()) {
@@ -190,10 +201,8 @@ void CudaVideoStitcher::cleanup() {
 
     freeBuffers();
 
-    if (cuda_stream_) {
-        cudaStreamDestroy(cuda_stream_);
-        cuda_stream_ = nullptr;
-    }
+    // 注意：不再销毁 stream，由 CudaStreamManager 统一管理
+    cuda_stream_ = nullptr;
 
     initialized_ = false;
 }

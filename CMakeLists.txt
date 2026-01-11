@@ -178,6 +178,7 @@ set(SOURCES
     src/VideoStreamPuller.cpp
     src/HardwareDecoder.cpp
     src/CudaVideoStitcher.cpp
+    src/CudaStreamManager.cpp
     src/OSDOverlay.cpp
     src/VideoEncoder.cpp
     src/VideoDecoder.cpp
@@ -191,6 +192,7 @@ set(SOURCES
     include/VideoStreamPuller.h
     include/HardwareDecoder.h
     include/CudaVideoStitcher.h
+    include/CudaStreamManager.h
     include/OSDOverlay.h
     include/VideoEncoder.h
     include/VideoDecoder.h
@@ -204,6 +206,7 @@ set(SOURCES
 
 set(CUDA_SOURCES
     src/cuda/VideoStitchKernel.cu
+    src/cuda/Nv12ToRgbaKernel.cu
 )
 
 # CUDA编译 - 为Debug和Release模式分别设置运行时库

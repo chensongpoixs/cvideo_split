@@ -1,3 +1,11 @@
+/**
+ * @file HardwareDecoder.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief CUDA 硬件解码器实现（FFmpeg NVDEC 封装）
+ * @see HardwareDecoder.h
+ */
+
 #include "HardwareDecoder.h"
 #include "Logger.h"
 #include <iostream>

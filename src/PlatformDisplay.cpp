@@ -1,3 +1,11 @@
+/**
+ * @file PlatformDisplay.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 跨平台显示接口实现和工厂函数
+ * @see PlatformDisplay.h
+ */
+
 #include "PlatformDisplay.h"
 
 #ifdef _WIN32

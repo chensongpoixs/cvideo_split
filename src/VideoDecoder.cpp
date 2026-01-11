@@ -1,4 +1,13 @@
+/**
+ * @file VideoDecoder.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 视频解码器实现（RTSP 拉流 + NVDEC 硬件解码）
+ * @see VideoDecoder.h
+ */
+
 #include "VideoDecoder.h"
+#include "CudaStreamManager.h"
 #include "Logger.h"
 #include <chrono>
 
@@ -176,13 +185,17 @@ bool VideoDecoder::processPacket(AVPacket* packet) {
                             ", width=" + std::to_string(decoded_frame.width));
             }
 
-            // Y plane: height rows, width bytes per row
-            cudaError_t e1 = cudaMemcpy2D(dst_base, decoded_frame.width,
-                                          src_base, pitch_y,
-                                          decoded_frame.width, decoded_frame.height,
-                                          cudaMemcpyDeviceToDevice);
+            // 使用统一的 decode stream 进行异步拷贝（异步管道）
+            auto& stream_mgr = CudaStreamManager::getInstance();
+            cudaStream_t decode_stream = stream_mgr.getDecodeStream();
+
+            // Y plane: height rows, width bytes per row (异步)
+            cudaError_t e1 = cudaMemcpy2DAsync(dst_base, decoded_frame.width,
+                                               src_base, pitch_y,
+                                               decoded_frame.width, decoded_frame.height,
+                                               cudaMemcpyDeviceToDevice, decode_stream);
             if (e1 != cudaSuccess) {
-                LOG_ERROR("cudaMemcpy2D pack Y failed: " + std::string(cudaGetErrorString(e1)));
+                LOG_ERROR("cudaMemcpy2DAsync pack Y failed: " + std::string(cudaGetErrorString(e1)));
                 gpu_memory_manager_.freeFrame(gpu_frame);
                 if (decoded_frame.av_frame_ref) {
                     av_frame_free(&decoded_frame.av_frame_ref);
@@ -190,21 +203,28 @@ bool VideoDecoder::processPacket(AVPacket* packet) {
                 return false;
             }
 
-            // UV plane: height/2 rows, width bytes per row, src starts at base + pitch_y*height
+            // UV plane: height/2 rows, width bytes per row, src starts at base + pitch_y*height (异步)
             uint8_t* src_uv = src_base + static_cast<size_t>(pitch_y) * decoded_frame.height;
             uint8_t* dst_uv = dst_base + static_cast<size_t>(decoded_frame.width) * decoded_frame.height;
-            cudaError_t e2 = cudaMemcpy2D(dst_uv, decoded_frame.width,
-                                          src_uv, pitch_uv,
-                                          decoded_frame.width, decoded_frame.height / 2,
-                                          cudaMemcpyDeviceToDevice);
+            cudaError_t e2 = cudaMemcpy2DAsync(dst_uv, decoded_frame.width,
+                                               src_uv, pitch_uv,
+                                               decoded_frame.width, decoded_frame.height / 2,
+                                               cudaMemcpyDeviceToDevice, decode_stream);
             if (e2 != cudaSuccess) {
-                LOG_ERROR("cudaMemcpy2D pack UV failed: " + std::string(cudaGetErrorString(e2)));
+                LOG_ERROR("cudaMemcpy2DAsync pack UV failed: " + std::string(cudaGetErrorString(e2)));
                 gpu_memory_manager_.freeFrame(gpu_frame);
                 if (decoded_frame.av_frame_ref) {
                     av_frame_free(&decoded_frame.av_frame_ref);
                 }
                 return false;
             }
+
+            // 记录解码完成事件（供下游 stitch/display 等待）
+            stream_mgr.recordDecodeComplete();
+
+            // 同步以确保 FFmpeg surface 可以释放
+            // 注意：这里必须同步，因为 FFmpeg 的 surface 在 av_frame_free 后会被复用
+            cudaStreamSynchronize(decode_stream);
 
             gpu_frame->pts = decoded_frame.pts;
 

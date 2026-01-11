@@ -1,8 +1,76 @@
-﻿#include "Logger.h"
+﻿/**
+ * @file main.cpp
+ * @author chensong
+ * @date 2026-01-11
+ * @brief 多路视频拼接系统主程序（Multi-Stream Video Stitching System Main）
+ * 
+ * 该程序实现完整的多路 RTSP 视频流拼接系统，功能包括：
+ * - 多路 RTSP 流拉取和 NVDEC 硬件解码
+ * - CUDA GPU 视频拼接
+ * - NVENC 硬件编码和 RTSP 推流
+ * - 实时显示（Windows DXGI / Linux OpenGL）
+ * 
+ * 系统架构（System Architecture）：
+ * 
+ *   ┌─────────────────────────────────────────────────────────────────────────┐
+ *   │                     Multi-Stream Video Stitching System                 │
+ *   └─────────────────────────────────────────────────────────────────────────┘
+ *                                      │
+ *           ┌──────────────────────────┼──────────────────────────┐
+ *           │                          │                          │
+ *           ▼                          ▼                          ▼
+ *   ┌───────────────┐        ┌───────────────┐        ┌───────────────┐
+ *   │ VideoDecoder 0│        │ VideoDecoder 1│        │ VideoDecoder N│
+ *   │ (RTSP + NVDEC)│        │ (RTSP + NVDEC)│        │ (RTSP + NVDEC)│
+ *   └───────┬───────┘        └───────┬───────┘        └───────┬───────┘
+ *           │                        │                        │
+ *           └────────────────────────┼────────────────────────┘
+ *                                    │
+ *                                    ▼
+ *                          ┌───────────────────┐
+ *                          │   VideoStitcher   │
+ *                          │  (CUDA 拼接)      │
+ *                          └─────────┬─────────┘
+ *                                    │
+ *                  ┌─────────────────┼─────────────────┐
+ *                  │                 │                 │
+ *                  ▼                 ▼                 ▼
+ *         ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+ *         │PlatformDisplay│ │ VideoEncoder  │ │   OSD 叠加    │
+ *         │ (零拷贝显示)  │ │ (NVENC 推流)  │ │   (可选)     │
+ *         └───────────────┘ └───────────────┘ └───────────────┘
+ * 
+ * 数据流（Data Flow）：
+ * 
+ *   RTSP ─► NVDEC ─► GPU NV12 ─► GPU 拼接 ─► GPU NV12 ─┬─► NVENC ─► RTSP 输出
+ *                        │                             │
+ *                        ▼                             ▼
+ *                   [显示预览]                    [显示预览]
+ * 
+ * 线程模型（Threading Model）：
+ * 
+ *   Main Thread:     配置加载 → 初始化 → 显示渲染循环 → 清理
+ *   Decoder Thread:  拉流 → 解码 → 推入队列 (每路一个线程)
+ *   Stitch Thread:   从队列取帧 → 拼接 → 推入输出队列
+ *   Encoder Thread:  从输出队列取帧 → 编码 → 推流
+ * 
+ * 使用示例（Usage Example）：
+ * 
+ *   video_stitch_system --rtsp rtsp://cam1/stream --rtsp rtsp://cam2/stream \
+ *                       --output rtsp://server/live --width 1920 --height 1080
+ * 
+ * @see VideoDecoder    视频解码器
+ * @see VideoStitcher   视频拼接器
+ * @see VideoEncoder    视频编码器
+ * @see PlatformDisplay 平台显示器
+ */
+
+#include "Logger.h"
 #include "VideoDecoder.h"
 #include "VideoStitcher.h"
 #include "VideoEncoder.h"
 #include "GpuMemoryManager.h"
+#include "CudaStreamManager.h"
 #include "Config.h"
 #include "PlatformDisplay.h"
 
@@ -71,6 +139,13 @@ int main(int argc, char* argv[]) {
         LOG_INFO("Initializing GPU Memory Manager");
         if (!GpuMemoryManager::getInstance().initialize()) {
             LOG_ERROR("Failed to initialize GPU Memory Manager");
+            return -1;
+        }
+
+        // 初始化统一的 CUDA Stream 管理器
+        LOG_INFO("Initializing CUDA Stream Manager");
+        if (!CudaStreamManager::getInstance().initialize()) {
+            LOG_ERROR("Failed to initialize CUDA Stream Manager");
             return -1;
         }
 
